@@ -4,8 +4,8 @@ import * as path from 'path';
 
 function createWindow() {
   const win = new BrowserWindow({
-    width: 800,
-    height: 600,
+    width: 1920,
+    height: 1080,
     webPreferences: {
       nodeIntegration: true,
       contextIsolation: false,
