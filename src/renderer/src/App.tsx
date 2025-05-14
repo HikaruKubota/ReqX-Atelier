@@ -1,5 +1,5 @@
 // src/App.jsx
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback, useRef } from 'react';
 import { health, sendApiRequest } from './api';
 
 const METHODS = ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'HEAD', 'OPTIONS'];
@@ -30,32 +30,101 @@ export default function App() {
   const [savedRequests, setSavedRequests] = useState<SavedRequest[]>([]);
   const [activeRequestId, setActiveRequestId] = useState<string | null>(null);
 
+  // Refs for values needed in callbacks that should not cause re-binding of listeners
+  const requestNameForSaveRef = useRef(requestNameForSave);
+  const activeRequestIdRef = useRef(activeRequestId);
+  const methodRef = useRef(method);
+  const urlRef = useRef(url);
+  const requestBodyRef = useRef(requestBody);
+
+  // Update refs when their corresponding states change
+  useEffect(() => { requestNameForSaveRef.current = requestNameForSave; }, [requestNameForSave]);
+  useEffect(() => { activeRequestIdRef.current = activeRequestId; }, [activeRequestId]);
+  useEffect(() => { methodRef.current = method; }, [method]);
+  useEffect(() => { urlRef.current = url; }, [url]);
+  useEffect(() => { requestBodyRef.current = requestBody; }, [requestBody]);
+
+  // Core save logic, takes name as a parameter
+  const executeSaveRequest = useCallback(() => {
+    const nameToSave = requestNameForSaveRef.current.trim();
+    const currentActiveRequestId = activeRequestIdRef.current;
+    const currentMethod = methodRef.current;
+    const currentUrl = urlRef.current;
+    const currentRequestBody = requestBodyRef.current;
+
+    console.log('[executeSaveRequest] Called. Name:', nameToSave, 'Active ID:', currentActiveRequestId);
+    if (!nameToSave) {
+      alert('Please enter a name for the request before saving.');
+      console.log('[executeSaveRequest] Save aborted: name is empty.');
+      return;
+    }
+    if (currentActiveRequestId) {
+      console.log('[executeSaveRequest] Updating existing request ID:', currentActiveRequestId);
+      setSavedRequests((prevReqs) =>
+        prevReqs.map((req) =>
+          req.id === currentActiveRequestId ? { ...req, name: nameToSave, method: currentMethod, url: currentUrl, body: currentRequestBody } : req
+        )
+      );
+    } else {
+      const newId = Date.now().toString();
+      const newRequest: SavedRequest = {
+        id: newId, name: nameToSave, method: currentMethod, url: currentUrl, body: currentRequestBody,
+      };
+      console.log('[executeSaveRequest] Saving as new request:', newRequest);
+      setSavedRequests((prevReqs) => [...prevReqs, newRequest]);
+      setActiveRequestId(newId);
+      console.log('[executeSaveRequest] New activeRequestId set to:', newId);
+    }
+  }, [setSavedRequests, setActiveRequestId]); // Dependencies are only stable setters
+
+  // Handler for the Save Button
+  const handleSaveButtonClick = useCallback(() => {
+    executeSaveRequest(); // Name is now accessed via ref inside executeSaveRequest
+  }, [executeSaveRequest]);
+
+  // Handler for the Keyboard Shortcut
+  const handleKeyDown = useCallback((event: KeyboardEvent) => {
+    if ((event.metaKey || event.ctrlKey) && event.key === 's') {
+      event.preventDefault();
+      executeSaveRequest(); // Name is now accessed via ref inside executeSaveRequest
+    }
+  }, [executeSaveRequest]);
+
   useEffect(() => {
+    console.log('[useEffect InitialLoad & KeyListener] Mounting. Adding listener and loading from localStorage ONCE.');
     const fetchHealth = async () => {
-      try {
-        const res = await health();
-        setHealthStatus(res);
-      } catch (err) {
-        setHealthStatus('Error fetching health');
-        console.error(err);
-      }
+      try { const res = await health(); setHealthStatus(res); } catch (err) { setHealthStatus('Error fetching health'); console.error(err); }
     };
     fetchHealth();
-    // Load saved requests from localStorage on initial load
+
+    console.log('[useEffect InitialLoad & KeyListener] Attempting to load from localStorage.');
     try {
       const loadedRequests = localStorage.getItem('savedApiRequests');
+      console.log('[useEffect InitialLoad & KeyListener] Raw from localStorage:', loadedRequests);
       if (loadedRequests) {
-        setSavedRequests(JSON.parse(loadedRequests));
+        const parsedRequests = JSON.parse(loadedRequests);
+        console.log('[useEffect InitialLoad & KeyListener] Parsed from localStorage:', parsedRequests);
+        setSavedRequests(parsedRequests);
+      } else {
+        console.log('[useEffect InitialLoad & KeyListener] No saved requests in localStorage, current savedRequests state preserved (or default empty).');
       }
     } catch (e) {
-      console.error('Failed to load saved requests from localStorage:', e);
-      setSavedRequests([]); // Initialize with empty array on error
-      localStorage.removeItem('savedApiRequests'); // Optionally clear corrupted data
+      console.error('[useEffect InitialLoad & KeyListener] Failed to load/parse from localStorage:', e);
+      setSavedRequests([]);
+      localStorage.removeItem('savedApiRequests');
     }
-  }, []);
 
-  // Persist saved requests to localStorage whenever they change (optional persistence)
+    window.addEventListener('keydown', handleKeyDown);
+    console.log('[useEffect InitialLoad & KeyListener] Keydown listener added.');
+    return () => {
+      console.log('[useEffect InitialLoad & KeyListener] Cleanup: Unmounting. Keydown listener removed.');
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [handleKeyDown]); // Depends on handleKeyDown, which now only depends on executeSaveRequest (more stable)
+
+  // useEffect to log savedRequests changes and persist to localStorage
   useEffect(() => {
+    console.log('[useEffect Persist] savedRequests state changed to:', JSON.parse(JSON.stringify(savedRequests)));
     localStorage.setItem('savedApiRequests', JSON.stringify(savedRequests));
   }, [savedRequests]);
 
@@ -85,40 +154,9 @@ export default function App() {
     setError(null);
   };
 
-  const handleSaveRequest = () => {
-    console.log('handleSaveRequest called');
-    const nameToSave = requestNameForSave.trim(); // Use state for name
-    console.log('Name to save:', nameToSave);
-    if (!nameToSave) {
-      alert('Please enter a name for the request before saving.'); // Use alert for simple feedback
-      console.log('Request name is empty');
-      return;
-    }
-
-    if (activeRequestId) {
-      // Update existing request
-      setSavedRequests(
-        savedRequests.map((req) =>
-          req.id === activeRequestId ? { ...req, name: nameToSave, method, url, body: requestBody } : req
-        )
-      );
-    } else {
-      // Save as new request
-      const newRequest: SavedRequest = {
-        id: Date.now().toString(), // Simple unique ID
-        name: nameToSave,
-        method,
-        url,
-        body: requestBody,
-      };
-      setSavedRequests([...savedRequests, newRequest]);
-      setActiveRequestId(newRequest.id);
-    }
-  };
-
   const handleDeleteRequest = (idToDelete: string) => {
     if (confirm('Are you sure you want to delete this request?')) {
-      setSavedRequests(savedRequests.filter(req => req.id !== idToDelete));
+      setSavedRequests(prevReqs => prevReqs.filter(req => req.id !== idToDelete));
       if (activeRequestId === idToDelete) {
         handleNewRequest(); // Clear form if the active request was deleted
       }
@@ -198,7 +236,7 @@ export default function App() {
             onChange={(e) => setRequestNameForSave(e.target.value)}
             style={{flexGrow: 1, padding: '10px', fontSize: '1em', boxSizing: 'border-box'}}
           />
-          <button onClick={handleSaveRequest} style={{ padding: '10px 20px', fontSize: '1em', backgroundColor: '#007bff', color: 'white', border: 'none', borderRadius: '4px', flexShrink: 0 }}>
+          <button onClick={handleSaveButtonClick} style={{ padding: '10px 20px', fontSize: '1em', backgroundColor: '#007bff', color: 'white', border: 'none', borderRadius: '4px', flexShrink: 0 }}>
             {activeRequestId ? 'Update Request' : 'Save Request'}
           </button>
         </div>
