@@ -36,13 +36,22 @@ export default function App() {
 
     try {
       const result = await sendApiRequest(method, url, (method !== 'GET' && method !== 'HEAD') ? requestBody : undefined);
-      if (result.isError) {
+
+      if (result.isError) { // Network/setup error from main.js or pre-request error in api.ts
         setError(result);
-      } else {
+      } else if (result.status && result.status >= 200 && result.status < 300) { // Successful API response (2xx)
         setResponse(result);
+      } else { // API error (non-2xx status code)
+        setError({
+          message: `API Error: Request failed with status code ${result.status || 'unknown'}`,
+          status: result.status,
+          responseData: result.data, // The actual data from the error response
+          headers: result.headers,
+          isApiError: true // Custom flag to identify this type of error if needed later
+        });
       }
-    } catch (err: any) {
-      setError({ message: err.message, isError: true });
+    } catch (err: any) { // Catch errors from sendApiRequest (like JSON parse error in api.ts) or other unexpected issues
+      setError({ message: err.message, isError: true, type: 'ApplicationError' });
     }
     setLoading(false);
   };
@@ -85,9 +94,27 @@ export default function App() {
 
       <h2>Response</h2>
       {error && (
-        <pre style={{ backgroundColor: '#ffebee', color: '#c62828', padding: '10px', whiteSpace: 'pre-wrap', wordBreak: 'break-all' }}>
-          Error: {JSON.stringify(error, null, 2)}
-        </pre>
+        <div style={{
+          border: '2px solid #f44336', // Red border
+          backgroundColor: '#ffebee', // Light red background
+          padding: '15px',
+          margin: '10px 0',
+          borderRadius: '4px'
+        }}>
+          <h3 style={{ color: '#d32f2f', marginTop: 0 }}>Error Details:</h3>
+          {error.message && <p style={{ fontWeight: 'bold', color: '#c62828' }}>{error.message}</p>}
+          <pre style={{
+            backgroundColor: '#fce4ec', // Slightly different background for the pre block
+            color: '#ad1457',
+            padding: '10px',
+            whiteSpace: 'pre-wrap',
+            wordBreak: 'break-all',
+            marginTop: '10px',
+            borderRadius: '4px'
+          }}>
+            {JSON.stringify(error, null, 2)}
+          </pre>
+        </div>
       )}
       {response && (
         <pre style={{ backgroundColor: '#e8f5e9', padding: '10px', whiteSpace: 'pre-wrap', wordBreak: 'break-all' }}>
