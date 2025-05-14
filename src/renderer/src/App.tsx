@@ -5,6 +5,7 @@ import { useSavedRequests, SavedRequest } from './hooks/useSavedRequests'; // Im
 import { useRequestEditor } from './hooks/useRequestEditor'; // Import the new hook
 import { RequestCollectionSidebar } from './components/RequestCollectionSidebar'; // Import the new sidebar component
 import { RequestEditorPanel } from './components/RequestEditorPanel'; // Import the new editor panel component
+import { ResponseDisplayPanel } from './components/ResponseDisplayPanel'; // Import the new response panel component
 
 const METHODS = ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'HEAD', 'OPTIONS'];
 
@@ -186,30 +187,12 @@ export default function App() {
           onSendRequest={handleSendRequest}     // Pass memoized handler from App
         />
 
-        <h2>Response</h2>
-        {/* Error Display */}
-        {error && (
-          <div style={{
-            border: '2px solid #f44336',
-            backgroundColor: '#ffebee',
-            padding: '15px',
-            margin: '10px 0',
-            borderRadius: '4px'
-          }}>
-            <h3 style={{ color: '#d32f2f', marginTop: 0 }}>Error Details:</h3>
-            {error.message && <p style={{ fontWeight: 'bold', color: '#c62828' }}>{error.message}</p>}
-            <pre style={{ backgroundColor: '#fce4ec', color: '#ad1457', padding: '10px', whiteSpace: 'pre-wrap', wordBreak: 'break-all', marginTop: '10px', borderRadius: '4px' }}>
-              {JSON.stringify(error, null, 2)}
-            </pre>
-          </div>
-        )}
-        {/* Response Display */}
-        {response && (
-          <pre style={{ backgroundColor: '#e8f5e9', padding: '15px', whiteSpace: 'pre-wrap', wordBreak: 'break-all', borderRadius: '4px', border: '1px solid #c8e6c9' }}>
-            {JSON.stringify(response, null, 2)}
-          </pre>
-        )}
-        {!response && !error && !loading && <p style={{color: '#777'}}>No response yet. Send a request or load a saved one!</p>}
+        {/* Use the new ResponseDisplayPanel component */}
+        <ResponseDisplayPanel
+          response={response}
+          error={error}
+          loading={loading}
+        />
       </div>
     </div>
   );
