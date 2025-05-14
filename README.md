@@ -1,6 +1,6 @@
-# ReqX - API Request Tool
+# ReqX Atelier - API Request Tool
 
-ReqX is a simple API request tool, built with Electron and React.
+ReqX Atelier is a simple API request tool, built with Electron and React.
 
 ## Prerequisites
 
@@ -88,9 +88,9 @@ To build the application for Windows (`.exe` installer, etc.):
 
 ## 日本語 (Japanese Version)
 
-# ReqX - APIリクエストツール
+# ReqX Atelier - APIリクエストツール
 
-ReqXは、ElectronとReactで構築された。シンプルなAPIリクエストツールです。
+ReqX Atelierは、ElectronとReactで構築された。シンプルなAPIリクエストツールです。
 
 ## 前提条件
 

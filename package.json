@@ -1,7 +1,7 @@
 {
-  "name": "reqx",
+  "name": "reqx-atelier",
   "version": "1.0.0",
-  "description": "",
+  "description": "An API request tool, built with Electron and React.",
   "main": "main.js",
   "scripts": {
     "dev:renderer": "vite",
