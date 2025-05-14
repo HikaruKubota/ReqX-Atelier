@@ -29,4 +29,32 @@ ipcMain.handle('fetch-health', async () => {
   return res.data;
 });
 
+// Generic API request handler
+ipcMain.handle('send-api-request', async (_event, { method, url, data }) => {
+  try {
+    const response = await axios({
+      method: method,
+      url: url,
+      data: data,
+      validateStatus: () => true, // Acept all status codes, so we can see errors in the UI
+    });
+    return { status: response.status, headers: response.headers, data: response.data };
+  } catch (error) {
+    // Ensure errors are serializable for IPC
+    if (axios.isAxiosError(error)) {
+      return {
+        isError: true,
+        message: error.message,
+        code: error.code,
+        status: error.response?.status,
+        data: error.response?.data,
+      };
+    }
+    return {
+      isError: true,
+      message: error.message || 'An unknown error occurred',
+    };
+  }
+});
+
 app.whenReady().then(createWindow);
