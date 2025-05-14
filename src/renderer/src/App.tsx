@@ -1,173 +1,124 @@
 // src/App.jsx
-import { useEffect, useState, useCallback, useRef } from 'react';
-import { health, sendApiRequest } from './api';
+import { useEffect, useState, useCallback } from 'react';
+import { health, sendApiRequest } from './api'; // Corrected path
+import { useSavedRequests, SavedRequest } from './hooks/useSavedRequests'; // Import the custom hook and type
+import { useRequestEditor } from './hooks/useRequestEditor'; // Import the new hook
 
 const METHODS = ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'HEAD', 'OPTIONS'];
-
-interface SavedRequest {
-  id: string;
-  name: string;
-  method: string;
-  url: string;
-  body?: string;
-}
 
 export default function App() {
   const [healthStatus, setHealthStatus] = useState('');
 
-  // Current request form state
-  const [method, setMethod] = useState('GET');
-  const [url, setUrl] = useState('');
-  const [requestBody, setRequestBody] = useState('');
-  const [requestNameForSave, setRequestNameForSave] = useState(''); // New state for the request name
+  // Use the new custom hook for request editor state and logic
+  const {
+    method, setMethod, methodRef,
+    url, setUrl, urlRef,
+    requestBody, setRequestBody, requestBodyRef,
+    requestNameForSave, setRequestNameForSave, requestNameForSaveRef,
+    activeRequestId, setActiveRequestId, activeRequestIdRef,
+    loadRequest: loadRequestIntoEditor, // Renamed to avoid conflict if there was a local var named loadRequest
+    resetEditor
+  } = useRequestEditor();
 
-  // Response/Error state
+  // Response/Error state (remains in App.tsx as it's not part of editor state)
   const [response, setResponse] = useState<any>(null);
   const [error, setError] = useState<any>(null);
   const [loading, setLoading] = useState(false);
 
-  // Saved requests state
-  const [savedRequests, setSavedRequests] = useState<SavedRequest[]>([]);
-  const [activeRequestId, setActiveRequestId] = useState<string | null>(null);
+  // Saved requests state (from useSavedRequests hook)
+  const { savedRequests, addRequest, updateRequest, deleteRequest } = useSavedRequests();
 
-  // Refs for values needed in callbacks that should not cause re-binding of listeners
-  const requestNameForSaveRef = useRef(requestNameForSave);
-  const activeRequestIdRef = useRef(activeRequestId);
-  const methodRef = useRef(method);
-  const urlRef = useRef(url);
-  const requestBodyRef = useRef(requestBody);
-
-  // Update refs when their corresponding states change
-  useEffect(() => { requestNameForSaveRef.current = requestNameForSave; }, [requestNameForSave]);
-  useEffect(() => { activeRequestIdRef.current = activeRequestId; }, [activeRequestId]);
-  useEffect(() => { methodRef.current = method; }, [method]);
-  useEffect(() => { urlRef.current = url; }, [url]);
-  useEffect(() => { requestBodyRef.current = requestBody; }, [requestBody]);
-
-  // Core save logic, takes name as a parameter
   const executeSaveRequest = useCallback(() => {
-    const nameToSave = requestNameForSaveRef.current.trim();
-    const currentActiveRequestId = activeRequestIdRef.current;
-    const currentMethod = methodRef.current;
-    const currentUrl = urlRef.current;
-    const currentRequestBody = requestBodyRef.current;
+    const nameToSave = requestNameForSaveRef.current.trim(); // Use ref from hook
+    const currentMethod = methodRef.current; // Use ref from hook
+    const currentUrl = urlRef.current; // Use ref from hook
+    const currentRequestBody = requestBodyRef.current; // Use ref from hook
+    const currentActiveRequestId = activeRequestIdRef.current; // Use ref from hook
 
-    console.log('[executeSaveRequest] Called. Name:', nameToSave, 'Active ID:', currentActiveRequestId);
+    console.log('[App - executeSaveRequest] Called. Name:', nameToSave, 'Active ID:', currentActiveRequestId);
     if (!nameToSave) {
       alert('Please enter a name for the request before saving.');
-      console.log('[executeSaveRequest] Save aborted: name is empty.');
       return;
     }
-    if (currentActiveRequestId) {
-      console.log('[executeSaveRequest] Updating existing request ID:', currentActiveRequestId);
-      setSavedRequests((prevReqs) =>
-        prevReqs.map((req) =>
-          req.id === currentActiveRequestId ? { ...req, name: nameToSave, method: currentMethod, url: currentUrl, body: currentRequestBody } : req
-        )
-      );
-    } else {
-      const newId = Date.now().toString();
-      const newRequest: SavedRequest = {
-        id: newId, name: nameToSave, method: currentMethod, url: currentUrl, body: currentRequestBody,
-      };
-      console.log('[executeSaveRequest] Saving as new request:', newRequest);
-      setSavedRequests((prevReqs) => [...prevReqs, newRequest]);
-      setActiveRequestId(newId);
-      console.log('[executeSaveRequest] New activeRequestId set to:', newId);
-    }
-  }, [setSavedRequests, setActiveRequestId]); // Dependencies are only stable setters
 
-  // Handler for the Save Button
+    const requestDataToSave = {
+      name: nameToSave,
+      method: currentMethod,
+      url: currentUrl,
+      body: currentRequestBody,
+    };
+
+    if (currentActiveRequestId) {
+      console.log('[App - executeSaveRequest] Updating existing request ID:', currentActiveRequestId);
+      updateRequest(currentActiveRequestId, requestDataToSave);
+    } else {
+      console.log('[App - executeSaveRequest] Saving as new request:', requestDataToSave);
+      const newId = addRequest(requestDataToSave);
+      setActiveRequestId(newId); // Set the new ID as active (this comes from useRequestEditor)
+      console.log('[App - executeSaveRequest] New activeRequestId set to:', newId);
+    }
+    // Note: requestNameForSave (state) is already updated by its input's onChange.
+    // requestNameForSaveRef will be up-to-date.
+  }, [addRequest, updateRequest, setActiveRequestId, requestNameForSaveRef, methodRef, urlRef, requestBodyRef, activeRequestIdRef]);
+  // Dependencies: functions from hooks are stable. Refs are stable. setActiveRequestId is stable.
+
   const handleSaveButtonClick = useCallback(() => {
-    executeSaveRequest(); // Name is now accessed via ref inside executeSaveRequest
+    executeSaveRequest();
   }, [executeSaveRequest]);
 
-  // Handler for the Keyboard Shortcut
   const handleKeyDown = useCallback((event: KeyboardEvent) => {
     if ((event.metaKey || event.ctrlKey) && event.key === 's') {
       event.preventDefault();
-      executeSaveRequest(); // Name is now accessed via ref inside executeSaveRequest
+      executeSaveRequest();
     }
   }, [executeSaveRequest]);
 
+  // Initial load useEffect (health check, key listener setup)
   useEffect(() => {
-    console.log('[useEffect InitialLoad & KeyListener] Mounting. Adding listener and loading from localStorage ONCE.');
+    console.log('[App - useEffect InitialLoad] Mounting. Adding listener.');
     const fetchHealth = async () => {
       try { const res = await health(); setHealthStatus(res); } catch (err) { setHealthStatus('Error fetching health'); console.error(err); }
     };
     fetchHealth();
 
-    console.log('[useEffect InitialLoad & KeyListener] Attempting to load from localStorage.');
-    try {
-      const loadedRequests = localStorage.getItem('savedApiRequests');
-      console.log('[useEffect InitialLoad & KeyListener] Raw from localStorage:', loadedRequests);
-      if (loadedRequests) {
-        const parsedRequests = JSON.parse(loadedRequests);
-        console.log('[useEffect InitialLoad & KeyListener] Parsed from localStorage:', parsedRequests);
-        setSavedRequests(parsedRequests);
-      } else {
-        console.log('[useEffect InitialLoad & KeyListener] No saved requests in localStorage, current savedRequests state preserved (or default empty).');
-      }
-    } catch (e) {
-      console.error('[useEffect InitialLoad & KeyListener] Failed to load/parse from localStorage:', e);
-      setSavedRequests([]);
-      localStorage.removeItem('savedApiRequests');
-    }
-
     window.addEventListener('keydown', handleKeyDown);
-    console.log('[useEffect InitialLoad & KeyListener] Keydown listener added.');
+    console.log('[App - useEffect InitialLoad] Keydown listener added.');
     return () => {
-      console.log('[useEffect InitialLoad & KeyListener] Cleanup: Unmounting. Keydown listener removed.');
+      console.log('[App - useEffect InitialLoad] Cleanup: Keydown listener removed.');
       window.removeEventListener('keydown', handleKeyDown);
     };
-  }, [handleKeyDown]); // Depends on handleKeyDown, which now only depends on executeSaveRequest (more stable)
-
-  // useEffect to log savedRequests changes and persist to localStorage
-  useEffect(() => {
-    console.log('[useEffect Persist] savedRequests state changed to:', JSON.parse(JSON.stringify(savedRequests)));
-    localStorage.setItem('savedApiRequests', JSON.stringify(savedRequests));
-  }, [savedRequests]);
-
-  const clearForm = (clearActiveId = true) => {
-    setMethod('GET');
-    setUrl('');
-    setRequestBody('');
-    setRequestNameForSave(''); // Clear request name as well
-    setResponse(null);
-    setError(null);
-    if (clearActiveId) {
-      setActiveRequestId(null);
-    }
-  };
+  }, [handleKeyDown]);
 
   const handleNewRequest = () => {
-    clearForm();
+    resetEditor(); // Use resetEditor from the hook
+    setResponse(null); // Clear response/error state which is local to App.tsx
+    setError(null);
   };
 
   const handleLoadRequest = (req: SavedRequest) => {
-    setMethod(req.method);
-    setUrl(req.url);
-    setRequestBody(req.body || '');
-    setRequestNameForSave(req.name); // Load name into the input field
-    setActiveRequestId(req.id);
+    loadRequestIntoEditor(req); // Use loadRequest from the hook
     setResponse(null); // Clear previous response when loading a new request
     setError(null);
   };
 
-  const handleDeleteRequest = (idToDelete: string) => {
+  const handleDeleteRequest = useCallback((idToDelete: string) => {
     if (confirm('Are you sure you want to delete this request?')) {
-      setSavedRequests(prevReqs => prevReqs.filter(req => req.id !== idToDelete));
-      if (activeRequestId === idToDelete) {
-        handleNewRequest(); // Clear form if the active request was deleted
+      console.log('[App - handleDeleteRequest] Deleting request ID:', idToDelete);
+      deleteRequest(idToDelete);
+      if (activeRequestId === idToDelete) { // activeRequestId from useRequestEditor
+        resetEditor(); // Clear form if the active request was deleted
+        setResponse(null);
+        setError(null);
       }
     }
-  };
+  }, [deleteRequest, activeRequestId, resetEditor]); // Added activeRequestId & resetEditor from hook
 
   const handleSendRequest = async () => {
     setLoading(true);
     setError(null);
     setResponse(null);
     try {
+      // method, url, requestBody now come from useRequestEditor state
       const result = await sendApiRequest(method, url, (method !== 'GET' && method !== 'HEAD') ? requestBody : undefined);
       if (result.isError) {
         setError(result);
@@ -198,7 +149,7 @@ export default function App() {
         </button>
         <div style={{ flexGrow: 1, overflowY: 'auto' }}>
           {savedRequests.length === 0 && <p style={{color: '#777'}}>No requests saved yet.</p>}
-          {savedRequests.map((req) => (
+          {savedRequests.map((req: SavedRequest) => ( // Explicitly type req
             <div
               key={req.id}
               onClick={() => handleLoadRequest(req)}
@@ -206,7 +157,7 @@ export default function App() {
                 padding: '8px 10px',
                 margin: '5px 0',
                 cursor: 'pointer',
-                backgroundColor: activeRequestId === req.id ? '#e0e0e0' : '#fff',
+                backgroundColor: activeRequestId === req.id ? '#e0e0e0' : '#fff', // activeRequestId from hook
                 border: '1px solid #ddd',
                 borderRadius: '4px',
                 display: 'flex',
@@ -232,26 +183,26 @@ export default function App() {
           <input
             type="text"
             placeholder="Request Name (e.g., Get All Todos)"
-            value={requestNameForSave}
-            onChange={(e) => setRequestNameForSave(e.target.value)}
+            value={requestNameForSave} // From hook
+            onChange={(e) => setRequestNameForSave(e.target.value)} // From hook
             style={{flexGrow: 1, padding: '10px', fontSize: '1em', boxSizing: 'border-box'}}
           />
           <button onClick={handleSaveButtonClick} style={{ padding: '10px 20px', fontSize: '1em', backgroundColor: '#007bff', color: 'white', border: 'none', borderRadius: '4px', flexShrink: 0 }}>
-            {activeRequestId ? 'Update Request' : 'Save Request'}
+            {activeRequestId ? 'Update Request' : 'Save Request'} {/* activeRequestId from hook */}
           </button>
         </div>
 
         {/* Request Method and URL input row */}
         <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
-          <select value={method} onChange={(e) => setMethod(e.target.value)} style={{ padding: '10px', fontSize: '1em' }}>
+          <select value={method} onChange={(e) => setMethod(e.target.value)} style={{ padding: '10px', fontSize: '1em' }}> {/* method, setMethod from hook */}
             {METHODS.map((m) => (
               <option key={m} value={m}>{m}</option>
             ))}
           </select>
           <input
             type="text"
-            value={url}
-            onChange={(e) => setUrl(e.target.value)}
+            value={url} // From hook
+            onChange={(e) => setUrl(e.target.value)} // From hook
             placeholder="Enter request URL (e.g., http://localhost:3000/todos)"
             style={{ flexGrow: 1, padding: '10px', fontSize: '1em' }}
           />
@@ -268,12 +219,12 @@ export default function App() {
           <label htmlFor="requestBodyArea" style={{display: 'block', marginBottom: '5px', fontWeight:'bold'}}>Request Body (JSON):</label>
           <textarea
             id="requestBodyArea"
-            value={requestBody}
-            onChange={(e) => setRequestBody(e.target.value)}
-            placeholder={method === 'GET' || method === 'HEAD' ? 'Body not applicable for an HTTP GET or HEAD request' : 'Enter JSON body'}
+            value={requestBody} // From hook
+            onChange={(e) => setRequestBody(e.target.value)} // From hook
+            placeholder={method === 'GET' || method === 'HEAD' ? 'Body not applicable for an HTTP GET or HEAD request' : 'Enter JSON body'} // method from hook
             rows={10}
-            style={{ width: '100%', padding: '10px', boxSizing: 'border-box', fontSize: '1em', borderColor: (method === 'GET' || method === 'HEAD') ? '#eee' : '#ccc' }}
-            disabled={method === 'GET' || method === 'HEAD'}
+            style={{ width: '100%', padding: '10px', boxSizing: 'border-box', fontSize: '1em', borderColor: (method === 'GET' || method === 'HEAD') ? '#eee' : '#ccc' }} // method from hook
+            disabled={method === 'GET' || method === 'HEAD'} // method from hook
           />
         </div>
 
