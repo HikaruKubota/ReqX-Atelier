@@ -1,6 +1,6 @@
 // src/App.jsx
 import { useEffect, useState, useCallback } from 'react';
-import { health, sendApiRequest } from './api'; // Corrected path
+import { sendApiRequest } from './api'; // Corrected path
 import { useSavedRequests, SavedRequest } from './hooks/useSavedRequests'; // Import the custom hook and type
 import { useRequestEditor } from './hooks/useRequestEditor'; // Import the new hook
 import { RequestCollectionSidebar } from './components/RequestCollectionSidebar'; // Import the new sidebar component
@@ -10,8 +10,6 @@ import { ResponseDisplayPanel } from './components/ResponseDisplayPanel'; // Imp
 const METHODS = ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'HEAD', 'OPTIONS'];
 
 export default function App() {
-  const [healthStatus, setHealthStatus] = useState('');
-
   // Use the new custom hook for request editor state and logic
   const {
     method, setMethod, methodRef,
@@ -126,10 +124,6 @@ export default function App() {
   // Initial load useEffect (health check, key listener setup)
   useEffect(() => {
     console.log('[App - useEffect InitialLoad] Mounting. Adding listener.');
-    const fetchHealth = async () => {
-      try { const res = await health(); setHealthStatus(res); } catch (err) { setHealthStatus('Error fetching health'); console.error(err); }
-    };
-    fetchHealth();
 
     window.addEventListener('keydown', handleKeyDown);
     console.log('[App - useEffect InitialLoad] Keydown listener added.');
@@ -166,7 +160,6 @@ export default function App() {
         onNewRequest={handleNewRequest}
         onLoadRequest={handleLoadRequest} // Pass the original handleLoadRequest
         onDeleteRequest={handleDeleteRequest}
-        healthStatus={healthStatus}
       />
 
       {/* Right Main Area for Request Editing and Response */}

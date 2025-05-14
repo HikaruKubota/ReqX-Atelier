@@ -19,14 +19,4 @@ function createWindow() {
   }
 }
 
-// IPC handlers for API requests
-ipcMain.handle('fetch-todos', async () => {
-  const res = await axios.get('http://localhost:3000/todos');
-  return res.data;
-});
-ipcMain.handle('fetch-health', async () => {
-  const res = await axios.get('http://localhost:3000/health');
-  return res.data;
-});
-
 app.whenReady().then(createWindow);

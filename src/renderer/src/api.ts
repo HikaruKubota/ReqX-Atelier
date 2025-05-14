@@ -1,14 +1,6 @@
 // @ts-ignore
 const { ipcRenderer } = window.require('electron');
 
-export async function health() {
-  return await ipcRenderer.invoke('fetch-health');
-}
-
-export async function todos() { // この関数はApp.tsxではもう使われていませんが、サンプルとして残します
-  return await ipcRenderer.invoke('fetch-todos');
-}
-
 export async function sendApiRequest(method: string, url: string, body?: string) {
   let data = null;
   if (body) {

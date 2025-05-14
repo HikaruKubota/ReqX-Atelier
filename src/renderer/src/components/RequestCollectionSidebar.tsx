@@ -7,7 +7,6 @@ interface RequestCollectionSidebarProps {
   onNewRequest: () => void;
   onLoadRequest: (request: SavedRequest) => void;
   onDeleteRequest: (id: string) => void;
-  healthStatus: string;
 }
 
 export const RequestCollectionSidebar: React.FC<RequestCollectionSidebarProps> = ({
@@ -16,7 +15,6 @@ export const RequestCollectionSidebar: React.FC<RequestCollectionSidebarProps> =
   onNewRequest,
   onLoadRequest,
   onDeleteRequest,
-  healthStatus,
 }) => {
   return (
     <div style={{ width: '250px', borderRight: '1px solid #ccc', padding: '10px', display: 'flex', flexDirection: 'column', backgroundColor: '#f9f9f9', height: '100vh' }}>
@@ -50,7 +48,6 @@ export const RequestCollectionSidebar: React.FC<RequestCollectionSidebarProps> =
           </div>
         ))}
       </div>
-      <p style={{ fontSize: '0.8em', color: '#aaa', marginTop: '10px', flexShrink: 0 }}>Health: {healthStatus}</p>
     </div>
   );
 };
