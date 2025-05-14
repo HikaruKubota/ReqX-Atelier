@@ -7,8 +7,6 @@ import { RequestCollectionSidebar } from './components/RequestCollectionSidebar'
 import { RequestEditorPanel } from './components/RequestEditorPanel'; // Import the new editor panel component
 import { ResponseDisplayPanel } from './components/ResponseDisplayPanel'; // Import the new response panel component
 
-const METHODS = ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'HEAD', 'OPTIONS'];
-
 export default function App() {
   // Use the new custom hook for request editor state and logic
   const {
