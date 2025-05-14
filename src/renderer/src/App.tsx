@@ -4,6 +4,7 @@ import { health, sendApiRequest } from './api'; // Corrected path
 import { useSavedRequests, SavedRequest } from './hooks/useSavedRequests'; // Import the custom hook and type
 import { useRequestEditor } from './hooks/useRequestEditor'; // Import the new hook
 import { RequestCollectionSidebar } from './components/RequestCollectionSidebar'; // Import the new sidebar component
+import { RequestEditorPanel } from './components/RequestEditorPanel'; // Import the new editor panel component
 
 const METHODS = ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'HEAD', 'OPTIONS'];
 
@@ -169,55 +170,21 @@ export default function App() {
 
       {/* Right Main Area for Request Editing and Response */}
       <div style={{ flexGrow: 1, padding: '20px', display: 'flex', flexDirection: 'column', gap: '15px', overflowY: 'auto' }}>
-        {/* Request Name Input and Save Button */}
-        <div style={{display: 'flex', gap: '10px', alignItems: 'center'}}>
-          <input
-            type="text"
-            placeholder="Request Name (e.g., Get All Todos)"
-            value={requestNameForSave} // From hook
-            onChange={(e) => setRequestNameForSave(e.target.value)} // From hook
-            style={{flexGrow: 1, padding: '10px', fontSize: '1em', boxSizing: 'border-box'}}
-          />
-          <button onClick={handleSaveButtonClick} style={{ padding: '10px 20px', fontSize: '1em', backgroundColor: '#007bff', color: 'white', border: 'none', borderRadius: '4px', flexShrink: 0 }}>
-            {activeRequestId ? 'Update Request' : 'Save Request'} {/* activeRequestId from hook */}
-          </button>
-        </div>
-
-        {/* Request Method and URL input row */}
-        <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
-          <select value={method} onChange={(e) => setMethod(e.target.value)} style={{ padding: '10px', fontSize: '1em' }}> {/* method, setMethod from hook */}
-            {METHODS.map((m) => (
-              <option key={m} value={m}>{m}</option>
-            ))}
-          </select>
-          <input
-            type="text"
-            value={url} // From hook
-            onChange={(e) => setUrl(e.target.value)} // From hook
-            placeholder="Enter request URL (e.g., http://localhost:3000/todos)"
-            style={{ flexGrow: 1, padding: '10px', fontSize: '1em' }}
-          />
-        </div>
-
-        {/* Send Button - Placed on its own line for now, or can be moved next to URL if space allows */}
-        <div style={{display: 'flex'}}>
-          <button onClick={handleSendRequest} disabled={loading} style={{ padding: '10px 20px', fontSize: '1em', backgroundColor: '#4CAF50', color: 'white', border: 'none', borderRadius: '4px' }}>
-            {loading ? 'Sending...' : 'Send'}
-          </button>
-        </div>
-
-        <div>
-          <label htmlFor="requestBodyArea" style={{display: 'block', marginBottom: '5px', fontWeight:'bold'}}>Request Body (JSON):</label>
-          <textarea
-            id="requestBodyArea"
-            value={requestBody} // From hook
-            onChange={(e) => setRequestBody(e.target.value)} // From hook
-            placeholder={method === 'GET' || method === 'HEAD' ? 'Body not applicable for an HTTP GET or HEAD request' : 'Enter JSON body'} // method from hook
-            rows={10}
-            style={{ width: '100%', padding: '10px', boxSizing: 'border-box', fontSize: '1em', borderColor: (method === 'GET' || method === 'HEAD') ? '#eee' : '#ccc' }} // method from hook
-            disabled={method === 'GET' || method === 'HEAD'} // method from hook
-          />
-        </div>
+        {/* Use the new RequestEditorPanel component */}
+        <RequestEditorPanel
+          requestNameForSave={requestNameForSave}
+          onRequestNameForSaveChange={setRequestNameForSave} // Pass setter from useRequestEditor
+          method={method}
+          onMethodChange={setMethod} // Pass setter from useRequestEditor
+          url={url}
+          onUrlChange={setUrl} // Pass setter from useRequestEditor
+          requestBody={requestBody}
+          onRequestBodyChange={setRequestBody} // Pass setter from useRequestEditor
+          activeRequestId={activeRequestId}
+          loading={loading}
+          onSaveRequest={handleSaveButtonClick} // Pass memoized handler from App
+          onSendRequest={handleSendRequest}     // Pass memoized handler from App
+        />
 
         <h2>Response</h2>
         {/* Error Display */}
