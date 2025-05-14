@@ -1,7 +1,6 @@
-const { app, BrowserWindow } = require('electron');
+const { app, BrowserWindow, ipcMain } = require('electron');
+const axios = require('axios');
 const path = require('path');
-
-console.log('⚡️ Electron main process ready');
 
 function createWindow() {
   const win = new BrowserWindow({
@@ -10,7 +9,7 @@ function createWindow() {
     webPreferences: {
       nodeIntegration: true,
       contextIsolation: false,
-      webSecurity: false,  // CORS バイパス
+      webSecurity: false,
     },
   });
   if (process.env.NODE_ENV === 'development') {
@@ -19,5 +18,15 @@ function createWindow() {
     win.loadFile(path.join(__dirname, 'dist/index.html'));
   }
 }
+
+// IPC handlers for API requests
+ipcMain.handle('fetch-todos', async () => {
+  const res = await axios.get('http://localhost:3000/todos');
+  return res.data;
+});
+ipcMain.handle('fetch-health', async () => {
+  const res = await axios.get('http://localhost:3000/health');
+  return res.data;
+});
 
 app.whenReady().then(createWindow);
