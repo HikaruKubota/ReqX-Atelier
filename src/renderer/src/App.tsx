@@ -93,6 +93,13 @@ export default function App() {
     executeSaveRequest();
   }, [executeSaveRequest]);
 
+  // Memoize handleNewRequest
+  const handleNewRequest = useCallback(() => {
+    resetEditor(); // Use resetEditor from the hook
+    setResponse(null); // Clear response/error state which is local to App.tsx
+    setError(null);
+  }, [resetEditor, setResponse, setError]);
+
   const handleKeyDown = useCallback((event: KeyboardEvent) => {
     // Command/Ctrl + S for saving
     if ((event.metaKey || event.ctrlKey) && event.key === 's') {
@@ -105,7 +112,13 @@ export default function App() {
       event.preventDefault();
       handleSendRequest();
     }
-  }, [executeSaveRequest, handleSendRequest]);
+
+    // Command/Ctrl + N for new request
+    if ((event.metaKey || event.ctrlKey) && event.key === 'n') {
+      event.preventDefault();
+      handleNewRequest();
+    }
+  }, [executeSaveRequest, handleSendRequest, handleNewRequest]); // Added handleNewRequest
 
   // Initial load useEffect (health check, key listener setup)
   useEffect(() => {
@@ -122,12 +135,6 @@ export default function App() {
       window.removeEventListener('keydown', handleKeyDown);
     };
   }, [handleKeyDown]);
-
-  const handleNewRequest = () => {
-    resetEditor(); // Use resetEditor from the hook
-    setResponse(null); // Clear response/error state which is local to App.tsx
-    setError(null);
-  };
 
   const handleLoadRequest = (req: SavedRequest) => {
     loadRequestIntoEditor(req); // Use loadRequest from the hook
