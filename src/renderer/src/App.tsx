@@ -28,6 +28,33 @@ export default function App() {
   // Saved requests state (from useSavedRequests hook)
   const { savedRequests, addRequest, updateRequest, deleteRequest } = useSavedRequests();
 
+  // Memoize handleSendRequest with useCallback - MOVED UP before handleKeyDown
+  const handleSendRequest = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+    setResponse(null);
+    try {
+      // method, url, requestBody now come from useRequestEditor state
+      const result = await sendApiRequest(method, url, (method !== 'GET' && method !== 'HEAD') ? requestBody : undefined);
+      if (result.isError) {
+        setError(result);
+      } else if (result.status && result.status >= 200 && result.status < 300) {
+        setResponse(result);
+      } else {
+        setError({
+          message: `API Error: Request failed with status code ${result.status || 'unknown'}`,
+          status: result.status,
+          responseData: result.data,
+          headers: result.headers,
+          isApiError: true
+        });
+      }
+    } catch (err: any) {
+      setError({ message: err.message, isError: true, type: 'ApplicationError' });
+    }
+    setLoading(false);
+  }, [method, url, requestBody, setLoading, setError, setResponse]); // Add dependencies
+
   const executeSaveRequest = useCallback(() => {
     const nameToSave = requestNameForSaveRef.current.trim(); // Use ref from hook
     const currentMethod = methodRef.current; // Use ref from hook
@@ -67,11 +94,18 @@ export default function App() {
   }, [executeSaveRequest]);
 
   const handleKeyDown = useCallback((event: KeyboardEvent) => {
+    // Command/Ctrl + S for saving
     if ((event.metaKey || event.ctrlKey) && event.key === 's') {
       event.preventDefault();
       executeSaveRequest();
     }
-  }, [executeSaveRequest]);
+
+    // Command/Ctrl + Enter for sending request
+    if ((event.metaKey || event.ctrlKey) && event.key === 'Enter') {
+      event.preventDefault();
+      handleSendRequest();
+    }
+  }, [executeSaveRequest, handleSendRequest]);
 
   // Initial load useEffect (health check, key listener setup)
   useEffect(() => {
@@ -112,32 +146,6 @@ export default function App() {
       }
     }
   }, [deleteRequest, activeRequestId, resetEditor]); // Added activeRequestId & resetEditor from hook
-
-  const handleSendRequest = async () => {
-    setLoading(true);
-    setError(null);
-    setResponse(null);
-    try {
-      // method, url, requestBody now come from useRequestEditor state
-      const result = await sendApiRequest(method, url, (method !== 'GET' && method !== 'HEAD') ? requestBody : undefined);
-      if (result.isError) {
-        setError(result);
-      } else if (result.status && result.status >= 200 && result.status < 300) {
-        setResponse(result);
-      } else {
-        setError({
-          message: `API Error: Request failed with status code ${result.status || 'unknown'}`,
-          status: result.status,
-          responseData: result.data,
-          headers: result.headers,
-          isApiError: true
-        });
-      }
-    } catch (err: any) {
-      setError({ message: err.message, isError: true, type: 'ApplicationError' });
-    }
-    setLoading(false);
-  };
 
   return (
     <div style={{ display: 'flex', height: '100vh' }}>
