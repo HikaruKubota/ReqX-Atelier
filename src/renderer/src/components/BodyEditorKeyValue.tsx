@@ -4,6 +4,7 @@ interface KeyValuePair {
   id: string;
   keyName: string;
   value: string;
+  enabled: boolean;
 }
 
 export interface BodyEditorKeyValueRef {
@@ -33,9 +34,9 @@ export const BodyEditorKeyValue = forwardRef<BodyEditorKeyValueRef, BodyEditorKe
           id: `kv-${k}-${index}-${Date.now()}`,
           keyName: k,
           value: typeof v === 'string' ? v : JSON.stringify(v, null, 2),
+          enabled: true,
         }));
-        // Only update if significantly different to avoid loops if parent re-renders without actual data change
-        if (JSON.stringify(newPairs) !== JSON.stringify(bodyKeyValuePairs)) {
+        if (JSON.stringify(newPairs.map(p => ({...p, id: 'temp' }))) !== JSON.stringify(bodyKeyValuePairs.map(p => ({...p, id: 'temp' })))) {
             setBodyKeyValuePairs(newPairs);
         }
       } else if (initialBodyJsonString.trim() === '') {
@@ -57,7 +58,7 @@ export const BodyEditorKeyValue = forwardRef<BodyEditorKeyValueRef, BodyEditorKe
       }
       try {
         const jsonObject = bodyKeyValuePairs.reduce((obj, pair) => {
-          if (pair.keyName.trim() !== '') {
+          if (pair.enabled && pair.keyName.trim() !== '') {
             try {
               obj[pair.keyName] = JSON.parse(pair.value);
             } catch {
@@ -74,7 +75,7 @@ export const BodyEditorKeyValue = forwardRef<BodyEditorKeyValueRef, BodyEditorKe
     }
   }));
 
-  const handleKeyValuePairChange = (id: string, field: 'keyName' | 'value', newValue: string) => {
+  const handleKeyValuePairChange = (id: string, field: keyof Omit<KeyValuePair, 'id'>, newValue: string | boolean) => {
     setBodyKeyValuePairs(prevPairs =>
       prevPairs.map(pair =>
         pair.id === id ? { ...pair, [field]: newValue } : pair
@@ -83,7 +84,7 @@ export const BodyEditorKeyValue = forwardRef<BodyEditorKeyValueRef, BodyEditorKe
   };
 
   const handleAddKeyValuePair = () => {
-    setBodyKeyValuePairs(prev => [...prev, { id: `kv-new-${Date.now()}-${Math.random().toString(36).substring(2,9)}`, keyName: '', value: '' }]);
+    setBodyKeyValuePairs(prev => [...prev, { id: `kv-new-${Date.now()}-${Math.random().toString(36).substring(2,9)}`, keyName: '', value: '', enabled: true }]);
   };
 
   const handleRemoveKeyValuePair = (id: string) => {
@@ -99,13 +100,21 @@ export const BodyEditorKeyValue = forwardRef<BodyEditorKeyValueRef, BodyEditorKe
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
       {bodyKeyValuePairs.map((pair) => (
-        <div key={pair.id} style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+        <div key={pair.id} style={{ display: 'flex', gap: '5px', alignItems: 'center' }}>
+          <input
+            type="checkbox"
+            checked={pair.enabled}
+            onChange={(e) => handleKeyValuePairChange(pair.id, 'enabled', e.target.checked)}
+            title={pair.enabled ? "Disable this row" : "Enable this row"}
+            style={{ marginRight: '5px' }}
+          />
           <input
             type="text"
             placeholder="Key"
             value={pair.keyName}
             onChange={(e) => handleKeyValuePairChange(pair.id, 'keyName', e.target.value)}
             style={{ flexGrow: 1, padding: '8px', fontSize: '0.95em', boxSizing: 'border-box', border: '1px solid #ddd', borderRadius: '4px' }}
+            disabled={!pair.enabled}
           />
           <input
             type="text"
@@ -113,6 +122,7 @@ export const BodyEditorKeyValue = forwardRef<BodyEditorKeyValueRef, BodyEditorKe
             value={pair.value}
             onChange={(e) => handleKeyValuePairChange(pair.id, 'value', e.target.value)}
             style={{ flexGrow: 2, padding: '8px', fontSize: '0.95em', boxSizing: 'border-box', border: '1px solid #ddd', borderRadius: '4px' }}
+            disabled={!pair.enabled}
           />
           <button
             onClick={() => handleRemoveKeyValuePair(pair.id)}
