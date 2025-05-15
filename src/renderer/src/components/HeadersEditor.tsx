@@ -32,6 +32,7 @@ export const HeadersEditor: React.FC<HeadersEditorProps> = ({
             value={header.key}
             onChange={(e) => onUpdateHeader(header.id, 'key', e.target.value)}
             style={{ flex: 1, padding: '6px', border: '1px solid #ddd', borderRadius: '4px' }}
+            disabled={!header.enabled}
           />
           <input
             type="text"
@@ -39,6 +40,7 @@ export const HeadersEditor: React.FC<HeadersEditorProps> = ({
             value={header.value}
             onChange={(e) => onUpdateHeader(header.id, 'value', e.target.value)}
             style={{ flex: 2, padding: '6px', border: '1px solid #ddd', borderRadius: '4px' }}
+            disabled={!header.enabled}
           />
           <button
             onClick={() => onRemoveHeader(header.id)}
