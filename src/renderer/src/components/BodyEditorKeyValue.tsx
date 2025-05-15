@@ -1,4 +1,5 @@
-import { useState, useEffect, useImperativeHandle, forwardRef } from 'react';
+import * as React from 'react';
+import { useState, useEffect, useImperativeHandle, forwardRef, useCallback } from 'react';
 
 interface KeyValuePair {
   id: string;
@@ -36,7 +37,9 @@ export const BodyEditorKeyValue = forwardRef<BodyEditorKeyValueRef, BodyEditorKe
           value: typeof v === 'string' ? v : JSON.stringify(v, null, 2),
           enabled: true,
         }));
-        if (JSON.stringify(newPairs.map(p => ({...p, id: 'temp' }))) !== JSON.stringify(bodyKeyValuePairs.map(p => ({...p, id: 'temp' })))) {
+        const newPairsComparable = newPairs.map(({ id, ...rest }) => rest);
+        const currentPairsComparable = bodyKeyValuePairs.map(({ id, ...rest }) => rest);
+        if (JSON.stringify(newPairsComparable) !== JSON.stringify(currentPairsComparable)) {
             setBodyKeyValuePairs(newPairs);
         }
       } else if (initialBodyJsonString.trim() === '') {
@@ -44,11 +47,10 @@ export const BodyEditorKeyValue = forwardRef<BodyEditorKeyValueRef, BodyEditorKe
       }
     } catch (e) {
       if (initialBodyJsonString && initialBodyJsonString.trim() !== '') {
-        console.warn("BodyEditorKeyValue: Failed to parse initialBodyJsonString. It might not be a valid JSON object.", initialBodyJsonString);
+        // console.warn("BodyEditorKeyValue: Failed to parse initialBodyJsonString.", initialBodyJsonString);
       }
       setBodyKeyValuePairs([]);
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [initialBodyJsonString, method]);
 
   useImperativeHandle(ref, () => ({
@@ -69,27 +71,45 @@ export const BodyEditorKeyValue = forwardRef<BodyEditorKeyValueRef, BodyEditorKe
         }, {} as Record<string, any>);
         return Object.keys(jsonObject).length > 0 ? JSON.stringify(jsonObject, null, 2) : '';
       } catch (e) {
-        console.error("BodyEditorKeyValue: Error constructing JSON from K-V pairs:", e);
+        // console.error("BodyEditorKeyValue: Error constructing JSON from K-V pairs:", e);
         return '';
       }
     }
   }));
 
-  const handleKeyValuePairChange = (id: string, field: keyof Omit<KeyValuePair, 'id'>, newValue: string | boolean) => {
+  const handleKeyValuePairChange = useCallback((id: string, field: keyof Omit<KeyValuePair, 'id'>, newValue: string | boolean) => {
     setBodyKeyValuePairs(prevPairs =>
       prevPairs.map(pair =>
         pair.id === id ? { ...pair, [field]: newValue } : pair
       )
     );
-  };
+  }, []);
 
-  const handleAddKeyValuePair = () => {
-    setBodyKeyValuePairs(prev => [...prev, { id: `kv-new-${Date.now()}-${Math.random().toString(36).substring(2,9)}`, keyName: '', value: '', enabled: true }]);
-  };
+  const handleAddKeyValuePair = useCallback(() => {
+    const newPair = { id: `kv-new-${Date.now()}-${Math.random().toString(36).substring(2,9)}`, keyName: '', value: '', enabled: true };
+    setBodyKeyValuePairs(prev => [...prev, newPair]);
+  }, []);
 
-  const handleRemoveKeyValuePair = (id: string) => {
+  const handleRemoveKeyValuePair = useCallback((id: string) => {
     setBodyKeyValuePairs(prevPairs => prevPairs.filter(pair => pair.id !== id));
-  };
+  }, []);
+
+  const handleMoveKeyValuePair = useCallback((index: number, direction: 'up' | 'down') => {
+    setBodyKeyValuePairs(prevPairs => {
+      const newPairs = [...prevPairs];
+      if (newPairs.length === 0 || index < 0 || index >= newPairs.length) return newPairs;
+      const itemToMove = newPairs[index];
+
+      if (direction === 'up' && index > 0) {
+        newPairs.splice(index, 1);
+        newPairs.splice(index - 1, 0, itemToMove);
+      } else if (direction === 'down' && index < newPairs.length - 1) {
+        newPairs.splice(index, 1);
+        newPairs.splice(index + 1, 0, itemToMove);
+      }
+      return newPairs;
+    });
+  }, []);
 
   const isBodyApplicable = !(method === 'GET' || method === 'HEAD');
 
@@ -99,7 +119,7 @@ export const BodyEditorKeyValue = forwardRef<BodyEditorKeyValueRef, BodyEditorKe
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-      {bodyKeyValuePairs.map((pair) => (
+      {bodyKeyValuePairs.map((pair, index) => (
         <div key={pair.id} style={{ display: 'flex', gap: '5px', alignItems: 'center' }}>
           <input
             type="checkbox"
@@ -124,6 +144,22 @@ export const BodyEditorKeyValue = forwardRef<BodyEditorKeyValueRef, BodyEditorKe
             style={{ flexGrow: 2, padding: '8px', fontSize: '0.95em', boxSizing: 'border-box', border: '1px solid #ddd', borderRadius: '4px' }}
             disabled={!pair.enabled}
           />
+          <button
+            onClick={() => handleMoveKeyValuePair(index, 'up')}
+            disabled={index === 0}
+            style={{ padding: '6px', fontSize: '0.8em', cursor: 'pointer', border: '1px solid #ccc', backgroundColor: 'white'}}
+            title="Move Up"
+          >
+            ↑
+          </button>
+          <button
+            onClick={() => handleMoveKeyValuePair(index, 'down')}
+            disabled={index === bodyKeyValuePairs.length - 1}
+            style={{ padding: '6px', fontSize: '0.8em', cursor: 'pointer', border: '1px solid #ccc', backgroundColor: 'white'}}
+            title="Move Down"
+          >
+            ↓
+          </button>
           <button
             onClick={() => handleRemoveKeyValuePair(pair.id)}
             style={{ padding: '6px 10px', fontSize: '0.9em', backgroundColor: '#dc3545', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer' }}
