@@ -20,23 +20,14 @@ function createWindow() {
   }
 }
 
-// IPC handlers for API requests
-ipcMain.handle('fetch-todos', async () => {
-  const res = await axios.get('http://localhost:3000/todos');
-  return res.data;
-});
-ipcMain.handle('fetch-health', async () => {
-  const res = await axios.get('http://localhost:3000/health');
-  return res.data;
-});
-
 // Generic API request handler
-ipcMain.handle('send-api-request', async (_event, { method, url, data }) => {
+ipcMain.handle('send-api-request', async (_event, { method, url, data, headers }) => {
   try {
     const response = await axios({
       method: method,
       url: url,
       data: data,
+      headers: headers,
       validateStatus: () => true, // Acept all status codes, so we can see errors in the UI
     });
     return { status: response.status, headers: response.headers, data: response.data };
