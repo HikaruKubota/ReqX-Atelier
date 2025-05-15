@@ -1,5 +1,4 @@
-import { app, BrowserWindow, ipcMain } from 'electron';
-import axios from 'axios';
+import { app, BrowserWindow } from 'electron';
 import * as path from 'path';
 
 function createWindow() {

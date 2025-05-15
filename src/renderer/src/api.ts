@@ -1,4 +1,3 @@
-// @ts-ignore
 const { ipcRenderer } = window.require('electron');
 
 export async function sendApiRequest(method: string, url: string, body?: string) {
