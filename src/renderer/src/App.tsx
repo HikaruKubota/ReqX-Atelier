@@ -1,8 +1,8 @@
 // src/App.jsx
-import { useEffect, useState, useCallback, useRef } from 'react';
-import { sendApiRequest } from './api'; // Corrected path
+import { useEffect, useCallback, useRef } from 'react';
 import { useSavedRequests, SavedRequest } from './hooks/useSavedRequests'; // Import the custom hook and type
 import { useRequestEditor } from './hooks/useRequestEditor'; // Import the new hook
+import { useApiResponseHandler } from './hooks/useApiResponseHandler'; // Import the new API response handler hook
 import { RequestCollectionSidebar } from './components/RequestCollectionSidebar'; // Import the new sidebar component
 import { RequestEditorPanel, RequestEditorPanelRef } from './components/RequestEditorPanel'; // Import the new editor panel component and ref type
 import { ResponseDisplayPanel } from './components/ResponseDisplayPanel'; // Import the new response panel component
@@ -21,40 +21,17 @@ export default function App() {
     resetEditor
   } = useRequestEditor();
 
-  // Response/Error state (remains in App.tsx as it's not part of editor state)
-  const [response, setResponse] = useState<any>(null);
-  const [error, setError] = useState<any>(null);
-  const [loading, setLoading] = useState(false);
+  // Use the new API response handler hook
+  const { response, error, loading, executeRequest, resetApiResponse } = useApiResponseHandler();
 
   // Saved requests state (from useSavedRequests hook)
   const { savedRequests, addRequest, updateRequest, deleteRequest } = useSavedRequests();
 
-  // Memoize handleSendRequest with useCallback - MOVED UP before handleKeyDown
+  // Memoize handleSendRequest with useCallback
   const handleSendRequest = useCallback(async () => {
-    setLoading(true);
-    setError(null);
-    setResponse(null);
-    try {
-      const currentBuiltRequestBody = editorPanelRef.current?.getRequestBodyAsJson() || '';
-      const result = await sendApiRequest(method, url, (method !== 'GET' && method !== 'HEAD') ? currentBuiltRequestBody : undefined);
-      if (result.isError) {
-        setError(result);
-      } else if (result.status && result.status >= 200 && result.status < 300) {
-        setResponse(result);
-      } else {
-        setError({
-          message: `API Error: Request failed with status code ${result.status || 'unknown'}`,
-          status: result.status,
-          responseData: result.data,
-          headers: result.headers,
-          isApiError: true
-        });
-      }
-    } catch (err: any) {
-      setError({ message: err.message, isError: true, type: 'ApplicationError' });
-    }
-    setLoading(false);
-  }, [method, url, setLoading, setError, setResponse]);
+    const currentBuiltRequestBody = editorPanelRef.current?.getRequestBodyAsJson() || '';
+    await executeRequest(method, url, currentBuiltRequestBody);
+  }, [method, url, executeRequest]);
 
   const executeSaveRequest = useCallback(() => {
     const nameToSave = requestNameForSaveRef.current.trim();
@@ -97,9 +74,8 @@ export default function App() {
   const handleNewRequest = useCallback(() => {
     resetEditor();
     setRequestBody('');
-    setResponse(null);
-    setError(null);
-  }, [resetEditor, setRequestBody, setResponse, setError]);
+    resetApiResponse(); // Reset response/error/loading state
+  }, [resetEditor, setRequestBody, resetApiResponse]);
 
   const handleKeyDown = useCallback((event: KeyboardEvent) => {
     // Command/Ctrl + S for saving
@@ -135,8 +111,7 @@ export default function App() {
 
   const handleLoadRequest = (req: SavedRequest) => {
     loadRequestIntoEditor(req);
-    setResponse(null);
-    setError(null);
+    resetApiResponse(); // Reset response/error/loading state
   };
 
   const handleDeleteRequest = useCallback((idToDelete: string) => {
@@ -146,11 +121,10 @@ export default function App() {
       if (activeRequestId === idToDelete) { // activeRequestId from useRequestEditor
         resetEditor();
         setRequestBody('');
-        setResponse(null);
-        setError(null);
+        resetApiResponse(); // Reset response/error/loading state
       }
     }
-  }, [deleteRequest, activeRequestId, resetEditor, setRequestBody]); // Added activeRequestId & resetEditor from hook
+  }, [deleteRequest, activeRequestId, resetEditor, setRequestBody, resetApiResponse]); // Added resetApiResponse
 
   return (
     <div style={{ display: 'flex', height: '100vh' }}>
