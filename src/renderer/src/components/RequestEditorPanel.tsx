@@ -1,12 +1,13 @@
 import { useImperativeHandle, forwardRef, useRef } from 'react';
 import type { RequestHeader } from '../hooks/useRequestEditor';
 import { HeadersEditor } from './HeadersEditor';
-import { BodyEditorKeyValue, BodyEditorKeyValueRef } from './BodyEditorKeyValue';
+import { BodyEditorKeyValue, BodyEditorKeyValueRef, KeyValuePair } from './BodyEditorKeyValue';
 
 const METHODS = ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'HEAD', 'OPTIONS'];
 
 export interface RequestEditorPanelRef {
   getRequestBodyAsJson: () => string;
+  getRequestBodyKeyValuePairs: () => KeyValuePair[];
 }
 
 interface RequestEditorPanelProps {
@@ -16,7 +17,7 @@ interface RequestEditorPanelProps {
   onMethodChange: (method: string) => void;
   url: string;
   onUrlChange: (url: string) => void;
-  requestBody: string;
+  initialBodyKeyValuePairs?: KeyValuePair[];
   activeRequestId: string | null;
   loading: boolean;
   onSaveRequest: () => void;
@@ -28,7 +29,7 @@ interface RequestEditorPanelProps {
 }
 
 export const RequestEditorPanel = forwardRef<RequestEditorPanelRef, RequestEditorPanelProps>((
-  { requestNameForSave, onRequestNameForSaveChange, method, onMethodChange, url, onUrlChange, requestBody, activeRequestId, loading, onSaveRequest, onSendRequest, headers, onAddHeader, onUpdateHeader, onRemoveHeader },
+  { requestNameForSave, onRequestNameForSaveChange, method, onMethodChange, url, onUrlChange, initialBodyKeyValuePairs, activeRequestId, loading, onSaveRequest, onSendRequest, headers, onAddHeader, onUpdateHeader, onRemoveHeader },
   ref
 ) => {
   const bodyEditorRef = useRef<BodyEditorKeyValueRef>(null);
@@ -36,6 +37,9 @@ export const RequestEditorPanel = forwardRef<RequestEditorPanelRef, RequestEdito
   useImperativeHandle(ref, () => ({
     getRequestBodyAsJson: () => {
       return bodyEditorRef.current?.getCurrentBodyAsJson() || '';
+    },
+    getRequestBodyKeyValuePairs: () => {
+      return bodyEditorRef.current?.getCurrentKeyValuePairs() || [];
     }
   }));
 
@@ -83,7 +87,7 @@ export const RequestEditorPanel = forwardRef<RequestEditorPanelRef, RequestEdito
         <h4>Request Body</h4>
         <BodyEditorKeyValue
           ref={bodyEditorRef}
-          initialBodyJsonString={requestBody}
+          initialBodyKeyValuePairs={initialBodyKeyValuePairs}
           method={method}
         />
       </div>

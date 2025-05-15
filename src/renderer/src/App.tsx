@@ -6,6 +6,7 @@ import { useApiResponseHandler } from './hooks/useApiResponseHandler'; // Import
 import { RequestCollectionSidebar } from './components/RequestCollectionSidebar'; // Import the new sidebar component
 import { RequestEditorPanel, RequestEditorPanelRef } from './components/RequestEditorPanel'; // Import the new editor panel component and ref type
 import { ResponseDisplayPanel } from './components/ResponseDisplayPanel'; // Import the new response panel component
+import type { KeyValuePair } from './components/BodyEditorKeyValue'; // Import KeyValuePair for explicit typing if needed
 
 export default function App() {
   const editorPanelRef = useRef<RequestEditorPanelRef>(null); // Create a ref
@@ -14,7 +15,7 @@ export default function App() {
   const {
     method, setMethod, methodRef,
     url, setUrl, urlRef,
-    requestBody, setRequestBody, /* requestBodyRef, // requestBodyRef might be less relevant now if App.tsx doesn't directly manipulate body that often */
+    currentBodyKeyValuePairs, // Get the new state for KV pairs
     requestNameForSave, setRequestNameForSave, requestNameForSaveRef,
     activeRequestId, setActiveRequestId, activeRequestIdRef,
     headers, setHeaders, headersRef, // Destructure headers state and functions
@@ -45,9 +46,9 @@ export default function App() {
     const nameToSave = requestNameForSaveRef.current.trim();
     const currentMethod = methodRef.current;
     const currentUrl = urlRef.current;
-    const currentBuiltRequestBody = editorPanelRef.current?.getRequestBodyAsJson() || '';
+    const currentBodyKeyValuePairsFromEditor = editorPanelRef.current?.getRequestBodyKeyValuePairs() || []; // New way
     const currentActiveRequestId = activeRequestIdRef.current;
-    const currentHeaders = headersRef.current; // Get current headers
+    const currentHeaders = headersRef.current;
 
     console.log('[App - executeSaveRequest] Called. Name:', nameToSave, 'Active ID:', currentActiveRequestId);
     if (!nameToSave) {
@@ -59,8 +60,8 @@ export default function App() {
       name: nameToSave,
       method: currentMethod,
       url: currentUrl,
-      body: currentBuiltRequestBody,
-      headers: currentHeaders, // Save headers
+      headers: currentHeaders,
+      bodyKeyValuePairs: currentBodyKeyValuePairsFromEditor,
     };
 
     if (currentActiveRequestId) {
@@ -68,12 +69,11 @@ export default function App() {
       updateSavedRequest(currentActiveRequestId, requestDataToSave);
     } else {
       console.log('[App - executeSaveRequest] Saving as new request:', requestDataToSave);
-      const newId = addRequest(requestDataToSave);
-      setActiveRequestId(newId); // Set the new ID as active (this comes from useRequestEditor)
+      const newId = addRequest(requestDataToSave as SavedRequest);
+      setActiveRequestId(newId);
       console.log('[App - executeSaveRequest] New activeRequestId set to:', newId);
     }
-    // setRequestBody(currentBuiltRequestBody); // This line is now commented out
-  }, [addRequest, updateSavedRequest, setActiveRequestId, requestNameForSaveRef, methodRef, urlRef, activeRequestIdRef, headersRef, /* setRequestBody */]);
+  }, [addRequest, updateSavedRequest, setActiveRequestId, requestNameForSaveRef, methodRef, urlRef, activeRequestIdRef, headersRef]);
   // Dependencies: functions from hooks are stable. Refs are stable. setActiveRequestId is stable.
 
   const handleSaveButtonClick = useCallback(() => {
@@ -83,9 +83,8 @@ export default function App() {
   // Memoize handleNewRequest
   const handleNewRequest = useCallback(() => {
     resetEditor();
-    setRequestBody('');
-    resetApiResponse(); // Reset response/error/loading state
-  }, [resetEditor, setRequestBody, resetApiResponse]);
+    resetApiResponse();
+  }, [resetEditor, resetApiResponse]);
 
   const handleKeyDown = useCallback((event: KeyboardEvent) => {
     // Command/Ctrl + S for saving
@@ -121,20 +120,19 @@ export default function App() {
 
   const handleLoadRequest = (req: SavedRequest) => {
     loadRequestIntoEditor(req);
-    resetApiResponse(); // Reset response/error/loading state
+    resetApiResponse();
   };
 
   const handleDeleteRequest = useCallback((idToDelete: string) => {
     if (confirm('Are you sure you want to delete this request?')) {
       console.log('[App - handleDeleteRequest] Deleting request ID:', idToDelete);
       deleteRequest(idToDelete);
-      if (activeRequestId === idToDelete) { // activeRequestId from useRequestEditor
+      if (activeRequestId === idToDelete) {
         resetEditor();
-        setRequestBody('');
-        resetApiResponse(); // Reset response/error/loading state
+        resetApiResponse();
       }
     }
-  }, [deleteRequest, activeRequestId, resetEditor, setRequestBody, resetApiResponse]); // Added resetApiResponse
+  }, [deleteRequest, activeRequestId, resetEditor, resetApiResponse]);
 
   return (
     <div style={{ display: 'flex', height: '100vh' }}>
@@ -143,7 +141,7 @@ export default function App() {
         savedRequests={savedRequests}
         activeRequestId={activeRequestId}
         onNewRequest={handleNewRequest}
-        onLoadRequest={handleLoadRequest} // Pass the original handleLoadRequest
+        onLoadRequest={handleLoadRequest}
         onDeleteRequest={handleDeleteRequest}
       />
 
@@ -153,18 +151,18 @@ export default function App() {
         <RequestEditorPanel
           ref={editorPanelRef}
           requestNameForSave={requestNameForSave}
-          onRequestNameForSaveChange={setRequestNameForSave} // Pass setter from useRequestEditor
+          onRequestNameForSaveChange={setRequestNameForSave}
           method={method}
-          onMethodChange={setMethod} // Pass setter from useRequestEditor
+          onMethodChange={setMethod}
           url={url}
-          onUrlChange={setUrl} // Pass setter from useRequestEditor
-          requestBody={requestBody}
+          onUrlChange={setUrl}
+          initialBodyKeyValuePairs={currentBodyKeyValuePairs}
           activeRequestId={activeRequestId}
           loading={loading}
-          onSaveRequest={handleSaveButtonClick} // Pass memoized handler from App
-          onSendRequest={handleSendRequest}     // Pass memoized handler from App
-          headers={headers} // Pass headers state
-          onAddHeader={addHeader} // Pass header actions
+          onSaveRequest={handleSaveButtonClick}
+          onSendRequest={handleSendRequest}
+          headers={headers}
+          onAddHeader={addHeader}
           onUpdateHeader={updateHeader}
           onRemoveHeader={removeHeader}
         />

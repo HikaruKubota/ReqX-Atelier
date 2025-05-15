@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { useState, useEffect, useImperativeHandle, forwardRef, useCallback } from 'react';
 
-interface KeyValuePair {
+export interface KeyValuePair {
   id: string;
   keyName: string;
   value: string;
@@ -10,15 +10,16 @@ interface KeyValuePair {
 
 export interface BodyEditorKeyValueRef {
   getCurrentBodyAsJson: () => string;
+  getCurrentKeyValuePairs: () => KeyValuePair[];
 }
 
 interface BodyEditorKeyValueProps {
-  initialBodyJsonString: string;
+  initialBodyKeyValuePairs?: KeyValuePair[];
   method: string; // To determine if body is applicable and to re-initialize on method change
 }
 
 export const BodyEditorKeyValue = forwardRef<BodyEditorKeyValueRef, BodyEditorKeyValueProps>((
-  { initialBodyJsonString, method },
+  { initialBodyKeyValuePairs, method },
   ref
 ) => {
   const [bodyKeyValuePairs, setBodyKeyValuePairs] = useState<KeyValuePair[]>([]);
@@ -28,30 +29,15 @@ export const BodyEditorKeyValue = forwardRef<BodyEditorKeyValueRef, BodyEditorKe
       setBodyKeyValuePairs([]);
       return;
     }
-    try {
-      const parsedBody = JSON.parse(initialBodyJsonString || '{}');
-      if (typeof parsedBody === 'object' && parsedBody !== null && !Array.isArray(parsedBody)) {
-        const newPairs = Object.entries(parsedBody).map(([k, v], index) => ({
-          id: `kv-${k}-${index}-${Date.now()}`,
-          keyName: k,
-          value: typeof v === 'string' ? v : JSON.stringify(v, null, 2),
-          enabled: true,
-        }));
-        const newPairsComparable = newPairs.map(({ id, ...rest }) => rest);
-        const currentPairsComparable = bodyKeyValuePairs.map(({ id, ...rest }) => rest);
-        if (JSON.stringify(newPairsComparable) !== JSON.stringify(currentPairsComparable)) {
-            setBodyKeyValuePairs(newPairs);
-        }
-      } else if (initialBodyJsonString.trim() === '') {
-        setBodyKeyValuePairs([]);
+
+    if (initialBodyKeyValuePairs) {
+      if (JSON.stringify(initialBodyKeyValuePairs) !== JSON.stringify(bodyKeyValuePairs)) {
+        setBodyKeyValuePairs(initialBodyKeyValuePairs);
       }
-    } catch (e) {
-      if (initialBodyJsonString && initialBodyJsonString.trim() !== '') {
-        // console.warn("BodyEditorKeyValue: Failed to parse initialBodyJsonString.", initialBodyJsonString);
-      }
+    } else if (bodyKeyValuePairs.length > 0) {
       setBodyKeyValuePairs([]);
     }
-  }, [initialBodyJsonString, method]);
+  }, [initialBodyKeyValuePairs, method]);
 
   useImperativeHandle(ref, () => ({
     getCurrentBodyAsJson: () => {
@@ -74,6 +60,9 @@ export const BodyEditorKeyValue = forwardRef<BodyEditorKeyValueRef, BodyEditorKe
         // console.error("BodyEditorKeyValue: Error constructing JSON from K-V pairs:", e);
         return '';
       }
+    },
+    getCurrentKeyValuePairs: () => {
+      return bodyKeyValuePairs;
     }
   }));
 
