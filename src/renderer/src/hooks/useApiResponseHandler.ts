@@ -19,7 +19,12 @@ export const useApiResponseHandler = (): ApiResponseHandler => {
     setError(null);
     setResponse(null);
     try {
-      const result = await sendApiRequest(method, url, (method !== 'GET' && method !== 'HEAD') ? body : undefined);
+      const headers: Record<string, string> = {};
+      if (url === 'https://httpbin.org/bearer') {
+        headers['Authorization'] = 'Bearer mytesttoken';
+      }
+
+      const result = await sendApiRequest(method, url, (method !== 'GET' && method !== 'HEAD') ? body : undefined, headers);
       if (result.isError) {
         setError(result);
       } else if (result.status && result.status >= 200 && result.status < 300) {

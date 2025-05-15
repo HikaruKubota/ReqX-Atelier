@@ -9,7 +9,7 @@ export interface ApiResult {
   responseData?: any; // This was used in App.tsx error handling, merging with data or keeping separate
 }
 
-export async function sendApiRequest(method: string, url: string, body?: string): Promise<ApiResult> {
+export async function sendApiRequest(method: string, url: string, body?: string, headers?: Record<string, string>): Promise<ApiResult> {
   let data = null;
   if (body) {
     try {
@@ -20,5 +20,5 @@ export async function sendApiRequest(method: string, url: string, body?: string)
       throw new Error('Invalid JSON body');
     }
   }
-  return await ipcRenderer.invoke('send-api-request', { method, url, data });
+  return await ipcRenderer.invoke('send-api-request', { method, url, data, headers });
 }
