@@ -5,7 +5,7 @@ export interface ApiResponseHandler {
   response: ApiResult | null;
   error: any; // Consider a more specific error type
   loading: boolean;
-  executeRequest: (method: string, url: string, body?: string) => Promise<void>;
+  executeRequest: (method: string, url: string, body?: string, headers?: Record<string, string>) => Promise<void>;
   resetApiResponse: () => void;
 }
 
@@ -14,16 +14,11 @@ export const useApiResponseHandler = (): ApiResponseHandler => {
   const [error, setError] = useState<any>(null);
   const [loading, setLoading] = useState(false);
 
-  const executeRequest = useCallback(async (method: string, url: string, body?: string) => {
+  const executeRequest = useCallback(async (method: string, url: string, body?: string, headers?: Record<string, string>) => {
     setLoading(true);
     setError(null);
     setResponse(null);
     try {
-      const headers: Record<string, string> = {};
-      if (url === 'https://httpbin.org/bearer') {
-        headers['Authorization'] = 'Bearer mytesttoken';
-      }
-
       const result = await sendApiRequest(method, url, (method !== 'GET' && method !== 'HEAD') ? body : undefined, headers);
       if (result.isError) {
         setError(result);

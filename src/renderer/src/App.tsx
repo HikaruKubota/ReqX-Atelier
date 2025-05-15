@@ -1,7 +1,7 @@
 // src/App.jsx
 import { useEffect, useCallback, useRef } from 'react';
 import { useSavedRequests, SavedRequest } from './hooks/useSavedRequests'; // Import the custom hook and type
-import { useRequestEditor } from './hooks/useRequestEditor'; // Import the new hook
+import { useRequestEditor, RequestHeader } from './hooks/useRequestEditor'; // Import the new hook and RequestHeader
 import { useApiResponseHandler } from './hooks/useApiResponseHandler'; // Import the new API response handler hook
 import { RequestCollectionSidebar } from './components/RequestCollectionSidebar'; // Import the new sidebar component
 import { RequestEditorPanel, RequestEditorPanelRef } from './components/RequestEditorPanel'; // Import the new editor panel component and ref type
@@ -14,9 +14,11 @@ export default function App() {
   const {
     method, setMethod, methodRef,
     url, setUrl, urlRef,
-    requestBody, setRequestBody, requestBodyRef,
+    requestBody, setRequestBody, /* requestBodyRef, // requestBodyRef might be less relevant now if App.tsx doesn't directly manipulate body that often */
     requestNameForSave, setRequestNameForSave, requestNameForSaveRef,
     activeRequestId, setActiveRequestId, activeRequestIdRef,
+    headers, setHeaders, headersRef, // Destructure headers state and functions
+    addHeader, updateHeader, removeHeader, // Destructure header actions
     loadRequest: loadRequestIntoEditor, // Renamed to avoid conflict if there was a local var named loadRequest
     resetEditor
   } = useRequestEditor();
@@ -25,13 +27,19 @@ export default function App() {
   const { response, error, loading, executeRequest, resetApiResponse } = useApiResponseHandler();
 
   // Saved requests state (from useSavedRequests hook)
-  const { savedRequests, addRequest, updateRequest, deleteRequest } = useSavedRequests();
+  const { savedRequests, addRequest, updateRequest: updateSavedRequest, deleteRequest } = useSavedRequests();
 
   // Memoize handleSendRequest with useCallback
   const handleSendRequest = useCallback(async () => {
     const currentBuiltRequestBody = editorPanelRef.current?.getRequestBodyAsJson() || '';
-    await executeRequest(method, url, currentBuiltRequestBody);
-  }, [method, url, executeRequest]);
+    const activeHeaders = headersRef.current
+      .filter(h => h.enabled && h.key.trim() !== '')
+      .reduce((acc, h) => {
+        acc[h.key] = h.value;
+        return acc;
+      }, {} as Record<string, string>);
+    await executeRequest(methodRef.current, urlRef.current, currentBuiltRequestBody, activeHeaders);
+  }, [executeRequest, headersRef, methodRef, urlRef]);
 
   const executeSaveRequest = useCallback(() => {
     const nameToSave = requestNameForSaveRef.current.trim();
@@ -39,6 +47,7 @@ export default function App() {
     const currentUrl = urlRef.current;
     const currentBuiltRequestBody = editorPanelRef.current?.getRequestBodyAsJson() || '';
     const currentActiveRequestId = activeRequestIdRef.current;
+    const currentHeaders = headersRef.current; // Get current headers
 
     console.log('[App - executeSaveRequest] Called. Name:', nameToSave, 'Active ID:', currentActiveRequestId);
     if (!nameToSave) {
@@ -46,24 +55,25 @@ export default function App() {
       return;
     }
 
-    const requestDataToSave = {
+    const requestDataToSave: Omit<SavedRequest, 'id'> = {
       name: nameToSave,
       method: currentMethod,
       url: currentUrl,
       body: currentBuiltRequestBody,
+      headers: currentHeaders, // Save headers
     };
 
     if (currentActiveRequestId) {
       console.log('[App - executeSaveRequest] Updating existing request ID:', currentActiveRequestId);
-      updateRequest(currentActiveRequestId, requestDataToSave);
+      updateSavedRequest(currentActiveRequestId, requestDataToSave);
     } else {
       console.log('[App - executeSaveRequest] Saving as new request:', requestDataToSave);
       const newId = addRequest(requestDataToSave);
       setActiveRequestId(newId); // Set the new ID as active (this comes from useRequestEditor)
       console.log('[App - executeSaveRequest] New activeRequestId set to:', newId);
     }
-    setRequestBody(currentBuiltRequestBody);
-  }, [addRequest, updateRequest, setActiveRequestId, requestNameForSaveRef, methodRef, urlRef, activeRequestIdRef, setRequestBody]);
+    // setRequestBody(currentBuiltRequestBody); // This line is now commented out
+  }, [addRequest, updateSavedRequest, setActiveRequestId, requestNameForSaveRef, methodRef, urlRef, activeRequestIdRef, headersRef, /* setRequestBody */]);
   // Dependencies: functions from hooks are stable. Refs are stable. setActiveRequestId is stable.
 
   const handleSaveButtonClick = useCallback(() => {
@@ -153,6 +163,10 @@ export default function App() {
           loading={loading}
           onSaveRequest={handleSaveButtonClick} // Pass memoized handler from App
           onSendRequest={handleSendRequest}     // Pass memoized handler from App
+          headers={headers} // Pass headers state
+          onAddHeader={addHeader} // Pass header actions
+          onUpdateHeader={updateHeader}
+          onRemoveHeader={removeHeader}
         />
 
         {/* Use the new ResponseDisplayPanel component */}
