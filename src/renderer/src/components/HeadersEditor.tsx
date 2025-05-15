@@ -1,5 +1,5 @@
 import * as React from 'react';
-import type { RequestHeader } from '../hooks/useRequestEditor';
+import type { RequestHeader } from '../hooks/useHeadersManager';
 
 interface HeadersEditorProps {
   headers: RequestHeader[];

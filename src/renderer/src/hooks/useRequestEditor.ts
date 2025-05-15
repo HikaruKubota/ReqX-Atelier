@@ -1,16 +1,13 @@
 import { useState, useCallback, useRef, useEffect } from 'react';
-import { SavedRequest } from './useSavedRequests'; // Assuming SavedRequest will be updated to include headers
-import type { KeyValuePair } from '../components/BodyEditorKeyValue'; // Import KeyValuePair
+import { SavedRequest } from './useSavedRequests';
+import type { KeyValuePair } from '../components/BodyEditorKeyValue';
+import {
+  useHeadersManager,
+  // RequestHeader, // RequestHeader is implicitly part of UseHeadersManagerReturn
+  UseHeadersManagerReturn
+} from './useHeadersManager';
 
-// Define the type for a single header item
-export interface RequestHeader {
-  id: string; // Unique ID for React list keys
-  key: string;
-  value: string;
-  enabled: boolean;
-}
-
-export interface RequestEditorState {
+export interface RequestEditorState extends Omit<UseHeadersManagerReturn, 'loadHeaders' | 'resetHeaders'> {
   method: string;
   setMethod: (method: string) => void;
   methodRef: React.MutableRefObject<string>;
@@ -29,17 +26,11 @@ export interface RequestEditorState {
   activeRequestId: string | null;
   setActiveRequestId: (id: string | null) => void;
   activeRequestIdRef: React.MutableRefObject<string | null>;
-  headers: RequestHeader[];
-  setHeaders: (headers: RequestHeader[]) => void;
-  headersRef: React.MutableRefObject<RequestHeader[]>;
-  addHeader: () => void;
-  updateHeader: (id: string, field: keyof Omit<RequestHeader, 'id'>, value: string | boolean) => void;
-  removeHeader: (id: string) => void;
   loadRequest: (request: SavedRequest) => void;
   resetEditor: () => void;
 }
 
-const initialHeaders: RequestHeader[] = []; // Define initialHeaders
+// const initialHeaders: RequestHeader[] = []; // Remove: Defined in useHeadersManager
 
 export const useRequestEditor = (): RequestEditorState => {
   const [methodState, setMethodState] = useState('GET');
@@ -69,31 +60,27 @@ export const useRequestEditor = (): RequestEditorState => {
   const activeRequestIdRef = useRef(activeRequestIdState);
   const setActiveRequestId = useCallback((val: string | null) => { setActiveRequestIdState(val); activeRequestIdRef.current = val; }, []);
 
-  const [headersState, setHeadersState] = useState<RequestHeader[]>(initialHeaders);
-  const headersRef = useRef(headersState);
-  const setHeaders = useCallback((val: RequestHeader[]) => { setHeadersState(val); headersRef.current = val; }, []);
+  const {
+    headers: headersState,
+    setHeaders: setHeadersFromManager, // Get setHeaders from manager
+    headersRef: managedHeadersRef,
+    addHeader: addHeaderFromManager,
+    updateHeader: updateHeaderFromManager,
+    removeHeader: removeHeaderFromManager,
+    loadHeaders,
+    resetHeaders
+  } = useHeadersManager();
 
-  // Update refs only if the state variables themselves are directly used elsewhere
-  // For method, url, etc. that have specific setters updating refs, this is redundant if state itself isn't returned directly by those names
+  // Remove useEffects for headersState and headersRef as they are managed by useHeadersManager
   useEffect(() => { methodRef.current = methodState; }, [methodState]);
   useEffect(() => { urlRef.current = urlState; }, [urlState]);
   useEffect(() => { requestBodyRef.current = requestBodyState; }, [requestBodyState]);
   useEffect(() => { currentBodyKeyValuePairsRef.current = currentBodyKeyValuePairsState; }, [currentBodyKeyValuePairsState]);
   useEffect(() => { requestNameForSaveRef.current = requestNameForSaveState; }, [requestNameForSaveState]);
   useEffect(() => { activeRequestIdRef.current = activeRequestIdState; }, [activeRequestIdState]);
-  useEffect(() => { headersRef.current = headersState; }, [headersState]);
+  // useEffect(() => { headersRef.current = headersState; }, [headersState]); // Remove this line
 
-  const addHeader = useCallback(() => {
-    setHeadersState(prev => [...prev, { id: `header-${Date.now()}-${Math.random()}`, key: '', value: '', enabled: true }]);
-  }, []);
-
-  const updateHeader = useCallback((id: string, field: keyof Omit<RequestHeader, 'id'>, value: string | boolean) => {
-    setHeadersState(prev => prev.map(h => h.id === id ? { ...h, [field]: value } : h));
-  }, []);
-
-  const removeHeader = useCallback((id: string) => {
-    setHeadersState(prev => prev.filter(h => h.id !== id));
-  }, []);
+  // Remove addHeader, updateHeader, removeHeader direct implementations
 
   const loadRequest = useCallback((req: SavedRequest) => {
     setMethodState(req.method);
@@ -115,20 +102,20 @@ export const useRequestEditor = (): RequestEditorState => {
     } else {
       setRequestBodyState('');
     }
-    setHeadersState(req.headers || initialHeaders);
+    loadHeaders(req.headers || []); // Use loadHeaders from useHeadersManager
     setActiveRequestIdState(req.id);
     setRequestNameForSaveState(req.name);
-  }, []); // Dependencies for setters are stable
+  }, [loadHeaders]); // Add loadHeaders to dependencies
 
   const resetEditor = useCallback(() => {
     setMethodState('GET');
     setUrlState('');
     setRequestBodyState('');
     setCurrentBodyKeyValuePairsState([]);
-    setHeadersState(initialHeaders); // Use defined initialHeaders
+    resetHeaders(); // Use resetHeaders from useHeadersManager
     setActiveRequestIdState(null);
     setRequestNameForSaveState('');
-  }, []); // Dependencies for setters are stable
+  }, [resetHeaders]); // Add resetHeaders to dependencies
 
   return {
     method: methodState, setMethod,
@@ -137,10 +124,16 @@ export const useRequestEditor = (): RequestEditorState => {
     currentBodyKeyValuePairs: currentBodyKeyValuePairsState, setCurrentBodyKeyValuePairs,
     requestNameForSave: requestNameForSaveState, setRequestNameForSave,
     activeRequestId: activeRequestIdState, setActiveRequestId,
-    headers: headersState, setHeaders,
-    // Returning refs if they are intended to be used by consumers for direct, non-reactive access
-    methodRef, urlRef, requestBodyRef, currentBodyKeyValuePairsRef, requestNameForSaveRef, activeRequestIdRef, headersRef,
-    addHeader, updateHeader, removeHeader,
+    // Headers from useHeadersManager
+    headers: headersState,
+    setHeaders: setHeadersFromManager, // Expose setHeaders from manager
+    headersRef: managedHeadersRef,
+    addHeader: addHeaderFromManager,
+    updateHeader: updateHeaderFromManager,
+    removeHeader: removeHeaderFromManager,
+    // Refs for other states
+    methodRef, urlRef, requestBodyRef, currentBodyKeyValuePairsRef, requestNameForSaveRef, activeRequestIdRef,
+    // Actions
     loadRequest,
     resetEditor
   };
