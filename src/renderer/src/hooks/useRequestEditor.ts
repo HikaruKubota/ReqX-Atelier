@@ -18,18 +18,18 @@ export interface RequestEditorState
           Omit<UseBodyManagerReturn, 'loadBodyKeyValuePairs' | 'resetBody'> {
   method: string;
   setMethod: (method: string) => void;
-  methodRef: React.MutableRefObject<string>;
+  methodRef: { current: string };
   url: string;
   setUrl: (url: string) => void;
-  urlRef: React.MutableRefObject<string>;
+  urlRef: { current: string };
   // Body related types are now part of UseBodyManagerReturn
   // Headers related types are now part of UseHeadersManagerReturn
   requestNameForSave: string;
   setRequestNameForSave: (name: string) => void;
-  requestNameForSaveRef: React.MutableRefObject<string>;
+  requestNameForSaveRef: { current: string };
   activeRequestId: string | null;
   setActiveRequestId: (id: string | null) => void;
-  activeRequestIdRef: React.MutableRefObject<string | null>;
+  activeRequestIdRef: { current: string | null };
   loadRequest: (request: SavedRequest) => void;
   resetEditor: () => void;
 }
