@@ -1,12 +1,11 @@
 // src/App.jsx
 import { useEffect, useCallback, useRef } from 'react';
 import { useSavedRequests, SavedRequest } from './hooks/useSavedRequests'; // Import the custom hook and type
-import { useRequestEditor, RequestHeader } from './hooks/useRequestEditor'; // Import the new hook and RequestHeader
+import { useRequestEditor } from './hooks/useRequestEditor'; // Import the new hook and RequestHeader
 import { useApiResponseHandler } from './hooks/useApiResponseHandler'; // Import the new API response handler hook
 import { RequestCollectionSidebar } from './components/RequestCollectionSidebar'; // Import the new sidebar component
 import { RequestEditorPanel, RequestEditorPanelRef } from './components/RequestEditorPanel'; // Import the new editor panel component and ref type
 import { ResponseDisplayPanel } from './components/ResponseDisplayPanel'; // Import the new response panel component
-import type { KeyValuePair } from './components/BodyEditorKeyValue'; // Import KeyValuePair for explicit typing if needed
 
 export default function App() {
   const editorPanelRef = useRef<RequestEditorPanelRef>(null); // Create a ref
@@ -18,7 +17,7 @@ export default function App() {
     currentBodyKeyValuePairs, // Get the new state for KV pairs
     requestNameForSave, setRequestNameForSave, requestNameForSaveRef,
     activeRequestId, setActiveRequestId, activeRequestIdRef,
-    headers, setHeaders, headersRef, // Destructure headers state and functions
+    headers, headersRef, // Destructure headers state and functions
     addHeader, updateHeader, removeHeader, // Destructure header actions
     loadRequest: loadRequestIntoEditor, // Renamed to avoid conflict if there was a local var named loadRequest
     resetEditor

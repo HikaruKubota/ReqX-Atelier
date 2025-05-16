@@ -1,5 +1,5 @@
 import { useImperativeHandle, forwardRef, useRef } from 'react';
-import type { RequestHeader } from '../hooks/useRequestEditor';
+import type { RequestHeader } from '../hooks/useHeadersManager';
 import { HeadersEditor } from './HeadersEditor';
 import { BodyEditorKeyValue, BodyEditorKeyValueRef, KeyValuePair } from './BodyEditorKeyValue';
 
@@ -24,7 +24,7 @@ interface RequestEditorPanelProps {
   onSendRequest: () => void;
   headers: RequestHeader[];
   onAddHeader: () => void;
-  onUpdateHeader: (id: string, field: keyof Omit<RequestHeader, 'id'>, value: string | boolean) => void;
+  onUpdateHeader: (id: string, field: 'key' | 'value' | 'enabled', value: string | boolean) => void;
   onRemoveHeader: (id: string) => void;
 }
 
