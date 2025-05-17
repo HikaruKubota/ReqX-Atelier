@@ -20,6 +20,6 @@ export const DeleteButton: React.FC<BaseButtonProps> = ({
     aria-label="Delete"
     {...props}
   >
-    <FiX size={18} />
+    <FiX size={18} color="#dc2626" />
   </BaseButton>
 );
