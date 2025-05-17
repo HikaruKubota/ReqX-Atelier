@@ -1,6 +1,7 @@
 import React from 'react';
 import clsx from 'clsx';
 import type { SavedRequest } from '../../../hooks/useSavedRequests';
+import { BaseButton } from '../button/BaseButton';
 
 interface RequestListItemProps {
   request: SavedRequest;
@@ -25,12 +26,14 @@ export const RequestListItem: React.FC<RequestListItemProps> = ({
     )}
   >
     <span>{request.name}</span>
-    <button
+    <BaseButton
+      variant="ghost"
+      size="sm"
       onClick={(e) => { e.stopPropagation(); onDelete(); }}
-      className="px-2 py-1 text-xs bg-red-200 hover:bg-red-300 border-none rounded cursor-pointer"
+      className="bg-red-200 hover:bg-red-300 text-xs px-2 py-1 rounded"
       type="button"
     >
       X
-    </button>
+    </BaseButton>
   </div>
 );
