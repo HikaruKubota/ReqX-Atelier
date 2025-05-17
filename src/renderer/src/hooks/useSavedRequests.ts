@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import type { RequestHeader } from './useRequestEditor'; // Import RequestHeader type
+import type { RequestHeader } from './useHeadersManager';
 import type { KeyValuePair } from '../components/BodyEditorKeyValue'; // Import KeyValuePair
 
 // Define the structure of a saved request

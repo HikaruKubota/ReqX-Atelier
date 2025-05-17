@@ -45,14 +45,6 @@ export const useRequestEditor = (): RequestEditorState => {
   const urlRef = useRef(urlState);
   const setUrl = useCallback((val: string) => { setUrlState(val); urlRef.current = val; }, []);
 
-  // Remove direct body state management
-  // const [requestBodyState, setRequestBodyState] = useState('');
-  // const requestBodyRef = useRef(requestBodyState);
-  // const setRequestBody = useCallback((val: string) => { setRequestBodyState(val); requestBodyRef.current = val; }, []);
-  // const [currentBodyKeyValuePairsState, setCurrentBodyKeyValuePairsState] = useState<KeyValuePair[]>([]);
-  // const currentBodyKeyValuePairsRef = useRef(currentBodyKeyValuePairsState);
-  // const setCurrentBodyKeyValuePairs = useCallback((val: KeyValuePair[]) => { ... });
-
   const [requestNameForSaveState, setRequestNameForSaveState] = useState('');
   const requestNameForSaveRef = useRef(requestNameForSaveState);
   const setRequestNameForSave = useCallback((val: string) => { setRequestNameForSaveState(val); requestNameForSaveRef.current = val; }, []);

@@ -1,5 +1,6 @@
-import * as React from 'react';
+import React from 'react';
 import type { SavedRequest } from '../hooks/useSavedRequests'; // Adjust path as needed
+import { RequestListItem } from './atoms/list/RequestListItem'
 
 interface RequestCollectionSidebarProps {
   savedRequests: SavedRequest[];
@@ -24,28 +25,14 @@ export const RequestCollectionSidebar: React.FC<RequestCollectionSidebarProps> =
       </button>
       <div style={{ flexGrow: 1, overflowY: 'auto' }}>
         {savedRequests.length === 0 && <p style={{ color: '#777' }}>No requests saved yet.</p>}
-        {savedRequests.map((req: SavedRequest) => (
-          <div
+        {savedRequests.map((req) => (
+          <RequestListItem
             key={req.id}
+            request={req}
+            isActive={activeRequestId === req.id}
             onClick={() => onLoadRequest(req)}
-            style={{
-              padding: '8px 10px',
-              margin: '5px 0',
-              cursor: 'pointer',
-              backgroundColor: activeRequestId === req.id ? '#e0e0e0' : '#fff',
-              border: '1px solid #ddd',
-              borderRadius: '4px',
-              display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'center'
-            }}
-          >
-            <span style={{ fontWeight: activeRequestId === req.id ? 'bold' : 'normal' }}>{req.name}</span>
-            <button
-              onClick={(e) => { e.stopPropagation(); onDeleteRequest(req.id); }}
-              style={{ padding: '3px 6px', fontSize: '0.8em', backgroundColor: '#ffcccc', border: 'none', borderRadius: '3px', cursor: 'pointer' }}
-            >X</button>
-          </div>
+            onDelete={() => onDeleteRequest(req.id)}
+          />
         ))}
       </div>
     </div>
