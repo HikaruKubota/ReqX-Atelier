@@ -92,38 +92,6 @@ export default function App() {
     onNew: handleNewRequest,
   });
 
-  // const handleKeyDown = useCallback((event: KeyboardEvent) => {
-  //   // Command/Ctrl + S for saving
-  //   if ((event.metaKey || event.ctrlKey) && event.key === 's') {
-  //     event.preventDefault();
-  //     executeSaveRequest();
-  //   }
-
-  //   // Command/Ctrl + Enter for sending request
-  //   if ((event.metaKey || event.ctrlKey) && event.key === 'Enter') {
-  //     event.preventDefault();
-  //     handleSendRequest();
-  //   }
-
-  //   // Command/Ctrl + N for new request
-  //   if ((event.metaKey || event.ctrlKey) && event.key === 'n') {
-  //     event.preventDefault();
-  //     handleNewRequest();
-  //   }
-  // }, [executeSaveRequest, handleSendRequest, handleNewRequest]); // Added handleNewRequest
-
-  // Initial load useEffect (health check, key listener setup)
-  // useEffect(() => {
-  //   console.log('[App - useEffect InitialLoad] Mounting. Adding listener.');
-
-  //   window.addEventListener('keydown', handleKeyDown);
-  //   console.log('[App - useEffect InitialLoad] Keydown listener added.');
-  //   return () => {
-  //     console.log('[App - useEffect InitialLoad] Cleanup: Keydown listener removed.');
-  //     window.removeEventListener('keydown', handleKeyDown);
-  //   };
-  // }, [handleKeyDown]);
-
   const handleLoadRequest = (req: SavedRequest) => {
     loadRequestIntoEditor(req);
     resetApiResponse();
