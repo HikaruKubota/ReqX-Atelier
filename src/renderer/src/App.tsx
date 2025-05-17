@@ -7,6 +7,7 @@ import { RequestCollectionSidebar } from './components/RequestCollectionSidebar'
 import { RequestEditorPanel, RequestEditorPanelRef } from './components/RequestEditorPanel'; // Import the new editor panel component and ref type
 import { ResponseDisplayPanel } from './components/ResponseDisplayPanel'; // Import the new response panel component
 import { useKeyboardShortcuts } from './hooks/useKeyboardShortcuts';
+import { useRequestActions } from './hooks/useRequestActions';
 
 export default function App() {
   const editorPanelRef = useRef<RequestEditorPanelRef>(null); // Create a ref
@@ -30,50 +31,18 @@ export default function App() {
   // Saved requests state (from useSavedRequests hook)
   const { savedRequests, addRequest, updateRequest: updateSavedRequest, deleteRequest } = useSavedRequests();
 
-  // Memoize handleSendRequest with useCallback
-  const handleSendRequest = useCallback(async () => {
-    const currentBuiltRequestBody = editorPanelRef.current?.getRequestBodyAsJson() || '';
-    const activeHeaders = headersRef.current
-      .filter(h => h.enabled && h.key.trim() !== '')
-      .reduce((acc, h) => {
-        acc[h.key] = h.value;
-        return acc;
-      }, {} as Record<string, string>);
-    await executeRequest(methodRef.current, urlRef.current, currentBuiltRequestBody, activeHeaders);
-  }, [executeRequest, headersRef, methodRef, urlRef]);
-
-  const executeSaveRequest = useCallback(() => {
-    const nameToSave = requestNameForSaveRef.current.trim();
-    const currentMethod = methodRef.current;
-    const currentUrl = urlRef.current;
-    const currentBodyKeyValuePairsFromEditor = editorPanelRef.current?.getRequestBodyKeyValuePairs() || []; // New way
-    const currentActiveRequestId = activeRequestIdRef.current;
-    const currentHeaders = headersRef.current;
-
-    if (!nameToSave) {
-      alert('Please enter a name for the request before saving.');
-      return;
-    }
-
-    const requestDataToSave: Omit<SavedRequest, 'id'> = {
-      name: nameToSave,
-      method: currentMethod,
-      url: currentUrl,
-      headers: currentHeaders,
-      bodyKeyValuePairs: currentBodyKeyValuePairsFromEditor,
-    };
-
-    if (currentActiveRequestId) {
-      updateSavedRequest(currentActiveRequestId, requestDataToSave);
-    } else {
-      const newId = addRequest(requestDataToSave as SavedRequest);
-      setActiveRequestId(newId);
-    }
-  }, [addRequest, updateSavedRequest, setActiveRequestId, requestNameForSaveRef, methodRef, urlRef, activeRequestIdRef, headersRef]);
-
-  const handleSaveButtonClick = useCallback(() => {
-    executeSaveRequest();
-  }, [executeSaveRequest]);
+  const { executeSendRequest, executeSaveRequest } = useRequestActions({
+    editorPanelRef,
+    methodRef,
+    urlRef,
+    headersRef,
+    requestNameForSaveRef,
+    activeRequestIdRef,
+    setActiveRequestId,
+    addRequest,
+    updateSavedRequest,
+    executeRequest,
+  });
 
   const handleNewRequest = useCallback(() => {
     resetEditor();
@@ -82,9 +51,13 @@ export default function App() {
 
   useKeyboardShortcuts({
     onSave: executeSaveRequest,
-    onSend: handleSendRequest,
+    onSend: executeSendRequest,
     onNew: handleNewRequest,
   });
+
+  const handleSaveButtonClick = useCallback(() => {
+    executeSaveRequest();
+  }, [executeSaveRequest]);
 
   const handleLoadRequest = (req: SavedRequest) => {
     loadRequestIntoEditor(req);
@@ -127,7 +100,7 @@ export default function App() {
           activeRequestId={activeRequestId}
           loading={loading}
           onSaveRequest={handleSaveButtonClick}
-          onSendRequest={handleSendRequest}
+          onSendRequest={executeSendRequest}
           headers={headers}
           onAddHeader={addHeader}
           onUpdateHeader={updateHeader}
