@@ -50,7 +50,6 @@ export default function App() {
     const currentActiveRequestId = activeRequestIdRef.current;
     const currentHeaders = headersRef.current;
 
-    console.log('[App - executeSaveRequest] Called. Name:', nameToSave, 'Active ID:', currentActiveRequestId);
     if (!nameToSave) {
       alert('Please enter a name for the request before saving.');
       return;
@@ -65,13 +64,10 @@ export default function App() {
     };
 
     if (currentActiveRequestId) {
-      console.log('[App - executeSaveRequest] Updating existing request ID:', currentActiveRequestId);
       updateSavedRequest(currentActiveRequestId, requestDataToSave);
     } else {
-      console.log('[App - executeSaveRequest] Saving as new request:', requestDataToSave);
       const newId = addRequest(requestDataToSave as SavedRequest);
       setActiveRequestId(newId);
-      console.log('[App - executeSaveRequest] New activeRequestId set to:', newId);
     }
   }, [addRequest, updateSavedRequest, setActiveRequestId, requestNameForSaveRef, methodRef, urlRef, activeRequestIdRef, headersRef]);
   // Dependencies: functions from hooks are stable. Refs are stable. setActiveRequestId is stable.
@@ -99,7 +95,6 @@ export default function App() {
 
   const handleDeleteRequest = useCallback((idToDelete: string) => {
     if (confirm('Are you sure you want to delete this request?')) {
-      console.log('[App - handleDeleteRequest] Deleting request ID:', idToDelete);
       deleteRequest(idToDelete);
       if (activeRequestId === idToDelete) {
         resetEditor();
