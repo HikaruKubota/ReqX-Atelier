@@ -6,6 +6,7 @@ import { useApiResponseHandler } from './hooks/useApiResponseHandler'; // Import
 import { RequestCollectionSidebar } from './components/RequestCollectionSidebar'; // Import the new sidebar component
 import { RequestEditorPanel, RequestEditorPanelRef } from './components/RequestEditorPanel'; // Import the new editor panel component and ref type
 import { ResponseDisplayPanel } from './components/ResponseDisplayPanel'; // Import the new response panel component
+import { useKeyboardShortcuts } from './hooks/useKeyboardShortcuts';
 
 export default function App() {
   const editorPanelRef = useRef<RequestEditorPanelRef>(null); // Create a ref
@@ -85,37 +86,43 @@ export default function App() {
     resetApiResponse();
   }, [resetEditor, resetApiResponse]);
 
-  const handleKeyDown = useCallback((event: KeyboardEvent) => {
-    // Command/Ctrl + S for saving
-    if ((event.metaKey || event.ctrlKey) && event.key === 's') {
-      event.preventDefault();
-      executeSaveRequest();
-    }
+  useKeyboardShortcuts({
+    onSave: executeSaveRequest,
+    onSend: handleSendRequest,
+    onNew: handleNewRequest,
+  });
 
-    // Command/Ctrl + Enter for sending request
-    if ((event.metaKey || event.ctrlKey) && event.key === 'Enter') {
-      event.preventDefault();
-      handleSendRequest();
-    }
+  // const handleKeyDown = useCallback((event: KeyboardEvent) => {
+  //   // Command/Ctrl + S for saving
+  //   if ((event.metaKey || event.ctrlKey) && event.key === 's') {
+  //     event.preventDefault();
+  //     executeSaveRequest();
+  //   }
 
-    // Command/Ctrl + N for new request
-    if ((event.metaKey || event.ctrlKey) && event.key === 'n') {
-      event.preventDefault();
-      handleNewRequest();
-    }
-  }, [executeSaveRequest, handleSendRequest, handleNewRequest]); // Added handleNewRequest
+  //   // Command/Ctrl + Enter for sending request
+  //   if ((event.metaKey || event.ctrlKey) && event.key === 'Enter') {
+  //     event.preventDefault();
+  //     handleSendRequest();
+  //   }
+
+  //   // Command/Ctrl + N for new request
+  //   if ((event.metaKey || event.ctrlKey) && event.key === 'n') {
+  //     event.preventDefault();
+  //     handleNewRequest();
+  //   }
+  // }, [executeSaveRequest, handleSendRequest, handleNewRequest]); // Added handleNewRequest
 
   // Initial load useEffect (health check, key listener setup)
-  useEffect(() => {
-    console.log('[App - useEffect InitialLoad] Mounting. Adding listener.');
+  // useEffect(() => {
+  //   console.log('[App - useEffect InitialLoad] Mounting. Adding listener.');
 
-    window.addEventListener('keydown', handleKeyDown);
-    console.log('[App - useEffect InitialLoad] Keydown listener added.');
-    return () => {
-      console.log('[App - useEffect InitialLoad] Cleanup: Keydown listener removed.');
-      window.removeEventListener('keydown', handleKeyDown);
-    };
-  }, [handleKeyDown]);
+  //   window.addEventListener('keydown', handleKeyDown);
+  //   console.log('[App - useEffect InitialLoad] Keydown listener added.');
+  //   return () => {
+  //     console.log('[App - useEffect InitialLoad] Cleanup: Keydown listener removed.');
+  //     window.removeEventListener('keydown', handleKeyDown);
+  //   };
+  // }, [handleKeyDown]);
 
   const handleLoadRequest = (req: SavedRequest) => {
     loadRequestIntoEditor(req);
