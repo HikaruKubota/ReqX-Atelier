@@ -10,7 +10,13 @@
     "build:renderer": "vite build",
     "build:electron": "NODE_ENV=production electron-builder",
     "lint": "eslint . --ext .ts,.tsx",
-    "format": "prettier --write ."
+    "format": "prettier --write .",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "msw": "msw init public --save",
+    "storybook": "storybook dev -p 6006",
+    "test-storybook": "storybook test",
+    "e2e": "playwright test"
   },
   "keywords": [],
   "author": "",
