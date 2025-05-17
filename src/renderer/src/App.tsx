@@ -70,13 +70,11 @@ export default function App() {
       setActiveRequestId(newId);
     }
   }, [addRequest, updateSavedRequest, setActiveRequestId, requestNameForSaveRef, methodRef, urlRef, activeRequestIdRef, headersRef]);
-  // Dependencies: functions from hooks are stable. Refs are stable. setActiveRequestId is stable.
 
   const handleSaveButtonClick = useCallback(() => {
     executeSaveRequest();
   }, [executeSaveRequest]);
 
-  // Memoize handleNewRequest
   const handleNewRequest = useCallback(() => {
     resetEditor();
     resetApiResponse();
