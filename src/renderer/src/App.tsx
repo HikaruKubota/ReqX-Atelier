@@ -1,5 +1,4 @@
-// src/App.jsx
-import { useEffect, useCallback, useRef } from 'react';
+import { useCallback, useRef } from 'react';
 import { useSavedRequests, SavedRequest } from './hooks/useSavedRequests'; // Import the custom hook and type
 import { useRequestEditor } from './hooks/useRequestEditor'; // Import the new hook and RequestHeader
 import { useApiResponseHandler } from './hooks/useApiResponseHandler'; // Import the new API response handler hook
@@ -8,6 +7,7 @@ import { RequestEditorPanel, RequestEditorPanelRef } from './components/RequestE
 import { ResponseDisplayPanel } from './components/ResponseDisplayPanel'; // Import the new response panel component
 import { useKeyboardShortcuts } from './hooks/useKeyboardShortcuts';
 import { useRequestActions } from './hooks/useRequestActions';
+import './index.css'
 
 export default function App() {
   const editorPanelRef = useRef<RequestEditorPanelRef>(null); // Create a ref
