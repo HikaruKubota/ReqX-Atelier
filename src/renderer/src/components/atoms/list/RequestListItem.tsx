@@ -1,7 +1,7 @@
 import React from 'react';
 import clsx from 'clsx';
 import type { SavedRequest } from '../../../hooks/useSavedRequests';
-import { BaseButton } from '../button/BaseButton';
+import { DeleteButton } from '../button/DeleteButton';
 
 interface RequestListItemProps {
   request: SavedRequest;
@@ -26,14 +26,10 @@ export const RequestListItem: React.FC<RequestListItemProps> = ({
     )}
   >
     <span>{request.name}</span>
-    <BaseButton
-      variant="ghost"
-      size="sm"
+    <DeleteButton
       onClick={(e) => { e.stopPropagation(); onDelete(); }}
-      className="bg-red-200 hover:bg-red-300 text-xs px-2 py-1 rounded"
-      type="button"
     >
       X
-    </BaseButton>
+    </DeleteButton>
   </div>
 );
