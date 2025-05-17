@@ -7,9 +7,10 @@ import { RequestEditorPanel, RequestEditorPanelRef } from './components/RequestE
 import { ResponseDisplayPanel } from './components/ResponseDisplayPanel'; // Import the new response panel component
 import { useKeyboardShortcuts } from './hooks/useKeyboardShortcuts';
 import { useRequestActions } from './hooks/useRequestActions';
-import './index.css'
+import { useTranslation } from 'react-i18next';
 
 export default function App() {
+  const { t } = useTranslation();
   const editorPanelRef = useRef<RequestEditorPanelRef>(null); // Create a ref
 
   // Use the new custom hook for request editor state and logic
@@ -65,7 +66,7 @@ export default function App() {
   };
 
   const handleDeleteRequest = useCallback((idToDelete: string) => {
-    if (confirm('Are you sure you want to delete this request?')) {
+    if (confirm(t('delete_confirm'))) {
       deleteRequest(idToDelete);
       if (activeRequestId === idToDelete) {
         resetEditor();
