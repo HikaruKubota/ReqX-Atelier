@@ -1,6 +1,8 @@
 import React from 'react';
-import { BaseButton, BaseButtonProps } from './BaseButton';
+import { FiX } from 'react-icons/fi';
 import clsx from 'clsx';
+import { BaseButton, BaseButtonProps } from './BaseButton';
+
 
 export const DeleteButton: React.FC<BaseButtonProps> = ({
   size = 'sm',
@@ -12,12 +14,12 @@ export const DeleteButton: React.FC<BaseButtonProps> = ({
     variant={variant}
     size={size}
     className={clsx(
-      'text-red-500 hover:bg-red-100 hover:text-red-600',
+      'hover:bg-red-100 hover:text-red-600',
       className
     )}
     aria-label="Delete"
     {...props}
   >
-    X
+    <FiX size={18} />
   </BaseButton>
 );
