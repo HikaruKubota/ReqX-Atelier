@@ -3,12 +3,16 @@ import { renderHook } from '@testing-library/react';
 import { useKeyboardShortcuts } from '../useKeyboardShortcuts';
 import { describe, it, expect, vi } from 'vitest';
 
-const press = (key: string, mod: { meta?: boolean; ctrl?: boolean } = { meta: true }) =>
+const press = (
+  key: string,
+  mod: { meta?: boolean; ctrl?: boolean; alt?: boolean } = { meta: true },
+) =>
   window.dispatchEvent(
     new KeyboardEvent('keydown', {
       key,
       metaKey: !!mod.meta,
       ctrlKey: !!mod.ctrl,
+      altKey: !!mod.alt,
     }),
   );
 
@@ -32,5 +36,51 @@ describe('useKeyboardShortcuts', () => {
     renderHook(() => useKeyboardShortcuts({ onSave: vi.fn(), onSend: vi.fn(), onNew }));
     press('n');
     expect(onNew).toHaveBeenCalled();
+  });
+
+  it('calls onNextTab on ⌘+⌥+→', () => {
+    const onNextTab = vi.fn();
+    renderHook(() =>
+      useKeyboardShortcuts({
+        onSave: vi.fn(),
+        onSend: vi.fn(),
+        onNew: vi.fn(),
+        onNextTab,
+        onPrevTab: vi.fn(),
+      }),
+    );
+    press('ArrowRight', { meta: true, alt: true });
+    expect(onNextTab).toHaveBeenCalled();
+  });
+
+  it('calls onPrevTab on ⌘+⌥+←', () => {
+    const onPrevTab = vi.fn();
+    renderHook(() =>
+      useKeyboardShortcuts({
+        onSave: vi.fn(),
+        onSend: vi.fn(),
+        onNew: vi.fn(),
+        onNextTab: vi.fn(),
+        onPrevTab,
+      }),
+    );
+    press('ArrowLeft', { meta: true, alt: true });
+    expect(onPrevTab).toHaveBeenCalled();
+  });
+
+  it('calls onCloseTab on ⌘+W', () => {
+    const onCloseTab = vi.fn();
+    renderHook(() =>
+      useKeyboardShortcuts({
+        onSave: vi.fn(),
+        onSend: vi.fn(),
+        onNew: vi.fn(),
+        onNextTab: vi.fn(),
+        onPrevTab: vi.fn(),
+        onCloseTab,
+      }),
+    );
+    press('w');
+    expect(onCloseTab).toHaveBeenCalled();
   });
 });
