@@ -12,6 +12,7 @@ import { useRequestActions } from './hooks/useRequestActions';
 import { useTranslation } from 'react-i18next';
 import { ThemeToggleButton } from './components/ThemeToggleButton';
 import { TabBar } from './components/organisms/TabBar';
+import { ShortcutsGuide } from './components/organisms/ShortcutsGuide';
 import { RequestEditorPanelRef } from './types'; // Import the RequestHeader type
 
 export default function App() {
@@ -70,13 +71,6 @@ export default function App() {
 
   const tabs = useTabs();
 
-  useEffect(() => {
-    if (tabs.tabs.length === 0) {
-      const tab = tabs.openTab();
-      loadRequestIntoEditor(tab);
-      resetApiResponse();
-    }
-  }, []);
 
   const handleNewRequest = useCallback(() => {
     const tab = tabs.openTab();
@@ -206,52 +200,63 @@ export default function App() {
           overflowY: 'auto',
         }}
       >
-        <TabBar
-          tabs={tabs.tabs}
-          activeTabId={tabs.activeTabId}
-          onSelect={(id) => {
-            const active = tabs.getActiveTab();
-            if (active) {
-              tabs.updateTab(active.tabId, {
-                name: requestNameForSave,
-                method,
-                url,
-                headers,
-                bodyKeyValuePairs: currentBodyKeyValuePairs,
-                requestId: activeRequestId,
-              });
-            }
-            tabs.switchTab(id);
-          }}
-          onClose={(id) => {
-            tabs.closeTab(id);
-          }}
-        />
+        {tabs.tabs.length > 0 && (
+          <TabBar
+            tabs={tabs.tabs}
+            activeTabId={tabs.activeTabId}
+            onSelect={(id) => {
+              const active = tabs.getActiveTab();
+              if (active) {
+                tabs.updateTab(active.tabId, {
+                  name: requestNameForSave,
+                  method,
+                  url,
+                  headers,
+                  bodyKeyValuePairs: currentBodyKeyValuePairs,
+                  requestId: activeRequestId,
+                });
+              }
+              tabs.switchTab(id);
+            }}
+            onClose={(id) => {
+              tabs.closeTab(id);
+            }}
+          />
+        )}
         <div style={{ alignSelf: 'flex-end' }}>
           <ThemeToggleButton />
         </div>
-        {/* Use the new RequestEditorPanel component */}
-        <RequestEditorPanel
-          ref={editorPanelRef}
-          requestNameForSave={requestNameForSave}
-          onRequestNameForSaveChange={setRequestNameForSave}
-          method={method}
-          onMethodChange={setMethod}
-          url={url}
-          onUrlChange={setUrl}
-          initialBodyKeyValuePairs={currentBodyKeyValuePairs}
-          activeRequestId={activeRequestId}
-          loading={loading}
-          onSaveRequest={handleSaveButtonClick}
-          onSendRequest={executeSendRequest}
-          headers={headers}
-          onAddHeader={addHeader}
-          onUpdateHeader={updateHeader}
-          onRemoveHeader={removeHeader}
-        />
+        {tabs.tabs.length === 0 ? (
+          <ShortcutsGuide onNew={handleNewRequest} />
+        ) : (
+          <>
+            <RequestEditorPanel
+              ref={editorPanelRef}
+              requestNameForSave={requestNameForSave}
+              onRequestNameForSaveChange={setRequestNameForSave}
+              method={method}
+              onMethodChange={setMethod}
+              url={url}
+              onUrlChange={setUrl}
+              initialBodyKeyValuePairs={currentBodyKeyValuePairs}
+              activeRequestId={activeRequestId}
+              loading={loading}
+              onSaveRequest={handleSaveButtonClick}
+              onSendRequest={executeSendRequest}
+              headers={headers}
+              onAddHeader={addHeader}
+              onUpdateHeader={updateHeader}
+              onRemoveHeader={removeHeader}
+            />
 
-        {/* Use the new ResponseDisplayPanel component */}
-        <ResponseDisplayPanel response={response} error={error} loading={loading} />
+            {/* Use the new ResponseDisplayPanel component */}
+            <ResponseDisplayPanel
+              response={response}
+              error={error}
+              loading={loading}
+            />
+          </>
+        )}
       </div>
     </div>
   );
