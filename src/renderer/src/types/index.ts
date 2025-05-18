@@ -60,8 +60,14 @@ export interface SavedRequest {
   name: string;
   method: string;
   url: string;
+  folderId?: string;
   headers?: RequestHeader[];
   bodyKeyValuePairs?: KeyValuePair[];
+}
+
+export interface RequestFolder {
+  id: string;
+  name: string;
 }
 
 export interface ApiResult {

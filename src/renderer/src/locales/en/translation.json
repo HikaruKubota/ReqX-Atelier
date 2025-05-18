@@ -14,5 +14,10 @@
   "response_heading": "Response",
   "no_response": "No response yet. Send a request or load a saved one!",
   "loading": "Loading...",
-  "error_details": "Error Details:"
+  "error_details": "Error Details:",
+  "new_folder": "New Folder",
+  "delete_folder_confirm": "Are you sure to delete this folder?",
+  "details": "Details",
+  "move_to_folder": "Move to Folder",
+  "delete": "Delete"
 }

@@ -21,6 +21,7 @@ describe('RequestListItem', () => {
         isActive={false}
         onClick={() => {}}
         onDelete={() => {}}
+        onMove={() => {}}
       />,
     );
     expect(getByText('テストリクエスト')).toBeInTheDocument();
@@ -34,6 +35,7 @@ describe('RequestListItem', () => {
         isActive={false}
         onClick={handleClick}
         onDelete={() => {}}
+        onMove={() => {}}
       />,
     );
     fireEvent.click(getByText('テストリクエスト'));
@@ -48,6 +50,7 @@ describe('RequestListItem', () => {
         isActive={false}
         onClick={() => {}}
         onDelete={handleDelete}
+        onMove={() => {}}
       />,
     );
     fireEvent.click(getByRole('button'));

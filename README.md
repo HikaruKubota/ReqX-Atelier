@@ -1,6 +1,7 @@
 # ReqX Atelier - APIリクエストツール
 
 ReqX Atelier は **Electron + React + Vite** で構築されたシンプルな API リクエストクライアントです。Tailwind CSS でスタイリングし、Vitest・Storybook・Playwright によるテスト基盤を同梱しています。
+保存したリクエストをフォルダで整理できる機能も備えています。サイドバーの「New Folder」ボタンからフォルダを作成してください。各リクエスト行の「Details」ボタンから移動や削除といった操作も可能です。
 
 ---
 

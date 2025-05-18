@@ -49,9 +49,12 @@ export default function App() {
   // Saved requests state (from useSavedRequests hook)
   const {
     savedRequests,
+    folders,
     addRequest,
     updateRequest: updateSavedRequest,
     deleteRequest,
+    addFolder,
+    moveRequest,
   } = useSavedRequests();
 
   const { executeSendRequest, executeSaveRequest } = useRequestActions({
@@ -84,6 +87,13 @@ export default function App() {
     setActiveRequestId(null);
     resetApiResponse();
   }, [tabs, loadRequestIntoEditor, setActiveRequestId, resetApiResponse]);
+
+  const handleNewFolder = useCallback(() => {
+    const name = prompt('Folder name');
+    if (name && name.trim() !== '') {
+      addFolder(name.trim());
+    }
+  }, [addFolder]);
 
   useKeyboardShortcuts({
     onSave: executeSaveRequest,
@@ -187,10 +197,18 @@ export default function App() {
     <div style={{ display: 'flex', height: '100vh' }}>
       <RequestCollectionSidebar
         savedRequests={savedRequests}
+        folders={folders}
         activeRequestId={activeRequestId}
         onNewRequest={handleNewRequest}
+        onNewFolder={handleNewFolder}
         onLoadRequest={handleLoadRequest}
         onDeleteRequest={handleDeleteRequest}
+        onMoveRequest={(id) => {
+          const folderName = prompt('Folder ID or blank to remove');
+          if (folderName !== null) {
+            moveRequest(id, folderName === '' ? undefined : folderName);
+          }
+        }}
         isOpen={sidebarOpen}
         onToggle={() => setSidebarOpen((o) => !o)}
       />
