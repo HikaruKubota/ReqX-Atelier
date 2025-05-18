@@ -4,7 +4,8 @@ import clsx from 'clsx';
 export type ButtonVariant = 'primary' | 'secondary' | 'ghost';
 export type ButtonSize = 'sm' | 'md' | 'lg';
 
-export interface BaseButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+export interface BaseButtonProps
+  extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: ButtonVariant;
   size?: ButtonSize;
 }
@@ -21,7 +22,7 @@ export const BaseButton: React.FC<BaseButtonProps> = ({
       'btn',
       `btn-${variant}`,
       `btn-${size}`,
-      className, // 追加クラスも上書き可能
+      className // 追加クラスも上書き可能
     )}
     {...rest}
   >

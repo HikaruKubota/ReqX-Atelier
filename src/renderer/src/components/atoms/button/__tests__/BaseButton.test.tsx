@@ -11,11 +11,7 @@ describe('BaseButton', () => {
   });
 
   it('applies variant & size classes', () => {
-    render(
-      <BaseButton variant="secondary" size="lg">
-        OK
-      </BaseButton>,
-    );
+    render(<BaseButton variant="secondary" size="lg">OK</BaseButton>);
     const btn = screen.getByText('OK');
     expect(btn).toHaveClass('btn-secondary', 'btn-lg');
   });
