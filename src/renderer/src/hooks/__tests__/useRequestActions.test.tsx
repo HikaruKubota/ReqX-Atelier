@@ -6,12 +6,14 @@ const getMockRefs = () => ({
   editorPanelRef: {
     current: {
       getRequestBodyAsJson: () => '{"foo":"bar"}',
-      getRequestBodyKeyValuePairs: () => [{ key: 'foo', value: 'bar' }],
+      getRequestBodyKeyValuePairs: () => [
+        { id: 'kv1', keyName: 'foo', value: 'bar', enabled: true },
+      ],
     },
   },
   methodRef: { current: 'POST' },
   urlRef: { current: 'https://example.com' },
-  headersRef: { current: [{ key: 'X-Test', value: '1', enabled: true }] },
+  headersRef: { current: [{ id: 'h1', key: 'X-Test', value: '1', enabled: true }] },
   requestNameForSaveRef: { current: 'テストリクエスト' },
   activeRequestIdRef: { current: null as string | null },
   setRequestNameForSave: vi.fn(),
@@ -69,8 +71,8 @@ describe('useRequestActions', () => {
       name: 'テストリクエスト',
       method: 'POST',
       url: 'https://example.com',
-      headers: [{ key: 'X-Test', value: '1', enabled: true }],
-      bodyKeyValuePairs: [{ key: 'foo', value: 'bar' }],
+      headers: [{ id: 'h1', key: 'X-Test', value: '1', enabled: true }],
+      bodyKeyValuePairs: [{ id: 'kv1', keyName: 'foo', value: 'bar', enabled: true }],
     });
     expect(mockSetActiveRequestId).toHaveBeenCalledWith('new-id');
     expect(refs.setRequestNameForSave).toHaveBeenCalledWith('テストリクエスト');
@@ -100,8 +102,8 @@ describe('useRequestActions', () => {
       name: 'テストリクエスト',
       method: 'POST',
       url: 'https://example.com',
-      headers: [{ key: 'X-Test', value: '1', enabled: true }],
-      bodyKeyValuePairs: [{ key: 'foo', value: 'bar' }],
+      headers: [{ id: 'h1', key: 'X-Test', value: '1', enabled: true }],
+      bodyKeyValuePairs: [{ id: 'kv1', keyName: 'foo', value: 'bar', enabled: true }],
     });
     expect(refs.setRequestNameForSave).toHaveBeenCalledWith('テストリクエスト');
   });
@@ -131,8 +133,8 @@ describe('useRequestActions', () => {
       name: 'Untitled Request',
       method: 'POST',
       url: 'https://example.com',
-      headers: [{ key: 'X-Test', value: '1', enabled: true }],
-      bodyKeyValuePairs: [{ key: 'foo', value: 'bar' }],
+      headers: [{ id: 'h1', key: 'X-Test', value: '1', enabled: true }],
+      bodyKeyValuePairs: [{ id: 'kv1', keyName: 'foo', value: 'bar', enabled: true }],
     });
     expect(mockSetActiveRequestId).toHaveBeenCalledWith('new-id');
     expect(refs.setRequestNameForSave).toHaveBeenCalledWith('Untitled Request');

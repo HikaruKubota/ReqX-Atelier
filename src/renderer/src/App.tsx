@@ -71,10 +71,16 @@ export default function App() {
 
   const tabs = useTabs();
 
-
   const handleNewRequest = useCallback(() => {
     const tab = tabs.openTab();
-    loadRequestIntoEditor(tab);
+    loadRequestIntoEditor({
+      id: tab.requestId || '',
+      name: tab.name,
+      method: tab.method,
+      url: tab.url,
+      headers: tab.headers,
+      bodyKeyValuePairs: tab.bodyKeyValuePairs,
+    });
     setActiveRequestId(null);
     resetApiResponse();
   }, [tabs, loadRequestIntoEditor, setActiveRequestId, resetApiResponse]);
@@ -144,7 +150,14 @@ export default function App() {
       tabs.switchTab(existing.tabId);
     }
     if (target) {
-      loadRequestIntoEditor(target);
+      loadRequestIntoEditor({
+        id: target.requestId || '',
+        name: target.name,
+        method: target.method,
+        url: target.url,
+        headers: target.headers,
+        bodyKeyValuePairs: target.bodyKeyValuePairs,
+      });
       setActiveRequestId(target.requestId);
     }
     resetApiResponse();
@@ -153,7 +166,14 @@ export default function App() {
   useEffect(() => {
     const tab = tabs.getActiveTab();
     if (tab) {
-      loadRequestIntoEditor(tab);
+      loadRequestIntoEditor({
+        id: tab.requestId || '',
+        name: tab.name,
+        method: tab.method,
+        url: tab.url,
+        headers: tab.headers,
+        bodyKeyValuePairs: tab.bodyKeyValuePairs,
+      });
       setRequestNameForSave(tab.name);
       setActiveRequestId(tab.requestId);
       resetApiResponse();
@@ -250,11 +270,7 @@ export default function App() {
             />
 
             {/* Use the new ResponseDisplayPanel component */}
-            <ResponseDisplayPanel
-              response={response}
-              error={error}
-              loading={loading}
-            />
+            <ResponseDisplayPanel response={response} error={error} loading={loading} />
           </>
         )}
       </div>
