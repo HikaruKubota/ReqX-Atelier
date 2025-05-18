@@ -10,7 +10,7 @@
     "dev:electron": "NODE_ENV=development electron .",
     "dev": "concurrently -k \"npm run dev:renderer\" \"npm run dev:electron\"",
     "build:electron": "NODE_ENV=production electron-builder",
-    "lint": "eslint . --ext .ts,.tsx",
+    "lint": "eslint -c .eslintrc.cjs . --ext .ts,.tsx",
     "format": "prettier --write .",
     "test": "vitest run",
     "test:watch": "vitest",

@@ -1,4 +1,3 @@
-import React from 'react';
 import type { SavedRequest } from '../hooks/useSavedRequests'; // Adjust path as needed
 import { RequestListItem } from './atoms/list/RequestListItem';
 import { NewRequestButton } from './atoms/button/NewRequestButton';

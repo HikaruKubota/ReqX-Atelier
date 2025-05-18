@@ -1,4 +1,10 @@
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import {
+  createContext,
+  useContext,
+  useEffect,
+  useState,
+  type ReactNode,
+} from 'react';
 import { darkColors, lightColors, ThemeColors } from './colors';
 
 export type ThemeMode = 'light' | 'dark';
@@ -18,7 +24,7 @@ const applyColors = (colors: ThemeColors) => {
   });
 };
 
-export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+export const ThemeProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [mode, setMode] = useState<ThemeMode>('light');
   const colors = mode === 'light' ? lightColors : darkColors;
 

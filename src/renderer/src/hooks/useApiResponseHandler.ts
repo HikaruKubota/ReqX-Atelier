@@ -3,7 +3,7 @@ import { sendApiRequest, ApiResult } from '../api'; // Assuming ApiResult is the
 
 export interface ApiResponseHandler {
   response: ApiResult | null;
-  error: any; // Consider a more specific error type
+  error: unknown;
   loading: boolean;
   executeRequest: (
     method: string,
@@ -16,7 +16,7 @@ export interface ApiResponseHandler {
 
 export const useApiResponseHandler = (): ApiResponseHandler => {
   const [response, setResponse] = useState<ApiResult | null>(null);
-  const [error, setError] = useState<any>(null);
+  const [error, setError] = useState<unknown>(null);
   const [loading, setLoading] = useState(false);
 
   const executeRequest = useCallback(
@@ -44,8 +44,12 @@ export const useApiResponseHandler = (): ApiResponseHandler => {
             isApiError: true,
           });
         }
-      } catch (err: any) {
-        setError({ message: err.message, isError: true, type: 'ApplicationError' });
+      } catch (err: unknown) {
+        setError({
+          message: err instanceof Error ? err.message : String(err),
+          isError: true,
+          type: 'ApplicationError',
+        });
       }
       setLoading(false);
     },

@@ -1,4 +1,3 @@
-import React from 'react';
 import clsx from 'clsx';
 import type { SavedRequest } from '../../../hooks/useSavedRequests';
 import { DeleteButton } from '../button/DeleteButton';

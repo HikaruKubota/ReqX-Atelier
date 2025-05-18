@@ -4,8 +4,8 @@ import { JsonPre } from './atoms/JsonPre';
 import { ErrorAlert } from './molecules/ErrorAlert';
 
 interface ResponseDisplayPanelProps {
-  response: any;
-  error: any;
+  response: unknown;
+  error: unknown;
   loading: boolean;
 }
 

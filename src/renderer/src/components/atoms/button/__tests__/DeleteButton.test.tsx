@@ -1,7 +1,6 @@
 import { render, fireEvent } from '@testing-library/react';
 import { describe, it, expect, vi } from 'vitest';
 import { DeleteButton } from '../DeleteButton';
-import { FiX } from 'react-icons/fi';
 
 describe('DeleteButton', () => {
   it('renders FiX icon', () => {

@@ -1,4 +1,3 @@
-import React from 'react';
 import { FiX } from 'react-icons/fi';
 import clsx from 'clsx';
 import { BaseButton, BaseButtonProps } from './BaseButton';
