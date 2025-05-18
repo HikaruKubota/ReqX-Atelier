@@ -1,3 +1,9 @@
 {
-  "delete_confirm": "Are you sure you want to delete this request?"
+  "delete_confirm": "Are you sure you want to delete this request?",
+  "import_json": "Import JSON",
+  "add_body_row": "Add Body Row",
+  "cancel": "Cancel",
+  "done": "Done",
+  "invalid_json": "Invalid JSON",
+  "body_not_applicable": "Request body is not applicable for {{method}} requests."
 }

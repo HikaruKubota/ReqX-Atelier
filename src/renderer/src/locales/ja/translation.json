@@ -1,3 +1,9 @@
 {
-  "delete_confirm": "このリクエストを削除してもよろしいですか？"
+  "delete_confirm": "このリクエストを削除してもよろしいですか？",
+  "import_json": "JSONをインポート",
+  "add_body_row": "行を追加",
+  "cancel": "キャンセル",
+  "done": "完了",
+  "invalid_json": "無効なJSONです",
+  "body_not_applicable": "{method} リクエストではボディを送信できません"
 }
