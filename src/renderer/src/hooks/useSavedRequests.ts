@@ -1,16 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
-import type { RequestHeader } from './useHeadersManager';
-import type { KeyValuePair } from '../components/BodyEditorKeyValue'; // Import KeyValuePair
+import type { KeyValuePair, RequestHeader, SavedRequest } from '../types';
 
-// Define the structure of a saved request
-export interface SavedRequest {
-  id: string;
-  name: string;
-  method: string;
-  url: string;
-  headers?: RequestHeader[];
-  bodyKeyValuePairs?: KeyValuePair[]; // Add new body structure
-}
 
 const LOCAL_STORAGE_KEY = 'reqx_saved_requests';
 

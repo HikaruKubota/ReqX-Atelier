@@ -1,35 +1,16 @@
 import { useState, useCallback, useRef, useEffect } from 'react';
-import { SavedRequest } from './useSavedRequests';
-// KeyValuePair is now primarily used by useBodyManager and BodyEditorKeyValue
-// import type { KeyValuePair } from '../components/BodyEditorKeyValue';
 import {
   useHeadersManager,
-  // RequestHeader, // RequestHeader is implicitly part of UseHeadersManagerReturn
-  UseHeadersManagerReturn,
 } from './useHeadersManager';
-import { useBodyManager, UseBodyManagerReturn } from './useBodyManager'; // Import from new body hook
+import { useBodyManager } from './useBodyManager';
+import type {
+  SavedRequest,
+  UseHeadersManagerReturn,
+  UseBodyManagerReturn,
+  RequestEditorState,
+} from '../types';
 
 // RequestEditorState now inherits from both manager returns, excluding conflicting/internal methods
-export interface RequestEditorState
-  extends Omit<UseHeadersManagerReturn, 'loadHeaders' | 'resetHeaders'>,
-    Omit<UseBodyManagerReturn, 'loadBodyKeyValuePairs' | 'resetBody'> {
-  method: string;
-  setMethod: (method: string) => void;
-  methodRef: { current: string };
-  url: string;
-  setUrl: (url: string) => void;
-  urlRef: { current: string };
-  // Body related types are now part of UseBodyManagerReturn
-  // Headers related types are now part of UseHeadersManagerReturn
-  requestNameForSave: string;
-  setRequestNameForSave: (name: string) => void;
-  requestNameForSaveRef: { current: string };
-  activeRequestId: string | null;
-  setActiveRequestId: (id: string | null) => void;
-  activeRequestIdRef: { current: string | null };
-  loadRequest: (request: SavedRequest) => void;
-  resetEditor: () => void;
-}
 
 // const initialHeaders: RequestHeader[] = []; // Remove: Defined in useHeadersManager
 

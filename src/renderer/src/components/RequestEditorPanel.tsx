@@ -1,14 +1,9 @@
 import React, { useImperativeHandle, forwardRef, useRef } from 'react';
-import type { RequestHeader } from '../hooks/useHeadersManager';
+import type { RequestHeader, BodyEditorKeyValueRef, KeyValuePair, RequestEditorPanelRef } from '../types';
 import { HeadersEditor } from './HeadersEditor';
-import { BodyEditorKeyValue, BodyEditorKeyValueRef, KeyValuePair } from './BodyEditorKeyValue';
+import { BodyEditorKeyValue } from './BodyEditorKeyValue';
 import { RequestNameRow } from './molecules/RequestNameRow';
 import { RequestMethodRow } from './molecules/RequestMethodRow';
-
-export interface RequestEditorPanelRef {
-  getRequestBodyAsJson: () => string;
-  getRequestBodyKeyValuePairs: () => KeyValuePair[];
-}
 
 interface RequestEditorPanelProps {
   requestNameForSave: string;

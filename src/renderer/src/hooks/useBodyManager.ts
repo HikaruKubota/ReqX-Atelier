@@ -1,15 +1,5 @@
 import { useState, useCallback, useRef, useEffect } from 'react';
-import type { KeyValuePair } from '../components/BodyEditorKeyValue';
-
-export interface UseBodyManagerReturn {
-  currentBodyKeyValuePairs: KeyValuePair[];
-  setCurrentBodyKeyValuePairs: (pairs: KeyValuePair[]) => void;
-  currentBodyKeyValuePairsRef: React.MutableRefObject<KeyValuePair[]>;
-  requestBody: string; // Read-only JSON string derived from key-value pairs
-  requestBodyRef: React.MutableRefObject<string>;
-  loadBodyKeyValuePairs: (pairs: KeyValuePair[]) => void;
-  resetBody: () => void;
-}
+import type { KeyValuePair, UseBodyManagerReturn } from '../types';
 
 const generateJsonFromBodyPairs = (pairs: KeyValuePair[]): string => {
   if (pairs.length === 0) return '';

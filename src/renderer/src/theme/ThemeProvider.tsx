@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
-import { darkColors, lightColors, ThemeColors } from './colors';
+import { darkColors, lightColors } from './colors';
+import type { ThemeColors } from '../types';
 
 export type ThemeMode = 'light' | 'dark';
 

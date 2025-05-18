@@ -1,5 +1,6 @@
 import React, { useCallback, useRef } from 'react';
-import { useSavedRequests, SavedRequest } from './hooks/useSavedRequests'; // Import the custom hook and type
+import { useSavedRequests } from './hooks/useSavedRequests';
+import type { SavedRequest } from './types';
 import { useRequestEditor } from './hooks/useRequestEditor'; // Import the new hook and RequestHeader
 import { useApiResponseHandler } from './hooks/useApiResponseHandler'; // Import the new API response handler hook
 import { RequestCollectionSidebar } from './components/RequestCollectionSidebar'; // Import the new sidebar component

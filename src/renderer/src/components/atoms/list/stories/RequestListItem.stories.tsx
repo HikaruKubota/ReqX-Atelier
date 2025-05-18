@@ -1,5 +1,5 @@
 import { RequestListItem } from '../RequestListItem';
-import type { SavedRequest } from '../../../../hooks/useSavedRequests';
+import type { SavedRequest } from '../../../../types';
 
 export default {
   title: 'Atoms/List/RequestListItem',
