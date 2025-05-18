@@ -2,13 +2,14 @@ import React from 'react';
 import { render } from '@testing-library/react';
 import { describe, it, expect } from 'vitest';
 import { ErrorAlert } from '../ErrorAlert';
+import '../../../i18n';
 
 const sampleError = { message: 'Something went wrong' };
 
 describe('ErrorAlert', () => {
   it('renders error message', () => {
     const { getByText } = render(<ErrorAlert error={sampleError} />);
-    expect(getByText('Error Details:')).toBeInTheDocument();
+    expect(getByText('エラー詳細:')).toBeInTheDocument();
     expect(getByText(sampleError.message)).toBeInTheDocument();
   });
 
