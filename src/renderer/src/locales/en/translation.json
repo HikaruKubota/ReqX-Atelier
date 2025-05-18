@@ -10,5 +10,9 @@
   "invalid_json": "Invalid JSON",
   "close_tab": "Close Tab",
   "hide_sidebar": "Hide Sidebar",
-  "show_sidebar": "Show Sidebar"
+  "show_sidebar": "Show Sidebar",
+  "response_heading": "Response",
+  "no_response": "No response yet. Send a request or load a saved one!",
+  "loading": "Loading...",
+  "error_details": "Error Details:"
 }

@@ -10,5 +10,9 @@
   "invalid_json": "無効なJSON",
   "close_tab": "タブを閉じる",
   "hide_sidebar": "サイドバーを隠す",
-  "show_sidebar": "サイドバーを表示"
+  "show_sidebar": "サイドバーを表示",
+  "response_heading": "レスポンス",
+  "no_response": "まだレスポンスがありません。リクエストを送信するか保存したものを読み込んでください。",
+  "loading": "読み込み中...",
+  "error_details": "エラー詳細:"
 }
