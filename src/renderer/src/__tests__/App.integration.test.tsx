@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen, fireEvent, within } from '@testing-library/react';
 import { vi } from 'vitest';
 
 vi.mock('../api', () => ({
@@ -32,7 +32,29 @@ describe('App integration', () => {
     );
     fireEvent.click(screen.getByText('Save Request'));
 
-    expect(await screen.findByText('テストリクエスト')).toBeInTheDocument();
+    const sidebar = screen.getByTestId('sidebar');
+    expect(await within(sidebar).findByText('テストリクエスト')).toBeInTheDocument();
+  });
+
+  it('ショートカットで保存したリクエストがサイドバーに表示される', async () => {
+    render(
+      <ThemeProvider>
+        <App />
+      </ThemeProvider>,
+    );
+    fireEvent.click(screen.getAllByLabelText('新しいリクエスト')[0]);
+
+    fireEvent.change(screen.getByPlaceholderText('Request Name (e.g., Get User Details)'), {
+      target: { value: 'ショートカット保存' },
+    });
+    fireEvent.change(
+      screen.getByPlaceholderText('Enter request URL (e.g., https://api.example.com/users)'),
+      { target: { value: 'https://example.org' } },
+    );
+    fireEvent.keyDown(window, { key: 's', ctrlKey: true });
+
+    const sidebar = screen.getByTestId('sidebar');
+    expect(await within(sidebar).findByText('ショートカット保存')).toBeInTheDocument();
   });
 
   it('SendボタンでAPIレスポンスが表示される', async () => {
