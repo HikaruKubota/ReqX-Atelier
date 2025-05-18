@@ -1,5 +1,6 @@
 import * as React from 'react';
 import type { RequestHeader } from '../types';
+import { TrashButton } from './atoms/button/TrashButton';
 
 interface HeadersEditorProps {
   headers: RequestHeader[];
@@ -19,23 +20,23 @@ export const HeadersEditor: React.FC<HeadersEditorProps> = ({
   onRemoveHeader,
 }) => {
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+    <div className="flex flex-col gap-2">
       <h4>Headers</h4>
       {headers.map((header) => (
-        <div key={header.id} style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+        <div key={header.id} className="flex items-center gap-2">
           <input
             type="checkbox"
             checked={header.enabled}
             onChange={(e) => onUpdateHeader(header.id, 'enabled', e.target.checked)}
             title={header.enabled ? 'Disable header' : 'Enable header'}
-            style={{ marginRight: '5px' }}
+            className="mr-1"
           />
           <input
             type="text"
             placeholder="Key"
             value={header.key}
             onChange={(e) => onUpdateHeader(header.id, 'key', e.target.value)}
-            style={{ flex: 1, padding: '6px', border: '1px solid #ddd', borderRadius: '4px' }}
+            className="flex-1 p-2 border border-gray-300 rounded"
             disabled={!header.enabled}
           />
           <input
@@ -43,35 +44,15 @@ export const HeadersEditor: React.FC<HeadersEditorProps> = ({
             placeholder="Value"
             value={header.value}
             onChange={(e) => onUpdateHeader(header.id, 'value', e.target.value)}
-            style={{ flex: 2, padding: '6px', border: '1px solid #ddd', borderRadius: '4px' }}
+            className="flex-2 p-2 border border-gray-300 rounded"
             disabled={!header.enabled}
           />
-          <button
-            onClick={() => onRemoveHeader(header.id)}
-            style={{
-              padding: '6px 10px',
-              border: '1px solid #dc3545',
-              color: '#dc3545',
-              backgroundColor: 'white',
-              borderRadius: '4px',
-              cursor: 'pointer',
-            }}
-          >
-            Remove
-          </button>
+          <TrashButton onClick={() => onRemoveHeader(header.id)} />
         </div>
       ))}
       <button
         onClick={onAddHeader}
-        style={{
-          padding: '8px 15px',
-          border: '1px solid #007bff',
-          color: '#007bff',
-          backgroundColor: 'white',
-          borderRadius: '4px',
-          cursor: 'pointer',
-          alignSelf: 'flex-start',
-        }}
+        className="px-4 py-2 border border-blue-500 text-blue-500 bg-white rounded self-start"
       >
         Add Header
       </button>

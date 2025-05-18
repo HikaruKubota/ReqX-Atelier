@@ -5,6 +5,7 @@ import { EnableAllButton } from './atoms/button/EnableAllButton';
 import { DisableAllButton } from './atoms/button/DisableAllButton';
 import { MoveUpButton } from './atoms/button/MoveUpButton';
 import { MoveDownButton } from './atoms/button/MoveDownButton';
+import { TrashButton } from './atoms/button/TrashButton';
 import { Modal } from './atoms/Modal';
 import type { BodyEditorKeyValueRef, KeyValuePair } from '../types';
 
@@ -143,27 +144,20 @@ export const BodyEditorKeyValue = forwardRef<BodyEditorKeyValueRef, BodyEditorKe
     return (
       <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
         {bodyKeyValuePairs.map((pair, index) => (
-          <div key={pair.id} style={{ display: 'flex', gap: '5px', alignItems: 'center' }}>
+          <div key={pair.id} className="flex items-center gap-2">
             <input
               type="checkbox"
               checked={pair.enabled}
               onChange={(e) => handleKeyValuePairChange(pair.id, 'enabled', e.target.checked)}
               title={pair.enabled ? 'Disable this row' : 'Enable this row'}
-              style={{ marginRight: '5px' }}
+              className="mr-1"
             />
             <input
               type="text"
               placeholder="Key"
               value={pair.keyName}
               onChange={(e) => handleKeyValuePairChange(pair.id, 'keyName', e.target.value)}
-              style={{
-                flexGrow: 1,
-                padding: '8px',
-                fontSize: '0.95em',
-                boxSizing: 'border-box',
-                border: '1px solid #ddd',
-                borderRadius: '4px',
-              }}
+              className="flex-1 p-2 text-sm border border-gray-300 rounded"
               disabled={!pair.enabled}
             />
             <input
@@ -171,14 +165,7 @@ export const BodyEditorKeyValue = forwardRef<BodyEditorKeyValueRef, BodyEditorKe
               placeholder="Value (JSON or string)"
               value={pair.value}
               onChange={(e) => handleKeyValuePairChange(pair.id, 'value', e.target.value)}
-              style={{
-                flexGrow: 2,
-                padding: '8px',
-                fontSize: '0.95em',
-                boxSizing: 'border-box',
-                border: '1px solid #ddd',
-                borderRadius: '4px',
-              }}
+              className="flex-2 p-2 text-sm border border-gray-300 rounded"
               disabled={!pair.enabled}
             />
             <MoveUpButton
@@ -191,34 +178,13 @@ export const BodyEditorKeyValue = forwardRef<BodyEditorKeyValueRef, BodyEditorKe
               disabled={index === bodyKeyValuePairs.length - 1}
               className="mx-1"
             />
-            <button
-              onClick={() => handleRemoveKeyValuePair(pair.id)}
-              style={{
-                padding: '6px 10px',
-                fontSize: '0.9em',
-                backgroundColor: '#dc3545',
-                color: 'white',
-                border: 'none',
-                borderRadius: '4px',
-                cursor: 'pointer',
-              }}
-            >
-              Remove
-            </button>
+            <TrashButton onClick={() => handleRemoveKeyValuePair(pair.id)} />
           </div>
         ))}
-        <div style={{ display: 'flex', gap: '8px', marginTop: '10px' }}>
+        <div className="flex gap-2 mt-2">
           <button
             onClick={handleAddKeyValuePair}
-            style={{
-              padding: '8px 15px',
-              fontSize: '0.95em',
-              backgroundColor: '#007bff',
-              color: 'white',
-              border: 'none',
-              borderRadius: '4px',
-              cursor: 'pointer',
-            }}
+            className="px-4 py-2 text-sm text-white bg-blue-500 rounded"
           >
             {t('add_body_row') || 'Add Body Row'}
           </button>
@@ -228,15 +194,7 @@ export const BodyEditorKeyValue = forwardRef<BodyEditorKeyValueRef, BodyEditorKe
               setImportText('');
               setImportError('');
             }}
-            style={{
-              padding: '8px 15px',
-              fontSize: '0.95em',
-              backgroundColor: '#6c757d',
-              color: 'white',
-              border: 'none',
-              borderRadius: '4px',
-              cursor: 'pointer',
-            }}
+            className="px-4 py-2 text-sm text-white bg-gray-600 rounded"
           >
             {t('import_json') || 'Import JSON'}
           </button>

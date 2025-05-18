@@ -18,6 +18,7 @@
   "error_details": "エラー詳細:",
   "move_up": "上に移動",
   "move_down": "下に移動",
+  "remove": "削除",
   "no_tabs": "タブが開かれていません。以下のショートカットを使用してください。",
   "cheatsheet_title": "ショートカット一覧",
   "shortcut_new": "新しいリクエスト: Ctrl+N",
