@@ -38,7 +38,10 @@ export function useRequestActions({
 
   // リクエスト保存
   const executeSaveRequest = useCallback(() => {
-    const nameToSave = requestNameForSaveRef.current.trim();
+    const nameToSave =
+      requestNameForSaveRef.current.trim() !== ''
+        ? requestNameForSaveRef.current.trim()
+        : 'Untitled Request';
     const currentMethod = methodRef.current;
     const currentUrl = urlRef.current;
     const currentBodyKeyValuePairsFromEditor = editorPanelRef.current?.getRequestBodyKeyValuePairs() || [];

@@ -99,4 +99,34 @@ describe('useRequestActions', () => {
       bodyKeyValuePairs: [{ key: 'foo', value: 'bar' }],
     });
   });
+
+  it('executeSaveRequest uses "Untitled Request" if name is empty', () => {
+    const mockAddRequest = vi.fn().mockReturnValue('new-id');
+    const mockSetActiveRequestId = vi.fn();
+    const refs = getMockRefs();
+    refs.requestNameForSaveRef.current = '   '; // 空白のみ
+
+    const { result } = renderHook(() =>
+      useRequestActions({
+        ...refs,
+        setActiveRequestId: mockSetActiveRequestId,
+        addRequest: mockAddRequest,
+        updateSavedRequest: vi.fn(),
+        executeRequest: vi.fn(),
+      })
+    );
+
+    act(() => {
+      result.current.executeSaveRequest();
+    });
+
+    expect(mockAddRequest).toHaveBeenCalledWith({
+      name: 'Untitled Request',
+      method: 'POST',
+      url: 'https://example.com',
+      headers: [{ key: 'X-Test', value: '1', enabled: true }],
+      bodyKeyValuePairs: [{ key: 'foo', value: 'bar' }],
+    });
+    expect(mockSetActiveRequestId).toHaveBeenCalledWith('new-id');
+  });
 });
