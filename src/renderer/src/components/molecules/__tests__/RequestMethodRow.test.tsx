@@ -13,7 +13,7 @@ describe('RequestMethodRow', () => {
         onUrlChange={() => {}}
         loading={false}
         onSend={() => {}}
-      />
+      />,
     );
     fireEvent.change(getByDisplayValue('GET'), { target: { value: 'POST' } });
     expect(handleMethodChange).toHaveBeenCalledWith('POST');
@@ -29,11 +29,14 @@ describe('RequestMethodRow', () => {
         onUrlChange={handleUrlChange}
         loading={false}
         onSend={() => {}}
-      />
+      />,
     );
-    fireEvent.change(getByPlaceholderText('Enter request URL (e.g., https://api.example.com/users)'), {
-      target: { value: 'new' }
-    });
+    fireEvent.change(
+      getByPlaceholderText('Enter request URL (e.g., https://api.example.com/users)'),
+      {
+        target: { value: 'new' },
+      },
+    );
     expect(handleUrlChange).toHaveBeenCalledWith('new');
   });
 
@@ -47,7 +50,7 @@ describe('RequestMethodRow', () => {
         onUrlChange={() => {}}
         loading={false}
         onSend={handleSend}
-      />
+      />,
     );
     fireEvent.click(getByText('Send'));
     expect(handleSend).toHaveBeenCalled();

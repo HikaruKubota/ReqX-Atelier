@@ -12,10 +12,10 @@ describe('RequestNameRow', () => {
         onSave={() => {}}
         saving={false}
         isUpdate={false}
-      />
+      />,
     );
     fireEvent.change(getByPlaceholderText('Request Name (e.g., Get User Details)'), {
-      target: { value: 'test' }
+      target: { value: 'test' },
     });
     expect(handleChange).toHaveBeenCalledWith('test');
   });
@@ -29,7 +29,7 @@ describe('RequestNameRow', () => {
         onSave={handleSave}
         saving={false}
         isUpdate={false}
-      />
+      />,
     );
     fireEvent.click(getByText('Save Request'));
     expect(handleSave).toHaveBeenCalled();

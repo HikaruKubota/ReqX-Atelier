@@ -9,7 +9,7 @@ describe('ThemeToggleButton', () => {
     render(
       <ThemeProvider>
         <ThemeToggleButton />
-      </ThemeProvider>
+      </ThemeProvider>,
     );
     const btn = screen.getByRole('button');
     expect(btn.textContent).toBe('ダークモード');

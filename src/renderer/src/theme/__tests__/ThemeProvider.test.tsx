@@ -5,9 +5,7 @@ import { ThemeProvider, useTheme } from '../ThemeProvider';
 
 const TestComp = () => {
   const { mode, toggleMode } = useTheme();
-  return (
-    <button onClick={toggleMode}>現在:{mode}</button>
-  );
+  return <button onClick={toggleMode}>現在:{mode}</button>;
 };
 
 describe('ThemeProvider', () => {
@@ -15,7 +13,7 @@ describe('ThemeProvider', () => {
     render(
       <ThemeProvider>
         <TestComp />
-      </ThemeProvider>
+      </ThemeProvider>,
     );
     const btn = screen.getByRole('button');
     expect(btn.textContent).toBe('現在:light');

@@ -5,6 +5,6 @@ const RequestForm = () => {
       {/* Add your form elements here */}
     </div>
   );
-}
+};
 
 export default RequestForm;

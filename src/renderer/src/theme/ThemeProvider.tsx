@@ -30,9 +30,7 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const toggleMode = () => setMode((m) => (m === 'light' ? 'dark' : 'light'));
 
   return (
-    <ThemeContext.Provider value={{ mode, colors, toggleMode }}>
-      {children}
-    </ThemeContext.Provider>
+    <ThemeContext.Provider value={{ mode, colors, toggleMode }}>{children}</ThemeContext.Provider>
   );
 };
 

@@ -26,7 +26,14 @@ export const RequestNameRow: React.FC<RequestNameRowProps> = ({
     <button
       onClick={onSave}
       disabled={saving}
-      style={{ padding: '8px 15px', border: 'none', backgroundColor: '#007bff', color: 'white', borderRadius: '4px', cursor: 'pointer' }}
+      style={{
+        padding: '8px 15px',
+        border: 'none',
+        backgroundColor: '#007bff',
+        color: 'white',
+        borderRadius: '4px',
+        cursor: 'pointer',
+      }}
     >
       {isUpdate ? 'Update Request' : 'Save Request'}
     </button>

@@ -5,6 +5,7 @@ ReqX Atelier は **Electron + React + Vite** で構築されたシンプルな A
 ---
 
 ## 前提条件
+
 - **Node.js** 20 以上
 - **npm** (v10 以上推奨)
 
@@ -28,10 +29,10 @@ npm install
 npm run dev
 ```
 
-| プロセス | 説明 |
-|----------|------|
+| プロセス       | 説明                      |
+| -------------- | ------------------------- |
 | `dev:renderer` | Vite 開発サーバー (React) |
-| `dev:electron` | Electron メインプロセス |
+| `dev:electron` | Electron メインプロセス   |
 
 ブラウザと Electron ウィンドウの変更が即時反映されます。
 
@@ -103,15 +104,15 @@ npm run format   # Prettier
 
 ## 主要スクリプト一覧
 
-| スクリプト | 目的 |
-|------------|------|
-| `dev` | 開発モード起動（Electron+Vite） |
-| `dev:all` | Electron+Vite+Storybook同時起動 |
-| `test`, `test:watch` | Vitest 実行 |
-| `storybook`, `test-storybook` | Storybook 関連 |
-| `e2e` | Playwright |
-| `build:renderer`, `build:electron` | 本番ビルド |
-| `lint`, `format` | コード品質チェック |
+| スクリプト                         | 目的                            |
+| ---------------------------------- | ------------------------------- |
+| `dev`                              | 開発モード起動（Electron+Vite） |
+| `dev:all`                          | Electron+Vite+Storybook同時起動 |
+| `test`, `test:watch`               | Vitest 実行                     |
+| `storybook`, `test-storybook`      | Storybook 関連                  |
+| `e2e`                              | Playwright                      |
+| `build:renderer`, `build:electron` | 本番ビルド                      |
+| `lint`, `format`                   | コード品質チェック              |
 
 ---
 

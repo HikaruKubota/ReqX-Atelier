@@ -30,11 +30,14 @@ export function useRequestActions({
   const executeSendRequest = useCallback(async () => {
     const currentBuiltRequestBody = editorPanelRef.current?.getRequestBodyAsJson() || '';
     const activeHeaders = headersRef.current
-      .filter(h => h.enabled && h.key.trim() !== '')
-      .reduce((acc, h) => {
-        acc[h.key] = h.value;
-        return acc;
-      }, {} as Record<string, string>);
+      .filter((h) => h.enabled && h.key.trim() !== '')
+      .reduce(
+        (acc, h) => {
+          acc[h.key] = h.value;
+          return acc;
+        },
+        {} as Record<string, string>,
+      );
     await executeRequest(methodRef.current, urlRef.current, currentBuiltRequestBody, activeHeaders);
   }, [executeRequest, headersRef, methodRef, urlRef]);
 
@@ -47,7 +50,8 @@ export function useRequestActions({
     setRequestNameForSave(nameToSave);
     const currentMethod = methodRef.current;
     const currentUrl = urlRef.current;
-    const currentBodyKeyValuePairsFromEditor = editorPanelRef.current?.getRequestBodyKeyValuePairs() || [];
+    const currentBodyKeyValuePairsFromEditor =
+      editorPanelRef.current?.getRequestBodyKeyValuePairs() || [];
     const currentActiveRequestId = activeRequestIdRef.current;
     const currentHeaders = headersRef.current;
 
@@ -65,7 +69,17 @@ export function useRequestActions({
       const newId = addRequest(requestDataToSave as SavedRequest);
       setActiveRequestId(newId);
     }
-  }, [addRequest, updateSavedRequest, setActiveRequestId, setRequestNameForSave, requestNameForSaveRef, methodRef, urlRef, activeRequestIdRef, headersRef]);
+  }, [
+    addRequest,
+    updateSavedRequest,
+    setActiveRequestId,
+    setRequestNameForSave,
+    requestNameForSaveRef,
+    methodRef,
+    urlRef,
+    activeRequestIdRef,
+    headersRef,
+  ]);
 
   return { executeSendRequest, executeSaveRequest };
 }

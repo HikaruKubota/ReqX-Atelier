@@ -28,57 +28,84 @@ interface RequestEditorPanelProps {
   onRemoveHeader: (id: string) => void;
 }
 
-export const RequestEditorPanel = forwardRef<RequestEditorPanelRef, RequestEditorPanelProps>((
-  { requestNameForSave, onRequestNameForSaveChange, method, onMethodChange, url, onUrlChange, initialBodyKeyValuePairs, activeRequestId, loading, onSaveRequest, onSendRequest, headers, onAddHeader, onUpdateHeader, onRemoveHeader },
-  ref
-) => {
-  const bodyEditorRef = useRef<BodyEditorKeyValueRef>(null);
-
-  useImperativeHandle(ref, () => ({
-    getRequestBodyAsJson: () => {
-      return bodyEditorRef.current?.getCurrentBodyAsJson() || '';
+export const RequestEditorPanel = forwardRef<RequestEditorPanelRef, RequestEditorPanelProps>(
+  (
+    {
+      requestNameForSave,
+      onRequestNameForSaveChange,
+      method,
+      onMethodChange,
+      url,
+      onUrlChange,
+      initialBodyKeyValuePairs,
+      activeRequestId,
+      loading,
+      onSaveRequest,
+      onSendRequest,
+      headers,
+      onAddHeader,
+      onUpdateHeader,
+      onRemoveHeader,
     },
-    getRequestBodyKeyValuePairs: () => {
-      return bodyEditorRef.current?.getCurrentKeyValuePairs() || [];
-    }
-  }));
+    ref,
+  ) => {
+    const bodyEditorRef = useRef<BodyEditorKeyValueRef>(null);
 
-  return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '15px', border: '1px solid #ccc', padding: '15px', borderRadius: '5px' }}>
-      <RequestNameRow
-        value={requestNameForSave}
-        onChange={onRequestNameForSaveChange}
-        onSave={onSaveRequest}
-        saving={loading}
-        isUpdate={!!activeRequestId}
-      />
+    useImperativeHandle(ref, () => ({
+      getRequestBodyAsJson: () => {
+        return bodyEditorRef.current?.getCurrentBodyAsJson() || '';
+      },
+      getRequestBodyKeyValuePairs: () => {
+        return bodyEditorRef.current?.getCurrentKeyValuePairs() || [];
+      },
+    }));
 
-      <RequestMethodRow
-        method={method}
-        onMethodChange={onMethodChange}
-        url={url}
-        onUrlChange={onUrlChange}
-        loading={loading}
-        onSend={onSendRequest}
-      />
-
-      <HeadersEditor
-        headers={headers}
-        onAddHeader={onAddHeader}
-        onUpdateHeader={onUpdateHeader}
-        onRemoveHeader={onRemoveHeader}
-      />
-
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
-        <h4>Request Body</h4>
-        <BodyEditorKeyValue
-          ref={bodyEditorRef}
-          initialBodyKeyValuePairs={initialBodyKeyValuePairs}
-          method={method}
+    return (
+      <div
+        style={{
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '15px',
+          border: '1px solid #ccc',
+          padding: '15px',
+          borderRadius: '5px',
+        }}
+      >
+        <RequestNameRow
+          value={requestNameForSave}
+          onChange={onRequestNameForSaveChange}
+          onSave={onSaveRequest}
+          saving={loading}
+          isUpdate={!!activeRequestId}
         />
+
+        <RequestMethodRow
+          method={method}
+          onMethodChange={onMethodChange}
+          url={url}
+          onUrlChange={onUrlChange}
+          loading={loading}
+          onSend={onSendRequest}
+        />
+
+        <HeadersEditor
+          headers={headers}
+          onAddHeader={onAddHeader}
+          onUpdateHeader={onUpdateHeader}
+          onRemoveHeader={onRemoveHeader}
+        />
+
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
+          <h4>Request Body</h4>
+          <BodyEditorKeyValue
+            ref={bodyEditorRef}
+            initialBodyKeyValuePairs={initialBodyKeyValuePairs}
+            method={method}
+          />
+        </div>
       </div>
-    </div>
-  );
-});
+    );
+  },
+);
 
 RequestEditorPanel.displayName = 'RequestEditorPanel';
