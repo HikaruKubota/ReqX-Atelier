@@ -22,6 +22,8 @@ npm install
 
 ## 開発 (ホットリロード)
 
+### 通常開発
+
 ```bash
 npm run dev
 ```
@@ -32,6 +34,17 @@ npm run dev
 | `dev:electron` | Electron メインプロセス |
 
 ブラウザと Electron ウィンドウの変更が即時反映されます。
+
+---
+
+### Storybookと同時起動
+
+```bash
+npm run dev:all
+```
+
+- ElectronアプリとStorybookを**同時に起動**します。
+- Storybookは http://localhost:6006 で閲覧できます。
 
 ---
 
@@ -92,7 +105,8 @@ npm run format   # Prettier
 
 | スクリプト | 目的 |
 |------------|------|
-| `dev` | 開発モード起動 |
+| `dev` | 開発モード起動（Electron+Vite） |
+| `dev:all` | Electron+Vite+Storybook同時起動 |
 | `test`, `test:watch` | Vitest 実行 |
 | `storybook`, `test-storybook` | Storybook 関連 |
 | `e2e` | Playwright |

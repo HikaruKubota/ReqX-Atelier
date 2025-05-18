@@ -17,7 +17,8 @@
     "storybook": "storybook dev -p 6006",
     "test-storybook": "storybook test",
     "e2e": "playwright test",
-    "build-storybook": "storybook build"
+    "build-storybook": "storybook build",
+    "dev:all": "concurrently -k \"npm run dev\" \"npm run storybook\""
   },
   "keywords": [],
   "author": "",
