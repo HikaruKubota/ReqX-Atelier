@@ -1,9 +1,16 @@
 import React, { useImperativeHandle, forwardRef, useRef } from 'react';
-import type { RequestHeader, BodyEditorKeyValueRef, KeyValuePair, RequestEditorPanelRef } from '../types';
+import type {
+  RequestHeader,
+  BodyEditorKeyValueRef,
+  KeyValuePair,
+  RequestEditorPanelRef,
+  RequestFolder,
+} from '../types';
 import { HeadersEditor } from './HeadersEditor';
 import { BodyEditorKeyValue } from './BodyEditorKeyValue';
 import { RequestNameRow } from './molecules/RequestNameRow';
 import { RequestMethodRow } from './molecules/RequestMethodRow';
+import { RequestFolderRow } from './molecules/RequestFolderRow';
 
 interface RequestEditorPanelProps {
   requestNameForSave: string;
@@ -17,6 +24,9 @@ interface RequestEditorPanelProps {
   loading: boolean;
   onSaveRequest: () => void;
   onSendRequest: () => void;
+  folderId: string;
+  folders: RequestFolder[];
+  onFolderChange: (id: string) => void;
   headers: RequestHeader[];
   onAddHeader: () => void;
   onUpdateHeader: (id: string, field: 'key' | 'value' | 'enabled', value: string | boolean) => void;
@@ -37,6 +47,9 @@ export const RequestEditorPanel = forwardRef<RequestEditorPanelRef, RequestEdito
       loading,
       onSaveRequest,
       onSendRequest,
+      folderId,
+      folders,
+      onFolderChange,
       headers,
       onAddHeader,
       onUpdateHeader,
@@ -73,6 +86,8 @@ export const RequestEditorPanel = forwardRef<RequestEditorPanelRef, RequestEdito
           saving={loading}
           isUpdate={!!activeRequestId}
         />
+
+        <RequestFolderRow folders={folders} value={folderId} onChange={onFolderChange} />
 
         <RequestMethodRow
           method={method}

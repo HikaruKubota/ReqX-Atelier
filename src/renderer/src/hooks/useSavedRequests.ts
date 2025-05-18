@@ -1,78 +1,67 @@
 import { useState, useEffect, useCallback } from 'react';
-import type { KeyValuePair, SavedRequest } from '../types';
+import { useTranslation } from 'react-i18next';
+import type { KeyValuePair, SavedRequest, RequestFolder } from '../types';
 
+const LOCAL_STORAGE_KEY = 'reqx_saved_requests_v2';
 
-const LOCAL_STORAGE_KEY = 'reqx_saved_requests';
+interface StoredData {
+  folders: RequestFolder[];
+  requests: SavedRequest[];
+}
 
 export const useSavedRequests = () => {
+  const { t } = useTranslation();
+  const createDefaultFolder = useCallback(
+    () => ({ id: `folder-${Date.now()}`, name: t('default_folder') }),
+    [t],
+  );
+
+  const [folders, setFolders] = useState<RequestFolder[]>([]);
   const [savedRequests, setSavedRequests] = useState<SavedRequest[]>([]);
 
-  // Load saved requests from localStorage on initial mount
   useEffect(() => {
-    const storedRequests = localStorage.getItem(LOCAL_STORAGE_KEY);
-    if (storedRequests) {
+    const stored = localStorage.getItem(LOCAL_STORAGE_KEY);
+    if (stored) {
       try {
-        const parsedRequests = JSON.parse(storedRequests) as Array<
-          Partial<SavedRequest> & { body?: string }
-        >; // Type assertion for migration
-        // Ensure all loaded requests have an id (for backward compatibility if needed)
-        const requestsWithIds = parsedRequests.map((req) => {
-          let bodyKeyValuePairs: KeyValuePair[] | undefined = req.bodyKeyValuePairs;
-          // Migration logic for old 'body' string
-          if (req.body && !req.bodyKeyValuePairs) {
-            try {
-              const parsedJsonBody = JSON.parse(req.body);
-              if (
-                typeof parsedJsonBody === 'object' &&
-                parsedJsonBody !== null &&
-                !Array.isArray(parsedJsonBody)
-              ) {
-                bodyKeyValuePairs = Object.entries(parsedJsonBody).map(([k, v], index) => ({
-                  id: `kv-migrated-${k}-${index}-${Date.now()}`,
-                  keyName: k,
-                  value: typeof v === 'string' ? v : JSON.stringify(v, null, 2),
-                  enabled: true, // Assume migrated K-V pairs are enabled
-                }));
-              }
-            } catch (e) {
-              console.warn(
-                "Failed to migrate 'body' string to key-value pairs for request:",
-                req.name,
-                e,
-              );
-              // If parsing fails, keep bodyKeyValuePairs as undefined or empty
-              bodyKeyValuePairs = [];
-            }
-          }
-
-          return {
-            ...req,
-            id: req.id || `saved-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`,
-            name: req.name || 'Untitled Request',
-            method: req.method || 'GET',
-            url: req.url || '',
-            headers: req.headers || [],
-            bodyKeyValuePairs: bodyKeyValuePairs || [], // Ensure bodyKeyValuePairs array exists
-            body: undefined, // Remove the old body property explicitly
-          };
-        }) as SavedRequest[];
-        setSavedRequests(requestsWithIds);
-      } catch (error) {
-        console.error('Failed to parse saved requests from localStorage:', error);
-        setSavedRequests([]); // Fallback to empty array on error
+        const parsed = JSON.parse(stored) as StoredData | SavedRequest[];
+        if (Array.isArray(parsed)) {
+          setFolders([createDefaultFolder()]);
+          setSavedRequests(
+            (parsed as SavedRequest[]).map((r) => ({
+              ...r,
+              folderId: r.folderId || 'default',
+            })),
+          );
+        } else {
+          setFolders(parsed.folders.length > 0 ? parsed.folders : [createDefaultFolder()]);
+          setSavedRequests(parsed.requests || []);
+        }
+      } catch (e) {
+        console.error('Failed to parse saved data', e);
+        setFolders([createDefaultFolder()]);
+        setSavedRequests([]);
       }
+    } else {
+      setFolders([createDefaultFolder()]);
     }
+  }, [createDefaultFolder]);
+
+  useEffect(() => {
+    const data: StoredData = { folders, requests: savedRequests };
+    localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(data));
+  }, [folders, savedRequests]);
+
+  const addFolder = useCallback((name: string): string => {
+    const id = `folder-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`;
+    const folder = { id, name: name.trim() || t('untitled_folder') };
+    setFolders((prev) => [...prev, folder]);
+    return id;
   }, []);
 
-  // Save requests to localStorage whenever they change
-  useEffect(() => {
-    // Before saving, ensure no 'body' property is lingering from old structures if migration happened elsewhere
-    const requestsToSave = savedRequests.map((req) => {
-      const { ...rest } = req as SavedRequest & { body?: string };
-      return rest;
-    });
-    localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(requestsToSave));
-  }, [savedRequests]);
+  const deleteFolder = useCallback((id: string) => {
+    setFolders((prev) => prev.filter((f) => f.id !== id));
+    setSavedRequests((prev) => prev.filter((r) => r.folderId !== id));
+  }, []);
 
   const addRequest = useCallback(
     (
@@ -81,7 +70,7 @@ export const useSavedRequests = () => {
       },
     ): string => {
       const newId = `saved-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`;
-      const newRequest = {
+      const newRequest: SavedRequest = {
         ...request,
         id: newId,
         headers: request.headers || [],
@@ -106,5 +95,13 @@ export const useSavedRequests = () => {
     setSavedRequests((prevRequests) => prevRequests.filter((req) => req.id !== id));
   }, []);
 
-  return { savedRequests, addRequest, updateRequest, deleteRequest };
+  return {
+    folders,
+    savedRequests,
+    addFolder,
+    deleteFolder,
+    addRequest,
+    updateRequest,
+    deleteRequest,
+  };
 };

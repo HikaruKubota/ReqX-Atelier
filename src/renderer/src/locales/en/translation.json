@@ -7,5 +7,9 @@
   "import": "Import",
   "cancel": "Cancel",
   "paste_json": "Paste JSON here",
-  "invalid_json": "Invalid JSON"
+  "invalid_json": "Invalid JSON",
+  "add_folder": "Add Folder",
+  "default_folder": "Default",
+  "untitled_folder": "Untitled Folder",
+  "no_requests": "No requests"
 }

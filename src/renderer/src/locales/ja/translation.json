@@ -7,5 +7,9 @@
   "import": "インポート",
   "cancel": "キャンセル",
   "paste_json": "ここにJSONを貼り付けてください",
-  "invalid_json": "無効なJSON"
+  "invalid_json": "無効なJSON",
+  "add_folder": "フォルダ追加",
+  "default_folder": "デフォルト",
+  "untitled_folder": "無題のフォルダ",
+  "no_requests": "リクエストがありません"
 }
