@@ -1,4 +1,4 @@
-import React, { useCallback, useRef, useEffect } from 'react';
+import React, { useCallback, useRef, useEffect, useState } from 'react';
 import { useSavedRequests } from './hooks/useSavedRequests';
 import type { SavedRequest } from './types';
 import { useRequestEditor } from './hooks/useRequestEditor'; // Import the new hook and RequestHeader
@@ -11,12 +11,14 @@ import { useTabs } from './hooks/useTabs';
 import { useRequestActions } from './hooks/useRequestActions';
 import { useTranslation } from 'react-i18next';
 import { ThemeToggleButton } from './components/ThemeToggleButton';
+import { SidebarToggleButton } from './components/atoms/button/SidebarToggleButton';
 import { TabBar } from './components/organisms/TabBar';
 import { RequestEditorPanelRef } from './types'; // Import the RequestHeader type
 
 export default function App() {
   const { t } = useTranslation();
   const editorPanelRef = useRef<RequestEditorPanelRef>(null); // Create a ref
+  const [sidebarOpen, setSidebarOpen] = useState(true);
 
   // Use the new custom hook for request editor state and logic
   const {
@@ -184,14 +186,15 @@ export default function App() {
 
   return (
     <div style={{ display: 'flex', height: '100vh' }}>
-      {/* Use the new RequestCollectionSidebar component */}
-      <RequestCollectionSidebar
-        savedRequests={savedRequests}
-        activeRequestId={activeRequestId}
-        onNewRequest={handleNewRequest}
-        onLoadRequest={handleLoadRequest}
-        onDeleteRequest={handleDeleteRequest}
-      />
+      {sidebarOpen && (
+        <RequestCollectionSidebar
+          savedRequests={savedRequests}
+          activeRequestId={activeRequestId}
+          onNewRequest={handleNewRequest}
+          onLoadRequest={handleLoadRequest}
+          onDeleteRequest={handleDeleteRequest}
+        />
+      )}
 
       {/* Right Main Area for Request Editing and Response */}
       <div
@@ -225,6 +228,12 @@ export default function App() {
             tabs.closeTab(id);
           }}
         />
+        <div style={{ alignSelf: 'flex-start' }}>
+          <SidebarToggleButton
+            isOpen={sidebarOpen}
+            onClick={() => setSidebarOpen((o) => !o)}
+          />
+        </div>
         <div style={{ alignSelf: 'flex-end' }}>
           <ThemeToggleButton />
         </div>

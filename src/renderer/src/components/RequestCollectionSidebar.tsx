@@ -22,6 +22,7 @@ export const RequestCollectionSidebar: React.FC<RequestCollectionSidebarProps> =
     <div
       style={{
         width: '250px',
+        flexShrink: 0,
         borderRight: '1px solid #ccc',
         padding: '10px',
         display: 'flex',
