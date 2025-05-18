@@ -8,6 +8,7 @@ import { ResponseDisplayPanel } from './components/ResponseDisplayPanel'; // Imp
 import { useKeyboardShortcuts } from './hooks/useKeyboardShortcuts';
 import { useRequestActions } from './hooks/useRequestActions';
 import { useTranslation } from 'react-i18next';
+import { ThemeToggleButton } from './components/ThemeToggleButton';
 
 export default function App() {
   const { t } = useTranslation();
@@ -88,6 +89,9 @@ export default function App() {
 
       {/* Right Main Area for Request Editing and Response */}
       <div style={{ flexGrow: 1, padding: '20px', display: 'flex', flexDirection: 'column', gap: '15px', overflowY: 'auto' }}>
+        <div style={{ alignSelf: 'flex-end' }}>
+          <ThemeToggleButton />
+        </div>
         {/* Use the new RequestEditorPanel component */}
         <RequestEditorPanel
           ref={editorPanelRef}
