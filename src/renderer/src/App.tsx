@@ -85,6 +85,12 @@ export default function App() {
     resetApiResponse();
   }, [tabs, loadRequestIntoEditor, setActiveRequestId, resetApiResponse]);
 
+  useEffect(() => {
+    if (tabs.tabs.length === 0) {
+      handleNewRequest();
+    }
+  }, []);
+
   useKeyboardShortcuts({
     onSave: executeSaveRequest,
     onSend: executeSendRequest,

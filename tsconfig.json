@@ -14,7 +14,9 @@
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
     "resolveJsonModule": true,
-    "types": ["vitest/globals", "vite/client"]
+    "allowImportingTsExtensions": true,
+    "noEmit": true,
+    "types": ["vitest", "vitest/globals"]
   },
-  "include": ["src"]
+  "include": ["src", "vitest.shims.d.ts"]
 }
