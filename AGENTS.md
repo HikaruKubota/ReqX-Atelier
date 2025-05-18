@@ -120,7 +120,6 @@ hypothesis: emailバリデーションに正規表現ミスがある
 ## プロジェクト固有の指針
 
 - 新しいUI文言を追加する際は `src/renderer/src/locales/en/translation.json` と `ja/translation.json` の両方を更新してください。
-- テストコードは必ず作成しますが、ネットワーク制約により実行は任意とします。
 
 ---
 
