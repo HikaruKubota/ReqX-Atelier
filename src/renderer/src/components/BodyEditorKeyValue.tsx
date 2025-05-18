@@ -3,6 +3,8 @@ import { useState, useEffect, useImperativeHandle, forwardRef, useCallback } fro
 import { useTranslation } from 'react-i18next';
 import { EnableAllButton } from './atoms/button/EnableAllButton';
 import { DisableAllButton } from './atoms/button/DisableAllButton';
+import { MoveUpButton } from './atoms/button/MoveUpButton';
+import { MoveDownButton } from './atoms/button/MoveDownButton';
 import { Modal } from './atoms/Modal';
 import type { BodyEditorKeyValueRef, KeyValuePair } from '../types';
 
@@ -179,34 +181,16 @@ export const BodyEditorKeyValue = forwardRef<BodyEditorKeyValueRef, BodyEditorKe
               }}
               disabled={!pair.enabled}
             />
-            <button
+            <MoveUpButton
               onClick={() => handleMoveKeyValuePair(index, 'up')}
               disabled={index === 0}
-              style={{
-                padding: '6px',
-                fontSize: '0.8em',
-                cursor: 'pointer',
-                border: '1px solid #ccc',
-                backgroundColor: 'white',
-              }}
-              title="Move Up"
-            >
-              ↑
-            </button>
-            <button
+              className="mx-1"
+            />
+            <MoveDownButton
               onClick={() => handleMoveKeyValuePair(index, 'down')}
               disabled={index === bodyKeyValuePairs.length - 1}
-              style={{
-                padding: '6px',
-                fontSize: '0.8em',
-                cursor: 'pointer',
-                border: '1px solid #ccc',
-                backgroundColor: 'white',
-              }}
-              title="Move Down"
-            >
-              ↓
-            </button>
+              className="mx-1"
+            />
             <button
               onClick={() => handleRemoveKeyValuePair(pair.id)}
               style={{
