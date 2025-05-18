@@ -4,8 +4,8 @@ import clsx from 'clsx';
 import { BaseButton, BaseButtonProps } from './BaseButton';
 import { useTranslation } from 'react-i18next';
 
-export const NewRequestButton: React.FC<BaseButtonProps> = ({
-  size = 'md',
+export const NewRequestIconButton: React.FC<BaseButtonProps> = ({
+  size = 'sm',
   variant = 'primary',
   className,
   ...props
@@ -16,7 +16,7 @@ export const NewRequestButton: React.FC<BaseButtonProps> = ({
       size={size}
       variant={variant}
       className={clsx(
-        'flex items-center gap-2 px-4 py-2 rounded-md font-semibold shadow-sm transition-colors',
+        'p-2 rounded-md shadow-sm transition-colors',
         'bg-blue-500 text-white hover:bg-blue-600',
         className,
       )}
@@ -24,7 +24,8 @@ export const NewRequestButton: React.FC<BaseButtonProps> = ({
       {...props}
     >
       <FiPlus size={18} />
-      <span>{t('new_request')}</span>
     </BaseButton>
   );
 };
+
+export default NewRequestIconButton;

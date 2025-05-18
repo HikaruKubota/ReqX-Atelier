@@ -6,8 +6,15 @@ interface TabBarProps {
   activeTabId: string | null;
   onSelect: (id: string) => void;
   onClose: (id: string) => void;
+  onNew: () => void;
 }
 
-export const TabBar: React.FC<TabBarProps> = ({ tabs, activeTabId, onSelect, onClose }) => (
-  <TabList tabs={tabs} activeTabId={activeTabId} onSelect={onSelect} onClose={onClose} />
+export const TabBar: React.FC<TabBarProps> = ({ tabs, activeTabId, onSelect, onClose, onNew }) => (
+  <TabList
+    tabs={tabs}
+    activeTabId={activeTabId}
+    onSelect={onSelect}
+    onClose={onClose}
+    onNew={onNew}
+  />
 );

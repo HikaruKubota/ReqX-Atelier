@@ -8,7 +8,6 @@ import type { SavedRequest } from '../../types';
 const baseProps = {
   savedRequests: [] as SavedRequest[],
   activeRequestId: null,
-  onNewRequest: () => {},
   onLoadRequest: () => {},
   onDeleteRequest: () => {},
 };

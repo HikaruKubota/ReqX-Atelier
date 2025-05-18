@@ -21,7 +21,7 @@ describe('App integration', () => {
         <App />
       </ThemeProvider>,
     );
-    fireEvent.click(screen.getAllByLabelText('New Request')[0]);
+    fireEvent.click(screen.getAllByLabelText('新しいリクエスト')[0]);
 
     fireEvent.change(screen.getByPlaceholderText('Request Name (e.g., Get User Details)'), {
       target: { value: 'テストリクエスト' },
@@ -41,7 +41,7 @@ describe('App integration', () => {
         <App />
       </ThemeProvider>,
     );
-    fireEvent.click(screen.getAllByLabelText('New Request')[0]);
+    fireEvent.click(screen.getAllByLabelText('新しいリクエスト')[0]);
 
     fireEvent.change(
       screen.getByPlaceholderText('Enter request URL (e.g., https://api.example.com/users)'),
