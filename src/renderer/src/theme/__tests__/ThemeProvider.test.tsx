@@ -3,6 +3,7 @@ import React from 'react';
 import { describe, it, expect } from 'vitest';
 import { ThemeProvider, useTheme } from '../ThemeProvider';
 import { lightColors, darkColors } from '../colors';
+import { useThemeStore } from '../../store/themeStore';
 
 const TestComp = () => {
   const { mode, toggleMode } = useTheme();
@@ -10,6 +11,11 @@ const TestComp = () => {
 };
 
 describe('ThemeProvider', () => {
+  beforeEach(() => {
+    localStorage.clear();
+    useThemeStore.setState({ mode: 'dark' });
+  });
+
   it('toggles mode', () => {
     render(
       <ThemeProvider>
