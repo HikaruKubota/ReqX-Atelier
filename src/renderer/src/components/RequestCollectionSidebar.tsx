@@ -1,13 +1,17 @@
 import React from 'react';
-import type { SavedRequest } from '../types';
+import type { SavedRequest, RequestFolder } from '../types';
 import { RequestListItem } from './atoms/list/RequestListItem';
 import { NewRequestButton } from './atoms/button/NewRequestButton';
 import { SidebarToggleButton } from './atoms/button/SidebarToggleButton';
+import { NewFolderButton } from './atoms/button/NewFolderButton';
+import { FolderList } from './molecules/FolderList';
 
 interface RequestCollectionSidebarProps {
   savedRequests: SavedRequest[];
+  folders: RequestFolder[];
   activeRequestId: string | null;
   onNewRequest: () => void;
+  onNewFolder: () => void;
   onLoadRequest: (request: SavedRequest) => void;
   onDeleteRequest: (id: string) => void;
   isOpen: boolean;
@@ -16,8 +20,10 @@ interface RequestCollectionSidebarProps {
 
 export const RequestCollectionSidebar: React.FC<RequestCollectionSidebarProps> = ({
   savedRequests,
+  folders,
   activeRequestId,
   onNewRequest,
+  onNewFolder,
   onLoadRequest,
   onDeleteRequest,
   isOpen,
@@ -46,20 +52,21 @@ export const RequestCollectionSidebar: React.FC<RequestCollectionSidebarProps> =
       {isOpen && (
         <>
           <h2 style={{ marginTop: 0, marginBottom: '10px', fontSize: '1.2em' }}>My Collection</h2>
-          <NewRequestButton onClick={onNewRequest} />
+          <div className="flex gap-2">
+            <NewRequestButton onClick={onNewRequest} />
+            <NewFolderButton onClick={onNewFolder} />
+          </div>
           <div style={{ flexGrow: 1, overflowY: 'auto' }}>
-            {savedRequests.length === 0 && (
+            {savedRequests.length === 0 && folders.length === 0 && (
               <p style={{ color: '#777' }}>No requests saved yet.</p>
             )}
-            {savedRequests.map((req) => (
-              <RequestListItem
-                key={req.id}
-                request={req}
-                isActive={activeRequestId === req.id}
-                onClick={() => onLoadRequest(req)}
-                onDelete={() => onDeleteRequest(req.id)}
-              />
-            ))}
+            <FolderList
+              folders={folders}
+              requests={savedRequests}
+              activeRequestId={activeRequestId}
+              onSelectRequest={onLoadRequest}
+              onDeleteRequest={onDeleteRequest}
+            />
           </div>
         </>
       )}

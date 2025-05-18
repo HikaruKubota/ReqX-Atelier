@@ -1,22 +1,27 @@
 import { useState, useEffect, useCallback } from 'react';
-import type { KeyValuePair, SavedRequest } from '../types';
+import type { KeyValuePair, SavedRequest, RequestFolder } from '../types';
 
 
 const LOCAL_STORAGE_KEY = 'reqx_saved_requests';
 
 export const useSavedRequests = () => {
   const [savedRequests, setSavedRequests] = useState<SavedRequest[]>([]);
+  const [folders, setFolders] = useState<RequestFolder[]>([]);
 
   // Load saved requests from localStorage on initial mount
   useEffect(() => {
-    const storedRequests = localStorage.getItem(LOCAL_STORAGE_KEY);
-    if (storedRequests) {
+    const storedData = localStorage.getItem(LOCAL_STORAGE_KEY);
+    if (storedData) {
       try {
-        const parsedRequests = JSON.parse(storedRequests) as Array<
-          Partial<SavedRequest> & { body?: string }
-        >; // Type assertion for migration
-        // Ensure all loaded requests have an id (for backward compatibility if needed)
-        const requestsWithIds = parsedRequests.map((req) => {
+        const parsed = JSON.parse(storedData);
+        const loadedRequests: Array<Partial<SavedRequest> & { body?: string }> =
+          Array.isArray(parsed.requests) || Array.isArray(parsed)
+            ? (Array.isArray(parsed) ? parsed : parsed.requests)
+            : [];
+        const loadedFolders: RequestFolder[] =
+          Array.isArray(parsed.folders) ? parsed.folders : [];
+
+        const requestsWithIds = loadedRequests.map((req) => {
           let bodyKeyValuePairs: KeyValuePair[] | undefined = req.bodyKeyValuePairs;
           // Migration logic for old 'body' string
           if (req.body && !req.bodyKeyValuePairs) {
@@ -57,22 +62,26 @@ export const useSavedRequests = () => {
           };
         }) as SavedRequest[];
         setSavedRequests(requestsWithIds);
+        setFolders(loadedFolders);
       } catch (error) {
         console.error('Failed to parse saved requests from localStorage:', error);
         setSavedRequests([]); // Fallback to empty array on error
+        setFolders([]);
       }
     }
   }, []);
 
-  // Save requests to localStorage whenever they change
+  // Save requests and folders to localStorage whenever they change
   useEffect(() => {
-    // Before saving, ensure no 'body' property is lingering from old structures if migration happened elsewhere
     const requestsToSave = savedRequests.map((req) => {
       const { ...rest } = req as SavedRequest & { body?: string };
       return rest;
     });
-    localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(requestsToSave));
-  }, [savedRequests]);
+    localStorage.setItem(
+      LOCAL_STORAGE_KEY,
+      JSON.stringify({ folders, requests: requestsToSave })
+    );
+  }, [savedRequests, folders]);
 
   const addRequest = useCallback(
     (
@@ -84,6 +93,7 @@ export const useSavedRequests = () => {
       const newRequest = {
         ...request,
         id: newId,
+        folderId: request.folderId,
         headers: request.headers || [],
         bodyKeyValuePairs: request.bodyKeyValuePairs || [],
       };
@@ -106,5 +116,35 @@ export const useSavedRequests = () => {
     setSavedRequests((prevRequests) => prevRequests.filter((req) => req.id !== id));
   }, []);
 
-  return { savedRequests, addRequest, updateRequest, deleteRequest };
+  const addFolder = useCallback((name: string): string => {
+    const id = `folder-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`;
+    const folder = { id, name };
+    setFolders((prev) => [...prev, folder]);
+    return id;
+  }, []);
+
+  const renameFolder = useCallback((id: string, name: string) => {
+    setFolders((prev) => prev.map((f) => (f.id === id ? { ...f, name } : f)));
+  }, []);
+
+  const deleteFolder = useCallback((id: string) => {
+    setFolders((prev) => prev.filter((f) => f.id !== id));
+    setSavedRequests((prev) => prev.map((r) => (r.folderId === id ? { ...r, folderId: undefined } : r)));
+  }, []);
+
+  const moveRequest = useCallback((reqId: string, folderId?: string) => {
+    setSavedRequests((prev) => prev.map((r) => (r.id === reqId ? { ...r, folderId } : r)));
+  }, []);
+
+  return {
+    savedRequests,
+    folders,
+    addRequest,
+    updateRequest,
+    deleteRequest,
+    addFolder,
+    renameFolder,
+    deleteFolder,
+    moveRequest,
+  };
 };
