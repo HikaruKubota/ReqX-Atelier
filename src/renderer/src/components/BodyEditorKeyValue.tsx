@@ -164,14 +164,14 @@ export const BodyEditorKeyValue = forwardRef<BodyEditorKeyValueRef, BodyEditorKe
         </div>
       ))}
       <div style={{ display: 'flex', gap: '8px', marginTop: '10px' }}>
-        <EnableAllButton onClick={() => handleToggleAll(true)} disabled={bodyKeyValuePairs.length === 0} />
-        <DisableAllButton onClick={() => handleToggleAll(false)} disabled={bodyKeyValuePairs.length === 0} />
         <button
           onClick={handleAddKeyValuePair}
           style={{ padding: '8px 15px', fontSize: '0.95em', backgroundColor: '#007bff', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer' }}
         >
           Add Body Row
         </button>
+        <EnableAllButton onClick={() => handleToggleAll(true)} disabled={bodyKeyValuePairs.length === 0} />
+        <DisableAllButton onClick={() => handleToggleAll(false)} disabled={bodyKeyValuePairs.length === 0} />
       </div>
     </div>
   );
