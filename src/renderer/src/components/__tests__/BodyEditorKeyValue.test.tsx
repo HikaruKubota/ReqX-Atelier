@@ -18,9 +18,9 @@ describe('BodyEditorKeyValue', () => {
     expect(checkboxes[1].checked).toBe(false);
 
     fireEvent.click(getByText('Enable All'));
-    getAllByRole('checkbox').forEach(cb => expect((cb as HTMLInputElement).checked).toBe(true));
+    getAllByRole('checkbox').forEach((cb) => expect((cb as HTMLInputElement).checked).toBe(true));
 
     fireEvent.click(getByText('Disable All'));
-    getAllByRole('checkbox').forEach(cb => expect((cb as HTMLInputElement).checked).toBe(false));
+    getAllByRole('checkbox').forEach((cb) => expect((cb as HTMLInputElement).checked).toBe(false));
   });
 });

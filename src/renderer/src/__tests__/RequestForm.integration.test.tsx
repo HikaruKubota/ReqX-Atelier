@@ -19,9 +19,7 @@ describe('RequestForm integration', () => {
 
   beforeAll(() => {
     // MSW で /api/hello をスタブ
-    server.use(
-      http.all('/api/hello', () => HttpResponse.json(responseJson, { status: 200 })),
-    );
+    server.use(http.all('/api/hello', () => HttpResponse.json(responseJson, { status: 200 })));
   });
 
   it.skip('submits request and displays response', async () => {
@@ -37,9 +35,7 @@ describe('RequestForm integration', () => {
 
     // 3) レスポンス表示確認
     await waitFor(() =>
-      expect(
-        screen.getByText(JSON.stringify(responseJson, null, 2)),
-      ).toBeInTheDocument(),
+      expect(screen.getByText(JSON.stringify(responseJson, null, 2))).toBeInTheDocument(),
     );
   });
 });

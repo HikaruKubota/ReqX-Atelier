@@ -2,6 +2,7 @@
   "name": "reqx-atelier",
   "version": "1.0.0",
   "description": "An API request tool, built with Electron and React.",
+  "type": "module",
   "main": "main.js",
   "scripts": {
     "dev:renderer": "vite",

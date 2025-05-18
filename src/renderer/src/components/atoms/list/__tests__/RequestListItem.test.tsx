@@ -20,7 +20,7 @@ describe('RequestListItem', () => {
         isActive={false}
         onClick={() => {}}
         onDelete={() => {}}
-      />
+      />,
     );
     expect(getByText('テストリクエスト')).toBeInTheDocument();
   });
@@ -33,7 +33,7 @@ describe('RequestListItem', () => {
         isActive={false}
         onClick={handleClick}
         onDelete={() => {}}
-      />
+      />,
     );
     fireEvent.click(getByText('テストリクエスト'));
     expect(handleClick).toHaveBeenCalled();
@@ -47,7 +47,7 @@ describe('RequestListItem', () => {
         isActive={false}
         onClick={() => {}}
         onDelete={handleDelete}
-      />
+      />,
     );
     fireEvent.click(getByRole('button'));
     expect(handleDelete).toHaveBeenCalled();
@@ -60,7 +60,7 @@ describe('RequestListItem', () => {
         isActive={true}
         onClick={() => {}}
         onDelete={() => {}}
-      />
+      />,
     );
     expect(container.firstChild).toHaveClass('bg-gray-200');
     expect(container.firstChild).toHaveClass('font-bold');

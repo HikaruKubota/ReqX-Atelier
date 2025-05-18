@@ -1,8 +1,8 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
   content: [
-    './src/renderer/src/**/*.{ts,tsx}',  // Reactファイルを含める
-    './index.html'
+    './src/renderer/src/**/*.{ts,tsx}', // Reactファイルを含める
+    './index.html',
   ],
   theme: {
     extend: {},

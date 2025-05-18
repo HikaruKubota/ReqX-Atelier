@@ -16,7 +16,9 @@ export const ResponseDisplayPanel: React.FC<ResponseDisplayPanelProps> = ({
 }) => {
   return (
     <>
-      <Heading level={2} className="text-xl font-bold">Response</Heading>
+      <Heading level={2} className="text-xl font-bold">
+        Response
+      </Heading>
       <ErrorAlert error={error} />
       {response && (
         <JsonPre

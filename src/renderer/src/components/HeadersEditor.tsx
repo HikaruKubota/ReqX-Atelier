@@ -4,7 +4,11 @@ import type { RequestHeader } from '../hooks/useHeadersManager';
 interface HeadersEditorProps {
   headers: RequestHeader[];
   onAddHeader: () => void;
-  onUpdateHeader: (id: string, field: keyof Omit<RequestHeader, 'id'>, value: string | boolean) => void;
+  onUpdateHeader: (
+    id: string,
+    field: keyof Omit<RequestHeader, 'id'>,
+    value: string | boolean,
+  ) => void;
   onRemoveHeader: (id: string) => void;
 }
 
@@ -23,7 +27,7 @@ export const HeadersEditor: React.FC<HeadersEditorProps> = ({
             type="checkbox"
             checked={header.enabled}
             onChange={(e) => onUpdateHeader(header.id, 'enabled', e.target.checked)}
-            title={header.enabled ? "Disable header" : "Enable header"}
+            title={header.enabled ? 'Disable header' : 'Enable header'}
             style={{ marginRight: '5px' }}
           />
           <input
@@ -44,7 +48,14 @@ export const HeadersEditor: React.FC<HeadersEditorProps> = ({
           />
           <button
             onClick={() => onRemoveHeader(header.id)}
-            style={{ padding: '6px 10px', border: '1px solid #dc3545', color: '#dc3545', backgroundColor: 'white', borderRadius: '4px', cursor: 'pointer' }}
+            style={{
+              padding: '6px 10px',
+              border: '1px solid #dc3545',
+              color: '#dc3545',
+              backgroundColor: 'white',
+              borderRadius: '4px',
+              cursor: 'pointer',
+            }}
           >
             Remove
           </button>
@@ -52,7 +63,15 @@ export const HeadersEditor: React.FC<HeadersEditorProps> = ({
       ))}
       <button
         onClick={onAddHeader}
-        style={{ padding: '8px 15px', border: '1px solid #007bff', color: '#007bff', backgroundColor: 'white', borderRadius: '4px', cursor: 'pointer', alignSelf: 'flex-start' }}
+        style={{
+          padding: '8px 15px',
+          border: '1px solid #007bff',
+          color: '#007bff',
+          backgroundColor: 'white',
+          borderRadius: '4px',
+          cursor: 'pointer',
+          alignSelf: 'flex-start',
+        }}
       >
         Add Header
       </button>
