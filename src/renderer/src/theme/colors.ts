@@ -1,9 +1,4 @@
-export interface ThemeColors {
-  background: string;
-  text: string;
-  primary: string;
-  secondary: string;
-}
+import type { ThemeColors } from '../types';
 
 export const lightColors: ThemeColors = {
   background: '#ffffff',

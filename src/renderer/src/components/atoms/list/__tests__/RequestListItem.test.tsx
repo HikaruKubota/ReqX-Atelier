@@ -2,7 +2,7 @@ import React from 'react';
 import { render, fireEvent } from '@testing-library/react';
 import { describe, it, expect, vi } from 'vitest';
 import { RequestListItem } from '../RequestListItem';
-import type { SavedRequest } from '../../../../hooks/useSavedRequests';
+import type { SavedRequest } from '../../../../types';
 
 const sampleRequest: SavedRequest = {
   id: '1',

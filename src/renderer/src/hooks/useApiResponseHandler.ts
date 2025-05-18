@@ -1,23 +1,6 @@
 import { useState, useCallback } from 'react';
-import { sendApiRequest, ApiResult } from '../api'; // Assuming ApiResult is the type returned by sendApiRequest
-
-export interface ApiError {
-  message: string;
-  [key: string]: unknown;
-}
-
-export interface ApiResponseHandler {
-  response: ApiResult | null;
-  error: ApiError | null;
-  loading: boolean;
-  executeRequest: (
-    method: string,
-    url: string,
-    body?: string,
-    headers?: Record<string, string>,
-  ) => Promise<void>;
-  resetApiResponse: () => void;
-}
+import { sendApiRequest } from '../api';
+import type { ApiResult, ApiError, ApiResponseHandler } from '../types';
 
 export const useApiResponseHandler = (): ApiResponseHandler => {
   const [response, setResponse] = useState<ApiResult | null>(null);

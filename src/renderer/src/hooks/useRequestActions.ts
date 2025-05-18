@@ -1,5 +1,5 @@
 import { useCallback } from 'react';
-import { SavedRequest } from './useSavedRequests';
+import type { SavedRequest, RequestEditorPanelRef, RequestHeader } from '../types';
 
 export function useRequestActions({
   editorPanelRef,
@@ -14,10 +14,10 @@ export function useRequestActions({
   updateSavedRequest,
   executeRequest,
 }: {
-  editorPanelRef: React.RefObject<import('../components/RequestEditorPanel').RequestEditorPanelRef>;
+  editorPanelRef: React.RefObject<RequestEditorPanelRef>;
   methodRef: React.RefObject<string>;
   urlRef: React.RefObject<string>;
-  headersRef: React.RefObject<import('./useHeadersManager').RequestHeader[]>;
+  headersRef: React.RefObject<RequestHeader[]>;
   requestNameForSaveRef: React.RefObject<string>;
   setRequestNameForSave: (name: string) => void;
   activeRequestIdRef: React.RefObject<string | null>;

@@ -4,19 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { EnableAllButton } from './atoms/button/EnableAllButton';
 import { DisableAllButton } from './atoms/button/DisableAllButton';
 import { Modal } from './atoms/Modal';
-
-export interface KeyValuePair {
-  id: string;
-  keyName: string;
-  value: string;
-  enabled: boolean;
-}
-
-export interface BodyEditorKeyValueRef {
-  getCurrentBodyAsJson: () => string;
-  getCurrentKeyValuePairs: () => KeyValuePair[];
-  importFromJson: (json: string) => boolean;
-}
+import type { BodyEditorKeyValueRef, KeyValuePair } from '../types';
 
 interface BodyEditorKeyValueProps {
   initialBodyKeyValuePairs?: KeyValuePair[];

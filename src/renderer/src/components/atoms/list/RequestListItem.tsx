@@ -1,6 +1,6 @@
 import React from 'react';
 import clsx from 'clsx';
-import type { SavedRequest } from '../../../hooks/useSavedRequests';
+import type { SavedRequest } from '../../../types';
 import { DeleteButton } from '../button/DeleteButton';
 
 interface RequestListItemProps {

@@ -1,13 +1,5 @@
 const { ipcRenderer } = window.require('electron');
-
-export interface ApiResult {
-  isError?: boolean; // Optional, as successful responses might not have this
-  status?: number;
-  data?: unknown;
-  headers?: Record<string, unknown>;
-  message?: string; // For errors
-  responseData?: unknown; // This was used in App.tsx error handling, merging with data or keeping separate
-}
+import type { ApiResult } from './types';
 
 export async function sendApiRequest(
   method: string,

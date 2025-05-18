@@ -1,29 +1,7 @@
 import { useState, useCallback, useRef } from 'react';
-
-// Define the type for a single header item
-export interface RequestHeader {
-  id: string; // Unique ID for React list keys
-  key: string;
-  value: string;
-  enabled: boolean;
-}
+import type { RequestHeader, UseHeadersManagerReturn } from '../types';
 
 const initialHeaders: RequestHeader[] = [];
-
-export interface UseHeadersManagerReturn {
-  headers: RequestHeader[];
-  setHeaders: (newHeaders: RequestHeader[]) => void; // Allows completely replacing headers
-  headersRef: React.MutableRefObject<RequestHeader[]>;
-  addHeader: () => void;
-  updateHeader: (
-    id: string,
-    field: keyof Omit<RequestHeader, 'id'>,
-    value: string | boolean,
-  ) => void;
-  removeHeader: (id: string) => void;
-  loadHeaders: (loadedHeaders: RequestHeader[]) => void;
-  resetHeaders: () => void;
-}
 
 export const useHeadersManager = (): UseHeadersManagerReturn => {
   const [headersState, setHeadersState] = useState<RequestHeader[]>(initialHeaders);
