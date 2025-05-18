@@ -85,11 +85,12 @@ export default function App() {
     resetApiResponse();
   }, [tabs, loadRequestIntoEditor, setActiveRequestId, resetApiResponse]);
 
-  useEffect(() => {
-    if (tabs.tabs.length === 0) {
-      handleNewRequest();
-    }
-  }, []);
+  // 初回起動時にタブを自動生成せず、ショートカットボードを表示したままにする
+  // useEffect(() => {
+  //   if (tabs.tabs.length === 0) {
+  //     handleNewRequest();
+  //   }
+  // }, []);
 
   useKeyboardShortcuts({
     onSave: executeSaveRequest,
