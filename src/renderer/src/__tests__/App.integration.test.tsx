@@ -3,7 +3,7 @@ import { render, screen, fireEvent } from '@testing-library/react';
 import { vi } from 'vitest';
 
 vi.mock('../api', () => ({
-  sendApiRequest: vi.fn().mockResolvedValue({ status: 200, data: { message: 'ok' } })
+  sendApiRequest: vi.fn().mockResolvedValue({ status: 200, data: { message: 'ok' } }),
 }));
 
 import App from '../App';
@@ -21,15 +21,13 @@ describe('App integration', () => {
         <App />
       </ThemeProvider>,
     );
+    fireEvent.click(screen.getAllByLabelText('New Request')[0]);
 
+    fireEvent.change(screen.getByPlaceholderText('Request Name (e.g., Get User Details)'), {
+      target: { value: 'テストリクエスト' },
+    });
     fireEvent.change(
-      screen.getByPlaceholderText('Request Name (e.g., Get User Details)'),
-      { target: { value: 'テストリクエスト' } },
-    );
-    fireEvent.change(
-      screen.getByPlaceholderText(
-        'Enter request URL (e.g., https://api.example.com/users)'
-      ),
+      screen.getByPlaceholderText('Enter request URL (e.g., https://api.example.com/users)'),
       { target: { value: 'https://example.com' } },
     );
     fireEvent.click(screen.getByText('Save Request'));
@@ -43,11 +41,10 @@ describe('App integration', () => {
         <App />
       </ThemeProvider>,
     );
+    fireEvent.click(screen.getAllByLabelText('New Request')[0]);
 
     fireEvent.change(
-      screen.getByPlaceholderText(
-        'Enter request URL (e.g., https://api.example.com/users)'
-      ),
+      screen.getByPlaceholderText('Enter request URL (e.g., https://api.example.com/users)'),
       { target: { value: 'https://api.example.com' } },
     );
     fireEvent.click(screen.getByText('Send'));

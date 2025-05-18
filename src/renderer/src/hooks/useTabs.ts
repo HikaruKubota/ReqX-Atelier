@@ -44,13 +44,10 @@ export const useTabs = () => {
   const switchTab = (tabId: string) => setActiveTabId(tabId);
 
   const updateTab = (tabId: string, data: Partial<Omit<TabState, 'tabId'>>) => {
-    setTabs((prev) =>
-      prev.map((t) => (t.tabId === tabId ? { ...t, ...data } : t)),
-    );
+    setTabs((prev) => prev.map((t) => (t.tabId === tabId ? { ...t, ...data } : t)));
   };
 
-  const getActiveTab = (): TabState | null =>
-    tabs.find((t) => t.tabId === activeTabId) || null;
+  const getActiveTab = (): TabState | null => tabs.find((t) => t.tabId === activeTabId) || null;
 
   const nextTab = () => {
     if (tabs.length <= 1 || !activeTabId) return;

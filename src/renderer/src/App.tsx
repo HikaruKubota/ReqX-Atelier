@@ -73,7 +73,14 @@ export default function App() {
 
   const handleNewRequest = useCallback(() => {
     const tab = tabs.openTab();
-    loadRequestIntoEditor(tab as unknown as SavedRequest);
+    loadRequestIntoEditor({
+      id: tab.requestId || '',
+      name: tab.name,
+      method: tab.method,
+      url: tab.url,
+      headers: tab.headers,
+      bodyKeyValuePairs: tab.bodyKeyValuePairs,
+    });
     setActiveRequestId(null);
     resetApiResponse();
   }, [tabs, loadRequestIntoEditor, setActiveRequestId, resetApiResponse]);
@@ -149,7 +156,14 @@ export default function App() {
       tabs.switchTab(existing.tabId);
     }
     if (target) {
-      loadRequestIntoEditor(target as unknown as SavedRequest);
+      loadRequestIntoEditor({
+        id: target.requestId || '',
+        name: target.name,
+        method: target.method,
+        url: target.url,
+        headers: target.headers,
+        bodyKeyValuePairs: target.bodyKeyValuePairs,
+      });
       setActiveRequestId(target.requestId);
     }
     resetApiResponse();
@@ -158,7 +172,14 @@ export default function App() {
   useEffect(() => {
     const tab = tabs.getActiveTab();
     if (tab) {
-      loadRequestIntoEditor(tab as unknown as SavedRequest);
+      loadRequestIntoEditor({
+        id: tab.requestId || '',
+        name: tab.name,
+        method: tab.method,
+        url: tab.url,
+        headers: tab.headers,
+        bodyKeyValuePairs: tab.bodyKeyValuePairs,
+      });
       setRequestNameForSave(tab.name);
       setActiveRequestId(tab.requestId);
       resetApiResponse();

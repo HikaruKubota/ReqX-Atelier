@@ -40,9 +40,7 @@ describe('BodyEditorKeyValue', () => {
   });
 
   it('opens import modal with large size', () => {
-    const { getByText } = render(
-      <BodyEditorKeyValue method="POST" />,
-    );
+    const { getByText } = render(<BodyEditorKeyValue method="POST" />);
     fireEvent.click(getByText(i18n.t('import_json')));
     const panel = document.querySelector('.max-w-xl');
     expect(panel).toBeTruthy();

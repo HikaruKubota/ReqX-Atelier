@@ -6,14 +6,14 @@ const getMockRefs = () => ({
   editorPanelRef: {
     current: {
       getRequestBodyAsJson: () => '{"foo":"bar"}',
-      getRequestBodyKeyValuePairs: () => [{ id: '1', keyName: 'foo', value: 'bar', enabled: true }],
+      getRequestBodyKeyValuePairs: () => [
+        { id: 'kv1', keyName: 'foo', value: 'bar', enabled: true },
+      ],
     },
   },
   methodRef: { current: 'POST' },
   urlRef: { current: 'https://example.com' },
-  headersRef: {
-    current: [{ id: 'h1', key: 'X-Test', value: '1', enabled: true }],
-  },
+  headersRef: { current: [{ id: 'h1', key: 'X-Test', value: '1', enabled: true }] },
   requestNameForSaveRef: { current: 'テストリクエスト' },
   activeRequestIdRef: { current: null as string | null },
   setRequestNameForSave: vi.fn(),
@@ -72,7 +72,7 @@ describe('useRequestActions', () => {
       method: 'POST',
       url: 'https://example.com',
       headers: [{ id: 'h1', key: 'X-Test', value: '1', enabled: true }],
-      bodyKeyValuePairs: [{ id: '1', keyName: 'foo', value: 'bar', enabled: true }],
+      bodyKeyValuePairs: [{ id: 'kv1', keyName: 'foo', value: 'bar', enabled: true }],
     });
     expect(mockSetActiveRequestId).toHaveBeenCalledWith('new-id');
     expect(refs.setRequestNameForSave).toHaveBeenCalledWith('テストリクエスト');
@@ -103,7 +103,7 @@ describe('useRequestActions', () => {
       method: 'POST',
       url: 'https://example.com',
       headers: [{ id: 'h1', key: 'X-Test', value: '1', enabled: true }],
-      bodyKeyValuePairs: [{ id: '1', keyName: 'foo', value: 'bar', enabled: true }],
+      bodyKeyValuePairs: [{ id: 'kv1', keyName: 'foo', value: 'bar', enabled: true }],
     });
     expect(refs.setRequestNameForSave).toHaveBeenCalledWith('テストリクエスト');
   });
@@ -134,7 +134,7 @@ describe('useRequestActions', () => {
       method: 'POST',
       url: 'https://example.com',
       headers: [{ id: 'h1', key: 'X-Test', value: '1', enabled: true }],
-      bodyKeyValuePairs: [{ id: '1', keyName: 'foo', value: 'bar', enabled: true }],
+      bodyKeyValuePairs: [{ id: 'kv1', keyName: 'foo', value: 'bar', enabled: true }],
     });
     expect(mockSetActiveRequestId).toHaveBeenCalledWith('new-id');
     expect(refs.setRequestNameForSave).toHaveBeenCalledWith('Untitled Request');

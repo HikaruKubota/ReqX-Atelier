@@ -15,6 +15,7 @@
     "forceConsistentCasingInFileNames": true,
     "resolveJsonModule": true,
     "allowImportingTsExtensions": true,
+    "noEmit": true,
     "types": ["vitest", "vitest/globals"]
   },
   "include": ["src", "vitest.shims.d.ts"]

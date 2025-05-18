@@ -22,8 +22,8 @@ export function useRequestActions({
   setRequestNameForSave: (name: string) => void;
   activeRequestIdRef: React.RefObject<string | null>;
   setActiveRequestId: (id: string) => void;
-  addRequest: (req: SavedRequest) => string;
-  updateSavedRequest: (id: string, req: Omit<SavedRequest, 'id'>) => void;
+  addRequest: (req: Omit<SavedRequest, 'id'>) => string;
+  updateSavedRequest: (id: string, req: Partial<Omit<SavedRequest, 'id'>>) => void;
   executeRequest: (
     method: string,
     url: string,

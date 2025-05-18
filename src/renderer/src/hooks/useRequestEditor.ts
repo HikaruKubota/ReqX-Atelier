@@ -1,12 +1,7 @@
 import { useState, useCallback, useRef, useEffect } from 'react';
-import {
-  useHeadersManager,
-} from './useHeadersManager';
+import { useHeadersManager } from './useHeadersManager';
 import { useBodyManager } from './useBodyManager';
-import type {
-  SavedRequest,
-  RequestEditorState,
-} from '../types';
+import type { SavedRequest, RequestEditorState } from '../types';
 
 // RequestEditorState now inherits from both manager returns, excluding conflicting/internal methods
 

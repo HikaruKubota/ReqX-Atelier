@@ -6,9 +6,7 @@ import '../../i18n';
 
 describe('ShortcutsGuide', () => {
   it('renders guide text and button', () => {
-    const { getByText, getByRole } = render(
-      <ShortcutsGuide onNew={() => {}} />,
-    );
+    const { getByText, getByRole } = render(<ShortcutsGuide onNew={() => {}} />);
     expect(getByText('ショートカット一覧')).toBeInTheDocument();
     expect(getByRole('button')).toBeInTheDocument();
   });

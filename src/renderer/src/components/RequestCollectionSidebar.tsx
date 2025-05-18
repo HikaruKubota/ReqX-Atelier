@@ -38,19 +38,13 @@ export const RequestCollectionSidebar: React.FC<RequestCollectionSidebarProps> =
         height: '100vh',
       }}
     >
-      <SidebarToggleButton
-        isOpen={isOpen}
-        onClick={onToggle}
-        className="self-end mb-2"
-      />
+      <SidebarToggleButton isOpen={isOpen} onClick={onToggle} className="self-end mb-2" />
       {isOpen && (
         <>
           <h2 style={{ marginTop: 0, marginBottom: '10px', fontSize: '1.2em' }}>My Collection</h2>
           <NewRequestButton onClick={onNewRequest} />
           <div style={{ flexGrow: 1, overflowY: 'auto' }}>
-            {savedRequests.length === 0 && (
-              <p style={{ color: '#777' }}>No requests saved yet.</p>
-            )}
+            {savedRequests.length === 0 && <p style={{ color: '#777' }}>No requests saved yet.</p>}
             {savedRequests.map((req) => (
               <RequestListItem
                 key={req.id}

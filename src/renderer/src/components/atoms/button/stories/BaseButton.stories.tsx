@@ -1,4 +1,4 @@
-import React from 'react'
+import React from 'react';
 import { BaseButton } from '../BaseButton';
 
 export default {

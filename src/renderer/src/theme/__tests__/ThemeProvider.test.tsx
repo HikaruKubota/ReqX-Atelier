@@ -31,14 +31,10 @@ describe('ThemeProvider', () => {
       </ThemeProvider>,
     );
     const root = document.documentElement;
-    expect(root.style.getPropertyValue('--color-background')).toBe(
-      lightColors.background,
-    );
+    expect(root.style.getPropertyValue('--color-background')).toBe(lightColors.background);
     expect(root.style.getPropertyValue('--color-text')).toBe(lightColors.text);
     fireEvent.click(screen.getByRole('button'));
-    expect(root.style.getPropertyValue('--color-background')).toBe(
-      darkColors.background,
-    );
+    expect(root.style.getPropertyValue('--color-background')).toBe(darkColors.background);
     expect(root.style.getPropertyValue('--color-text')).toBe(darkColors.text);
   });
 });
