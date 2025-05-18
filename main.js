@@ -1,5 +1,5 @@
 import { app, BrowserWindow, ipcMain } from 'electron';
-import axios from 'axios'
+import axios from 'axios';
 import path from 'node:path';
 
 function createWindow() {

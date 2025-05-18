@@ -6,17 +6,13 @@ import { SidebarToggleButton } from '../SidebarToggleButton';
 
 describe('SidebarToggleButton', () => {
   it('has hide aria-label when open', () => {
-    const { getByLabelText, container } = render(
-      <SidebarToggleButton isOpen onClick={() => {}} />,
-    );
+    const { getByLabelText, container } = render(<SidebarToggleButton isOpen onClick={() => {}} />);
     expect(getByLabelText('サイドバーを隠す')).toBeInTheDocument();
     expect(container.querySelector('svg')).toBeInTheDocument();
   });
 
   it('has show aria-label when closed', () => {
-    const { getByLabelText } = render(
-      <SidebarToggleButton isOpen={false} onClick={() => {}} />,
-    );
+    const { getByLabelText } = render(<SidebarToggleButton isOpen={false} onClick={() => {}} />);
     expect(getByLabelText('サイドバーを表示')).toBeInTheDocument();
   });
 

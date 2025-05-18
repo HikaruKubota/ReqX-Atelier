@@ -8,7 +8,7 @@ describe('Modal', () => {
     const { getByText } = render(
       <Modal isOpen={true} onClose={() => {}}>
         <div>content</div>
-      </Modal>
+      </Modal>,
     );
     expect(getByText('content')).toBeTruthy();
   });
@@ -17,7 +17,7 @@ describe('Modal', () => {
     const { queryByText } = render(
       <Modal isOpen={false} onClose={() => {}}>
         <div>content</div>
-      </Modal>
+      </Modal>,
     );
     expect(queryByText('content')).toBeNull();
   });
@@ -27,7 +27,7 @@ describe('Modal', () => {
     const { getByTestId } = render(
       <Modal isOpen={true} onClose={onClose}>
         <div>content</div>
-      </Modal>
+      </Modal>,
     );
     fireEvent.click(getByTestId('modal-overlay'));
     expect(onClose).toHaveBeenCalled();

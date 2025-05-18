@@ -13,7 +13,6 @@ export const useHeadersManager = (): UseHeadersManagerReturn => {
     headersRef.current = newHeaders;
   }, []);
 
-
   const loadHeaders = useCallback((loadedHeaders: RequestHeader[]) => {
     setHeadersState(loadedHeaders && loadedHeaders.length > 0 ? loadedHeaders : initialHeaders);
     headersRef.current = loadedHeaders && loadedHeaders.length > 0 ? loadedHeaders : initialHeaders;
