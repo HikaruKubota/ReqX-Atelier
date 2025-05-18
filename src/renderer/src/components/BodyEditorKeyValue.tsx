@@ -3,6 +3,7 @@ import { useState, useEffect, useImperativeHandle, forwardRef, useCallback } fro
 import { useTranslation } from 'react-i18next';
 import { EnableAllButton } from './atoms/button/EnableAllButton';
 import { DisableAllButton } from './atoms/button/DisableAllButton';
+import { Modal } from './atoms/Modal';
 
 export interface KeyValuePair {
   id: string;
@@ -276,58 +277,31 @@ export const BodyEditorKeyValue = forwardRef<BodyEditorKeyValueRef, BodyEditorKe
             disabled={bodyKeyValuePairs.length === 0}
           />
         </div>
-        {showImport && (
-          <div
-            style={{
-              position: 'fixed',
-              top: 0,
-              left: 0,
-              width: '100%',
-              height: '100%',
-              backgroundColor: 'rgba(0,0,0,0.5)',
-              display: 'flex',
-              justifyContent: 'center',
-              alignItems: 'center',
-            }}
-          >
-            <div
-              style={{
-                backgroundColor: 'white',
-                padding: '20px',
-                borderRadius: '4px',
-                width: '80%',
-                maxWidth: '400px',
-                display: 'flex',
-                flexDirection: 'column',
-                gap: '10px',
+        <Modal isOpen={showImport} onClose={() => setShowImport(false)}>
+          <textarea
+            value={importText}
+            placeholder={t('paste_json') || 'Paste JSON here'}
+            onChange={(e) => setImportText(e.target.value)}
+            style={{ width: '100%', height: '150px' }}
+          />
+          {importError && <p style={{ color: 'red' }}>{importError}</p>}
+          <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px' }}>
+            <button onClick={() => setShowImport(false)}>{t('cancel') || 'Cancel'}</button>
+            <button
+              onClick={() => {
+                if (importFromJson(importText)) {
+                  setShowImport(false);
+                  setImportText('');
+                  setImportError('');
+                } else {
+                  setImportError(t('invalid_json'));
+                }
               }}
             >
-              <textarea
-                value={importText}
-                placeholder={t('paste_json') || 'Paste JSON here'}
-                onChange={(e) => setImportText(e.target.value)}
-                style={{ width: '100%', height: '150px' }}
-              />
-              {importError && <p style={{ color: 'red' }}>{importError}</p>}
-              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px' }}>
-                <button onClick={() => setShowImport(false)}>{t('cancel') || 'Cancel'}</button>
-                <button
-                  onClick={() => {
-                    if (importFromJson(importText)) {
-                      setShowImport(false);
-                      setImportText('');
-                      setImportError('');
-                    } else {
-                      setImportError(t('invalid_json'));
-                    }
-                  }}
-                >
-                  {t('import') || 'Import'}
-                </button>
-              </div>
-            </div>
+              {t('import') || 'Import'}
+            </button>
           </div>
-        )}
+        </Modal>
       </div>
     );
   },
