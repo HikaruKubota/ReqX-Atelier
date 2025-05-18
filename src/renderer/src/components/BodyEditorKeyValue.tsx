@@ -1,5 +1,6 @@
 import * as React from 'react';
 import { useState, useEffect, useImperativeHandle, forwardRef, useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
 import { EnableAllButton } from './atoms/button/EnableAllButton';
 import { DisableAllButton } from './atoms/button/DisableAllButton';
 
@@ -13,6 +14,7 @@ export interface KeyValuePair {
 export interface BodyEditorKeyValueRef {
   getCurrentBodyAsJson: () => string;
   getCurrentKeyValuePairs: () => KeyValuePair[];
+  importFromJson: (json: string) => boolean;
 }
 
 interface BodyEditorKeyValueProps {
@@ -22,7 +24,11 @@ interface BodyEditorKeyValueProps {
 
 export const BodyEditorKeyValue = forwardRef<BodyEditorKeyValueRef, BodyEditorKeyValueProps>(
   ({ initialBodyKeyValuePairs, method }, ref) => {
+    const { t } = useTranslation();
     const [bodyKeyValuePairs, setBodyKeyValuePairs] = useState<KeyValuePair[]>([]);
+    const [showImport, setShowImport] = useState(false);
+    const [importText, setImportText] = useState('');
+    const [importError, setImportError] = useState('');
 
     useEffect(() => {
       if (method === 'GET' || method === 'HEAD') {
@@ -38,6 +44,25 @@ export const BodyEditorKeyValue = forwardRef<BodyEditorKeyValueRef, BodyEditorKe
         setBodyKeyValuePairs([]);
       }
     }, [initialBodyKeyValuePairs, method]);
+
+    const importFromJson = useCallback((json: string): boolean => {
+      try {
+        const obj = JSON.parse(json);
+        if (typeof obj !== 'object' || obj === null || Array.isArray(obj)) {
+          return false;
+        }
+        const newPairs = Object.entries(obj).map(([key, val]) => ({
+          id: `kv-import-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`,
+          keyName: key,
+          value: typeof val === 'string' ? val : JSON.stringify(val),
+          enabled: true,
+        }));
+        setBodyKeyValuePairs(newPairs);
+        return true;
+      } catch {
+        return false;
+      }
+    }, []);
 
     useImperativeHandle(ref, () => ({
       getCurrentBodyAsJson: () => {
@@ -67,6 +92,7 @@ export const BodyEditorKeyValue = forwardRef<BodyEditorKeyValueRef, BodyEditorKe
       getCurrentKeyValuePairs: () => {
         return bodyKeyValuePairs;
       },
+      importFromJson,
     }));
 
     const handleKeyValuePairChange = useCallback(
@@ -221,7 +247,25 @@ export const BodyEditorKeyValue = forwardRef<BodyEditorKeyValueRef, BodyEditorKe
               cursor: 'pointer',
             }}
           >
-            Add Body Row
+            {t('add_body_row') || 'Add Body Row'}
+          </button>
+          <button
+            onClick={() => {
+              setShowImport(true);
+              setImportText('');
+              setImportError('');
+            }}
+            style={{
+              padding: '8px 15px',
+              fontSize: '0.95em',
+              backgroundColor: '#6c757d',
+              color: 'white',
+              border: 'none',
+              borderRadius: '4px',
+              cursor: 'pointer',
+            }}
+          >
+            {t('import_json') || 'Import JSON'}
           </button>
           <EnableAllButton
             onClick={() => handleToggleAll(true)}
@@ -232,6 +276,58 @@ export const BodyEditorKeyValue = forwardRef<BodyEditorKeyValueRef, BodyEditorKe
             disabled={bodyKeyValuePairs.length === 0}
           />
         </div>
+        {showImport && (
+          <div
+            style={{
+              position: 'fixed',
+              top: 0,
+              left: 0,
+              width: '100%',
+              height: '100%',
+              backgroundColor: 'rgba(0,0,0,0.5)',
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'center',
+            }}
+          >
+            <div
+              style={{
+                backgroundColor: 'white',
+                padding: '20px',
+                borderRadius: '4px',
+                width: '80%',
+                maxWidth: '400px',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '10px',
+              }}
+            >
+              <textarea
+                value={importText}
+                placeholder={t('paste_json') || 'Paste JSON here'}
+                onChange={(e) => setImportText(e.target.value)}
+                style={{ width: '100%', height: '150px' }}
+              />
+              {importError && <p style={{ color: 'red' }}>{importError}</p>}
+              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px' }}>
+                <button onClick={() => setShowImport(false)}>{t('cancel') || 'Cancel'}</button>
+                <button
+                  onClick={() => {
+                    if (importFromJson(importText)) {
+                      setShowImport(false);
+                      setImportText('');
+                      setImportError('');
+                    } else {
+                      setImportError(t('invalid_json'));
+                    }
+                  }}
+                >
+                  {t('import') || 'Import'}
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     );
   },

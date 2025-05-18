@@ -1,7 +1,7 @@
-import React from 'react';
+import React, { createRef } from 'react';
 import { render, fireEvent } from '@testing-library/react';
 import { describe, it, expect } from 'vitest';
-import { BodyEditorKeyValue, KeyValuePair } from '../BodyEditorKeyValue';
+import { BodyEditorKeyValue, KeyValuePair, BodyEditorKeyValueRef } from '../BodyEditorKeyValue';
 
 const initialPairs: KeyValuePair[] = [
   { id: '1', keyName: 'foo', value: '1', enabled: true },
@@ -23,5 +23,15 @@ describe('BodyEditorKeyValue', () => {
 
     fireEvent.click(getByText('Disable All'));
     getAllByRole('checkbox').forEach((cb) => expect((cb as HTMLInputElement).checked).toBe(false));
+  });
+
+  it('imports json into key value pairs', () => {
+    const ref = createRef<BodyEditorKeyValueRef>();
+    const { getAllByPlaceholderText } = render(<BodyEditorKeyValue ref={ref} method="POST" />);
+    const json = '{"a":1,"b":"str"}';
+    expect(ref.current?.importFromJson(json)).toBe(true);
+    const keyInputs = getAllByPlaceholderText('Key') as HTMLInputElement[];
+    expect(keyInputs[0].value).toBe('a');
+    expect(keyInputs[1].value).toBe('b');
   });
 });
