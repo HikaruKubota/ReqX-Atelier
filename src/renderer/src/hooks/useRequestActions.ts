@@ -14,7 +14,7 @@ export function useRequestActions({
   updateSavedRequest,
   executeRequest,
 }: {
-  editorPanelRef: React.RefObject<RequestEditorPanelRef>;
+  editorPanelRef: React.RefObject<RequestEditorPanelRef> | null;
   methodRef: React.RefObject<string>;
   urlRef: React.RefObject<string>;
   headersRef: React.RefObject<RequestHeader[]>;
@@ -33,7 +33,7 @@ export function useRequestActions({
 }) {
   // リクエスト送信
   const executeSendRequest = useCallback(async () => {
-    const currentBuiltRequestBody = editorPanelRef.current?.getRequestBodyAsJson() || '';
+    const currentBuiltRequestBody = editorPanelRef?.current?.getRequestBodyAsJson() || '';
     const activeHeaders = headersRef.current
       .filter((h) => h.enabled && h.key.trim() !== '')
       .reduce(
@@ -56,7 +56,7 @@ export function useRequestActions({
     const currentMethod = methodRef.current;
     const currentUrl = urlRef.current;
     const currentBodyKeyValuePairsFromEditor =
-      editorPanelRef.current?.getRequestBodyKeyValuePairs() || [];
+      editorPanelRef?.current?.getRequestBodyKeyValuePairs() || [];
     const currentActiveRequestId = activeRequestIdRef.current;
     const currentHeaders = headersRef.current;
 

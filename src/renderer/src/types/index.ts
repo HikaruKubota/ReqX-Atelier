@@ -13,6 +13,16 @@ export interface BodyEditorKeyValueRef {
   importFromJson: (json: string) => boolean;
 }
 
+export interface ErrorInfo {
+  message?: string;
+  [key: string]: unknown;
+}
+
+export interface ErrorAlertProps {
+  error: ErrorInfo | null;
+  className?: string;
+}
+
 export interface RequestHeader {
   id: string;
   key: string;
