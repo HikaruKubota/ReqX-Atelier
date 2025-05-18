@@ -3,6 +3,7 @@ import { render, fireEvent } from '@testing-library/react';
 import { describe, it, expect, vi } from 'vitest';
 import { HeadersEditor } from '../HeadersEditor';
 import type { RequestHeader } from '../../types';
+import '../../i18n';
 
 describe('HeadersEditor', () => {
   const headers: RequestHeader[] = [{ id: 'h1', key: '', value: '', enabled: true }];
@@ -11,7 +12,7 @@ describe('HeadersEditor', () => {
     const onAdd = vi.fn();
     const onUpdate = vi.fn();
     const onRemove = vi.fn();
-    const { getByPlaceholderText, getByText } = render(
+    const { getByPlaceholderText, getByText, getByLabelText } = render(
       <HeadersEditor
         headers={headers}
         onAddHeader={onAdd}
@@ -23,7 +24,7 @@ describe('HeadersEditor', () => {
     fireEvent.change(getByPlaceholderText('Key'), { target: { value: 'A' } });
     expect(onUpdate).toHaveBeenCalledWith('h1', 'key', 'A');
 
-    fireEvent.click(getByText('Remove'));
+    fireEvent.click(getByLabelText('削除'));
     expect(onRemove).toHaveBeenCalledWith('h1');
 
     fireEvent.click(getByText('Add Header'));
