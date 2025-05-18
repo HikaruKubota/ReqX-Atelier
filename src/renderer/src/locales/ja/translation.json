@@ -23,6 +23,6 @@
   "shortcut_send": "リクエスト送信: Ctrl+Enter",
   "shortcut_save": "リクエスト保存: Ctrl+S",
   "shortcut_close_tab": "タブを閉じる: Ctrl+W",
-  "shortcut_next_tab": "次のタブへ: Alt+→",
-  "shortcut_prev_tab": "前のタブへ: Alt+←"
+  "shortcut_next_tab": "次のタブへ: Ctrl+Alt+→",
+  "shortcut_prev_tab": "前のタブへ: Ctrl+Alt+←"
 }

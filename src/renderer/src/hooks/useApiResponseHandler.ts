@@ -20,7 +20,7 @@ export const useApiResponseHandler = (): ApiResponseHandler => {
           headers,
         );
         if (result.isError) {
-          setError(result);
+          setError(result as ApiError);
         } else if (result.status && result.status >= 200 && result.status < 300) {
           setResponse(result);
         } else {
