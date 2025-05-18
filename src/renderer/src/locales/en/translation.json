@@ -1,3 +1,14 @@
 {
-  "delete_confirm": "Are you sure you want to delete this request?"
+  "delete_confirm": "Are you sure you want to delete this request?",
+  "request_body_not_applicable": "Request body is not applicable for {{method}} requests.",
+  "add_body_row": "Add Body Row",
+  "import_json": "Import JSON",
+  "invalid_json": "Invalid JSON",
+  "cancel": "Cancel",
+  "done": "Done",
+  "disable_row": "Disable this row",
+  "enable_row": "Enable this row",
+  "move_up": "Move Up",
+  "move_down": "Move Down",
+  "remove": "Remove"
 }

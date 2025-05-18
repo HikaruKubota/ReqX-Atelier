@@ -1,3 +1,14 @@
 {
-  "delete_confirm": "このリクエストを削除してもよろしいですか？"
+  "delete_confirm": "このリクエストを削除してもよろしいですか？",
+  "request_body_not_applicable": "{{method}} メソッドのリクエストではボディを設定できません。",
+  "add_body_row": "ボディ行を追加",
+  "import_json": "JSONをインポート",
+  "invalid_json": "不正なJSONです",
+  "cancel": "キャンセル",
+  "done": "完了",
+  "disable_row": "この行を無効化",
+  "enable_row": "この行を有効化",
+  "move_up": "上へ移動",
+  "move_down": "下へ移動",
+  "remove": "削除"
 }

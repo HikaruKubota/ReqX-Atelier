@@ -14,6 +14,7 @@ const getMockRefs = () => ({
   headersRef: { current: [{ key: 'X-Test', value: '1', enabled: true }] },
   requestNameForSaveRef: { current: 'テストリクエスト' },
   activeRequestIdRef: { current: null as string | null },
+  setRequestNameForSave: vi.fn(),
 });
 
 describe('useRequestActions', () => {
@@ -24,6 +25,7 @@ describe('useRequestActions', () => {
     const { result } = renderHook(() =>
       useRequestActions({
         ...refs,
+        setRequestNameForSave: refs.setRequestNameForSave,
         setActiveRequestId: vi.fn(),
         addRequest: vi.fn(),
         updateSavedRequest: vi.fn(),
@@ -51,6 +53,7 @@ describe('useRequestActions', () => {
     const { result } = renderHook(() =>
       useRequestActions({
         ...refs,
+        setRequestNameForSave: refs.setRequestNameForSave,
         setActiveRequestId: mockSetActiveRequestId,
         addRequest: mockAddRequest,
         updateSavedRequest: vi.fn(),
@@ -70,6 +73,7 @@ describe('useRequestActions', () => {
       bodyKeyValuePairs: [{ key: 'foo', value: 'bar' }],
     });
     expect(mockSetActiveRequestId).toHaveBeenCalledWith('new-id');
+    expect(refs.setRequestNameForSave).toHaveBeenCalledWith('テストリクエスト');
   });
 
   it('executeSaveRequest updates request if activeRequestId exists', () => {
@@ -80,6 +84,7 @@ describe('useRequestActions', () => {
     const { result } = renderHook(() =>
       useRequestActions({
         ...refs,
+        setRequestNameForSave: refs.setRequestNameForSave,
         setActiveRequestId: vi.fn(),
         addRequest: vi.fn(),
         updateSavedRequest: mockUpdateSavedRequest,
@@ -98,6 +103,7 @@ describe('useRequestActions', () => {
       headers: [{ key: 'X-Test', value: '1', enabled: true }],
       bodyKeyValuePairs: [{ key: 'foo', value: 'bar' }],
     });
+    expect(refs.setRequestNameForSave).toHaveBeenCalledWith('テストリクエスト');
   });
 
   it('executeSaveRequest uses "Untitled Request" if name is empty', () => {
@@ -109,6 +115,7 @@ describe('useRequestActions', () => {
     const { result } = renderHook(() =>
       useRequestActions({
         ...refs,
+        setRequestNameForSave: refs.setRequestNameForSave,
         setActiveRequestId: mockSetActiveRequestId,
         addRequest: mockAddRequest,
         updateSavedRequest: vi.fn(),
@@ -128,5 +135,6 @@ describe('useRequestActions', () => {
       bodyKeyValuePairs: [{ key: 'foo', value: 'bar' }],
     });
     expect(mockSetActiveRequestId).toHaveBeenCalledWith('new-id');
+    expect(refs.setRequestNameForSave).toHaveBeenCalledWith('Untitled Request');
   });
 });

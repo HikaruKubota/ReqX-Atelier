@@ -7,6 +7,7 @@ export function useRequestActions({
   urlRef,
   headersRef,
   requestNameForSaveRef,
+  setRequestNameForSave,
   activeRequestIdRef,
   setActiveRequestId,
   addRequest,
@@ -18,6 +19,7 @@ export function useRequestActions({
   urlRef: React.RefObject<string>;
   headersRef: React.RefObject<any[]>;
   requestNameForSaveRef: React.RefObject<string>;
+  setRequestNameForSave: (name: string) => void;
   activeRequestIdRef: React.RefObject<string | null>;
   setActiveRequestId: (id: string) => void;
   addRequest: (req: SavedRequest) => string;
@@ -42,6 +44,7 @@ export function useRequestActions({
       requestNameForSaveRef.current.trim() !== ''
         ? requestNameForSaveRef.current.trim()
         : 'Untitled Request';
+    setRequestNameForSave(nameToSave);
     const currentMethod = methodRef.current;
     const currentUrl = urlRef.current;
     const currentBodyKeyValuePairsFromEditor = editorPanelRef.current?.getRequestBodyKeyValuePairs() || [];
@@ -62,7 +65,7 @@ export function useRequestActions({
       const newId = addRequest(requestDataToSave as SavedRequest);
       setActiveRequestId(newId);
     }
-  }, [addRequest, updateSavedRequest, setActiveRequestId, requestNameForSaveRef, methodRef, urlRef, activeRequestIdRef, headersRef]);
+  }, [addRequest, updateSavedRequest, setActiveRequestId, setRequestNameForSave, requestNameForSaveRef, methodRef, urlRef, activeRequestIdRef, headersRef]);
 
   return { executeSendRequest, executeSaveRequest };
 }
