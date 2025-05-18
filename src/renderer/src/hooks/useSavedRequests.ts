@@ -22,7 +22,9 @@ export const useSavedRequests = () => {
     const storedRequests = localStorage.getItem(LOCAL_STORAGE_KEY);
     if (storedRequests) {
       try {
-        const parsedRequests = JSON.parse(storedRequests) as Array<Partial<SavedRequest> & { body?: string }>; // Type assertion for migration
+        const parsedRequests = JSON.parse(storedRequests) as Array<
+          Partial<SavedRequest> & { body?: string }
+        >; // Type assertion for migration
         // Ensure all loaded requests have an id (for backward compatibility if needed)
         const requestsWithIds = parsedRequests.map((req) => {
           let bodyKeyValuePairs: KeyValuePair[] | undefined = req.bodyKeyValuePairs;
@@ -30,7 +32,11 @@ export const useSavedRequests = () => {
           if (req.body && !req.bodyKeyValuePairs) {
             try {
               const parsedJsonBody = JSON.parse(req.body);
-              if (typeof parsedJsonBody === 'object' && parsedJsonBody !== null && !Array.isArray(parsedJsonBody)) {
+              if (
+                typeof parsedJsonBody === 'object' &&
+                parsedJsonBody !== null &&
+                !Array.isArray(parsedJsonBody)
+              ) {
                 bodyKeyValuePairs = Object.entries(parsedJsonBody).map(([k, v], index) => ({
                   id: `kv-migrated-${k}-${index}-${Date.now()}`,
                   keyName: k,
@@ -39,7 +45,11 @@ export const useSavedRequests = () => {
                 }));
               }
             } catch (e) {
-              console.warn("Failed to migrate 'body' string to key-value pairs for request:", req.name, e);
+              console.warn(
+                "Failed to migrate 'body' string to key-value pairs for request:",
+                req.name,
+                e,
+              );
               // If parsing fails, keep bodyKeyValuePairs as undefined or empty
               bodyKeyValuePairs = [];
             }
@@ -58,7 +68,7 @@ export const useSavedRequests = () => {
         }) as SavedRequest[];
         setSavedRequests(requestsWithIds);
       } catch (error) {
-        console.error("Failed to parse saved requests from localStorage:", error);
+        console.error('Failed to parse saved requests from localStorage:', error);
         setSavedRequests([]); // Fallback to empty array on error
       }
     }
@@ -67,33 +77,43 @@ export const useSavedRequests = () => {
   // Save requests to localStorage whenever they change
   useEffect(() => {
     // Before saving, ensure no 'body' property is lingering from old structures if migration happened elsewhere
-    const requestsToSave = savedRequests.map(req => {
+    const requestsToSave = savedRequests.map((req) => {
       const { body, ...rest } = req as any; // eslint-disable-line @typescript-eslint/no-unused-vars
       return rest;
     });
     localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(requestsToSave));
   }, [savedRequests]);
 
-  const addRequest = useCallback((request: Omit<SavedRequest, 'id' | 'bodyKeyValuePairs'> & { bodyKeyValuePairs?: KeyValuePair[] }): string => {
-    const newId = `saved-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`;
-    const newRequest = {
-      ...request,
-      id: newId,
-      headers: request.headers || [],
-      bodyKeyValuePairs: request.bodyKeyValuePairs || []
-    };
-    setSavedRequests(prevRequests => [...prevRequests, newRequest]);
-    return newId;
-  }, []);
+  const addRequest = useCallback(
+    (
+      request: Omit<SavedRequest, 'id' | 'bodyKeyValuePairs'> & {
+        bodyKeyValuePairs?: KeyValuePair[];
+      },
+    ): string => {
+      const newId = `saved-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`;
+      const newRequest = {
+        ...request,
+        id: newId,
+        headers: request.headers || [],
+        bodyKeyValuePairs: request.bodyKeyValuePairs || [],
+      };
+      setSavedRequests((prevRequests) => [...prevRequests, newRequest]);
+      return newId;
+    },
+    [],
+  );
 
-  const updateRequest = useCallback((id: string, updatedFields: Partial<Omit<SavedRequest, 'id'>>) => {
-    setSavedRequests(prevRequests =>
-      prevRequests.map(req => (req.id === id ? { ...req, ...updatedFields } : req))
-    );
-  }, []);
+  const updateRequest = useCallback(
+    (id: string, updatedFields: Partial<Omit<SavedRequest, 'id'>>) => {
+      setSavedRequests((prevRequests) =>
+        prevRequests.map((req) => (req.id === id ? { ...req, ...updatedFields } : req)),
+      );
+    },
+    [],
+  );
 
   const deleteRequest = useCallback((id: string) => {
-    setSavedRequests(prevRequests => prevRequests.filter(req => req.id !== id));
+    setSavedRequests((prevRequests) => prevRequests.filter((req) => req.id !== id));
   }, []);
 
   return { savedRequests, addRequest, updateRequest, deleteRequest };

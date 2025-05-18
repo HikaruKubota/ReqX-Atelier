@@ -15,22 +15,38 @@ export default function App() {
 
   // Use the new custom hook for request editor state and logic
   const {
-    method, setMethod, methodRef,
-    url, setUrl, urlRef,
+    method,
+    setMethod,
+    methodRef,
+    url,
+    setUrl,
+    urlRef,
     currentBodyKeyValuePairs, // Get the new state for KV pairs
-    requestNameForSave, setRequestNameForSave, requestNameForSaveRef,
-    activeRequestId, setActiveRequestId, activeRequestIdRef,
-    headers, headersRef, // Destructure headers state and functions
-    addHeader, updateHeader, removeHeader, // Destructure header actions
+    requestNameForSave,
+    setRequestNameForSave,
+    requestNameForSaveRef,
+    activeRequestId,
+    setActiveRequestId,
+    activeRequestIdRef,
+    headers,
+    headersRef, // Destructure headers state and functions
+    addHeader,
+    updateHeader,
+    removeHeader, // Destructure header actions
     loadRequest: loadRequestIntoEditor, // Renamed to avoid conflict if there was a local var named loadRequest
-    resetEditor
+    resetEditor,
   } = useRequestEditor();
 
   // Use the new API response handler hook
   const { response, error, loading, executeRequest, resetApiResponse } = useApiResponseHandler();
 
   // Saved requests state (from useSavedRequests hook)
-  const { savedRequests, addRequest, updateRequest: updateSavedRequest, deleteRequest } = useSavedRequests();
+  const {
+    savedRequests,
+    addRequest,
+    updateRequest: updateSavedRequest,
+    deleteRequest,
+  } = useSavedRequests();
 
   const { executeSendRequest, executeSaveRequest } = useRequestActions({
     editorPanelRef,
@@ -66,15 +82,18 @@ export default function App() {
     resetApiResponse();
   };
 
-  const handleDeleteRequest = useCallback((idToDelete: string) => {
-    if (confirm(t('delete_confirm'))) {
-      deleteRequest(idToDelete);
-      if (activeRequestId === idToDelete) {
-        resetEditor();
-        resetApiResponse();
+  const handleDeleteRequest = useCallback(
+    (idToDelete: string) => {
+      if (confirm(t('delete_confirm'))) {
+        deleteRequest(idToDelete);
+        if (activeRequestId === idToDelete) {
+          resetEditor();
+          resetApiResponse();
+        }
       }
-    }
-  }, [deleteRequest, activeRequestId, resetEditor, resetApiResponse]);
+    },
+    [deleteRequest, activeRequestId, resetEditor, resetApiResponse],
+  );
 
   return (
     <div style={{ display: 'flex', height: '100vh' }}>
@@ -88,7 +107,16 @@ export default function App() {
       />
 
       {/* Right Main Area for Request Editing and Response */}
-      <div style={{ flexGrow: 1, padding: '20px', display: 'flex', flexDirection: 'column', gap: '15px', overflowY: 'auto' }}>
+      <div
+        style={{
+          flexGrow: 1,
+          padding: '20px',
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '15px',
+          overflowY: 'auto',
+        }}
+      >
         {/* Use the new RequestEditorPanel component */}
         <RequestEditorPanel
           ref={editorPanelRef}
@@ -110,11 +138,7 @@ export default function App() {
         />
 
         {/* Use the new ResponseDisplayPanel component */}
-        <ResponseDisplayPanel
-          response={response}
-          error={error}
-          loading={loading}
-        />
+        <ResponseDisplayPanel response={response} error={error} loading={loading} />
       </div>
     </div>
   );

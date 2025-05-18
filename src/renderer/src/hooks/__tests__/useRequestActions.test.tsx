@@ -30,7 +30,7 @@ describe('useRequestActions', () => {
         addRequest: vi.fn(),
         updateSavedRequest: vi.fn(),
         executeRequest: mockExecuteRequest,
-      })
+      }),
     );
 
     await act(async () => {
@@ -41,7 +41,7 @@ describe('useRequestActions', () => {
       'POST',
       'https://example.com',
       '{"foo":"bar"}',
-      { 'X-Test': '1' }
+      { 'X-Test': '1' },
     );
   });
 
@@ -58,7 +58,7 @@ describe('useRequestActions', () => {
         addRequest: mockAddRequest,
         updateSavedRequest: vi.fn(),
         executeRequest: vi.fn(),
-      })
+      }),
     );
 
     act(() => {
@@ -89,7 +89,7 @@ describe('useRequestActions', () => {
         addRequest: vi.fn(),
         updateSavedRequest: mockUpdateSavedRequest,
         executeRequest: vi.fn(),
-      })
+      }),
     );
 
     act(() => {
@@ -120,7 +120,7 @@ describe('useRequestActions', () => {
         addRequest: mockAddRequest,
         updateSavedRequest: vi.fn(),
         executeRequest: vi.fn(),
-      })
+      }),
     );
 
     act(() => {

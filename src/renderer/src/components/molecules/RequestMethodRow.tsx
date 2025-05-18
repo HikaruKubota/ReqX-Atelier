@@ -41,7 +41,14 @@ export const RequestMethodRow: React.FC<RequestMethodRowProps> = ({
     <button
       onClick={onSend}
       disabled={loading}
-      style={{ padding: '8px 15px', border: 'none', backgroundColor: '#28a745', color: 'white', borderRadius: '4px', cursor: 'pointer' }}
+      style={{
+        padding: '8px 15px',
+        border: 'none',
+        backgroundColor: '#28a745',
+        color: 'white',
+        borderRadius: '4px',
+        cursor: 'pointer',
+      }}
     >
       {loading ? 'Sending...' : 'Send'}
     </button>

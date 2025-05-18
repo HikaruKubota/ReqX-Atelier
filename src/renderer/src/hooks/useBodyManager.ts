@@ -14,16 +14,19 @@ export interface UseBodyManagerReturn {
 const generateJsonFromBodyPairs = (pairs: KeyValuePair[]): string => {
   if (pairs.length === 0) return '';
   try {
-    const jsonObject = pairs.reduce((obj, pair) => {
-      if (pair.enabled && pair.keyName.trim() !== '') {
-        try {
-          obj[pair.keyName] = JSON.parse(pair.value);
-        } catch {
-          obj[pair.keyName] = pair.value; // Store as string if JSON.parse fails
+    const jsonObject = pairs.reduce(
+      (obj, pair) => {
+        if (pair.enabled && pair.keyName.trim() !== '') {
+          try {
+            obj[pair.keyName] = JSON.parse(pair.value);
+          } catch {
+            obj[pair.keyName] = pair.value; // Store as string if JSON.parse fails
+          }
         }
-      }
-      return obj;
-    }, {} as Record<string, any>);
+        return obj;
+      },
+      {} as Record<string, any>,
+    );
     return Object.keys(jsonObject).length > 0 ? JSON.stringify(jsonObject, null, 2) : '';
   } catch (e) {
     // console.error("Error generating JSON from K-V pairs:", e);
@@ -32,7 +35,9 @@ const generateJsonFromBodyPairs = (pairs: KeyValuePair[]): string => {
 };
 
 export const useBodyManager = (): UseBodyManagerReturn => {
-  const [currentBodyKeyValuePairsState, setCurrentBodyKeyValuePairsState] = useState<KeyValuePair[]>([]);
+  const [currentBodyKeyValuePairsState, setCurrentBodyKeyValuePairsState] = useState<
+    KeyValuePair[]
+  >([]);
   const currentBodyKeyValuePairsRef = useRef<KeyValuePair[]>(currentBodyKeyValuePairsState);
 
   const [requestBodyState, setRequestBodyState] = useState<string>('');

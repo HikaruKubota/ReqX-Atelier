@@ -3,10 +3,7 @@ import { renderHook } from '@testing-library/react';
 import { useKeyboardShortcuts } from '../useKeyboardShortcuts';
 import { describe, it, expect, vi } from 'vitest';
 
-const press = (
-  key: string,
-  mod: { meta?: boolean; ctrl?: boolean } = { meta: true },
-) =>
+const press = (key: string, mod: { meta?: boolean; ctrl?: boolean } = { meta: true }) =>
   window.dispatchEvent(
     new KeyboardEvent('keydown', {
       key,
@@ -18,18 +15,14 @@ const press = (
 describe('useKeyboardShortcuts', () => {
   it('calls onSave on ⌘+S', () => {
     const save = vi.fn();
-    renderHook(() =>
-      useKeyboardShortcuts({ onSave: save, onSend: vi.fn(), onNew: vi.fn() }),
-    );
+    renderHook(() => useKeyboardShortcuts({ onSave: save, onSend: vi.fn(), onNew: vi.fn() }));
     press('s');
     expect(save).toHaveBeenCalledTimes(1);
   });
 
   it('calls onSend on ⌘+Enter', () => {
     const send = vi.fn();
-    renderHook(() =>
-      useKeyboardShortcuts({ onSave: vi.fn(), onSend: send, onNew: vi.fn() }),
-    );
+    renderHook(() => useKeyboardShortcuts({ onSave: vi.fn(), onSend: send, onNew: vi.fn() }));
     press('Enter');
     expect(send).toHaveBeenCalled();
   });

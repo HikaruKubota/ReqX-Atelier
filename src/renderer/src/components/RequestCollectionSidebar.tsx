@@ -1,6 +1,6 @@
 import React from 'react';
 import type { SavedRequest } from '../hooks/useSavedRequests'; // Adjust path as needed
-import { RequestListItem } from './atoms/list/RequestListItem'
+import { RequestListItem } from './atoms/list/RequestListItem';
 import { NewRequestButton } from './atoms/button/NewRequestButton';
 
 interface RequestCollectionSidebarProps {
@@ -19,7 +19,17 @@ export const RequestCollectionSidebar: React.FC<RequestCollectionSidebarProps> =
   onDeleteRequest,
 }) => {
   return (
-    <div style={{ width: '250px', borderRight: '1px solid #ccc', padding: '10px', display: 'flex', flexDirection: 'column', backgroundColor: '#f9f9f9', height: '100vh' }}>
+    <div
+      style={{
+        width: '250px',
+        borderRight: '1px solid #ccc',
+        padding: '10px',
+        display: 'flex',
+        flexDirection: 'column',
+        backgroundColor: '#f9f9f9',
+        height: '100vh',
+      }}
+    >
       <h2 style={{ marginTop: 0, marginBottom: '10px', fontSize: '1.2em' }}>My Collection</h2>
       <NewRequestButton onClick={onNewRequest} />
       <div style={{ flexGrow: 1, overflowY: 'auto' }}>

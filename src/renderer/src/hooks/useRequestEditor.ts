@@ -5,17 +5,14 @@ import { SavedRequest } from './useSavedRequests';
 import {
   useHeadersManager,
   // RequestHeader, // RequestHeader is implicitly part of UseHeadersManagerReturn
-  UseHeadersManagerReturn
+  UseHeadersManagerReturn,
 } from './useHeadersManager';
-import {
-  useBodyManager,
-  UseBodyManagerReturn
-} from './useBodyManager'; // Import from new body hook
+import { useBodyManager, UseBodyManagerReturn } from './useBodyManager'; // Import from new body hook
 
 // RequestEditorState now inherits from both manager returns, excluding conflicting/internal methods
 export interface RequestEditorState
   extends Omit<UseHeadersManagerReturn, 'loadHeaders' | 'resetHeaders'>,
-          Omit<UseBodyManagerReturn, 'loadBodyKeyValuePairs' | 'resetBody'> {
+    Omit<UseBodyManagerReturn, 'loadBodyKeyValuePairs' | 'resetBody'> {
   method: string;
   setMethod: (method: string) => void;
   methodRef: { current: string };
@@ -39,39 +36,62 @@ export interface RequestEditorState
 export const useRequestEditor = (): RequestEditorState => {
   const [methodState, setMethodState] = useState('GET');
   const methodRef = useRef(methodState);
-  const setMethod = useCallback((val: string) => { setMethodState(val); methodRef.current = val; }, []);
+  const setMethod = useCallback((val: string) => {
+    setMethodState(val);
+    methodRef.current = val;
+  }, []);
 
   const [urlState, setUrlState] = useState('');
   const urlRef = useRef(urlState);
-  const setUrl = useCallback((val: string) => { setUrlState(val); urlRef.current = val; }, []);
+  const setUrl = useCallback((val: string) => {
+    setUrlState(val);
+    urlRef.current = val;
+  }, []);
 
   const [requestNameForSaveState, setRequestNameForSaveState] = useState('');
   const requestNameForSaveRef = useRef(requestNameForSaveState);
-  const setRequestNameForSave = useCallback((val: string) => { setRequestNameForSaveState(val); requestNameForSaveRef.current = val; }, []);
+  const setRequestNameForSave = useCallback((val: string) => {
+    setRequestNameForSaveState(val);
+    requestNameForSaveRef.current = val;
+  }, []);
 
   const [activeRequestIdState, setActiveRequestIdState] = useState<string | null>(null);
   const activeRequestIdRef = useRef(activeRequestIdState);
-  const setActiveRequestId = useCallback((val: string | null) => { setActiveRequestIdState(val); activeRequestIdRef.current = val; }, []);
+  const setActiveRequestId = useCallback((val: string | null) => {
+    setActiveRequestIdState(val);
+    activeRequestIdRef.current = val;
+  }, []);
 
   const headersManager = useHeadersManager();
   const bodyManager = useBodyManager(); // Use the new body manager hook
 
   // Remove useEffects for body-related states
-  useEffect(() => { methodRef.current = methodState; }, [methodState]);
-  useEffect(() => { urlRef.current = urlState; }, [urlState]);
+  useEffect(() => {
+    methodRef.current = methodState;
+  }, [methodState]);
+  useEffect(() => {
+    urlRef.current = urlState;
+  }, [urlState]);
   // useEffect(() => { requestBodyRef.current = requestBodyState; }, [requestBodyState]); // Remove
   // useEffect(() => { currentBodyKeyValuePairsRef.current = currentBodyKeyValuePairsState; }, [currentBodyKeyValuePairsState]); // Remove
-  useEffect(() => { requestNameForSaveRef.current = requestNameForSaveState; }, [requestNameForSaveState]);
-  useEffect(() => { activeRequestIdRef.current = activeRequestIdState; }, [activeRequestIdState]);
+  useEffect(() => {
+    requestNameForSaveRef.current = requestNameForSaveState;
+  }, [requestNameForSaveState]);
+  useEffect(() => {
+    activeRequestIdRef.current = activeRequestIdState;
+  }, [activeRequestIdState]);
 
-  const loadRequest = useCallback((req: SavedRequest) => {
-    setMethodState(req.method);
-    setUrlState(req.url);
-    bodyManager.loadBodyKeyValuePairs(req.bodyKeyValuePairs || []); // Use bodyManager
-    headersManager.loadHeaders(req.headers || []);
-    setActiveRequestIdState(req.id);
-    setRequestNameForSaveState(req.name);
-  }, [headersManager, bodyManager]); // Add bodyManager to dependencies
+  const loadRequest = useCallback(
+    (req: SavedRequest) => {
+      setMethodState(req.method);
+      setUrlState(req.url);
+      bodyManager.loadBodyKeyValuePairs(req.bodyKeyValuePairs || []); // Use bodyManager
+      headersManager.loadHeaders(req.headers || []);
+      setActiveRequestIdState(req.id);
+      setRequestNameForSaveState(req.name);
+    },
+    [headersManager, bodyManager],
+  ); // Add bodyManager to dependencies
 
   const resetEditor = useCallback(() => {
     setMethodState('GET');
@@ -83,17 +103,23 @@ export const useRequestEditor = (): RequestEditorState => {
   }, [headersManager, bodyManager]); // Add bodyManager to dependencies
 
   return {
-    method: methodState, setMethod,
-    url: urlState, setUrl,
+    method: methodState,
+    setMethod,
+    url: urlState,
+    setUrl,
     ...headersManager, // Spread headers manager return values
-    ...bodyManager,    // Spread body manager return values
-    requestNameForSave: requestNameForSaveState, setRequestNameForSave,
-    activeRequestId: activeRequestIdState, setActiveRequestId,
-    methodRef, urlRef,
+    ...bodyManager, // Spread body manager return values
+    requestNameForSave: requestNameForSaveState,
+    setRequestNameForSave,
+    activeRequestId: activeRequestIdState,
+    setActiveRequestId,
+    methodRef,
+    urlRef,
     // requestBodyRef, currentBodyKeyValuePairsRef, // These are now part of bodyManager
-    requestNameForSaveRef, activeRequestIdRef,
+    requestNameForSaveRef,
+    activeRequestIdRef,
     // headersRef is part of headersManager
     loadRequest,
-    resetEditor
+    resetEditor,
   };
 };
