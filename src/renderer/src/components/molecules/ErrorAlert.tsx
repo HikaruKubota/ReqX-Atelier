@@ -1,7 +1,7 @@
 import React from 'react';
 import clsx from 'clsx';
 import { JsonPre } from '../atoms/JsonPre';
-import { ErrorInfo, ErrorAlertProps } from '../../types';
+import { ErrorAlertProps } from '../../types';
 
 export const ErrorAlert: React.FC<ErrorAlertProps> = ({ error, className }) => {
   if (!error) return null;
