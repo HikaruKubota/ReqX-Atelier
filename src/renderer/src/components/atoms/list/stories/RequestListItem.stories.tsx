@@ -1,4 +1,3 @@
-import React from 'react';
 import { RequestListItem } from '../RequestListItem';
 import type { SavedRequest } from '../../../../hooks/useSavedRequests';
 

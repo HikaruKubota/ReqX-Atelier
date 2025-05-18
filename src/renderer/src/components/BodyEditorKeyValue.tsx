@@ -56,10 +56,10 @@ export const BodyEditorKeyValue = forwardRef<BodyEditorKeyValueRef, BodyEditorKe
               }
               return obj;
             },
-            {} as Record<string, any>,
+            {} as Record<string, unknown>,
           );
           return Object.keys(jsonObject).length > 0 ? JSON.stringify(jsonObject, null, 2) : '';
-        } catch (e) {
+        } catch {
           // console.error("BodyEditorKeyValue: Error constructing JSON from K-V pairs:", e);
           return '';
         }

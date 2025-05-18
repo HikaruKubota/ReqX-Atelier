@@ -7,6 +7,7 @@
  * 3. モック API が 200 OK を返し、レスポンスが画面に表示されることを確認
  */
 
+import React from 'react';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { http, HttpResponse } from 'msw';

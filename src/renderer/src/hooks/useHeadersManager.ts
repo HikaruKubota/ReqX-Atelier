@@ -35,34 +35,6 @@ export const useHeadersManager = (): UseHeadersManagerReturn => {
     headersRef.current = newHeaders;
   }, []);
 
-  const addHeader = useCallback(() => {
-    const newHeader = {
-      id: `header-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`,
-      key: '',
-      value: '',
-      enabled: true,
-    };
-    setHeadersState((prev) => [...prev, newHeader]);
-    headersRef.current = [...headersState, newHeader]; // Keep ref in sync after update
-  }, [headersState]); // headersState dependency for ref sync
-
-  const updateHeader = useCallback(
-    (id: string, field: keyof Omit<RequestHeader, 'id'>, value: string | boolean) => {
-      const updatedHeaders = headersState.map((h) => (h.id === id ? { ...h, [field]: value } : h));
-      setHeadersState(updatedHeaders);
-      headersRef.current = updatedHeaders;
-    },
-    [headersState],
-  ); // headersState dependency for ref sync
-
-  const removeHeader = useCallback(
-    (id: string) => {
-      const filteredHeaders = headersState.filter((h) => h.id !== id);
-      setHeadersState(filteredHeaders);
-      headersRef.current = filteredHeaders;
-    },
-    [headersState],
-  ); // headersState dependency for ref sync
 
   const loadHeaders = useCallback((loadedHeaders: RequestHeader[]) => {
     setHeadersState(loadedHeaders && loadedHeaders.length > 0 ? loadedHeaders : initialHeaders);

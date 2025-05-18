@@ -14,17 +14,22 @@ export function useRequestActions({
   updateSavedRequest,
   executeRequest,
 }: {
-  editorPanelRef: React.RefObject<any>;
+  editorPanelRef: React.RefObject<import('../components/RequestEditorPanel').RequestEditorPanelRef>;
   methodRef: React.RefObject<string>;
   urlRef: React.RefObject<string>;
-  headersRef: React.RefObject<any[]>;
+  headersRef: React.RefObject<import('./useHeadersManager').RequestHeader[]>;
   requestNameForSaveRef: React.RefObject<string>;
   setRequestNameForSave: (name: string) => void;
   activeRequestIdRef: React.RefObject<string | null>;
   setActiveRequestId: (id: string) => void;
   addRequest: (req: SavedRequest) => string;
   updateSavedRequest: (id: string, req: Omit<SavedRequest, 'id'>) => void;
-  executeRequest: (...args: any[]) => Promise<void>;
+  executeRequest: (
+    method: string,
+    url: string,
+    body?: string,
+    headers?: Record<string, string>,
+  ) => Promise<void>;
 }) {
   // リクエスト送信
   const executeSendRequest = useCallback(async () => {

@@ -2,8 +2,13 @@ import React from 'react';
 import clsx from 'clsx';
 import { JsonPre } from '../atoms/JsonPre';
 
+interface ErrorInfo {
+  message?: string;
+  [key: string]: unknown;
+}
+
 interface ErrorAlertProps {
-  error: any;
+  error: ErrorInfo | null;
   className?: string;
 }
 
