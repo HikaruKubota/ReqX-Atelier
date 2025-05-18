@@ -1,9 +1,14 @@
 import { useState, useCallback } from 'react';
 import { sendApiRequest, ApiResult } from '../api'; // Assuming ApiResult is the type returned by sendApiRequest
 
+export interface ApiError {
+  message: string;
+  [key: string]: unknown;
+}
+
 export interface ApiResponseHandler {
   response: ApiResult | null;
-  error: any; // Consider a more specific error type
+  error: ApiError | null;
   loading: boolean;
   executeRequest: (
     method: string,
@@ -16,7 +21,7 @@ export interface ApiResponseHandler {
 
 export const useApiResponseHandler = (): ApiResponseHandler => {
   const [response, setResponse] = useState<ApiResult | null>(null);
-  const [error, setError] = useState<any>(null);
+  const [error, setError] = useState<ApiError | null>(null);
   const [loading, setLoading] = useState(false);
 
   const executeRequest = useCallback(
@@ -44,8 +49,9 @@ export const useApiResponseHandler = (): ApiResponseHandler => {
             isApiError: true,
           });
         }
-      } catch (err: any) {
-        setError({ message: err.message, isError: true, type: 'ApplicationError' });
+      } catch (err: unknown) {
+        const message = err instanceof Error ? err.message : 'Unknown error';
+        setError({ message, isError: true, type: 'ApplicationError' });
       }
       setLoading(false);
     },

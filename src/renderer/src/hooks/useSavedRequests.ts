@@ -78,7 +78,7 @@ export const useSavedRequests = () => {
   useEffect(() => {
     // Before saving, ensure no 'body' property is lingering from old structures if migration happened elsewhere
     const requestsToSave = savedRequests.map((req) => {
-      const { body, ...rest } = req as any; // eslint-disable-line @typescript-eslint/no-unused-vars
+      const { body: _unusedBody, ...rest } = req as SavedRequest & { body?: string };
       return rest;
     });
     localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(requestsToSave));

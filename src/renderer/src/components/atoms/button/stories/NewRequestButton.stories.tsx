@@ -1,3 +1,4 @@
+import React from 'react';
 import { NewRequestButton } from '../NewRequestButton';
 
 export default {

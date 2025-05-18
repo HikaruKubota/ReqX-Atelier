@@ -25,10 +25,10 @@ const generateJsonFromBodyPairs = (pairs: KeyValuePair[]): string => {
         }
         return obj;
       },
-      {} as Record<string, any>,
+      {} as Record<string, unknown>,
     );
     return Object.keys(jsonObject).length > 0 ? JSON.stringify(jsonObject, null, 2) : '';
-  } catch (e) {
+  } catch {
     // console.error("Error generating JSON from K-V pairs:", e);
     return ''; // Fallback to empty string on error
   }

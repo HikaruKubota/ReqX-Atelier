@@ -1,4 +1,4 @@
-import { useImperativeHandle, forwardRef, useRef } from 'react';
+import React, { useImperativeHandle, forwardRef, useRef } from 'react';
 import type { RequestHeader } from '../hooks/useHeadersManager';
 import { HeadersEditor } from './HeadersEditor';
 import { BodyEditorKeyValue, BodyEditorKeyValueRef, KeyValuePair } from './BodyEditorKeyValue';
