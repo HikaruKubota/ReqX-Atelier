@@ -1,5 +1,11 @@
 {
   "delete_confirm": "Are you sure you want to delete this request?",
   "switch_to_dark": "Dark Mode",
-  "switch_to_light": "Light Mode"
+  "switch_to_light": "Light Mode",
+  "add_body_row": "Add Body Row",
+  "import_json": "Import JSON",
+  "import": "Import",
+  "cancel": "Cancel",
+  "paste_json": "Paste JSON here",
+  "invalid_json": "Invalid JSON"
 }
