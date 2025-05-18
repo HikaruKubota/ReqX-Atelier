@@ -5,8 +5,6 @@ import {
 import { useBodyManager } from './useBodyManager';
 import type {
   SavedRequest,
-  UseHeadersManagerReturn,
-  UseBodyManagerReturn,
   RequestEditorState,
 } from '../types';
 
