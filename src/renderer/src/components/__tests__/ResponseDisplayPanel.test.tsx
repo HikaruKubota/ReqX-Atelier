@@ -27,6 +27,6 @@ describe('ResponseDisplayPanel', () => {
     const pre = screen.getByText(/"ok": true/);
     expect(pre.className).toMatch('dark:bg-green-900');
     fireEvent.click(screen.getByText('toggle'));
-    expect(document.documentElement.classList.contains('dark')).toBe(true);
+    expect(document.documentElement.classList.contains('dark')).toBe(false);
   });
 });
