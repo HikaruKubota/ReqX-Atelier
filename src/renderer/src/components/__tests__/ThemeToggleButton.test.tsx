@@ -12,9 +12,9 @@ describe('ThemeToggleButton', () => {
       </ThemeProvider>,
     );
     const btn = screen.getByRole('button');
-    expect(btn.textContent).toBe('ダークモード');
-    fireEvent.click(btn);
     expect(btn.textContent).toBe('ライトモード');
-    expect(document.documentElement.classList.contains('dark')).toBe(true);
+    fireEvent.click(btn);
+    expect(btn.textContent).toBe('ダークモード');
+    expect(document.documentElement.classList.contains('dark')).toBe(false);
   });
 });

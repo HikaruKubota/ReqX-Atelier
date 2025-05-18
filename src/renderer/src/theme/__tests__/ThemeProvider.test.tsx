@@ -17,11 +17,11 @@ describe('ThemeProvider', () => {
       </ThemeProvider>,
     );
     const btn = screen.getByRole('button');
-    expect(btn.textContent).toBe('現在:light');
-    expect(document.documentElement.classList.contains('dark')).toBe(false);
-    fireEvent.click(btn);
     expect(btn.textContent).toBe('現在:dark');
     expect(document.documentElement.classList.contains('dark')).toBe(true);
+    fireEvent.click(btn);
+    expect(btn.textContent).toBe('現在:light');
+    expect(document.documentElement.classList.contains('dark')).toBe(false);
   });
 
   it('applies color variables correctly', () => {
@@ -31,10 +31,10 @@ describe('ThemeProvider', () => {
       </ThemeProvider>,
     );
     const root = document.documentElement;
-    expect(root.style.getPropertyValue('--color-background')).toBe(lightColors.background);
-    expect(root.style.getPropertyValue('--color-text')).toBe(lightColors.text);
-    fireEvent.click(screen.getByRole('button'));
     expect(root.style.getPropertyValue('--color-background')).toBe(darkColors.background);
     expect(root.style.getPropertyValue('--color-text')).toBe(darkColors.text);
+    fireEvent.click(screen.getByRole('button'));
+    expect(root.style.getPropertyValue('--color-background')).toBe(lightColors.background);
+    expect(root.style.getPropertyValue('--color-text')).toBe(lightColors.text);
   });
 });

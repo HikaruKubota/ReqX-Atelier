@@ -20,7 +20,7 @@ const applyColors = (colors: ThemeColors) => {
 };
 
 export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [mode, setMode] = useState<ThemeMode>('light');
+  const [mode, setMode] = useState<ThemeMode>('dark');
   const colors = mode === 'light' ? lightColors : darkColors;
 
   useEffect(() => {
