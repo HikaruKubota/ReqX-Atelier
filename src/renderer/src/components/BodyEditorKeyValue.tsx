@@ -100,6 +100,10 @@ export const BodyEditorKeyValue = forwardRef<BodyEditorKeyValueRef, BodyEditorKe
     });
   }, []);
 
+  const handleToggleAll = useCallback((enable: boolean) => {
+    setBodyKeyValuePairs(prevPairs => prevPairs.map(pair => ({ ...pair, enabled: enable })));
+  }, []);
+
   const isBodyApplicable = !(method === 'GET' || method === 'HEAD');
 
   if (!isBodyApplicable) {
@@ -157,12 +161,28 @@ export const BodyEditorKeyValue = forwardRef<BodyEditorKeyValueRef, BodyEditorKe
           </button>
         </div>
       ))}
-      <button
-        onClick={handleAddKeyValuePair}
-        style={{ marginTop: '10px', padding: '8px 15px', fontSize: '0.95em', backgroundColor: '#007bff', color: 'white', border: 'none', borderRadius: '4px', alignSelf: 'flex-start', cursor: 'pointer' }}
-      >
-        Add Body Row
-      </button>
+      <div style={{ display: 'flex', gap: '8px', marginTop: '10px' }}>
+        <button
+          onClick={() => handleToggleAll(true)}
+          style={{ padding: '8px 15px', fontSize: '0.95em', backgroundColor: '#28a745', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer' }}
+          disabled={bodyKeyValuePairs.length === 0}
+        >
+          Enable All
+        </button>
+        <button
+          onClick={() => handleToggleAll(false)}
+          style={{ padding: '8px 15px', fontSize: '0.95em', backgroundColor: '#dc3545', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer' }}
+          disabled={bodyKeyValuePairs.length === 0}
+        >
+          Disable All
+        </button>
+        <button
+          onClick={handleAddKeyValuePair}
+          style={{ padding: '8px 15px', fontSize: '0.95em', backgroundColor: '#007bff', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer' }}
+        >
+          Add Body Row
+        </button>
+      </div>
     </div>
   );
 });
