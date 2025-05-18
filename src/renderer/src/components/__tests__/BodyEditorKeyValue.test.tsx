@@ -1,6 +1,6 @@
 import React, { createRef } from 'react';
-import { render, fireEvent, waitFor } from '@testing-library/react';
-import { act, describe, it, expect } from 'vitest';
+import { render, fireEvent, act } from '@testing-library/react';
+import { describe, it, expect } from 'vitest';
 import { BodyEditorKeyValue, KeyValuePair, BodyEditorKeyValueRef } from '../BodyEditorKeyValue';
 
 const initialPairs: KeyValuePair[] = [
