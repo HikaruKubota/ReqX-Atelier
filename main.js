@@ -1,6 +1,6 @@
-const { app, BrowserWindow, ipcMain } = require('electron');
-const axios = require('axios');
-const path = require('path');
+import { app, BrowserWindow, ipcMain } from 'electron';
+import axios from 'axios'
+import path from 'node:path';
 
 function createWindow() {
   const win = new BrowserWindow({
