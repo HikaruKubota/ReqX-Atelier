@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import type { KeyValuePair, RequestHeader, SavedRequest } from '../types';
+import type { KeyValuePair, SavedRequest } from '../types';
 
 
 const LOCAL_STORAGE_KEY = 'reqx_saved_requests';
