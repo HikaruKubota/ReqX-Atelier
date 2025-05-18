@@ -32,4 +32,14 @@ describe('Modal', () => {
     fireEvent.click(getByTestId('modal-overlay'));
     expect(onClose).toHaveBeenCalled();
   });
+
+  it('applies size classes to panel', () => {
+    render(
+      <Modal isOpen={true} onClose={() => {}} size="xl">
+        <div>content</div>
+      </Modal>,
+    );
+    const panel = document.querySelector('.max-w-xl');
+    expect(panel).toBeTruthy();
+  });
 });
