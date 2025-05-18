@@ -92,8 +92,35 @@ export default function App() {
   //   }
   // }, []);
 
+  const handleSaveButtonClick = useCallback(() => {
+    executeSaveRequest();
+    const activeTab = tabs.getActiveTab();
+    if (activeTab) {
+      tabs.updateTab(activeTab.tabId, {
+        name:
+          requestNameForSaveRef.current.trim() !== ''
+            ? requestNameForSaveRef.current.trim()
+            : 'Untitled Request',
+        method,
+        url,
+        headers,
+        bodyKeyValuePairs: currentBodyKeyValuePairs,
+        requestId: activeRequestIdRef.current,
+      });
+    }
+  }, [
+    executeSaveRequest,
+    tabs,
+    method,
+    url,
+    headers,
+    currentBodyKeyValuePairs,
+    requestNameForSaveRef,
+    activeRequestIdRef,
+  ]);
+
   useKeyboardShortcuts({
-    onSave: executeSaveRequest,
+    onSave: handleSaveButtonClick,
     onSend: executeSendRequest,
     onNew: handleNewRequest,
     onNextTab: () => {
@@ -131,10 +158,6 @@ export default function App() {
       }
     },
   });
-
-  const handleSaveButtonClick = useCallback(() => {
-    executeSaveRequest();
-  }, [executeSaveRequest]);
 
   const handleLoadRequest = (req: SavedRequest) => {
     const active = tabs.getActiveTab();
