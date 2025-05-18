@@ -45,7 +45,10 @@ export default function App() {
 
   // Saved requests state (from useSavedRequests hook)
   const {
+    folders,
     savedRequests,
+    addFolder,
+    deleteFolder,
     addRequest,
     updateRequest: updateSavedRequest,
     deleteRequest,
@@ -60,6 +63,7 @@ export default function App() {
     setRequestNameForSave,
     activeRequestIdRef,
     setActiveRequestId,
+    folderIdRef,
     addRequest,
     updateSavedRequest,
     executeRequest,
@@ -102,9 +106,11 @@ export default function App() {
     <div style={{ display: 'flex', height: '100vh' }}>
       {/* Use the new RequestCollectionSidebar component */}
       <RequestCollectionSidebar
+        folders={folders}
         savedRequests={savedRequests}
         activeRequestId={activeRequestId}
         onNewRequest={handleNewRequest}
+        onAddFolder={() => addFolder('')}
         onLoadRequest={handleLoadRequest}
         onDeleteRequest={handleDeleteRequest}
       />
@@ -137,6 +143,9 @@ export default function App() {
           loading={loading}
           onSaveRequest={handleSaveButtonClick}
           onSendRequest={executeSendRequest}
+          folderId={folderId}
+          folders={folders}
+          onFolderChange={setFolderId}
           headers={headers}
           onAddHeader={addHeader}
           onUpdateHeader={updateHeader}

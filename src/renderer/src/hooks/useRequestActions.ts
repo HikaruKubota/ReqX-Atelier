@@ -10,6 +10,7 @@ export function useRequestActions({
   setRequestNameForSave,
   activeRequestIdRef,
   setActiveRequestId,
+  folderIdRef,
   addRequest,
   updateSavedRequest,
   executeRequest,
@@ -22,6 +23,7 @@ export function useRequestActions({
   setRequestNameForSave: (name: string) => void;
   activeRequestIdRef: React.RefObject<string | null>;
   setActiveRequestId: (id: string) => void;
+  folderIdRef: React.RefObject<string>;
   addRequest: (req: SavedRequest) => string;
   updateSavedRequest: (id: string, req: Omit<SavedRequest, 'id'>) => void;
   executeRequest: (
@@ -59,6 +61,7 @@ export function useRequestActions({
       editorPanelRef.current?.getRequestBodyKeyValuePairs() || [];
     const currentActiveRequestId = activeRequestIdRef.current;
     const currentHeaders = headersRef.current;
+    const currentFolderId = folderIdRef.current;
 
     const requestDataToSave: Omit<SavedRequest, 'id'> = {
       name: nameToSave,
@@ -66,6 +69,7 @@ export function useRequestActions({
       url: currentUrl,
       headers: currentHeaders,
       bodyKeyValuePairs: currentBodyKeyValuePairsFromEditor,
+      folderId: currentFolderId,
     };
 
     if (currentActiveRequestId) {
@@ -84,6 +88,7 @@ export function useRequestActions({
     urlRef,
     activeRequestIdRef,
     headersRef,
+    folderIdRef,
   ]);
 
   return { executeSendRequest, executeSaveRequest };

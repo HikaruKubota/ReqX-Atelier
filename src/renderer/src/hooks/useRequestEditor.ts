@@ -1,12 +1,7 @@
 import { useState, useCallback, useRef, useEffect } from 'react';
-import {
-  useHeadersManager,
-} from './useHeadersManager';
+import { useHeadersManager } from './useHeadersManager';
 import { useBodyManager } from './useBodyManager';
-import type {
-  SavedRequest,
-  RequestEditorState,
-} from '../types';
+import type { SavedRequest, RequestEditorState } from '../types';
 
 // RequestEditorState now inherits from both manager returns, excluding conflicting/internal methods
 
@@ -41,6 +36,13 @@ export const useRequestEditor = (): RequestEditorState => {
     activeRequestIdRef.current = val;
   }, []);
 
+  const [folderIdState, setFolderIdState] = useState('');
+  const folderIdRef = useRef(folderIdState);
+  const setFolderId = useCallback((val: string) => {
+    setFolderIdState(val);
+    folderIdRef.current = val;
+  }, []);
+
   const headersManager = useHeadersManager();
   const bodyManager = useBodyManager(); // Use the new body manager hook
 
@@ -59,6 +61,9 @@ export const useRequestEditor = (): RequestEditorState => {
   useEffect(() => {
     activeRequestIdRef.current = activeRequestIdState;
   }, [activeRequestIdState]);
+  useEffect(() => {
+    folderIdRef.current = folderIdState;
+  }, [folderIdState]);
 
   const loadRequest = useCallback(
     (req: SavedRequest) => {
@@ -68,6 +73,7 @@ export const useRequestEditor = (): RequestEditorState => {
       headersManager.loadHeaders(req.headers || []);
       setActiveRequestIdState(req.id);
       setRequestNameForSaveState(req.name);
+      setFolderIdState(req.folderId);
     },
     [headersManager, bodyManager],
   ); // Add bodyManager to dependencies
@@ -79,6 +85,7 @@ export const useRequestEditor = (): RequestEditorState => {
     headersManager.resetHeaders();
     setActiveRequestIdState(null);
     setRequestNameForSaveState('');
+    setFolderIdState('');
   }, [headersManager, bodyManager]); // Add bodyManager to dependencies
 
   return {
@@ -92,11 +99,14 @@ export const useRequestEditor = (): RequestEditorState => {
     setRequestNameForSave,
     activeRequestId: activeRequestIdState,
     setActiveRequestId,
+    folderId: folderIdState,
+    setFolderId,
     methodRef,
     urlRef,
     // requestBodyRef, currentBodyKeyValuePairsRef, // These are now part of bodyManager
     requestNameForSaveRef,
     activeRequestIdRef,
+    folderIdRef,
     // headersRef is part of headersManager
     loadRequest,
     resetEditor,

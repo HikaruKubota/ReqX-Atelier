@@ -55,9 +55,15 @@ export interface UseBodyManagerReturn {
   resetBody: () => void;
 }
 
+export interface RequestFolder {
+  id: string;
+  name: string;
+}
+
 export interface SavedRequest {
   id: string;
   name: string;
+  folderId: string;
   method: string;
   url: string;
   headers?: RequestHeader[];
@@ -118,6 +124,9 @@ export interface RequestEditorState
   activeRequestId: string | null;
   setActiveRequestId: (id: string | null) => void;
   activeRequestIdRef: { current: string | null };
+  folderId: string;
+  setFolderId: (id: string) => void;
+  folderIdRef: { current: string };
   loadRequest: (request: SavedRequest) => void;
   resetEditor: () => void;
 }

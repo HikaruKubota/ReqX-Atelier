@@ -1,20 +1,25 @@
 import React from 'react';
-import type { SavedRequest } from '../types';
-import { RequestListItem } from './atoms/list/RequestListItem';
+import type { SavedRequest, RequestFolder } from '../types';
 import { NewRequestButton } from './atoms/button/NewRequestButton';
+import { AddFolderButton } from './atoms/button/AddFolderButton';
+import { RequestFolderSection } from './organisms/RequestFolderSection';
 
 interface RequestCollectionSidebarProps {
+  folders: RequestFolder[];
   savedRequests: SavedRequest[];
   activeRequestId: string | null;
   onNewRequest: () => void;
+  onAddFolder: () => void;
   onLoadRequest: (request: SavedRequest) => void;
   onDeleteRequest: (id: string) => void;
 }
 
 export const RequestCollectionSidebar: React.FC<RequestCollectionSidebarProps> = ({
+  folders,
   savedRequests,
   activeRequestId,
   onNewRequest,
+  onAddFolder,
   onLoadRequest,
   onDeleteRequest,
 }) => {
@@ -32,16 +37,19 @@ export const RequestCollectionSidebar: React.FC<RequestCollectionSidebarProps> =
       }}
     >
       <h2 style={{ marginTop: 0, marginBottom: '10px', fontSize: '1.2em' }}>My Collection</h2>
-      <NewRequestButton onClick={onNewRequest} />
+      <div style={{ display: 'flex', gap: '4px', marginBottom: '10px' }}>
+        <NewRequestButton onClick={onNewRequest} />
+        <AddFolderButton onClick={onAddFolder} />
+      </div>
       <div style={{ flexGrow: 1, overflowY: 'auto' }}>
-        {savedRequests.length === 0 && <p style={{ color: '#777' }}>No requests saved yet.</p>}
-        {savedRequests.map((req) => (
-          <RequestListItem
-            key={req.id}
-            request={req}
-            isActive={activeRequestId === req.id}
-            onClick={() => onLoadRequest(req)}
-            onDelete={() => onDeleteRequest(req.id)}
+        {folders.map((folder) => (
+          <RequestFolderSection
+            key={folder.id}
+            folder={folder}
+            requests={savedRequests.filter((r) => r.folderId === folder.id)}
+            activeRequestId={activeRequestId}
+            onLoadRequest={onLoadRequest}
+            onDeleteRequest={onDeleteRequest}
           />
         ))}
       </div>
