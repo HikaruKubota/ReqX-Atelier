@@ -5,9 +5,17 @@ type Shortcuts = {
   onSave: () => void;
   onSend: () => void;
   onNew: () => void;
+  onNextTab?: () => void;
+  onPrevTab?: () => void;
 };
 
-export const useKeyboardShortcuts = ({ onSave, onSend, onNew }: Shortcuts) => {
+export const useKeyboardShortcuts = ({
+  onSave,
+  onSend,
+  onNew,
+  onNextTab,
+  onPrevTab,
+}: Shortcuts) => {
   const handler = useCallback(
     (e: KeyboardEvent) => {
       const mod = e.metaKey || e.ctrlKey;
@@ -25,8 +33,16 @@ export const useKeyboardShortcuts = ({ onSave, onSend, onNew }: Shortcuts) => {
         e.preventDefault();
         onNew();
       }
+      if (e.altKey && e.key === 'ArrowRight' && onNextTab) {
+        e.preventDefault();
+        onNextTab();
+      }
+      if (e.altKey && e.key === 'ArrowLeft' && onPrevTab) {
+        e.preventDefault();
+        onPrevTab();
+      }
     },
-    [onSave, onSend, onNew],
+    [onSave, onSend, onNew, onNextTab, onPrevTab],
   );
 
   useEffect(() => {
