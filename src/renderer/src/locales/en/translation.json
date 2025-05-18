@@ -16,5 +16,13 @@
   "loading": "Loading...",
   "error_details": "Error Details:",
   "move_up": "Move Up",
-  "move_down": "Move Down"
+  "move_down": "Move Down",
+  "no_tabs": "No tabs open. Use shortcuts below.",
+  "cheatsheet_title": "Keyboard Shortcuts",
+  "shortcut_new": "New request: Ctrl+N",
+  "shortcut_send": "Send request: Ctrl+Enter",
+  "shortcut_save": "Save request: Ctrl+S",
+  "shortcut_close_tab": "Close tab: Ctrl+W",
+  "shortcut_next_tab": "Next tab: Alt+ArrowRight",
+  "shortcut_prev_tab": "Previous tab: Alt+ArrowLeft"
 }
