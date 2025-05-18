@@ -11,6 +11,7 @@
   "close_tab": "Close Tab",
   "hide_sidebar": "Hide Sidebar",
   "show_sidebar": "Show Sidebar",
+  "new_request": "New Request",
   "response_heading": "Response",
   "no_response": "No response yet. Send a request or load a saved one!",
   "loading": "Loading...",

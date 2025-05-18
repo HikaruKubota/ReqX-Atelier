@@ -208,7 +208,6 @@ export default function App() {
       <RequestCollectionSidebar
         savedRequests={savedRequests}
         activeRequestId={activeRequestId}
-        onNewRequest={handleNewRequest}
         onLoadRequest={handleLoadRequest}
         onDeleteRequest={handleDeleteRequest}
         isOpen={sidebarOpen}
@@ -247,6 +246,7 @@ export default function App() {
             onClose={(id) => {
               tabs.closeTab(id);
             }}
+            onNew={handleNewRequest}
           />
         )}
         <div style={{ alignSelf: 'flex-end' }}>
