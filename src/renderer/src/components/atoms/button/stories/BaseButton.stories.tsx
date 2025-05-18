@@ -1,4 +1,4 @@
-import { BaseButton } from '../BaseButton';
+import { BaseButton } from '../BaseButton.tsx';
 
 export default {
   title: 'Atoms/BaseButton',

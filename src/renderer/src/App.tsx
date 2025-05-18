@@ -8,6 +8,7 @@ import { ResponseDisplayPanel } from './components/ResponseDisplayPanel'; // Imp
 import { useKeyboardShortcuts } from './hooks/useKeyboardShortcuts';
 import { useRequestActions } from './hooks/useRequestActions';
 import { useTranslation } from 'react-i18next';
+import { ThemeToggleButton } from './components/ThemeToggleButton';
 
 export default function App() {
   const { t } = useTranslation();
@@ -117,6 +118,9 @@ export default function App() {
           overflowY: 'auto',
         }}
       >
+        <div style={{ alignSelf: 'flex-end' }}>
+          <ThemeToggleButton />
+        </div>
         {/* Use the new RequestEditorPanel component */}
         <RequestEditorPanel
           ref={editorPanelRef}

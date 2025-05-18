@@ -1,7 +1,7 @@
 import React from 'react';
 import { FiPlus } from 'react-icons/fi';
 import clsx from 'clsx';
-import { BaseButton, BaseButtonProps } from './BaseButton';
+import { BaseButton, BaseButtonProps } from './BaseButton.tsx';
 
 export const NewRequestButton: React.FC<BaseButtonProps> = ({
   size = 'md',

@@ -26,7 +26,8 @@ export const RequestCollectionSidebar: React.FC<RequestCollectionSidebarProps> =
         padding: '10px',
         display: 'flex',
         flexDirection: 'column',
-        backgroundColor: '#f9f9f9',
+        backgroundColor: 'var(--color-background)',
+        color: 'var(--color-text)',
         height: '100vh',
       }}
     >
