@@ -2,6 +2,7 @@ import React, { createRef } from 'react';
 import { render, fireEvent, act } from '@testing-library/react';
 import { describe, it, expect } from 'vitest';
 import { BodyEditorKeyValue } from '../BodyEditorKeyValue';
+import i18n from '../../i18n';
 import type { KeyValuePair, BodyEditorKeyValueRef } from '../../types';
 
 const initialPairs: KeyValuePair[] = [
@@ -36,5 +37,14 @@ describe('BodyEditorKeyValue', () => {
     const keyInputs = (await findAllByPlaceholderText('Key')) as HTMLInputElement[];
     expect(keyInputs[0].value).toBe('a');
     expect(keyInputs[1].value).toBe('b');
+  });
+
+  it('opens import modal with large size', () => {
+    const { getByText, container } = render(
+      <BodyEditorKeyValue method="POST" />,
+    );
+    fireEvent.click(getByText(i18n.t('import_json')));
+    const panel = container.querySelector('.max-w-lg');
+    expect(panel).toBeTruthy();
   });
 });
