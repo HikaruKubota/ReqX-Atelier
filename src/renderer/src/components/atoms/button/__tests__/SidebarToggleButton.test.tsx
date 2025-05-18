@@ -1,7 +1,7 @@
 import React from 'react';
 import { render, fireEvent } from '@testing-library/react';
 import { describe, it, expect, vi } from 'vitest';
-import '../../i18n';
+import '../../../../i18n';
 import { SidebarToggleButton } from '../SidebarToggleButton';
 
 describe('SidebarToggleButton', () => {
