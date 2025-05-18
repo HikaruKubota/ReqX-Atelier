@@ -265,12 +265,12 @@ export const BodyEditorKeyValue = forwardRef<BodyEditorKeyValueRef, BodyEditorKe
             disabled={bodyKeyValuePairs.length === 0}
           />
         </div>
-        <Modal isOpen={showImport} onClose={() => setShowImport(false)}>
+        <Modal isOpen={showImport} onClose={() => setShowImport(false)} size="lg">
           <textarea
             value={importText}
             placeholder={t('paste_json') || 'Paste JSON here'}
             onChange={(e) => setImportText(e.target.value)}
-            style={{ width: '100%', height: '150px' }}
+            style={{ width: '100%', height: '300px' }}
           />
           {importError && <p style={{ color: 'red' }}>{importError}</p>}
           <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px' }}>

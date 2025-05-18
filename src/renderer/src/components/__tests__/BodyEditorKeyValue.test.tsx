@@ -37,4 +37,13 @@ describe('BodyEditorKeyValue', () => {
     expect(keyInputs[0].value).toBe('a');
     expect(keyInputs[1].value).toBe('b');
   });
+
+  it('opens import modal with large size', () => {
+    const { getByText, container } = render(
+      <BodyEditorKeyValue method="POST" />,
+    );
+    fireEvent.click(getByText('Import JSON'));
+    const panel = container.querySelector('.max-w-lg');
+    expect(panel).toBeTruthy();
+  });
 });
