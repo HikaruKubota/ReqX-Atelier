@@ -1,6 +1,7 @@
 import React, { createRef } from 'react';
 import { render, fireEvent, act } from '@testing-library/react';
 import { describe, it, expect } from 'vitest';
+import '../../i18n';
 import { BodyEditorKeyValue } from '../BodyEditorKeyValue';
 import type { KeyValuePair, BodyEditorKeyValueRef } from '../../types';
 
@@ -36,5 +37,14 @@ describe('BodyEditorKeyValue', () => {
     const keyInputs = (await findAllByPlaceholderText('Key')) as HTMLInputElement[];
     expect(keyInputs[0].value).toBe('a');
     expect(keyInputs[1].value).toBe('b');
+  });
+
+  it('opens import modal with large size', () => {
+    const { getByText } = render(
+      <BodyEditorKeyValue method="POST" />,
+    );
+    fireEvent.click(getByText('Import JSON'));
+    const panel = document.querySelector('.max-w-lg');
+    expect(panel).toBeTruthy();
   });
 });
