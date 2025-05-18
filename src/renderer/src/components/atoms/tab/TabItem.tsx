@@ -5,11 +5,20 @@ import { useTranslation } from 'react-i18next';
 interface TabItemProps {
   label: string;
   active: boolean;
+  unsaved?: boolean;
   onSelect: () => void;
   onClose: () => void;
 }
 
-export const TabItem: React.FC<TabItemProps> = ({ label, active, onSelect, onClose }) => {
+import { UnsavedIndicator } from './UnsavedIndicator';
+
+export const TabItem: React.FC<TabItemProps> = ({
+  label,
+  active,
+  unsaved = false,
+  onSelect,
+  onClose,
+}) => {
   const { t } = useTranslation();
   return (
     <div
@@ -21,7 +30,10 @@ export const TabItem: React.FC<TabItemProps> = ({ label, active, onSelect, onClo
       )}
       onClick={onSelect}
     >
-      <span>{label}</span>
+      <span className="flex items-center space-x-1">
+        <span>{label}</span>
+        {unsaved && <UnsavedIndicator aria-label={t('unsaved')} />}
+      </span>
       <button
         onClick={(e) => {
           e.stopPropagation();

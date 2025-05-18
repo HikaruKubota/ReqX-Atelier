@@ -5,6 +5,8 @@ import { NewRequestIconButton } from '../atoms/button/NewRequestIconButton';
 export interface TabInfo {
   tabId: string;
   name: string;
+  unsaved?: boolean;
+  requestId?: string | null;
 }
 
 interface TabListProps {
@@ -28,6 +30,7 @@ export const TabList: React.FC<TabListProps> = ({
         key={tab.tabId}
         label={tab.name}
         active={activeTabId === tab.tabId}
+        unsaved={Boolean(tab.unsaved)}
         onSelect={() => onSelect(tab.tabId)}
         onClose={() => onClose(tab.tabId)}
       />

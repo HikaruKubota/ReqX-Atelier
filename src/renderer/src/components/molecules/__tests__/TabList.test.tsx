@@ -29,4 +29,17 @@ describe('TabList', () => {
     fireEvent.click(getByLabelText('新しいリクエスト'));
     expect(onNew).toHaveBeenCalled();
   });
+
+  it('shows unsaved indicator when unsaved', () => {
+    const { getByLabelText } = render(
+      <TabList
+        tabs={[{ tabId: '1', name: 'Tab1', unsaved: true }]}
+        activeTabId="1"
+        onSelect={() => {}}
+        onClose={() => {}}
+        onNew={() => {}}
+      />,
+    );
+    expect(getByLabelText('未保存')).toBeInTheDocument();
+  });
 });

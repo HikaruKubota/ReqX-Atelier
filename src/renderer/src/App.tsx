@@ -14,6 +14,7 @@ import { ThemeToggleButton } from './components/ThemeToggleButton';
 import { TabBar } from './components/organisms/TabBar';
 import { ShortcutsGuide } from './components/organisms/ShortcutsGuide';
 import { RequestEditorPanelRef } from './types'; // Import the RequestHeader type
+import { isTabUnsaved } from './utils/isTabUnsaved';
 
 export default function App() {
   const { t } = useTranslation();
@@ -203,6 +204,11 @@ export default function App() {
     [deleteRequest, activeRequestId, resetEditor, resetApiResponse, tabs],
   );
 
+  const tabInfos = tabs.tabs.map((tab) => ({
+    ...tab,
+    unsaved: isTabUnsaved(tab, savedRequests),
+  }));
+
   return (
     <div style={{ display: 'flex', height: '100vh' }}>
       <RequestCollectionSidebar
@@ -227,7 +233,7 @@ export default function App() {
       >
         {tabs.tabs.length > 0 && (
           <TabBar
-            tabs={tabs.tabs}
+            tabs={tabInfos}
             activeTabId={tabs.activeTabId}
             onSelect={(id) => {
               const active = tabs.getActiveTab();
