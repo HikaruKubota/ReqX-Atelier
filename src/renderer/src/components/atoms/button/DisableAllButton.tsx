@@ -1,6 +1,6 @@
 import React from 'react';
 import clsx from 'clsx';
-import { BaseButton, BaseButtonProps } from './BaseButton.tsx';
+import { BaseButton, BaseButtonProps } from './BaseButton';
 
 export const DisableAllButton: React.FC<BaseButtonProps> = ({
   size = 'md',
