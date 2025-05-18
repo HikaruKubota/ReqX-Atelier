@@ -8,5 +8,9 @@
   "cancel": "Cancel",
   "paste_json": "Paste JSON here",
   "invalid_json": "Invalid JSON",
-  "close_tab": "Close Tab"
+  "close_tab": "Close Tab",
+  "response_heading": "Response",
+  "no_response": "No response yet. Send a request or load a saved one!",
+  "loading": "Loading...",
+  "error_details": "Error Details:"
 }
