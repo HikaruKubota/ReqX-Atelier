@@ -1,4 +1,4 @@
-import React, { useCallback, useRef, useEffect } from 'react';
+import React, { useCallback, useRef, useEffect, useState } from 'react';
 import { useSavedRequests } from './hooks/useSavedRequests';
 import type { SavedRequest } from './types';
 import { useRequestEditor } from './hooks/useRequestEditor'; // Import the new hook and RequestHeader
@@ -17,6 +17,7 @@ import { RequestEditorPanelRef } from './types'; // Import the RequestHeader typ
 export default function App() {
   const { t } = useTranslation();
   const editorPanelRef = useRef<RequestEditorPanelRef>(null); // Create a ref
+  const [sidebarOpen, setSidebarOpen] = useState(true);
 
   // Use the new custom hook for request editor state and logic
   const {
@@ -184,13 +185,14 @@ export default function App() {
 
   return (
     <div style={{ display: 'flex', height: '100vh' }}>
-      {/* Use the new RequestCollectionSidebar component */}
       <RequestCollectionSidebar
         savedRequests={savedRequests}
         activeRequestId={activeRequestId}
         onNewRequest={handleNewRequest}
         onLoadRequest={handleLoadRequest}
         onDeleteRequest={handleDeleteRequest}
+        isOpen={sidebarOpen}
+        onToggle={() => setSidebarOpen((o) => !o)}
       />
 
       {/* Right Main Area for Request Editing and Response */}
