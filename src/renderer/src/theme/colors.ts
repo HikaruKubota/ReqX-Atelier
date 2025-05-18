@@ -8,8 +8,8 @@ export const lightColors: ThemeColors = {
 };
 
 export const darkColors: ThemeColors = {
-  background: '#1f2937',
-  text: '#f9fafb',
-  primary: '#2563eb',
-  secondary: '#6b7280',
+  background: '#111827',
+  text: '#e5e7eb',
+  primary: '#60a5fa',
+  secondary: '#9ca3af',
 };
