@@ -5,7 +5,7 @@ ReqX Atelier は **Electron + React + Vite** で構築されたシンプルな A
 ---
 
 ## 前提条件
-- **Node.js** 18 以上
+- **Node.js** 20 以上
 - **npm** (v10 以上推奨)
 
 ---
