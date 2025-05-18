@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen, fireEvent, within } from '@testing-library/react';
 import { vi } from 'vitest';
 
 vi.mock('../api', () => ({
@@ -32,7 +32,8 @@ describe('App integration', () => {
     );
     fireEvent.click(screen.getByText('Save Request'));
 
-    expect(await screen.findByText('テストリクエスト')).toBeInTheDocument();
+    const sidebar = screen.getByTestId('sidebar');
+    expect(await within(sidebar).findByText('テストリクエスト')).toBeInTheDocument();
   });
 
   it('SendボタンでAPIレスポンスが表示される', async () => {
