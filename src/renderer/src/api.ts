@@ -19,7 +19,7 @@ export async function sendApiRequest(
   if (body) {
     try {
       data = JSON.parse(body);
-    } catch (e) {
+    } catch {
       // JSONパースエラーの場合は、そのまま文字列として送信するか、エラーを返すか選択できます。
       // ここではエラーを投げてUI側で処理させます。
       throw new Error('Invalid JSON body');
