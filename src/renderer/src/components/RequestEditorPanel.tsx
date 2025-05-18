@@ -2,8 +2,8 @@ import { useImperativeHandle, forwardRef, useRef } from 'react';
 import type { RequestHeader } from '../hooks/useHeadersManager';
 import { HeadersEditor } from './HeadersEditor';
 import { BodyEditorKeyValue, BodyEditorKeyValueRef, KeyValuePair } from './BodyEditorKeyValue';
-
-const METHODS = ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'HEAD', 'OPTIONS'];
+import { RequestNameRow } from './molecules/RequestNameRow';
+import { RequestMethodRow } from './molecules/RequestMethodRow';
 
 export interface RequestEditorPanelRef {
   getRequestBodyAsJson: () => string;
@@ -45,36 +45,22 @@ export const RequestEditorPanel = forwardRef<RequestEditorPanelRef, RequestEdito
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '15px', border: '1px solid #ccc', padding: '15px', borderRadius: '5px' }}>
-      {/* Request Name and Save Button */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-        <input
-          type="text"
-          placeholder="Request Name (e.g., Get User Details)"
-          value={requestNameForSave}
-          onChange={(e) => onRequestNameForSaveChange(e.target.value)}
-          style={{ flexGrow: 1, padding: '8px', border: '1px solid #ddd', borderRadius: '4px' }}
-        />
-        <button onClick={onSaveRequest} disabled={loading} style={{ padding: '8px 15px', border: 'none', backgroundColor: '#007bff', color: 'white', borderRadius: '4px', cursor: 'pointer' }}>
-          {activeRequestId ? 'Update Request' : 'Save Request'}
-        </button>
-      </div>
+      <RequestNameRow
+        value={requestNameForSave}
+        onChange={onRequestNameForSaveChange}
+        onSave={onSaveRequest}
+        saving={loading}
+        isUpdate={!!activeRequestId}
+      />
 
-      {/* Method, URL, Send Button */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-        <select value={method} onChange={(e) => onMethodChange(e.target.value)} style={{ padding: '8px', border: '1px solid #ddd', borderRadius: '4px' }}>
-          {METHODS.map(m => <option key={m} value={m}>{m}</option>)}
-        </select>
-        <input
-          type="text"
-          placeholder="Enter request URL (e.g., https://api.example.com/users)"
-          value={url}
-          onChange={(e) => onUrlChange(e.target.value)}
-          style={{ flexGrow: 1, padding: '8px', border: '1px solid #ddd', borderRadius: '4px' }}
-        />
-        <button onClick={onSendRequest} disabled={loading} style={{ padding: '8px 15px', border: 'none', backgroundColor: '#28a745', color: 'white', borderRadius: '4px', cursor: 'pointer' }}>
-          {loading ? 'Sending...' : 'Send'}
-        </button>
-      </div>
+      <RequestMethodRow
+        method={method}
+        onMethodChange={onMethodChange}
+        url={url}
+        onUrlChange={onUrlChange}
+        loading={loading}
+        onSend={onSendRequest}
+      />
 
       <HeadersEditor
         headers={headers}
