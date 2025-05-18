@@ -38,6 +38,7 @@ export default function App() {
     urlRef,
     headersRef,
     requestNameForSaveRef,
+    setRequestNameForSave,
     activeRequestIdRef,
     setActiveRequestId,
     addRequest,
