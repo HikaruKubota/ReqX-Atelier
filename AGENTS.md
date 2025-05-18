@@ -121,6 +121,14 @@ hypothesis: emailバリデーションに正規表現ミスがある
 
 - 新しいUI文言を追加する際は `src/renderer/src/locales/en/translation.json` と `ja/translation.json` の両方を更新してください。
 
+- コミット時、以下のコマンドは必ず実行するようにしてください
+```
+npm run format
+npm run test
+npm run lint
+npm run typecheck
+```
+
 ---
 
 ## 更新履歴

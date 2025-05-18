@@ -19,6 +19,7 @@
     "test-storybook": "storybook test",
     "e2e": "playwright test",
     "build-storybook": "storybook build",
+    "typecheck": "tsc --noEmit",
     "dev:all": "concurrently -k \"npm run dev\" \"npm run storybook\""
   },
   "keywords": [],
