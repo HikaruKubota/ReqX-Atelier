@@ -14,7 +14,7 @@ const sampleRequest: SavedRequest = {
 };
 
 describe('RequestListItem', () => {
-  it.skip('renders request name', () => {
+  it('renders request name', () => {
     const { getByText } = render(
       <RequestListItem
         request={sampleRequest}
@@ -26,7 +26,7 @@ describe('RequestListItem', () => {
     expect(getByText('テストリクエスト')).toBeInTheDocument();
   });
 
-  it.skip('calls onClick when item is clicked', () => {
+  it('calls onClick when item is clicked', () => {
     const handleClick = vi.fn();
     const { getByText } = render(
       <RequestListItem
@@ -40,7 +40,7 @@ describe('RequestListItem', () => {
     expect(handleClick).toHaveBeenCalled();
   });
 
-  it.skip('calls onDelete when delete button is clicked', () => {
+  it('calls onDelete when delete button is clicked', () => {
     const handleDelete = vi.fn();
     const { getByRole } = render(
       <RequestListItem
@@ -54,7 +54,7 @@ describe('RequestListItem', () => {
     expect(handleDelete).toHaveBeenCalled();
   });
 
-  it.skip('applies active style when isActive is true', () => {
+  it('applies active style when isActive is true', () => {
     const { container } = render(
       <RequestListItem
         request={sampleRequest}
@@ -63,7 +63,7 @@ describe('RequestListItem', () => {
         onDelete={() => {}}
       />,
     );
-    expect(container.firstChild).toHaveClass('bg-gray-200');
     expect(container.firstChild).toHaveClass('font-bold');
+    expect(container.firstChild).toHaveClass('border-gray-400');
   });
 });
