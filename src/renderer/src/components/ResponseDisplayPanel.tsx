@@ -2,10 +2,11 @@ import * as React from 'react';
 import { Heading } from './atoms/Heading';
 import { JsonPre } from './atoms/JsonPre';
 import { ErrorAlert } from './molecules/ErrorAlert';
+import { ErrorInfo } from '../types';
 
 interface ResponseDisplayPanelProps {
   response: unknown;
-  error: unknown;
+  error: ErrorInfo | null;
   loading: boolean;
 }
 

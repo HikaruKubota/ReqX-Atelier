@@ -14,7 +14,7 @@ export function useRequestActions({
   updateSavedRequest,
   executeRequest,
 }: {
-  editorPanelRef: React.RefObject<RequestEditorPanelRef>;
+  editorPanelRef: React.RefObject<RequestEditorPanelRef | null>;
   methodRef: React.RefObject<string>;
   urlRef: React.RefObject<string>;
   headersRef: React.RefObject<RequestHeader[]>;

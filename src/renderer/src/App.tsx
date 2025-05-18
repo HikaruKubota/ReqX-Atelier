@@ -4,12 +4,13 @@ import type { SavedRequest } from './types';
 import { useRequestEditor } from './hooks/useRequestEditor'; // Import the new hook and RequestHeader
 import { useApiResponseHandler } from './hooks/useApiResponseHandler'; // Import the new API response handler hook
 import { RequestCollectionSidebar } from './components/RequestCollectionSidebar'; // Import the new sidebar component
-import { RequestEditorPanel, RequestEditorPanelRef } from './components/RequestEditorPanel'; // Import the new editor panel component and ref type
+import { RequestEditorPanel } from './components/RequestEditorPanel'; // Import the new editor panel component and ref type
 import { ResponseDisplayPanel } from './components/ResponseDisplayPanel'; // Import the new response panel component
 import { useKeyboardShortcuts } from './hooks/useKeyboardShortcuts';
 import { useRequestActions } from './hooks/useRequestActions';
 import { useTranslation } from 'react-i18next';
 import { ThemeToggleButton } from './components/ThemeToggleButton';
+import { RequestEditorPanelRef } from './types'; // Import the RequestHeader type
 
 export default function App() {
   const { t } = useTranslation();
