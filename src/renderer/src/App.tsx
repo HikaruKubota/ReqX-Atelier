@@ -71,13 +71,18 @@ export default function App() {
 
   const tabs = useTabs();
 
-
   const handleNewRequest = useCallback(() => {
     const tab = tabs.openTab();
-    loadRequestIntoEditor(tab);
+    loadRequestIntoEditor(tab as unknown as SavedRequest);
     setActiveRequestId(null);
     resetApiResponse();
   }, [tabs, loadRequestIntoEditor, setActiveRequestId, resetApiResponse]);
+
+  useEffect(() => {
+    if (tabs.tabs.length === 0) {
+      handleNewRequest();
+    }
+  }, []);
 
   useKeyboardShortcuts({
     onSave: executeSaveRequest,
@@ -144,7 +149,7 @@ export default function App() {
       tabs.switchTab(existing.tabId);
     }
     if (target) {
-      loadRequestIntoEditor(target);
+      loadRequestIntoEditor(target as unknown as SavedRequest);
       setActiveRequestId(target.requestId);
     }
     resetApiResponse();
@@ -153,7 +158,7 @@ export default function App() {
   useEffect(() => {
     const tab = tabs.getActiveTab();
     if (tab) {
-      loadRequestIntoEditor(tab);
+      loadRequestIntoEditor(tab as unknown as SavedRequest);
       setRequestNameForSave(tab.name);
       setActiveRequestId(tab.requestId);
       resetApiResponse();
@@ -250,11 +255,7 @@ export default function App() {
             />
 
             {/* Use the new ResponseDisplayPanel component */}
-            <ResponseDisplayPanel
-              response={response}
-              error={error}
-              loading={loading}
-            />
+            <ResponseDisplayPanel response={response} error={error} loading={loading} />
           </>
         )}
       </div>
