@@ -1,13 +1,29 @@
 import React, { Fragment } from 'react';
 import { Dialog, Transition } from '@headlessui/react';
+import clsx from 'clsx';
+
+export type ModalSize = 'sm' | 'md' | 'lg' | 'xl';
 
 interface ModalProps {
   isOpen: boolean;
   onClose: () => void;
   children: React.ReactNode;
+  size?: ModalSize;
 }
 
-export const Modal: React.FC<ModalProps> = ({ isOpen, onClose, children }) => (
+const sizeClasses: Record<ModalSize, string> = {
+  sm: 'max-w-sm',
+  md: 'max-w-md',
+  lg: 'max-w-lg',
+  xl: 'max-w-xl',
+};
+
+export const Modal: React.FC<ModalProps> = ({
+  isOpen,
+  onClose,
+  children,
+  size = 'md',
+}) => (
   <Transition appear show={isOpen} as={Fragment}>
     <Dialog as="div" className="relative z-50" onClose={onClose}>
       <Transition.Child
@@ -38,7 +54,10 @@ export const Modal: React.FC<ModalProps> = ({ isOpen, onClose, children }) => (
             leaveTo="opacity-0 scale-95"
           >
             <Dialog.Panel
-              className="bg-white dark:bg-gray-800 p-4 rounded"
+              className={clsx(
+                'bg-white dark:bg-gray-800 p-4 rounded w-full',
+                sizeClasses[size],
+              )}
               onClick={(e) => e.stopPropagation()}
             >
               {children}
