@@ -26,5 +26,6 @@
   "shortcut_save": "リクエスト保存: Ctrl+S",
   "shortcut_close_tab": "タブを閉じる: Ctrl+W",
   "shortcut_next_tab": "次のタブへ: Ctrl+Alt+→",
-  "shortcut_prev_tab": "前のタブへ: Ctrl+Alt+←"
+  "shortcut_prev_tab": "前のタブへ: Ctrl+Alt+←",
+  "save_success": "保存しましたよ！"
 }
