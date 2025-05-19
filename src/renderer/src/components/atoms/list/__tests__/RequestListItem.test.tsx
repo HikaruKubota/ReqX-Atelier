@@ -1,6 +1,7 @@
 import React from 'react';
 import { render, fireEvent } from '@testing-library/react';
 import { describe, it, expect, vi } from 'vitest';
+import '../../../../i18n';
 import { RequestListItem } from '../RequestListItem';
 import type { SavedRequest } from '../../../../types';
 
@@ -24,6 +25,18 @@ describe('RequestListItem', () => {
       />,
     );
     expect(getByText('テストリクエスト')).toBeInTheDocument();
+  });
+
+  it('renders method icon with aria-label', () => {
+    const { getByLabelText } = render(
+      <RequestListItem
+        request={sampleRequest}
+        isActive={false}
+        onClick={() => {}}
+        onDelete={() => {}}
+      />,
+    );
+    expect(getByLabelText('GETリクエスト')).toBeInTheDocument();
   });
 
   it('calls onClick when item is clicked', () => {

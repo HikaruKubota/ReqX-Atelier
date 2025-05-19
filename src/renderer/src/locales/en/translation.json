@@ -28,5 +28,12 @@
   "shortcut_next_tab": "Next tab: Ctrl+Alt+ArrowRight",
   "shortcut_prev_tab": "Previous tab: Ctrl+Alt+ArrowLeft",
   "save_success": "Saved successfully!",
-  "body_not_applicable": "Request body is not applicable for {{method}} requests."
+  "body_not_applicable": "Request body is not applicable for {{method}} requests.",
+  "method_get": "GET request",
+  "method_post": "POST request",
+  "method_put": "PUT request",
+  "method_patch": "PATCH request",
+  "method_delete": "DELETE request",
+  "method_head": "HEAD request",
+  "method_options": "OPTIONS request"
 }
