@@ -27,5 +27,6 @@
   "shortcut_close_tab": "Close tab: Ctrl+W",
   "shortcut_next_tab": "Next tab: Ctrl+Alt+ArrowRight",
   "shortcut_prev_tab": "Previous tab: Ctrl+Alt+ArrowLeft",
-  "save_success": "Saved successfully!"
+  "save_success": "Saved successfully!",
+  "body_not_applicable": "Request body is not applicable for {{method}} requests."
 }

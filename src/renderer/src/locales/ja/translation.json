@@ -27,5 +27,6 @@
   "shortcut_close_tab": "タブを閉じる: Ctrl+W",
   "shortcut_next_tab": "次のタブへ: Ctrl+Alt+→",
   "shortcut_prev_tab": "前のタブへ: Ctrl+Alt+←",
-  "save_success": "保存しました！"
+  "save_success": "保存しました！",
+  "body_not_applicable": "このメソッド{{method}}にはリクエストボディを設定できません。"
 }
