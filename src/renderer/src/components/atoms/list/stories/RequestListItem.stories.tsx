@@ -12,7 +12,7 @@ const sampleRequest: SavedRequest = {
   method: 'GET',
   url: 'https://api.example.com',
   headers: [],
-  bodyKeyValuePairs: [],
+  body: [],
 };
 
 export const Default = {

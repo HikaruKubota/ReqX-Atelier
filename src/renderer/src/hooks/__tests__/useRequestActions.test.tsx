@@ -72,7 +72,6 @@ describe('useRequestActions', () => {
       method: 'POST',
       url: 'https://example.com',
       headers: [{ id: 'h1', key: 'X-Test', value: '1', enabled: true }],
-      bodyKeyValuePairs: [{ id: 'kv1', keyName: 'foo', value: 'bar', enabled: true }],
       body: [{ id: 'kv1', keyName: 'foo', value: 'bar', enabled: true }],
     });
     expect(mockSetActiveRequestId).toHaveBeenCalledWith('new-id');
@@ -104,7 +103,6 @@ describe('useRequestActions', () => {
       method: 'POST',
       url: 'https://example.com',
       headers: [{ id: 'h1', key: 'X-Test', value: '1', enabled: true }],
-      bodyKeyValuePairs: [{ id: 'kv1', keyName: 'foo', value: 'bar', enabled: true }],
       body: [{ id: 'kv1', keyName: 'foo', value: 'bar', enabled: true }],
     });
     expect(refs.setRequestNameForSave).toHaveBeenCalledWith('テストリクエスト');
@@ -136,7 +134,6 @@ describe('useRequestActions', () => {
       method: 'POST',
       url: 'https://example.com',
       headers: [{ id: 'h1', key: 'X-Test', value: '1', enabled: true }],
-      bodyKeyValuePairs: [{ id: 'kv1', keyName: 'foo', value: 'bar', enabled: true }],
       body: [{ id: 'kv1', keyName: 'foo', value: 'bar', enabled: true }],
     });
     expect(mockSetActiveRequestId).toHaveBeenCalledWith('new-id');

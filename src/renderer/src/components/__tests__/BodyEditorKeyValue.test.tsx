@@ -13,7 +13,7 @@ const initialPairs: KeyValuePair[] = [
 describe('BodyEditorKeyValue', () => {
   it('toggles all rows enabled state', () => {
     const { getByText, getAllByRole } = render(
-      <BodyEditorKeyValue method="POST" initialBodyKeyValuePairs={initialPairs} />,
+      <BodyEditorKeyValue method="POST" initialBody={initialPairs} />,
     );
 
     const checkboxes = getAllByRole('checkbox') as HTMLInputElement[];
@@ -49,11 +49,7 @@ describe('BodyEditorKeyValue', () => {
   it('calls onChange when pairs update', () => {
     const handleChange = vi.fn();
     const { getAllByPlaceholderText } = render(
-      <BodyEditorKeyValue
-        method="POST"
-        initialBodyKeyValuePairs={initialPairs}
-        onChange={handleChange}
-      />,
+      <BodyEditorKeyValue method="POST" initialBody={initialPairs} onChange={handleChange} />,
     );
     const keyInputs = getAllByPlaceholderText('Key') as HTMLInputElement[];
     fireEvent.change(keyInputs[0], { target: { value: 'baz' } });

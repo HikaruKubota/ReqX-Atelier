@@ -61,7 +61,6 @@ export interface SavedRequest {
   method: string;
   url: string;
   headers?: RequestHeader[];
-  bodyKeyValuePairs?: KeyValuePair[];
   body?: KeyValuePair[];
 }
 

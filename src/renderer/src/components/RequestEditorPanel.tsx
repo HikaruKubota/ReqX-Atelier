@@ -17,7 +17,7 @@ interface RequestEditorPanelProps {
   onMethodChange: (method: string) => void;
   url: string;
   onUrlChange: (url: string) => void;
-  initialBodyKeyValuePairs?: KeyValuePair[];
+  initialBody?: KeyValuePair[];
   activeRequestId: string | null;
   loading: boolean;
   onSaveRequest: () => void;
@@ -38,7 +38,7 @@ export const RequestEditorPanel = forwardRef<RequestEditorPanelRef, RequestEdito
       onMethodChange,
       url,
       onUrlChange,
-      initialBodyKeyValuePairs,
+      initialBody,
       activeRequestId,
       loading,
       onSaveRequest,
@@ -101,7 +101,7 @@ export const RequestEditorPanel = forwardRef<RequestEditorPanelRef, RequestEdito
           <h4>Request Body</h4>
           <BodyEditorKeyValue
             ref={bodyEditorRef}
-            initialBodyKeyValuePairs={initialBodyKeyValuePairs}
+            initialBody={initialBody}
             method={method}
             onChange={onBodyPairsChange}
           />

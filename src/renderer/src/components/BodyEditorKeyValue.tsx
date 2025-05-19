@@ -10,13 +10,13 @@ import { Modal } from './atoms/Modal';
 import type { BodyEditorKeyValueRef, KeyValuePair } from '../types';
 
 interface BodyEditorKeyValueProps {
-  initialBodyKeyValuePairs?: KeyValuePair[];
+  initialBody?: KeyValuePair[];
   method: string; // To determine if body is applicable and to re-initialize on method change
   onChange?: (pairs: KeyValuePair[]) => void;
 }
 
 export const BodyEditorKeyValue = forwardRef<BodyEditorKeyValueRef, BodyEditorKeyValueProps>(
-  ({ initialBodyKeyValuePairs, method, onChange }, ref) => {
+  ({ initialBody, method, onChange }, ref) => {
     const { t } = useTranslation();
     const [bodyKeyValuePairs, setBodyKeyValuePairs] = useState<KeyValuePair[]>([]);
     const [showImport, setShowImport] = useState(false);
@@ -31,14 +31,14 @@ export const BodyEditorKeyValue = forwardRef<BodyEditorKeyValueRef, BodyEditorKe
         return;
       }
 
-      if (initialBodyKeyValuePairs) {
-        if (JSON.stringify(initialBodyKeyValuePairs) !== JSON.stringify(bodyKeyValuePairs)) {
-          setBodyKeyValuePairs(initialBodyKeyValuePairs);
+      if (initialBody) {
+        if (JSON.stringify(initialBody) !== JSON.stringify(bodyKeyValuePairs)) {
+          setBodyKeyValuePairs(initialBody);
         }
       } else if (bodyKeyValuePairs.length > 0) {
         setBodyKeyValuePairs([]);
       }
-    }, [initialBodyKeyValuePairs, method]);
+    }, [initialBody, method]);
 
     useEffect(() => {
       onChange?.(bodyKeyValuePairs);

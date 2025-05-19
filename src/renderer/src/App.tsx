@@ -82,7 +82,7 @@ export default function App() {
       method: tab.method,
       url: tab.url,
       headers: tab.headers,
-      bodyKeyValuePairs: tab.bodyKeyValuePairs,
+      body: tab.body,
     });
     setActiveRequestId(null);
     resetApiResponse();
@@ -108,7 +108,7 @@ export default function App() {
         method,
         url,
         headers,
-        bodyKeyValuePairs: currentBodyKeyValuePairs,
+        body: currentBodyKeyValuePairs,
         requestId: activeRequestIdRef.current,
       });
     }
@@ -135,7 +135,7 @@ export default function App() {
           method,
           url,
           headers,
-          bodyKeyValuePairs: currentBodyKeyValuePairs,
+          body: currentBodyKeyValuePairs,
           requestId: activeRequestId,
         });
       }
@@ -149,7 +149,7 @@ export default function App() {
           method,
           url,
           headers,
-          bodyKeyValuePairs: currentBodyKeyValuePairs,
+          body: currentBodyKeyValuePairs,
           requestId: activeRequestId,
         });
       }
@@ -171,7 +171,7 @@ export default function App() {
         method,
         url,
         headers,
-        bodyKeyValuePairs: currentBodyKeyValuePairs,
+        body: currentBodyKeyValuePairs,
         requestId: activeRequestId,
       });
     }
@@ -190,7 +190,7 @@ export default function App() {
         method: target.method,
         url: target.url,
         headers: target.headers,
-        bodyKeyValuePairs: target.bodyKeyValuePairs,
+        body: target.body,
       });
       setActiveRequestId(target.requestId);
     }
@@ -206,7 +206,7 @@ export default function App() {
         method: tab.method,
         url: tab.url,
         headers: tab.headers,
-        bodyKeyValuePairs: tab.bodyKeyValuePairs,
+        body: tab.body,
       });
       setRequestNameForSave(tab.name);
       setActiveRequestId(tab.requestId);
@@ -265,7 +265,7 @@ export default function App() {
                   method,
                   url,
                   headers,
-                  bodyKeyValuePairs: currentBodyKeyValuePairs,
+                  body: currentBodyKeyValuePairs,
                   requestId: activeRequestId,
                 });
               }
@@ -292,7 +292,7 @@ export default function App() {
               onMethodChange={setMethod}
               url={url}
               onUrlChange={setUrl}
-              initialBodyKeyValuePairs={currentBodyKeyValuePairs}
+              initialBody={currentBodyKeyValuePairs}
               onBodyPairsChange={setCurrentBodyKeyValuePairs}
               activeRequestId={activeRequestId}
               loading={loading}
