@@ -4,10 +4,15 @@ import clsx from 'clsx';
 import { BaseButton, BaseButtonProps } from './BaseButton';
 import { useTranslation } from 'react-i18next';
 
-export const CopyButton: React.FC<BaseButtonProps> = ({
+export interface CopyButtonProps extends BaseButtonProps {
+  labelKey?: string;
+}
+
+export const CopyButton: React.FC<CopyButtonProps> = ({
   size = 'sm',
   variant = 'ghost',
   className,
+  labelKey = 'copy_response',
   ...props
 }) => {
   const { t } = useTranslation();
@@ -20,11 +25,11 @@ export const CopyButton: React.FC<BaseButtonProps> = ({
         'hover:bg-gray-200 dark:hover:bg-gray-700',
         className,
       )}
-      aria-label={t('copy_response')}
+      aria-label={t(labelKey)}
       {...props}
     >
       <FiCopy size={16} />
-      <span className="hidden sm:inline">{t('copy_response')}</span>
+      <span className="hidden sm:inline">{t(labelKey)}</span>
     </BaseButton>
   );
 };

@@ -30,6 +30,7 @@
   "save_success": "Saved successfully!",
   "copy_response": "Copy Response",
   "copy_success": "Copied!",
+  "copy_error": "Copy Error",
   "body_not_applicable": "Request body is not applicable for {{method}} requests.",
   "method_get": "GET request",
   "method_post": "POST request",

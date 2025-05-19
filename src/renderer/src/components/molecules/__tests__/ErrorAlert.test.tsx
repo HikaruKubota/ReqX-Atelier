@@ -1,6 +1,6 @@
 import React from 'react';
 import { render } from '@testing-library/react';
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import { ErrorAlert } from '../ErrorAlert';
 import '../../../i18n';
 
@@ -16,5 +16,12 @@ describe('ErrorAlert', () => {
   it('renders nothing when error is null', () => {
     const { container } = render(<ErrorAlert error={null} />);
     expect(container.firstChild).toBeNull();
+  });
+
+  it('calls onCopy when copy button clicked', () => {
+    const fn = vi.fn();
+    const { getByRole } = render(<ErrorAlert error={sampleError} onCopy={fn} />);
+    getByRole('button').click();
+    expect(fn).toHaveBeenCalled();
   });
 });
