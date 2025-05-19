@@ -62,7 +62,7 @@ export interface SavedRequest {
   url: string;
   headers?: RequestHeader[];
   bodyKeyValuePairs?: KeyValuePair[];
-  body?: string;
+  body?: KeyValuePair[];
 }
 
 export interface ApiResult {

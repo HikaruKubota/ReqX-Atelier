@@ -66,6 +66,7 @@ export function useRequestActions({
       url: currentUrl,
       headers: currentHeaders,
       bodyKeyValuePairs: currentBodyKeyValuePairsFromEditor,
+      body: currentBodyKeyValuePairsFromEditor,
     };
 
     if (currentActiveRequestId) {
