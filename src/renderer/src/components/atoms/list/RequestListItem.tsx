@@ -2,6 +2,7 @@ import React from 'react';
 import clsx from 'clsx';
 import type { SavedRequest } from '../../../types';
 import { DeleteButton } from '../button/DeleteButton';
+import { MethodIcon } from '../MethodIcon';
 
 interface RequestListItemProps {
   request: SavedRequest;
@@ -25,7 +26,10 @@ export const RequestListItem: React.FC<RequestListItemProps> = ({
         : 'bg-white font-normal border-gray-200 hover:bg-gray-100 dark:bg-gray-900 dark:border-gray-700 dark:hover:bg-gray-800 dark:text-gray-200',
     )}
   >
-    <span>{request.name}</span>
+    <div className="flex items-center gap-2">
+      <MethodIcon method={request.method} />
+      <span>{request.name}</span>
+    </div>
     <DeleteButton
       onClick={(e) => {
         e.stopPropagation();
