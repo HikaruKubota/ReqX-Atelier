@@ -28,6 +28,8 @@
   "shortcut_next_tab": "Next tab: Ctrl+Alt+ArrowRight (Cmd+Option+ArrowRight)",
   "shortcut_prev_tab": "Previous tab: Ctrl+Alt+ArrowLeft (Cmd+Option+ArrowLeft)",
   "save_success": "Saved successfully!",
+  "copy_response": "Copy Response",
+  "copy_success": "Copied!",
   "body_not_applicable": "Request body is not applicable for {{method}} requests.",
   "method_get": "GET request",
   "method_post": "POST request",
