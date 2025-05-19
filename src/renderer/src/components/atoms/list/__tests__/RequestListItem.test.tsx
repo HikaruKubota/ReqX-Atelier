@@ -79,4 +79,17 @@ describe('RequestListItem', () => {
     expect(container.firstChild).toHaveClass('font-bold');
     expect(container.firstChild).toHaveClass('border-gray-400');
   });
+
+  it('shows context menu on right click', () => {
+    const { getByText } = render(
+      <RequestListItem
+        request={sampleRequest}
+        isActive={false}
+        onClick={() => {}}
+        onDelete={() => {}}
+      />,
+    );
+    fireEvent.contextMenu(getByText('テストリクエスト'));
+    expect(getByText('メニュー項目1')).toBeInTheDocument();
+  });
 });

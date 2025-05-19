@@ -38,5 +38,8 @@
   "method_patch": "PATCHリクエスト",
   "method_delete": "DELETEリクエスト",
   "method_head": "HEADリクエスト",
-  "method_options": "OPTIONSリクエスト"
+  "method_options": "OPTIONSリクエスト",
+  "context_menu_item1": "メニュー項目1",
+  "context_menu_item2": "メニュー項目2",
+  "context_menu_item3": "メニュー項目3"
 }

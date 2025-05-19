@@ -38,5 +38,8 @@
   "method_patch": "PATCH request",
   "method_delete": "DELETE request",
   "method_head": "HEAD request",
-  "method_options": "OPTIONS request"
+  "method_options": "OPTIONS request",
+  "context_menu_item1": "Menu Item 1",
+  "context_menu_item2": "Menu Item 2",
+  "context_menu_item3": "Menu Item 3"
 }
