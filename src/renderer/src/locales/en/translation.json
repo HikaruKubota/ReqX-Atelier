@@ -18,6 +18,7 @@
   "error_details": "Error Details:",
   "move_up": "Move Up",
   "move_down": "Move Down",
+  "drag_handle": "Drag",
   "remove": "Remove",
   "no_tabs": "No tabs open. Use shortcuts below.",
   "cheatsheet_title": "Keyboard Shortcuts",

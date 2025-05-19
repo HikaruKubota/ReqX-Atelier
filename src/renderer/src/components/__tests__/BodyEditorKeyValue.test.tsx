@@ -4,11 +4,34 @@ import { describe, it, expect, vi } from 'vitest';
 import { BodyEditorKeyValue } from '../BodyEditorKeyValue';
 import type { KeyValuePair, BodyEditorKeyValueRef } from '../../types';
 import i18n from '../../i18n';
+import * as sortable from '@dnd-kit/sortable';
+
+vi.mock('@dnd-kit/core', async () => {
+  const actual = (await vi.importActual<typeof import('@dnd-kit/core')>('@dnd-kit/core'));
+  return {
+    ...actual,
+    DndContext: ({
+      onDragEnd,
+      children,
+    }: {
+      onDragEnd: (e: { active: { id: string }; over: { id: string } }) => void;
+      children: React.ReactNode;
+    }) => (
+      <div data-testid="dnd" onDragEnd={() => onDragEnd({ active: { id: '1' }, over: { id: '2' } })}>
+        {children}
+      </div>
+    ),
+  };
+});
 
 const initialPairs: KeyValuePair[] = [
   { id: '1', keyName: 'foo', value: '1', enabled: true },
   { id: '2', keyName: 'bar', value: '2', enabled: false },
 ];
+
+beforeAll(() => {
+  Element.prototype.scrollIntoView = vi.fn();
+});
 
 describe('BodyEditorKeyValue', () => {
   it('toggles all rows enabled state', () => {
@@ -54,5 +77,19 @@ describe('BodyEditorKeyValue', () => {
     const keyInputs = getAllByPlaceholderText('Key') as HTMLInputElement[];
     fireEvent.change(keyInputs[0], { target: { value: 'baz' } });
     expect(handleChange).toHaveBeenCalled();
+  });
+
+  it('shows drag handle and calls arrayMove on drag end', () => {
+    const spy = vi.spyOn(sortable, 'arrayMove');
+    const { getAllByLabelText, getByTestId } = render(
+      <BodyEditorKeyValue method="POST" initialBody={initialPairs} />,
+    );
+    const handles = getAllByLabelText(i18n.t('drag_handle'));
+    expect(handles.length).toBe(2);
+
+    const dnd = getByTestId('dnd');
+    fireEvent.dragEnd(dnd, { detail: { active: { id: '1' }, over: { id: '2' } } });
+
+    expect(spy).toHaveBeenCalled();
   });
 });
