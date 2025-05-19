@@ -7,7 +7,6 @@ import type {
 } from '../types';
 import { HeadersEditor } from './HeadersEditor';
 import { BodyEditorKeyValue } from './BodyEditorKeyValue';
-import { ScrollableContainer } from './atoms/ScrollableContainer';
 import { RequestNameRow } from './molecules/RequestNameRow';
 import { RequestMethodRow } from './molecules/RequestMethodRow';
 
@@ -100,14 +99,13 @@ export const RequestEditorPanel = forwardRef<RequestEditorPanelRef, RequestEdito
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
           <h4>Request Body</h4>
-          <ScrollableContainer height={300}>
-            <BodyEditorKeyValue
-              ref={bodyEditorRef}
-              initialBody={initialBody}
-              method={method}
-              onChange={onBodyPairsChange}
-            />
-          </ScrollableContainer>
+          <BodyEditorKeyValue
+            ref={bodyEditorRef}
+            initialBody={initialBody}
+            method={method}
+            onChange={onBodyPairsChange}
+            containerHeight={300}
+          />
         </div>
       </div>
     );
