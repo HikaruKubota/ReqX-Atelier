@@ -7,16 +7,18 @@ import { MoveUpButton } from './atoms/button/MoveUpButton';
 import { MoveDownButton } from './atoms/button/MoveDownButton';
 import { TrashButton } from './atoms/button/TrashButton';
 import { Modal } from './atoms/Modal';
+import { ScrollableContainer } from './atoms/ScrollableContainer';
 import type { BodyEditorKeyValueRef, KeyValuePair } from '../types';
 
 interface BodyEditorKeyValueProps {
   initialBody?: KeyValuePair[];
   method: string; // To determine if body is applicable and to re-initialize on method change
   onChange?: (pairs: KeyValuePair[]) => void;
+  containerHeight?: number | string;
 }
 
 export const BodyEditorKeyValue = forwardRef<BodyEditorKeyValueRef, BodyEditorKeyValueProps>(
-  ({ initialBody, method, onChange }, ref) => {
+  ({ initialBody, method, onChange, containerHeight = 300 }, ref) => {
     const { t } = useTranslation();
     const [body, setBody] = useState<KeyValuePair[]>([]);
     const [showImport, setShowImport] = useState(false);
@@ -150,44 +152,46 @@ export const BodyEditorKeyValue = forwardRef<BodyEditorKeyValueRef, BodyEditorKe
 
     return (
       <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-        {body.map((pair, index) => (
-          <div key={pair.id} className="flex items-center gap-2">
-            <input
-              type="checkbox"
-              checked={pair.enabled}
-              onChange={(e) => handleKeyValuePairChange(pair.id, 'enabled', e.target.checked)}
-              title={pair.enabled ? 'Disable this row' : 'Enable this row'}
-              className="mr-1"
-            />
-            <input
-              type="text"
-              placeholder="Key"
-              value={pair.keyName}
-              onChange={(e) => handleKeyValuePairChange(pair.id, 'keyName', e.target.value)}
-              className="flex-1 p-2 text-sm border border-gray-300 rounded"
-              disabled={!pair.enabled}
-            />
-            <input
-              type="text"
-              placeholder="Value (JSON or string)"
-              value={pair.value}
-              onChange={(e) => handleKeyValuePairChange(pair.id, 'value', e.target.value)}
-              className="flex-2 p-2 text-sm border border-gray-300 rounded"
-              disabled={!pair.enabled}
-            />
-            <MoveUpButton
-              onClick={() => handleMoveKeyValuePair(index, 'up')}
-              disabled={index === 0}
-              className="mx-1"
-            />
-            <MoveDownButton
-              onClick={() => handleMoveKeyValuePair(index, 'down')}
-              disabled={index === body.length - 1}
-              className="mx-1"
-            />
-            <TrashButton onClick={() => handleRemoveKeyValuePair(pair.id)} />
-          </div>
-        ))}
+        <ScrollableContainer height={containerHeight}>
+          {body.map((pair, index) => (
+            <div key={pair.id} className="flex items-center gap-2">
+              <input
+                type="checkbox"
+                checked={pair.enabled}
+                onChange={(e) => handleKeyValuePairChange(pair.id, 'enabled', e.target.checked)}
+                title={pair.enabled ? 'Disable this row' : 'Enable this row'}
+                className="mr-1"
+              />
+              <input
+                type="text"
+                placeholder="Key"
+                value={pair.keyName}
+                onChange={(e) => handleKeyValuePairChange(pair.id, 'keyName', e.target.value)}
+                className="flex-1 p-2 text-sm border border-gray-300 rounded"
+                disabled={!pair.enabled}
+              />
+              <input
+                type="text"
+                placeholder="Value (JSON or string)"
+                value={pair.value}
+                onChange={(e) => handleKeyValuePairChange(pair.id, 'value', e.target.value)}
+                className="flex-2 p-2 text-sm border border-gray-300 rounded"
+                disabled={!pair.enabled}
+              />
+              <MoveUpButton
+                onClick={() => handleMoveKeyValuePair(index, 'up')}
+                disabled={index === 0}
+                className="mx-1"
+              />
+              <MoveDownButton
+                onClick={() => handleMoveKeyValuePair(index, 'down')}
+                disabled={index === body.length - 1}
+                className="mx-1"
+              />
+              <TrashButton onClick={() => handleRemoveKeyValuePair(pair.id)} />
+            </div>
+          ))}
+        </ScrollableContainer>
         <div className="flex gap-2 mt-2">
           <button
             onClick={handleAddKeyValuePair}
