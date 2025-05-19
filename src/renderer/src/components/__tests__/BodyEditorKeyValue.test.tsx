@@ -1,6 +1,6 @@
 import React, { createRef } from 'react';
 import { render, fireEvent, act } from '@testing-library/react';
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import { BodyEditorKeyValue } from '../BodyEditorKeyValue';
 import type { KeyValuePair, BodyEditorKeyValueRef } from '../../types';
 import i18n from '../../i18n';
@@ -44,5 +44,19 @@ describe('BodyEditorKeyValue', () => {
     fireEvent.click(getByText(i18n.t('import_json')));
     const panel = document.querySelector('.max-w-xl');
     expect(panel).toBeTruthy();
+  });
+
+  it('calls onChange when pairs update', () => {
+    const handleChange = vi.fn();
+    const { getAllByPlaceholderText } = render(
+      <BodyEditorKeyValue
+        method="POST"
+        initialBodyKeyValuePairs={initialPairs}
+        onChange={handleChange}
+      />,
+    );
+    const keyInputs = getAllByPlaceholderText('Key') as HTMLInputElement[];
+    fireEvent.change(keyInputs[0], { target: { value: 'baz' } });
+    expect(handleChange).toHaveBeenCalled();
   });
 });

@@ -29,6 +29,7 @@ export default function App() {
     setUrl,
     urlRef,
     currentBodyKeyValuePairs, // Get the new state for KV pairs
+    setCurrentBodyKeyValuePairs,
     requestNameForSave,
     setRequestNameForSave,
     requestNameForSaveRef,
@@ -289,6 +290,7 @@ export default function App() {
               url={url}
               onUrlChange={setUrl}
               initialBodyKeyValuePairs={currentBodyKeyValuePairs}
+              onBodyPairsChange={setCurrentBodyKeyValuePairs}
               activeRequestId={activeRequestId}
               loading={loading}
               onSaveRequest={handleSaveButtonClick}

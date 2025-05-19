@@ -12,10 +12,11 @@ import type { BodyEditorKeyValueRef, KeyValuePair } from '../types';
 interface BodyEditorKeyValueProps {
   initialBodyKeyValuePairs?: KeyValuePair[];
   method: string; // To determine if body is applicable and to re-initialize on method change
+  onChange?: (pairs: KeyValuePair[]) => void;
 }
 
 export const BodyEditorKeyValue = forwardRef<BodyEditorKeyValueRef, BodyEditorKeyValueProps>(
-  ({ initialBodyKeyValuePairs, method }, ref) => {
+  ({ initialBodyKeyValuePairs, method, onChange }, ref) => {
     const { t } = useTranslation();
     const [bodyKeyValuePairs, setBodyKeyValuePairs] = useState<KeyValuePair[]>([]);
     const [showImport, setShowImport] = useState(false);
@@ -36,6 +37,10 @@ export const BodyEditorKeyValue = forwardRef<BodyEditorKeyValueRef, BodyEditorKe
         setBodyKeyValuePairs([]);
       }
     }, [initialBodyKeyValuePairs, method]);
+
+    useEffect(() => {
+      onChange?.(bodyKeyValuePairs);
+    }, [bodyKeyValuePairs, onChange]);
 
     const importFromJson = useCallback((json: string): boolean => {
       try {

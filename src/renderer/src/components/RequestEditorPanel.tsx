@@ -22,6 +22,7 @@ interface RequestEditorPanelProps {
   loading: boolean;
   onSaveRequest: () => void;
   onSendRequest: () => void;
+  onBodyPairsChange: (pairs: KeyValuePair[]) => void;
   headers: RequestHeader[];
   onAddHeader: () => void;
   onUpdateHeader: (id: string, field: 'key' | 'value' | 'enabled', value: string | boolean) => void;
@@ -42,6 +43,7 @@ export const RequestEditorPanel = forwardRef<RequestEditorPanelRef, RequestEdito
       loading,
       onSaveRequest,
       onSendRequest,
+      onBodyPairsChange,
       headers,
       onAddHeader,
       onUpdateHeader,
@@ -101,6 +103,7 @@ export const RequestEditorPanel = forwardRef<RequestEditorPanelRef, RequestEdito
             ref={bodyEditorRef}
             initialBodyKeyValuePairs={initialBodyKeyValuePairs}
             method={method}
+            onChange={onBodyPairsChange}
           />
         </div>
       </div>
