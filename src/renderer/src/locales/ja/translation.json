@@ -28,6 +28,8 @@
   "shortcut_next_tab": "次のタブへ: Ctrl+Alt+→",
   "shortcut_prev_tab": "前のタブへ: Ctrl+Alt+←",
   "save_success": "保存しました！",
+  "copy_response": "レスポンスをコピー",
+  "copy_success": "コピーしました！",
   "body_not_applicable": "このメソッド{{method}}にはリクエストボディを設定できません。",
   "method_get": "GETリクエスト",
   "method_post": "POSTリクエスト",

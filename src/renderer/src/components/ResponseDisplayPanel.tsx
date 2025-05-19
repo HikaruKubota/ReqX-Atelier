@@ -4,6 +4,8 @@ import { Heading } from './atoms/Heading';
 import { JsonPre } from './atoms/JsonPre';
 import { ErrorAlert } from './molecules/ErrorAlert';
 import { ErrorInfo } from '../types';
+import { CopyButton } from './atoms/button/CopyButton';
+import { Toast } from './atoms/toast/Toast';
 
 interface ResponseDisplayPanelProps {
   response: unknown;
@@ -17,11 +19,21 @@ export const ResponseDisplayPanel: React.FC<ResponseDisplayPanelProps> = ({
   loading,
 }) => {
   const { t } = useTranslation();
+  const [copyToastOpen, setCopyToastOpen] = React.useState(false);
+
+  const handleCopy = React.useCallback(async () => {
+    if (!response) return;
+    await navigator.clipboard.writeText(JSON.stringify(response, null, 2));
+    setCopyToastOpen(true);
+  }, [response]);
   return (
     <>
-      <Heading level={2} className="text-xl font-bold">
-        {t('response_heading')}
-      </Heading>
+      <div className="flex items-center justify-between">
+        <Heading level={2} className="text-xl font-bold">
+          {t('response_heading')}
+        </Heading>
+        {response ? <CopyButton onClick={handleCopy} /> : null}
+      </div>
       <ErrorAlert error={error} />
       {response && (
         <JsonPre
@@ -31,6 +43,11 @@ export const ResponseDisplayPanel: React.FC<ResponseDisplayPanelProps> = ({
       )}
       {!response && !error && !loading && <p className="text-gray-500">{t('no_response')}</p>}
       {loading && <p className="text-gray-500">{t('loading')}</p>}
+      <Toast
+        message={t('copy_success')}
+        isOpen={copyToastOpen}
+        onClose={() => setCopyToastOpen(false)}
+      />
     </>
   );
 };
