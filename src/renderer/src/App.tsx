@@ -30,8 +30,8 @@ export default function App() {
     url,
     setUrl,
     urlRef,
-    currentBodyKeyValuePairs, // Get the new state for KV pairs
-    setCurrentBodyKeyValuePairs,
+    body,
+    setBody,
     requestNameForSave,
     setRequestNameForSave,
     requestNameForSaveRef,
@@ -108,7 +108,7 @@ export default function App() {
         method,
         url,
         headers,
-        body: currentBodyKeyValuePairs,
+        body: body,
         requestId: activeRequestIdRef.current,
       });
     }
@@ -118,7 +118,7 @@ export default function App() {
     method,
     url,
     headers,
-    currentBodyKeyValuePairs,
+    body,
     requestNameForSaveRef,
     activeRequestIdRef,
   ]);
@@ -135,7 +135,7 @@ export default function App() {
           method,
           url,
           headers,
-          body: currentBodyKeyValuePairs,
+          body: body,
           requestId: activeRequestId,
         });
       }
@@ -149,7 +149,7 @@ export default function App() {
           method,
           url,
           headers,
-          body: currentBodyKeyValuePairs,
+          body: body,
           requestId: activeRequestId,
         });
       }
@@ -171,7 +171,7 @@ export default function App() {
         method,
         url,
         headers,
-        body: currentBodyKeyValuePairs,
+        body: body,
         requestId: activeRequestId,
       });
     }
@@ -265,7 +265,7 @@ export default function App() {
                   method,
                   url,
                   headers,
-                  body: currentBodyKeyValuePairs,
+                  body: body,
                   requestId: activeRequestId,
                 });
               }
@@ -292,8 +292,8 @@ export default function App() {
               onMethodChange={setMethod}
               url={url}
               onUrlChange={setUrl}
-              initialBody={currentBodyKeyValuePairs}
-              onBodyPairsChange={setCurrentBodyKeyValuePairs}
+              initialBody={body}
+              onBodyPairsChange={setBody}
               activeRequestId={activeRequestId}
               loading={loading}
               onSaveRequest={handleSaveButtonClick}
