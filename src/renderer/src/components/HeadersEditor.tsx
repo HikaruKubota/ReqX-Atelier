@@ -1,6 +1,5 @@
 /* eslint-disable react/prop-types */
 import * as React from 'react';
-import { useMemo } from 'react';
 import type { RequestHeader } from '../types';
 import { TrashButton } from './atoms/button/TrashButton';
 import { DragHandleButton } from './atoms/button/DragHandleButton';
@@ -34,7 +33,13 @@ export const HeadersEditor: React.FC<HeadersEditorProps> = ({
   onReorderHeaders,
 }) => {
   const { t } = useTranslation();
-  const headerIds = useMemo(() => headers.map((h) => h.id), [headers]);
+  const headerIdsRef = React.useRef<string[]>([]);
+  const orderRef = React.useRef('');
+  const currentOrder = headers.map((h) => h.id).join(',');
+  if (orderRef.current !== currentOrder) {
+    orderRef.current = currentOrder;
+    headerIdsRef.current = headers.map((h) => h.id);
+  }
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
     if (!over || active.id === over.id) return;
@@ -86,7 +91,7 @@ export const HeadersEditor: React.FC<HeadersEditorProps> = ({
     <div className="flex flex-col gap-2">
       <h4>Headers</h4>
       <DndContext onDragEnd={handleDragEnd} data-testid="headers-dnd">
-        <SortableContext items={headerIds} strategy={verticalListSortingStrategy}>
+        <SortableContext items={headerIdsRef.current} strategy={verticalListSortingStrategy}>
           {headers.map((header) => (
             <SortableRow key={header.id} header={header} />
           ))}

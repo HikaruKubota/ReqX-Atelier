@@ -1,6 +1,6 @@
 /* eslint-disable react/prop-types */
 import * as React from 'react';
-import { useState, useEffect, useImperativeHandle, forwardRef, useCallback, useMemo } from 'react';
+import { useState, useEffect, useImperativeHandle, forwardRef, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { EnableAllButton } from './atoms/button/EnableAllButton';
 import { DisableAllButton } from './atoms/button/DisableAllButton';
@@ -33,7 +33,13 @@ export const BodyEditorKeyValue = forwardRef<BodyEditorKeyValueRef, BodyEditorKe
     const [importText, setImportText] = useState('');
     const [importError, setImportError] = useState('');
 
-    const itemIds = useMemo(() => body.map((p) => p.id), [body]);
+    const itemIdsRef = React.useRef<string[]>([]);
+    const orderRef = React.useRef('');
+    const currentOrder = body.map((p) => p.id).join(',');
+    if (orderRef.current !== currentOrder) {
+      orderRef.current = currentOrder;
+      itemIdsRef.current = body.map((p) => p.id);
+    }
 
     useEffect(() => {
       if (method === 'GET' || method === 'HEAD') {
@@ -196,7 +202,7 @@ export const BodyEditorKeyValue = forwardRef<BodyEditorKeyValueRef, BodyEditorKe
     return (
       <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
         <DndContext onDragEnd={handleDragEnd} data-testid="body-dnd">
-          <SortableContext items={itemIds} strategy={verticalListSortingStrategy}>
+          <SortableContext items={itemIdsRef.current} strategy={verticalListSortingStrategy}>
             <ScrollableContainer height={containerHeight}>
               {body.map((pair) => (
                 <SortableRow key={pair.id} pair={pair} />
