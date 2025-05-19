@@ -29,6 +29,25 @@ describe('useTabs', () => {
     expect(result.current.activeTabId).toBe(secondId);
   });
 
+  it('closes last active tab and activates previous', () => {
+    const { result } = renderHook(() => useTabs());
+    const ids: string[] = [];
+    act(() => {
+      ids.push(result.current.openTab().tabId);
+    });
+    act(() => {
+      ids.push(result.current.openTab().tabId);
+    });
+    act(() => {
+      ids.push(result.current.openTab().tabId);
+    });
+    act(() => {
+      result.current.closeTab(ids[2]);
+    });
+    expect(result.current.tabs).toHaveLength(2);
+    expect(result.current.activeTabId).toBe(ids[1]);
+  });
+
   it('switches to next and previous tabs', () => {
     const { result } = renderHook(() => useTabs());
     act(() => {
@@ -49,5 +68,30 @@ describe('useTabs', () => {
       result.current.prevTab();
     });
     expect(result.current.activeTabId).toBe(first.tabId);
+  });
+
+  it('prevTab and nextTab work with updated tabs after close', () => {
+    const { result } = renderHook(() => useTabs());
+    const ids: string[] = [];
+    act(() => {
+      ids.push(result.current.openTab().tabId);
+    });
+    act(() => {
+      ids.push(result.current.openTab().tabId);
+    });
+    act(() => {
+      ids.push(result.current.openTab().tabId);
+    });
+    act(() => {
+      result.current.closeTab(ids[1]);
+    });
+    act(() => {
+      result.current.prevTab();
+    });
+    expect(result.current.activeTabId).toBe(ids[0]);
+    act(() => {
+      result.current.nextTab();
+    });
+    expect(result.current.activeTabId).toBe(ids[2]);
   });
 });

@@ -33,12 +33,16 @@ export const useTabs = () => {
   };
 
   const closeTab = (tabId: string) => {
-    setTabs((prev) => prev.filter((t) => t.tabId !== tabId));
-    if (activeTabId === tabId) {
-      const idx = tabs.findIndex((t) => t.tabId === tabId);
-      const next = tabs[idx + 1] || tabs[idx - 1] || null;
-      setActiveTabId(next ? next.tabId : null);
-    }
+    setTabs((prev) => {
+      const idx = prev.findIndex((t) => t.tabId === tabId);
+      const newTabs = prev.filter((t) => t.tabId !== tabId);
+      setActiveTabId((current) => {
+        if (current !== tabId) return current;
+        const next = newTabs[idx] || newTabs[idx - 1] || null;
+        return next ? next.tabId : null;
+      });
+      return newTabs;
+    });
   };
 
   const switchTab = (tabId: string) => setActiveTabId(tabId);
@@ -50,17 +54,21 @@ export const useTabs = () => {
   const getActiveTab = (): TabState | null => tabs.find((t) => t.tabId === activeTabId) || null;
 
   const nextTab = () => {
-    if (tabs.length <= 1 || !activeTabId) return;
-    const idx = tabs.findIndex((t) => t.tabId === activeTabId);
-    const next = tabs[(idx + 1) % tabs.length];
-    setActiveTabId(next.tabId);
+    setActiveTabId((current) => {
+      if (tabs.length <= 1 || !current) return current;
+      const idx = tabs.findIndex((t) => t.tabId === current);
+      const next = tabs[(idx + 1) % tabs.length];
+      return next.tabId;
+    });
   };
 
   const prevTab = () => {
-    if (tabs.length <= 1 || !activeTabId) return;
-    const idx = tabs.findIndex((t) => t.tabId === activeTabId);
-    const prev = tabs[(idx - 1 + tabs.length) % tabs.length];
-    setActiveTabId(prev.tabId);
+    setActiveTabId((current) => {
+      if (tabs.length <= 1 || !current) return current;
+      const idx = tabs.findIndex((t) => t.tabId === current);
+      const prev = tabs[(idx - 1 + tabs.length) % tabs.length];
+      return prev.tabId;
+    });
   };
 
   return {
