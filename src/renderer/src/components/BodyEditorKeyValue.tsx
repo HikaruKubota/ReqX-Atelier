@@ -25,7 +25,9 @@ export const BodyEditorKeyValue = forwardRef<BodyEditorKeyValueRef, BodyEditorKe
 
     useEffect(() => {
       if (method === 'GET' || method === 'HEAD') {
-        setBodyKeyValuePairs([]);
+        if (bodyKeyValuePairs.length > 0) {
+          setBodyKeyValuePairs([]);
+        }
         return;
       }
 
@@ -141,7 +143,7 @@ export const BodyEditorKeyValue = forwardRef<BodyEditorKeyValueRef, BodyEditorKe
     if (!isBodyApplicable) {
       return (
         <p style={{ color: '#6c757d', fontSize: '0.9em' }}>
-          Request body is not applicable for {method} requests.
+          {t('body_not_applicable', { method })}
         </p>
       );
     }
