@@ -21,6 +21,7 @@ export interface ErrorInfo {
 export interface ErrorAlertProps {
   error: ErrorInfo | null;
   className?: string;
+  onCopy?: () => void;
 }
 
 export interface RequestHeader {

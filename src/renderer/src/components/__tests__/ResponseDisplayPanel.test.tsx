@@ -6,6 +6,7 @@ import { ResponseDisplayPanel } from '../ResponseDisplayPanel';
 import '../../i18n';
 
 const sampleResponse = { ok: true };
+const sampleError = { message: 'bad' };
 
 const Wrapper: React.FC = () => {
   const { toggleMode } = useTheme();
@@ -45,6 +46,25 @@ describe('ResponseDisplayPanel', () => {
     fireEvent.click(btn);
     expect(navigator.clipboard.writeText).toHaveBeenCalledWith(
       JSON.stringify(sampleResponse, null, 2),
+    );
+    expect(await screen.findByText('コピーしました！')).toBeInTheDocument();
+  });
+
+  it('copies error when error present', async () => {
+    Object.assign(navigator, {
+      clipboard: { writeText: vi.fn().mockResolvedValue(undefined) },
+    });
+
+    render(
+      <ThemeProvider>
+        <ResponseDisplayPanel response={null} error={sampleError} loading={false} />
+      </ThemeProvider>,
+    );
+
+    const btn = screen.getByRole('button', { name: 'エラーをコピー' });
+    fireEvent.click(btn);
+    expect(navigator.clipboard.writeText).toHaveBeenCalledWith(
+      JSON.stringify(sampleError, null, 2),
     );
     expect(await screen.findByText('コピーしました！')).toBeInTheDocument();
   });

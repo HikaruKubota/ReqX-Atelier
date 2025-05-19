@@ -11,6 +11,11 @@ describe('CopyButton', () => {
     expect(container.querySelector('svg')).toBeInTheDocument();
   });
 
+  it('renders custom label when labelKey provided', () => {
+    const { getByText } = render(<CopyButton labelKey="copy_error" />);
+    expect(getByText('エラーをコピー')).toBeInTheDocument();
+  });
+
   it('calls onClick when clicked', () => {
     const handleClick = vi.fn();
     const { getByRole } = render(<CopyButton onClick={handleClick} />);
@@ -21,5 +26,10 @@ describe('CopyButton', () => {
   it('has aria-label', () => {
     const { getByRole } = render(<CopyButton />);
     expect(getByRole('button')).toHaveAttribute('aria-label', 'レスポンスをコピー');
+  });
+
+  it('aria-label changes with labelKey', () => {
+    const { getByRole } = render(<CopyButton labelKey="copy_error" />);
+    expect(getByRole('button')).toHaveAttribute('aria-label', 'エラーをコピー');
   });
 });

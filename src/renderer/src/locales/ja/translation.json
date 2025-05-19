@@ -30,6 +30,7 @@
   "save_success": "保存しました！",
   "copy_response": "レスポンスをコピー",
   "copy_success": "コピーしました！",
+  "copy_error": "エラーをコピー",
   "body_not_applicable": "このメソッド{{method}}にはリクエストボディを設定できません。",
   "method_get": "GETリクエスト",
   "method_post": "POSTリクエスト",

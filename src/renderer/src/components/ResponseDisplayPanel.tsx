@@ -21,20 +21,26 @@ export const ResponseDisplayPanel: React.FC<ResponseDisplayPanelProps> = ({
   const { t } = useTranslation();
   const [copyToastOpen, setCopyToastOpen] = React.useState(false);
 
-  const handleCopy = React.useCallback(async () => {
+  const handleCopyResponse = React.useCallback(async () => {
     if (!response) return;
     await navigator.clipboard.writeText(JSON.stringify(response, null, 2));
     setCopyToastOpen(true);
   }, [response]);
+
+  const handleCopyError = React.useCallback(async () => {
+    if (!error) return;
+    await navigator.clipboard.writeText(JSON.stringify(error, null, 2));
+    setCopyToastOpen(true);
+  }, [error]);
   return (
     <>
       <div className="flex items-center justify-between">
         <Heading level={2} className="text-xl font-bold">
           {t('response_heading')}
         </Heading>
-        {response ? <CopyButton onClick={handleCopy} /> : null}
+        {response ? <CopyButton onClick={handleCopyResponse} /> : null}
       </div>
-      <ErrorAlert error={error} />
+      <ErrorAlert error={error} onCopy={handleCopyError} />
       {response && (
         <JsonPre
           data={response}
