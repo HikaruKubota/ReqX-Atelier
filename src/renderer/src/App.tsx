@@ -14,11 +14,13 @@ import { ThemeToggleButton } from './components/ThemeToggleButton';
 import { TabBar } from './components/organisms/TabBar';
 import { ShortcutsGuide } from './components/organisms/ShortcutsGuide';
 import { RequestEditorPanelRef } from './types'; // Import the RequestHeader type
+import { Toast } from './components/atoms/toast/Toast';
 
 export default function App() {
   const { t } = useTranslation();
   const editorPanelRef = useRef<RequestEditorPanelRef>(null); // Create a ref
   const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [saveToastOpen, setSaveToastOpen] = useState(false);
 
   // Use the new custom hook for request editor state and logic
   const {
@@ -94,6 +96,7 @@ export default function App() {
 
   const handleSaveButtonClick = useCallback(() => {
     executeSaveRequest();
+    setSaveToastOpen(true);
     const activeTab = tabs.getActiveTab();
     if (activeTab) {
       tabs.updateTab(activeTab.tabId, {
@@ -304,6 +307,11 @@ export default function App() {
           </>
         )}
       </div>
+      <Toast
+        message={t('save_success')}
+        isOpen={saveToastOpen}
+        onClose={() => setSaveToastOpen(false)}
+      />
     </div>
   );
 }
