@@ -18,31 +18,31 @@ interface BodyEditorKeyValueProps {
 export const BodyEditorKeyValue = forwardRef<BodyEditorKeyValueRef, BodyEditorKeyValueProps>(
   ({ initialBody, method, onChange }, ref) => {
     const { t } = useTranslation();
-    const [bodyKeyValuePairs, setBodyKeyValuePairs] = useState<KeyValuePair[]>([]);
+    const [body, setBody] = useState<KeyValuePair[]>([]);
     const [showImport, setShowImport] = useState(false);
     const [importText, setImportText] = useState('');
     const [importError, setImportError] = useState('');
 
     useEffect(() => {
       if (method === 'GET' || method === 'HEAD') {
-        if (bodyKeyValuePairs.length > 0) {
-          setBodyKeyValuePairs([]);
+        if (body.length > 0) {
+          setBody([]);
         }
         return;
       }
 
       if (initialBody) {
-        if (JSON.stringify(initialBody) !== JSON.stringify(bodyKeyValuePairs)) {
-          setBodyKeyValuePairs(initialBody);
+        if (JSON.stringify(initialBody) !== JSON.stringify(body)) {
+          setBody(initialBody);
         }
-      } else if (bodyKeyValuePairs.length > 0) {
-        setBodyKeyValuePairs([]);
+      } else if (body.length > 0) {
+        setBody([]);
       }
     }, [initialBody, method]);
 
     useEffect(() => {
-      onChange?.(bodyKeyValuePairs);
-    }, [bodyKeyValuePairs, onChange]);
+      onChange?.(body);
+    }, [body, onChange]);
 
     const importFromJson = useCallback((json: string): boolean => {
       try {
@@ -56,7 +56,7 @@ export const BodyEditorKeyValue = forwardRef<BodyEditorKeyValueRef, BodyEditorKe
           value: typeof val === 'string' ? val : JSON.stringify(val),
           enabled: true,
         }));
-        setBodyKeyValuePairs(newPairs);
+        setBody(newPairs);
         return true;
       } catch {
         return false;
@@ -65,11 +65,11 @@ export const BodyEditorKeyValue = forwardRef<BodyEditorKeyValueRef, BodyEditorKe
 
     useImperativeHandle(ref, () => ({
       getCurrentBodyAsJson: () => {
-        if (method === 'GET' || method === 'HEAD' || bodyKeyValuePairs.length === 0) {
+        if (method === 'GET' || method === 'HEAD' || body.length === 0) {
           return '';
         }
         try {
-          const jsonObject = bodyKeyValuePairs.reduce(
+          const jsonObject = body.reduce(
             (obj, pair) => {
               if (pair.enabled && pair.keyName.trim() !== '') {
                 try {
@@ -89,14 +89,14 @@ export const BodyEditorKeyValue = forwardRef<BodyEditorKeyValueRef, BodyEditorKe
         }
       },
       getCurrentKeyValuePairs: () => {
-        return bodyKeyValuePairs;
+        return body;
       },
       importFromJson,
     }));
 
     const handleKeyValuePairChange = useCallback(
       (id: string, field: keyof Omit<KeyValuePair, 'id'>, newValue: string | boolean) => {
-        setBodyKeyValuePairs((prevPairs) =>
+        setBody((prevPairs) =>
           prevPairs.map((pair) => (pair.id === id ? { ...pair, [field]: newValue } : pair)),
         );
       },
@@ -110,15 +110,15 @@ export const BodyEditorKeyValue = forwardRef<BodyEditorKeyValueRef, BodyEditorKe
         value: '',
         enabled: true,
       };
-      setBodyKeyValuePairs((prev) => [...prev, newPair]);
+      setBody((prev) => [...prev, newPair]);
     }, []);
 
     const handleRemoveKeyValuePair = useCallback((id: string) => {
-      setBodyKeyValuePairs((prevPairs) => prevPairs.filter((pair) => pair.id !== id));
+      setBody((prevPairs) => prevPairs.filter((pair) => pair.id !== id));
     }, []);
 
     const handleMoveKeyValuePair = useCallback((index: number, direction: 'up' | 'down') => {
-      setBodyKeyValuePairs((prevPairs) => {
+      setBody((prevPairs) => {
         const newPairs = [...prevPairs];
         if (newPairs.length === 0 || index < 0 || index >= newPairs.length) return newPairs;
         const itemToMove = newPairs[index];
@@ -135,7 +135,7 @@ export const BodyEditorKeyValue = forwardRef<BodyEditorKeyValueRef, BodyEditorKe
     }, []);
 
     const handleToggleAll = useCallback((enable: boolean) => {
-      setBodyKeyValuePairs((prevPairs) => prevPairs.map((pair) => ({ ...pair, enabled: enable })));
+      setBody((prevPairs) => prevPairs.map((pair) => ({ ...pair, enabled: enable })));
     }, []);
 
     const isBodyApplicable = !(method === 'GET' || method === 'HEAD');
@@ -150,7 +150,7 @@ export const BodyEditorKeyValue = forwardRef<BodyEditorKeyValueRef, BodyEditorKe
 
     return (
       <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-        {bodyKeyValuePairs.map((pair, index) => (
+        {body.map((pair, index) => (
           <div key={pair.id} className="flex items-center gap-2">
             <input
               type="checkbox"
@@ -182,7 +182,7 @@ export const BodyEditorKeyValue = forwardRef<BodyEditorKeyValueRef, BodyEditorKe
             />
             <MoveDownButton
               onClick={() => handleMoveKeyValuePair(index, 'down')}
-              disabled={index === bodyKeyValuePairs.length - 1}
+              disabled={index === body.length - 1}
               className="mx-1"
             />
             <TrashButton onClick={() => handleRemoveKeyValuePair(pair.id)} />
@@ -205,14 +205,8 @@ export const BodyEditorKeyValue = forwardRef<BodyEditorKeyValueRef, BodyEditorKe
           >
             {t('import_json') || 'Import JSON'}
           </button>
-          <EnableAllButton
-            onClick={() => handleToggleAll(true)}
-            disabled={bodyKeyValuePairs.length === 0}
-          />
-          <DisableAllButton
-            onClick={() => handleToggleAll(false)}
-            disabled={bodyKeyValuePairs.length === 0}
-          />
+          <EnableAllButton onClick={() => handleToggleAll(true)} disabled={body.length === 0} />
+          <DisableAllButton onClick={() => handleToggleAll(false)} disabled={body.length === 0} />
         </div>
         <Modal isOpen={showImport} onClose={() => setShowImport(false)} size="xl">
           <textarea

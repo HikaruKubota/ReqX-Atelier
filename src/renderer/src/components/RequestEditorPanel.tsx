@@ -57,7 +57,7 @@ export const RequestEditorPanel = forwardRef<RequestEditorPanelRef, RequestEdito
       getRequestBodyAsJson: () => {
         return bodyEditorRef.current?.getCurrentBodyAsJson() || '';
       },
-      getRequestBodyKeyValuePairs: () => {
+      getBody: () => {
         return bodyEditorRef.current?.getCurrentKeyValuePairs() || [];
       },
     }));

@@ -6,9 +6,7 @@ const getMockRefs = () => ({
   editorPanelRef: {
     current: {
       getRequestBodyAsJson: () => '{"foo":"bar"}',
-      getRequestBodyKeyValuePairs: () => [
-        { id: 'kv1', keyName: 'foo', value: 'bar', enabled: true },
-      ],
+      getBody: () => [{ id: 'kv1', keyName: 'foo', value: 'bar', enabled: true }],
     },
   },
   methodRef: { current: 'POST' },
