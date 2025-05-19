@@ -1,10 +1,18 @@
+/* eslint-disable react/prop-types */
 import * as React from 'react';
 import { useState, useEffect, useImperativeHandle, forwardRef, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { EnableAllButton } from './atoms/button/EnableAllButton';
 import { DisableAllButton } from './atoms/button/DisableAllButton';
-import { MoveUpButton } from './atoms/button/MoveUpButton';
-import { MoveDownButton } from './atoms/button/MoveDownButton';
+import { DndContext, DragEndEvent } from '@dnd-kit/core';
+import {
+  SortableContext,
+  useSortable,
+  arrayMove,
+  verticalListSortingStrategy,
+} from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
+import { DragHandleButton } from './atoms/button/DragHandleButton';
 import { TrashButton } from './atoms/button/TrashButton';
 import { Modal } from './atoms/Modal';
 import { ScrollableContainer } from './atoms/ScrollableContainer';
@@ -119,22 +127,55 @@ export const BodyEditorKeyValue = forwardRef<BodyEditorKeyValueRef, BodyEditorKe
       setBody((prevPairs) => prevPairs.filter((pair) => pair.id !== id));
     }, []);
 
-    const handleMoveKeyValuePair = useCallback((index: number, direction: 'up' | 'down') => {
-      setBody((prevPairs) => {
-        const newPairs = [...prevPairs];
-        if (newPairs.length === 0 || index < 0 || index >= newPairs.length) return newPairs;
-        const itemToMove = newPairs[index];
+    const handleDragEnd = useCallback(
+      (event: DragEndEvent) => {
+        const { active, over } = event;
+        if (!over || active.id === over.id) return;
+        const oldIndex = body.findIndex((p) => p.id === active.id);
+        const newIndex = body.findIndex((p) => p.id === over.id);
+        setBody((items) => arrayMove(items, oldIndex, newIndex));
+      },
+      [body],
+    );
 
-        if (direction === 'up' && index > 0) {
-          newPairs.splice(index, 1);
-          newPairs.splice(index - 1, 0, itemToMove);
-        } else if (direction === 'down' && index < newPairs.length - 1) {
-          newPairs.splice(index, 1);
-          newPairs.splice(index + 1, 0, itemToMove);
-        }
-        return newPairs;
+    const SortableRow: React.FC<{ pair: KeyValuePair }> = ({ pair }) => {
+      const { attributes, listeners, setNodeRef, transform, transition } = useSortable({
+        id: pair.id,
       });
-    }, []);
+      const style = {
+        transform: CSS.Transform.toString(transform),
+        transition,
+      } as React.CSSProperties;
+      return (
+        <div ref={setNodeRef} style={style} className="flex items-center gap-2">
+          <input
+            type="checkbox"
+            checked={pair.enabled}
+            onChange={(e) => handleKeyValuePairChange(pair.id, 'enabled', e.target.checked)}
+            title={pair.enabled ? 'Disable this row' : 'Enable this row'}
+            className="mr-1"
+          />
+          <input
+            type="text"
+            placeholder="Key"
+            value={pair.keyName}
+            onChange={(e) => handleKeyValuePairChange(pair.id, 'keyName', e.target.value)}
+            className="flex-1 p-2 text-sm border border-gray-300 rounded"
+            disabled={!pair.enabled}
+          />
+          <input
+            type="text"
+            placeholder="Value (JSON or string)"
+            value={pair.value}
+            onChange={(e) => handleKeyValuePairChange(pair.id, 'value', e.target.value)}
+            className="flex-2 p-2 text-sm border border-gray-300 rounded"
+            disabled={!pair.enabled}
+          />
+          <DragHandleButton {...listeners} {...attributes} className="mx-1" />
+          <TrashButton onClick={() => handleRemoveKeyValuePair(pair.id)} />
+        </div>
+      );
+    };
 
     const handleToggleAll = useCallback((enable: boolean) => {
       setBody((prevPairs) => prevPairs.map((pair) => ({ ...pair, enabled: enable })));
@@ -152,46 +193,15 @@ export const BodyEditorKeyValue = forwardRef<BodyEditorKeyValueRef, BodyEditorKe
 
     return (
       <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-        <ScrollableContainer height={containerHeight}>
-          {body.map((pair, index) => (
-            <div key={pair.id} className="flex items-center gap-2">
-              <input
-                type="checkbox"
-                checked={pair.enabled}
-                onChange={(e) => handleKeyValuePairChange(pair.id, 'enabled', e.target.checked)}
-                title={pair.enabled ? 'Disable this row' : 'Enable this row'}
-                className="mr-1"
-              />
-              <input
-                type="text"
-                placeholder="Key"
-                value={pair.keyName}
-                onChange={(e) => handleKeyValuePairChange(pair.id, 'keyName', e.target.value)}
-                className="flex-1 p-2 text-sm border border-gray-300 rounded"
-                disabled={!pair.enabled}
-              />
-              <input
-                type="text"
-                placeholder="Value (JSON or string)"
-                value={pair.value}
-                onChange={(e) => handleKeyValuePairChange(pair.id, 'value', e.target.value)}
-                className="flex-2 p-2 text-sm border border-gray-300 rounded"
-                disabled={!pair.enabled}
-              />
-              <MoveUpButton
-                onClick={() => handleMoveKeyValuePair(index, 'up')}
-                disabled={index === 0}
-                className="mx-1"
-              />
-              <MoveDownButton
-                onClick={() => handleMoveKeyValuePair(index, 'down')}
-                disabled={index === body.length - 1}
-                className="mx-1"
-              />
-              <TrashButton onClick={() => handleRemoveKeyValuePair(pair.id)} />
-            </div>
-          ))}
-        </ScrollableContainer>
+        <DndContext onDragEnd={handleDragEnd} data-testid="body-dnd">
+          <SortableContext items={body.map((p) => p.id)} strategy={verticalListSortingStrategy}>
+            <ScrollableContainer height={containerHeight}>
+              {body.map((pair) => (
+                <SortableRow key={pair.id} pair={pair} />
+              ))}
+            </ScrollableContainer>
+          </SortableContext>
+        </DndContext>
         <div className="flex gap-2 mt-2">
           <button
             onClick={handleAddKeyValuePair}
