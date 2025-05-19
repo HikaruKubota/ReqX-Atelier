@@ -25,45 +25,43 @@ const generateJsonFromBodyPairs = (pairs: KeyValuePair[]): string => {
 };
 
 export const useBodyManager = (): UseBodyManagerReturn => {
-  const [currentBodyKeyValuePairsState, setCurrentBodyKeyValuePairsState] = useState<
-    KeyValuePair[]
-  >([]);
-  const currentBodyKeyValuePairsRef = useRef<KeyValuePair[]>(currentBodyKeyValuePairsState);
+  const [bodyState, setBodyState] = useState<KeyValuePair[]>([]);
+  const bodyRef = useRef<KeyValuePair[]>(bodyState);
 
   const [requestBodyState, setRequestBodyState] = useState<string>('');
   const requestBodyRef = useRef<string>(requestBodyState);
 
-  // Update requestBody (JSON string) whenever currentBodyKeyValuePairsState changes
+  // Update requestBody (JSON string) whenever bodyState changes
   useEffect(() => {
-    const newJsonBody = generateJsonFromBodyPairs(currentBodyKeyValuePairsState);
+    const newJsonBody = generateJsonFromBodyPairs(bodyState);
     setRequestBodyState(newJsonBody);
     requestBodyRef.current = newJsonBody;
-  }, [currentBodyKeyValuePairsState]);
+  }, [bodyState]);
 
-  const setCurrentBodyKeyValuePairs = useCallback((pairs: KeyValuePair[]) => {
-    setCurrentBodyKeyValuePairsState(pairs);
-    currentBodyKeyValuePairsRef.current = pairs;
+  const setBody = useCallback((pairs: KeyValuePair[]) => {
+    setBodyState(pairs);
+    bodyRef.current = pairs;
   }, []);
 
-  const loadBodyKeyValuePairs = useCallback((pairs: KeyValuePair[]) => {
+  const loadBody = useCallback((pairs: KeyValuePair[]) => {
     // This will also trigger the useEffect to update the JSON string version
-    setCurrentBodyKeyValuePairsState(pairs || []);
-    currentBodyKeyValuePairsRef.current = pairs || [];
+    setBodyState(pairs || []);
+    bodyRef.current = pairs || [];
   }, []);
 
   const resetBody = useCallback(() => {
-    setCurrentBodyKeyValuePairsState([]);
-    currentBodyKeyValuePairsRef.current = [];
+    setBodyState([]);
+    bodyRef.current = [];
     // The useEffect will then set requestBodyState and requestBodyRef to ''
   }, []);
 
   return {
-    currentBodyKeyValuePairs: currentBodyKeyValuePairsState,
-    setCurrentBodyKeyValuePairs,
-    currentBodyKeyValuePairsRef,
+    body: bodyState,
+    setBody,
+    bodyRef,
     requestBody: requestBodyState,
     requestBodyRef,
-    loadBodyKeyValuePairs,
+    loadBody,
     resetBody,
   };
 };

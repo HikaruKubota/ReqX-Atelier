@@ -21,7 +21,7 @@ const migrateRequests = (stored: unknown): SavedRequest[] => {
       let bodyPairs: KeyValuePair[] | undefined = Array.isArray(req.body)
         ? (req.body as KeyValuePair[])
         : undefined;
-      const bodyKeyValuePairs = Array.isArray(
+      const legacyBody = Array.isArray(
         (req as Partial<SavedRequest> & { bodyKeyValuePairs?: unknown }).bodyKeyValuePairs,
       )
         ? ((req as Partial<SavedRequest> & { bodyKeyValuePairs?: unknown })
@@ -29,8 +29,8 @@ const migrateRequests = (stored: unknown): SavedRequest[] => {
         : undefined;
 
       if (!bodyPairs) {
-        if (bodyKeyValuePairs) {
-          bodyPairs = bodyKeyValuePairs;
+        if (legacyBody) {
+          bodyPairs = legacyBody;
         } else if (typeof req.body === 'string') {
           try {
             const parsed = JSON.parse(req.body);
@@ -59,7 +59,7 @@ const migrateRequests = (stored: unknown): SavedRequest[] => {
         method: req.method || 'GET',
         url: req.url || '',
         headers: req.headers || [],
-        body: bodyPairs || bodyKeyValuePairs || [],
+        body: bodyPairs || legacyBody || [],
       } as SavedRequest;
     });
   } catch {

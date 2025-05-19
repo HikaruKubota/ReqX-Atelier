@@ -46,12 +46,12 @@ export interface UseHeadersManagerReturn {
 }
 
 export interface UseBodyManagerReturn {
-  currentBodyKeyValuePairs: KeyValuePair[];
-  setCurrentBodyKeyValuePairs: (pairs: KeyValuePair[]) => void;
-  currentBodyKeyValuePairsRef: React.MutableRefObject<KeyValuePair[]>;
+  body: KeyValuePair[];
+  setBody: (pairs: KeyValuePair[]) => void;
+  bodyRef: React.MutableRefObject<KeyValuePair[]>;
   requestBody: string;
   requestBodyRef: React.MutableRefObject<string>;
-  loadBodyKeyValuePairs: (pairs: KeyValuePair[]) => void;
+  loadBody: (pairs: KeyValuePair[]) => void;
   resetBody: () => void;
 }
 
@@ -93,7 +93,7 @@ export interface ApiResponseHandler {
 
 export interface RequestEditorPanelRef {
   getRequestBodyAsJson: () => string;
-  getRequestBodyKeyValuePairs: () => KeyValuePair[];
+  getBody: () => KeyValuePair[];
 }
 
 export interface ThemeColors {
@@ -105,7 +105,7 @@ export interface ThemeColors {
 
 export interface RequestEditorState
   extends Omit<UseHeadersManagerReturn, 'loadHeaders' | 'resetHeaders'>,
-    Omit<UseBodyManagerReturn, 'loadBodyKeyValuePairs' | 'resetBody'> {
+    Omit<UseBodyManagerReturn, 'loadBody' | 'resetBody'> {
   method: string;
   setMethod: (method: string) => void;
   methodRef: { current: string };

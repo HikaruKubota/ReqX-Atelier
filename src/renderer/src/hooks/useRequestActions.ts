@@ -55,8 +55,7 @@ export function useRequestActions({
     setRequestNameForSave(nameToSave);
     const currentMethod = methodRef.current;
     const currentUrl = urlRef.current;
-    const currentBodyKeyValuePairsFromEditor =
-      editorPanelRef.current?.getRequestBodyKeyValuePairs() || [];
+    const bodyFromEditor = editorPanelRef.current?.getBody() || [];
     const currentActiveRequestId = activeRequestIdRef.current;
     const currentHeaders = headersRef.current;
 
@@ -65,7 +64,7 @@ export function useRequestActions({
       method: currentMethod,
       url: currentUrl,
       headers: currentHeaders,
-      body: currentBodyKeyValuePairsFromEditor,
+      body: bodyFromEditor,
     };
 
     if (currentActiveRequestId) {
