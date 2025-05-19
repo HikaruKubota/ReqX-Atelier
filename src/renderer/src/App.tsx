@@ -40,6 +40,7 @@ export default function App() {
     activeRequestIdRef,
     headers,
     headersRef, // Destructure headers state and functions
+    setHeaders,
     addHeader,
     updateHeader,
     removeHeader, // Destructure header actions
@@ -302,6 +303,7 @@ export default function App() {
               onAddHeader={addHeader}
               onUpdateHeader={updateHeader}
               onRemoveHeader={removeHeader}
+              onReorderHeaders={setHeaders}
             />
 
             {/* Use the new ResponseDisplayPanel component */}

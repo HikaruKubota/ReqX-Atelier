@@ -7,7 +7,7 @@ import i18n from '../../i18n';
 import * as sortable from '@dnd-kit/sortable';
 
 vi.mock('@dnd-kit/core', async () => {
-  const actual = (await vi.importActual<typeof import('@dnd-kit/core')>('@dnd-kit/core'));
+  const actual = await vi.importActual<typeof import('@dnd-kit/core')>('@dnd-kit/core');
   return {
     ...actual,
     DndContext: ({
@@ -17,7 +17,10 @@ vi.mock('@dnd-kit/core', async () => {
       onDragEnd: (e: { active: { id: string }; over: { id: string } }) => void;
       children: React.ReactNode;
     }) => (
-      <div data-testid="dnd" onDragEnd={() => onDragEnd({ active: { id: '1' }, over: { id: '2' } })}>
+      <div
+        data-testid="dnd"
+        onDragEnd={() => onDragEnd({ active: { id: '1' }, over: { id: '2' } })}
+      >
         {children}
       </div>
     ),

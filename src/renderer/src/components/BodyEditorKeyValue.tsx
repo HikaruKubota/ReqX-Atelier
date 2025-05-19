@@ -148,6 +148,7 @@ export const BodyEditorKeyValue = forwardRef<BodyEditorKeyValueRef, BodyEditorKe
       } as React.CSSProperties;
       return (
         <div ref={setNodeRef} style={style} className="flex items-center gap-2">
+          <DragHandleButton {...listeners} {...attributes} className="mx-1" />
           <input
             type="checkbox"
             checked={pair.enabled}
@@ -171,7 +172,6 @@ export const BodyEditorKeyValue = forwardRef<BodyEditorKeyValueRef, BodyEditorKe
             className="flex-2 p-2 text-sm border border-gray-300 rounded"
             disabled={!pair.enabled}
           />
-          <DragHandleButton {...listeners} {...attributes} className="mx-1" />
           <TrashButton onClick={() => handleRemoveKeyValuePair(pair.id)} />
         </div>
       );
