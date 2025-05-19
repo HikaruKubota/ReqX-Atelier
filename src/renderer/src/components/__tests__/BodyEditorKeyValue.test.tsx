@@ -1,5 +1,6 @@
 import React, { createRef } from 'react';
 import { render, fireEvent, act } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { describe, it, expect, vi } from 'vitest';
 import { BodyEditorKeyValue } from '../BodyEditorKeyValue';
 import type { KeyValuePair, BodyEditorKeyValueRef } from '../../types';
@@ -138,5 +139,17 @@ describe('BodyEditorKeyValue', () => {
 
     expect(itemsHistory.length).toBe(lengthAfterEdit + 1);
     expect(itemsHistory[itemsHistory.length - 1]).not.toBe(initialItemsRef);
+  });
+
+  it('keeps focus on input while editing', async () => {
+    const { getAllByPlaceholderText } = render(
+      <BodyEditorKeyValue method="POST" initialBody={initialPairs} />,
+    );
+    const keyInput = getAllByPlaceholderText('Key')[0] as HTMLInputElement;
+    keyInput.focus();
+    await userEvent.type(keyInput, 'baz');
+    const active = document.activeElement as HTMLInputElement;
+    expect(active.tagName).toBe('INPUT');
+    expect(active.placeholder).toBe('Key');
   });
 });

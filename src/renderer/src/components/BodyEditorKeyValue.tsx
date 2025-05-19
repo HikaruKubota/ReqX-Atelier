@@ -32,6 +32,7 @@ export const BodyEditorKeyValue = forwardRef<BodyEditorKeyValueRef, BodyEditorKe
     const [showImport, setShowImport] = useState(false);
     const [importText, setImportText] = useState('');
     const [importError, setImportError] = useState('');
+    const activeInput = React.useRef<{ id: string; field: 'keyName' | 'value' } | null>(null);
 
     const itemIdsRef = React.useRef<string[]>([]);
     const orderRef = React.useRef('');
@@ -60,6 +61,12 @@ export const BodyEditorKeyValue = forwardRef<BodyEditorKeyValueRef, BodyEditorKe
 
     useEffect(() => {
       onChange?.(body);
+      if (activeInput.current) {
+        const { id, field } = activeInput.current;
+        const selector = `[data-kv-id="${id}"][data-field="${field}"]`;
+        const input = document.querySelector<HTMLInputElement>(selector);
+        input?.focus();
+      }
     }, [body, onChange]);
 
     const importFromJson = useCallback((json: string): boolean => {
@@ -117,6 +124,9 @@ export const BodyEditorKeyValue = forwardRef<BodyEditorKeyValueRef, BodyEditorKe
         setBody((prevPairs) =>
           prevPairs.map((pair) => (pair.id === id ? { ...pair, [field]: newValue } : pair)),
         );
+        if (field === 'keyName' || field === 'value') {
+          activeInput.current = { id, field } as { id: string; field: 'keyName' | 'value' };
+        }
       },
       [],
     );
@@ -135,16 +145,15 @@ export const BodyEditorKeyValue = forwardRef<BodyEditorKeyValueRef, BodyEditorKe
       setBody((prevPairs) => prevPairs.filter((pair) => pair.id !== id));
     }, []);
 
-    const handleDragEnd = useCallback(
-      (event: DragEndEvent) => {
-        const { active, over } = event;
-        if (!over || active.id === over.id) return;
-        const oldIndex = body.findIndex((p) => p.id === active.id);
-        const newIndex = body.findIndex((p) => p.id === over.id);
-        setBody((items) => arrayMove(items, oldIndex, newIndex));
-      },
-      [body],
-    );
+    const handleDragEnd = useCallback((event: DragEndEvent) => {
+      const { active, over } = event;
+      if (!over || active.id === over.id) return;
+      setBody((items) => {
+        const oldIndex = items.findIndex((p) => p.id === active.id);
+        const newIndex = items.findIndex((p) => p.id === over.id);
+        return arrayMove(items, oldIndex, newIndex);
+      });
+    }, []);
 
     const SortableRow: React.FC<{ pair: KeyValuePair }> = ({ pair }) => {
       const { attributes, listeners, setNodeRef, transform, transition } = useSortable({
@@ -168,6 +177,8 @@ export const BodyEditorKeyValue = forwardRef<BodyEditorKeyValueRef, BodyEditorKe
             type="text"
             placeholder="Key"
             value={pair.keyName}
+            data-kv-id={pair.id}
+            data-field="keyName"
             onChange={(e) => handleKeyValuePairChange(pair.id, 'keyName', e.target.value)}
             className="flex-1 p-2 text-sm border border-gray-300 rounded"
             disabled={!pair.enabled}
@@ -176,6 +187,8 @@ export const BodyEditorKeyValue = forwardRef<BodyEditorKeyValueRef, BodyEditorKe
             type="text"
             placeholder="Value (JSON or string)"
             value={pair.value}
+            data-kv-id={pair.id}
+            data-field="value"
             onChange={(e) => handleKeyValuePairChange(pair.id, 'value', e.target.value)}
             className="flex-2 p-2 text-sm border border-gray-300 rounded"
             disabled={!pair.enabled}

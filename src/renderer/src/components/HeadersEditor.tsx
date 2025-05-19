@@ -1,5 +1,6 @@
 /* eslint-disable react/prop-types */
 import * as React from 'react';
+import { useCallback } from 'react';
 import type { RequestHeader } from '../types';
 import { TrashButton } from './atoms/button/TrashButton';
 import { DragHandleButton } from './atoms/button/DragHandleButton';
@@ -22,7 +23,7 @@ interface HeadersEditorProps {
     value: string | boolean,
   ) => void;
   onRemoveHeader: (id: string) => void;
-  onReorderHeaders: (newHeaders: RequestHeader[]) => void;
+  onReorderHeaders: React.Dispatch<React.SetStateAction<RequestHeader[]>>;
 }
 
 export const HeadersEditor: React.FC<HeadersEditorProps> = ({
@@ -40,13 +41,18 @@ export const HeadersEditor: React.FC<HeadersEditorProps> = ({
     orderRef.current = currentOrder;
     headerIdsRef.current = headers.map((h) => h.id);
   }
-  const handleDragEnd = (event: DragEndEvent) => {
-    const { active, over } = event;
-    if (!over || active.id === over.id) return;
-    const oldIndex = headers.findIndex((h) => h.id === active.id);
-    const newIndex = headers.findIndex((h) => h.id === over.id);
-    onReorderHeaders(arrayMove(headers, oldIndex, newIndex));
-  };
+  const handleDragEnd = useCallback(
+    (event: DragEndEvent) => {
+      const { active, over } = event;
+      if (!over || active.id === over.id) return;
+      onReorderHeaders((prev) => {
+        const oldIndex = prev.findIndex((h) => h.id === active.id);
+        const newIndex = prev.findIndex((h) => h.id === over.id);
+        return arrayMove(prev, oldIndex, newIndex);
+      });
+    },
+    [onReorderHeaders],
+  );
 
   const SortableRow: React.FC<{ header: RequestHeader }> = ({ header }) => {
     const { attributes, listeners, setNodeRef, transform, transition } = useSortable({

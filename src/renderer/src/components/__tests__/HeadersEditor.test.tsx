@@ -1,5 +1,6 @@
 import React from 'react';
 import { render, fireEvent, act } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { describe, it, expect, vi } from 'vitest';
 import { HeadersEditor } from '../HeadersEditor';
 import type { RequestHeader } from '../../types';
@@ -80,7 +81,11 @@ describe('HeadersEditor', () => {
 
   it('handles drag end', () => {
     const spy = vi.spyOn(sortable, 'arrayMove');
-    const onReorder = vi.fn();
+    const onReorder = vi.fn((update: React.SetStateAction<RequestHeader[]>) => {
+      if (typeof update === 'function') {
+        update(headers);
+      }
+    });
     const { getAllByLabelText, getByTestId } = render(
       <HeadersEditor
         headers={headers}
@@ -133,5 +138,23 @@ describe('HeadersEditor', () => {
 
     expect(itemsHistory.length).toBe(lengthAfterEdit + 1);
     expect(itemsHistory[itemsHistory.length - 1]).not.toBe(initialItemsRef);
+  });
+
+  it('keeps focus on header input while editing', async () => {
+    const { getAllByPlaceholderText } = render(
+      <HeadersEditor
+        headers={headers}
+        onAddHeader={vi.fn()}
+        onUpdateHeader={vi.fn()}
+        onRemoveHeader={vi.fn()}
+        onReorderHeaders={vi.fn()}
+      />,
+    );
+    const input = getAllByPlaceholderText('Key')[0] as HTMLInputElement;
+    input.focus();
+    await userEvent.type(input, 'ABC');
+    const active = document.activeElement as HTMLInputElement;
+    expect(active.tagName).toBe('INPUT');
+    expect(active.placeholder).toBe('Key');
   });
 });

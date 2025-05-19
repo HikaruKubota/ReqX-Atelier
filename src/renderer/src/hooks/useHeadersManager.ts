@@ -8,9 +8,12 @@ export const useHeadersManager = (): UseHeadersManagerReturn => {
   const headersRef = useRef<RequestHeader[]>(headersState);
 
   // Exposed setter that also updates the ref
-  const setHeaders = useCallback((newHeaders: RequestHeader[]) => {
-    setHeadersState(newHeaders);
-    headersRef.current = newHeaders;
+  const setHeaders = useCallback((value: React.SetStateAction<RequestHeader[]>) => {
+    setHeadersState((prev) => {
+      const newHeaders = typeof value === 'function' ? value(prev) : value;
+      headersRef.current = newHeaders;
+      return newHeaders;
+    });
   }, []);
 
   const loadHeaders = useCallback((loadedHeaders: RequestHeader[]) => {
