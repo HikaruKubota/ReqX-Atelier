@@ -71,7 +71,7 @@ export function useRequestActions({
     if (currentActiveRequestId) {
       updateSavedRequest(currentActiveRequestId, requestDataToSave);
     } else {
-      const newId = addRequest(requestDataToSave as SavedRequest);
+      const newId = addRequest(requestDataToSave);
       setActiveRequestId(newId);
     }
   }, [
