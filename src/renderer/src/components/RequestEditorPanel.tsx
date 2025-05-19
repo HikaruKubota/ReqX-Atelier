@@ -27,7 +27,7 @@ interface RequestEditorPanelProps {
   onAddHeader: () => void;
   onUpdateHeader: (id: string, field: 'key' | 'value' | 'enabled', value: string | boolean) => void;
   onRemoveHeader: (id: string) => void;
-  onReorderHeaders: (newHeaders: RequestHeader[]) => void;
+  onReorderHeaders: React.Dispatch<React.SetStateAction<RequestHeader[]>>;
 }
 
 export const RequestEditorPanel = forwardRef<RequestEditorPanelRef, RequestEditorPanelProps>(

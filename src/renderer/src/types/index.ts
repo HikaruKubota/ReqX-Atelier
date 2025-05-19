@@ -33,7 +33,7 @@ export interface RequestHeader {
 
 export interface UseHeadersManagerReturn {
   headers: RequestHeader[];
-  setHeaders: (newHeaders: RequestHeader[]) => void;
+  setHeaders: React.Dispatch<React.SetStateAction<RequestHeader[]>>;
   headersRef: React.MutableRefObject<RequestHeader[]>;
   addHeader: () => void;
   updateHeader: (
