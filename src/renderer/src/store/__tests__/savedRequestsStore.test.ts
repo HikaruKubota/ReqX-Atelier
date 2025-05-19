@@ -32,6 +32,6 @@ describe('savedRequestsStore migration', () => {
         enabled: true,
       },
     ]);
-    expect(saved.bodyKeyValuePairs).toEqual(saved.body);
+    expect(Array.isArray(saved.body)).toBe(true);
   });
 });

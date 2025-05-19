@@ -21,8 +21,11 @@ const migrateRequests = (stored: unknown): SavedRequest[] => {
       let bodyPairs: KeyValuePair[] | undefined = Array.isArray(req.body)
         ? (req.body as KeyValuePair[])
         : undefined;
-      let bodyKeyValuePairs = Array.isArray(req.bodyKeyValuePairs)
-        ? (req.bodyKeyValuePairs as KeyValuePair[])
+      const bodyKeyValuePairs = Array.isArray(
+        (req as Partial<SavedRequest> & { bodyKeyValuePairs?: unknown }).bodyKeyValuePairs,
+      )
+        ? ((req as Partial<SavedRequest> & { bodyKeyValuePairs?: unknown })
+            .bodyKeyValuePairs as KeyValuePair[])
         : undefined;
 
       if (!bodyPairs) {
@@ -49,10 +52,6 @@ const migrateRequests = (stored: unknown): SavedRequest[] => {
         }
       }
 
-      if (!bodyKeyValuePairs && bodyPairs) {
-        bodyKeyValuePairs = bodyPairs;
-      }
-
       return {
         ...req,
         id: req.id || `saved-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`,
@@ -60,8 +59,7 @@ const migrateRequests = (stored: unknown): SavedRequest[] => {
         method: req.method || 'GET',
         url: req.url || '',
         headers: req.headers || [],
-        bodyKeyValuePairs: bodyKeyValuePairs || [],
-        body: bodyPairs || [],
+        body: bodyPairs || bodyKeyValuePairs || [],
       } as SavedRequest;
     });
   } catch {
@@ -75,12 +73,11 @@ export const useSavedRequestsStore = create<SavedRequestsState>()(
       savedRequests: [],
       addRequest: (req) => {
         const newId = `saved-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`;
-        const bodyPairs = req.body ?? req.bodyKeyValuePairs ?? [];
+        const bodyPairs = req.body ?? [];
         const newReq: SavedRequest = {
           ...req,
           id: newId,
           headers: req.headers || [],
-          bodyKeyValuePairs: req.bodyKeyValuePairs || bodyPairs,
           body: bodyPairs,
         };
         set({ savedRequests: [...get().savedRequests, newReq] });
@@ -90,7 +87,7 @@ export const useSavedRequestsStore = create<SavedRequestsState>()(
         set({
           savedRequests: get().savedRequests.map((r) => {
             if (r.id !== id) return r;
-            const bodyPairs = updated.body ?? updated.bodyKeyValuePairs ?? r.body;
+            const bodyPairs = updated.body ?? r.body;
             return { ...r, ...updated, body: bodyPairs };
           }),
         });

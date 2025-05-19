@@ -59,7 +59,7 @@ export const useRequestEditor = (): RequestEditorState => {
     (req: SavedRequest) => {
       setMethodState(req.method);
       setUrlState(req.url);
-      bodyManager.loadBodyKeyValuePairs(req.bodyKeyValuePairs || []); // Use bodyManager
+      bodyManager.loadBodyKeyValuePairs(req.body || []); // Use bodyManager
       headersManager.loadHeaders(req.headers || []);
       setActiveRequestIdState(req.id);
       setRequestNameForSaveState(req.name);
