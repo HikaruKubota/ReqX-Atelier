@@ -3,27 +3,15 @@ import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import type { KeyValuePair } from '../../types';
 import { DragHandleButton } from '../atoms/button/DragHandleButton';
-import { MoveUpButton } from '../atoms/button/MoveUpButton';
-import { MoveDownButton } from '../atoms/button/MoveDownButton';
 import { TrashButton } from '../atoms/button/TrashButton';
 
 export interface BodyKeyValueRowProps {
   pair: KeyValuePair;
-  index: number;
-  total: number;
   onChange: (id: string, field: keyof Omit<KeyValuePair, 'id'>, value: string | boolean) => void;
   onRemove: (id: string) => void;
-  onMove: (index: number, direction: 'up' | 'down') => void;
 }
 
-const BodyKeyValueRowComponent: React.FC<BodyKeyValueRowProps> = ({
-  pair,
-  index,
-  total,
-  onChange,
-  onRemove,
-  onMove,
-}) => {
+const BodyKeyValueRowComponent: React.FC<BodyKeyValueRowProps> = ({ pair, onChange, onRemove }) => {
   const { attributes, listeners, setNodeRef, transform, transition } = useSortable({
     id: pair.id,
   });
@@ -56,12 +44,6 @@ const BodyKeyValueRowComponent: React.FC<BodyKeyValueRowProps> = ({
         onChange={(e) => onChange(pair.id, 'value', e.target.value)}
         className="flex-1 p-2 text-sm border border-gray-300 rounded"
         disabled={!pair.enabled}
-      />
-      <MoveUpButton onClick={() => onMove(index, 'up')} disabled={index === 0} className="mx-1" />
-      <MoveDownButton
-        onClick={() => onMove(index, 'down')}
-        disabled={index === total - 1}
-        className="mx-1"
       />
       <TrashButton onClick={() => onRemove(pair.id)} />
     </div>

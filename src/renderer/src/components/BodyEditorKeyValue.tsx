@@ -27,7 +27,7 @@ export const BodyEditorKeyValue = forwardRef<BodyEditorKeyValueRef, BodyEditorKe
     const [importError, setImportError] = useState('');
     const modifiers = [
       restrictToParentElement,
-      restrictToWindowEdges,       // 端を少し越えたら慣性風に戻す
+      restrictToWindowEdges, // 端を少し越えたら慣性風に戻す
     ];
 
     useEffect(() => {
@@ -131,23 +131,6 @@ export const BodyEditorKeyValue = forwardRef<BodyEditorKeyValueRef, BodyEditorKe
       setBody((prevPairs) => prevPairs.filter((pair) => pair.id !== id));
     }, []);
 
-    const handleMoveKeyValuePair = useCallback((index: number, direction: 'up' | 'down') => {
-      setBody((prevPairs) => {
-        const newPairs = [...prevPairs];
-        if (newPairs.length === 0 || index < 0 || index >= newPairs.length) return newPairs;
-        const itemToMove = newPairs[index];
-
-        if (direction === 'up' && index > 0) {
-          newPairs.splice(index, 1);
-          newPairs.splice(index - 1, 0, itemToMove);
-        } else if (direction === 'down' && index < newPairs.length - 1) {
-          newPairs.splice(index, 1);
-          newPairs.splice(index + 1, 0, itemToMove);
-        }
-        return newPairs;
-      });
-    }, []);
-
     const handleDragEnd = useCallback((event: DragEndEvent) => {
       const { active, over } = event;
       if (!over || active.id === over.id) return;
@@ -177,15 +160,12 @@ export const BodyEditorKeyValue = forwardRef<BodyEditorKeyValueRef, BodyEditorKe
         <ScrollableContainer height={containerHeight}>
           <DndContext onDragEnd={handleDragEnd} modifiers={modifiers}>
             <SortableContext items={body}>
-              {body.map((pair, index) => (
+              {body.map((pair) => (
                 <BodyKeyValueRow
                   key={pair.id}
                   pair={pair}
-                  index={index}
-                  total={body.length}
                   onChange={handleKeyValuePairChange}
                   onRemove={handleRemoveKeyValuePair}
-                  onMove={handleMoveKeyValuePair}
                 />
               ))}
             </SortableContext>
