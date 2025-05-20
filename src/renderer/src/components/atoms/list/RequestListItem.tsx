@@ -1,14 +1,12 @@
 import React from 'react';
 import clsx from 'clsx';
 import type { SavedRequest } from '../../../types';
-import { DeleteButton } from '../button/DeleteButton';
 import { MethodIcon } from '../MethodIcon';
 
 interface RequestListItemProps {
   request: SavedRequest;
   isActive: boolean;
   onClick: () => void;
-  onDelete: () => void;
   onContextMenu?: (e: React.MouseEvent<HTMLDivElement>) => void;
 }
 
@@ -16,7 +14,6 @@ export const RequestListItem: React.FC<RequestListItemProps> = ({
   request,
   isActive,
   onClick,
-  onDelete,
   onContextMenu,
 }) => (
   <div
@@ -36,13 +33,5 @@ export const RequestListItem: React.FC<RequestListItemProps> = ({
       <MethodIcon method={request.method} />
       <span>{request.name}</span>
     </div>
-    <DeleteButton
-      onClick={(e) => {
-        e.stopPropagation();
-        onDelete();
-      }}
-    >
-      X
-    </DeleteButton>
   </div>
 );

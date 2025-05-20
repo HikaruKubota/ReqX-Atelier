@@ -54,7 +54,6 @@ export const RequestCollectionSidebar: React.FC<RequestCollectionSidebarProps> =
                 request={req}
                 isActive={activeRequestId === req.id}
                 onClick={() => onLoadRequest(req)}
-                onDelete={() => onDeleteRequest(req.id)}
                 onContextMenu={(e) => setMenu({ id: req.id, x: e.clientX, y: e.clientY })}
               />
             ))}
