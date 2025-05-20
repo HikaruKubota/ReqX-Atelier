@@ -66,6 +66,14 @@ export interface SavedRequest {
   body?: KeyValuePair[];
 }
 
+export interface SavedFolder {
+  id: string;
+  name: string;
+  parentFolderId: string | null;
+  requestIds: string[];
+  subFolderIds: string[];
+}
+
 export interface ApiResult {
   isError?: boolean;
   status?: number;
