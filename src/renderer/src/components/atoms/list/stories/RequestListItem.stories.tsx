@@ -20,7 +20,6 @@ export const Default = {
     request: sampleRequest,
     isActive: false,
     onClick: () => alert('Clicked!'),
-    onDelete: () => alert('Deleted!'),
   },
 };
 
