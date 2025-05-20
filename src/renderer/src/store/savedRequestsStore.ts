@@ -1,13 +1,18 @@
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
-import type { SavedRequest, KeyValuePair } from '../types';
+import type { SavedRequest, SavedFolder, KeyValuePair } from '../types';
 
 export interface SavedRequestsState {
   savedRequests: SavedRequest[];
+  savedFolders: SavedFolder[];
   addRequest: (req: Omit<SavedRequest, 'id'>) => string;
   updateRequest: (id: string, updated: Partial<Omit<SavedRequest, 'id'>>) => void;
   deleteRequest: (id: string) => void;
   setRequests: (reqs: SavedRequest[]) => void;
+  addFolder: (folder: Omit<SavedFolder, 'id'>) => string;
+  updateFolder: (id: string, updated: Partial<Omit<SavedFolder, 'id'>>) => void;
+  deleteFolder: (id: string) => void;
+  setFolders: (folders: SavedFolder[]) => void;
 }
 
 const LOCAL_STORAGE_KEY = 'reqx_saved_requests';
@@ -67,10 +72,28 @@ const migrateRequests = (stored: unknown): SavedRequest[] => {
   }
 };
 
+const migrateFolders = (stored: unknown): SavedFolder[] => {
+  if (!stored || typeof stored !== 'object') return [];
+  try {
+    const list = (stored as { savedFolders?: unknown }).savedFolders ?? [];
+    if (!Array.isArray(list)) return [];
+    return (list as Array<Partial<SavedFolder>>).map((f) => ({
+      id: f.id || `folder-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`,
+      name: f.name || 'Untitled Folder',
+      requestIds: Array.isArray(f.requestIds)
+        ? (f.requestIds.filter((id) => typeof id === 'string') as string[])
+        : [],
+    }));
+  } catch {
+    return [];
+  }
+};
+
 export const useSavedRequestsStore = create<SavedRequestsState>()(
   persist(
     (set, get) => ({
       savedRequests: [],
+      savedFolders: [],
       addRequest: (req) => {
         const newId = `saved-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`;
         const bodyPairs = req.body ?? [];
@@ -96,13 +119,39 @@ export const useSavedRequestsStore = create<SavedRequestsState>()(
         set({ savedRequests: get().savedRequests.filter((r) => r.id !== id) });
       },
       setRequests: (reqs) => set({ savedRequests: reqs }),
+      addFolder: (folder) => {
+        const newId = `folder-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`;
+        const newFolder: SavedFolder = {
+          ...folder,
+          id: newId,
+          requestIds: folder.requestIds ?? [],
+        };
+        set({ savedFolders: [...get().savedFolders, newFolder] });
+        return newId;
+      },
+      updateFolder: (id, updated) => {
+        set({
+          savedFolders: get().savedFolders.map((f) =>
+            f.id === id ? { ...f, ...updated, requestIds: updated.requestIds ?? f.requestIds } : f,
+          ),
+        });
+      },
+      deleteFolder: (id) => {
+        set({ savedFolders: get().savedFolders.filter((f) => f.id !== id) });
+      },
+      setFolders: (folders) => set({ savedFolders: folders }),
     }),
     {
       name: LOCAL_STORAGE_KEY,
       storage: createJSONStorage(() => localStorage),
       merge: (_persisted, current) => {
-        const migrated = migrateRequests(_persisted);
-        return { ...current, savedRequests: migrated } as SavedRequestsState;
+        const migratedReqs = migrateRequests(_persisted);
+        const migratedFolders = migrateFolders(_persisted);
+        return {
+          ...current,
+          savedRequests: migratedReqs,
+          savedFolders: migratedFolders,
+        } as SavedRequestsState;
       },
     },
   ),
