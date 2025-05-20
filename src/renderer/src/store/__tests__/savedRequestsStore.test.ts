@@ -36,7 +36,15 @@ describe('savedRequestsStore migration', () => {
   });
 
   it('migrates saved folders from storage', async () => {
-    const oldFolders = [{ id: 'folder1', name: 'Old Folder', requestIds: ['req1'] }];
+    const oldFolders = [
+      {
+        id: 'folder1',
+        name: 'Old Folder',
+        requestIds: ['req1'],
+        subFolderIds: ['folder2'],
+        parentFolderId: null,
+      },
+    ];
     localStorage.setItem(
       'reqx_saved_requests',
       JSON.stringify({ state: { savedFolders: oldFolders }, version: 0 }),
@@ -45,7 +53,13 @@ describe('savedRequestsStore migration', () => {
     const { useSavedRequestsStore } = await import('../savedRequestsStore');
 
     const folder = useSavedRequestsStore.getState().savedFolders[0];
-    expect(folder).toEqual({ id: 'folder1', name: 'Old Folder', requestIds: ['req1'] });
+    expect(folder).toEqual({
+      id: 'folder1',
+      name: 'Old Folder',
+      parentFolderId: null,
+      requestIds: ['req1'],
+      subFolderIds: ['folder2'],
+    });
   });
 });
 
@@ -53,7 +67,12 @@ describe('savedFolders CRUD', () => {
   it('adds and deletes folders correctly', async () => {
     const { useSavedRequestsStore } = await import('../savedRequestsStore');
 
-    const id = useSavedRequestsStore.getState().addFolder({ name: 'Test', requestIds: [] });
+    const id = useSavedRequestsStore.getState().addFolder({
+      name: 'Test',
+      parentFolderId: null,
+      requestIds: [],
+      subFolderIds: [],
+    });
     expect(useSavedRequestsStore.getState().savedFolders).toHaveLength(1);
 
     useSavedRequestsStore.getState().deleteFolder(id);
@@ -63,10 +82,21 @@ describe('savedFolders CRUD', () => {
   it('updates folders correctly', async () => {
     const { useSavedRequestsStore } = await import('../savedRequestsStore');
 
-    const id = useSavedRequestsStore.getState().addFolder({ name: 'Folder', requestIds: [] });
-    useSavedRequestsStore.getState().updateFolder(id, { name: 'Updated' });
+    const id = useSavedRequestsStore.getState().addFolder({
+      name: 'Folder',
+      parentFolderId: null,
+      requestIds: [],
+      subFolderIds: [],
+    });
+    useSavedRequestsStore.getState().updateFolder(id, { name: 'Updated', subFolderIds: ['child'] });
 
     const folder = useSavedRequestsStore.getState().savedFolders.find((f) => f.id === id);
-    expect(folder?.name).toBe('Updated');
+    expect(folder).toEqual({
+      id,
+      name: 'Updated',
+      parentFolderId: null,
+      requestIds: [],
+      subFolderIds: ['child'],
+    });
   });
 });

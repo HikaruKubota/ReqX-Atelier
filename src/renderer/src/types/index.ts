@@ -68,7 +68,9 @@ export interface SavedRequest {
 export interface SavedFolder {
   id: string;
   name: string;
+  parentFolderId: string | null;
   requestIds: string[];
+  subFolderIds: string[];
 }
 
 export interface ApiResult {
