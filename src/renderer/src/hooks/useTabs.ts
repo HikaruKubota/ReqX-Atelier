@@ -71,6 +71,30 @@ export const useTabs = () => {
     });
   };
 
+  const moveTab = (tabId: string, direction: -1 | 1) => {
+    setTabs((prev) => {
+      const idx = prev.findIndex((t) => t.tabId === tabId);
+      const newIndex = idx + direction;
+      if (idx === -1 || newIndex < 0 || newIndex >= prev.length) return prev;
+      const newTabs = [...prev];
+      const [tab] = newTabs.splice(idx, 1);
+      newTabs.splice(newIndex, 0, tab);
+      return newTabs;
+    });
+  };
+
+  const moveActiveTabRight = () => {
+    if (activeTabId) {
+      moveTab(activeTabId, 1);
+    }
+  };
+
+  const moveActiveTabLeft = () => {
+    if (activeTabId) {
+      moveTab(activeTabId, -1);
+    }
+  };
+
   return {
     tabs,
     activeTabId,
@@ -81,5 +105,7 @@ export const useTabs = () => {
     getActiveTab,
     nextTab,
     prevTab,
+    moveActiveTabRight,
+    moveActiveTabLeft,
   };
 };

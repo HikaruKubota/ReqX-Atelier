@@ -27,6 +27,8 @@
   "shortcut_close_tab": "タブを閉じる: Ctrl+W（Cmd+W）",
   "shortcut_next_tab": "次のタブへ: Ctrl+Alt+→（Cmd+Option+→）",
   "shortcut_prev_tab": "前のタブへ: Ctrl+Alt+←（Cmd+Option+←）",
+  "shortcut_move_tab_right": "タブを右へ移動: Ctrl+Shift+→（Cmd+Shift+→）",
+  "shortcut_move_tab_left": "タブを左へ移動: Ctrl+Shift+←（Cmd+Shift+←）",
   "save_success": "保存しました！",
   "copy_response": "レスポンスをコピー",
   "copy_success": "コピーしました！",

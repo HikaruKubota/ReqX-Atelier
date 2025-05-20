@@ -94,4 +94,27 @@ describe('useTabs', () => {
     });
     expect(result.current.activeTabId).toBe(ids[2]);
   });
+
+  it('moves active tab left and right', () => {
+    const { result } = renderHook(() => useTabs());
+    act(() => {
+      result.current.openTab();
+      result.current.openTab();
+      result.current.openTab();
+    });
+    const [first, second, third] = result.current.tabs;
+    act(() => {
+      result.current.switchTab(second.tabId);
+    });
+    act(() => {
+      result.current.moveActiveTabRight();
+    });
+    expect(result.current.tabs[2].tabId).toBe(second.tabId);
+    act(() => {
+      result.current.moveActiveTabLeft();
+    });
+    expect(result.current.tabs[1].tabId).toBe(second.tabId);
+    expect(result.current.tabs[0].tabId).toBe(first.tabId);
+    expect(result.current.tabs[2].tabId).toBe(third.tabId);
+  });
 });
