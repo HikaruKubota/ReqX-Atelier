@@ -167,7 +167,7 @@ export const BodyEditorKeyValue = forwardRef<BodyEditorKeyValueRef, BodyEditorKe
                 placeholder="Key"
                 value={pair.keyName}
                 onChange={(e) => handleKeyValuePairChange(pair.id, 'keyName', e.target.value)}
-                className="flex-1 p-2 text-sm border border-gray-300 rounded"
+                className="w-32 p-2 text-sm border border-gray-300 rounded"
                 disabled={!pair.enabled}
               />
               <input
@@ -175,7 +175,7 @@ export const BodyEditorKeyValue = forwardRef<BodyEditorKeyValueRef, BodyEditorKe
                 placeholder="Value (JSON or string)"
                 value={pair.value}
                 onChange={(e) => handleKeyValuePairChange(pair.id, 'value', e.target.value)}
-                className="flex-2 p-2 text-sm border border-gray-300 rounded"
+                className="flex-1 p-2 text-sm border border-gray-300 rounded"
                 disabled={!pair.enabled}
               />
               <MoveUpButton
