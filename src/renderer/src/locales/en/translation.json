@@ -31,6 +31,7 @@
   "copy_response": "Copy Response",
   "copy_success": "Copied!",
   "copy_error": "Copy Error",
+  "drag_handle": "Drag to reorder",
   "body_not_applicable": "Request body is not applicable for {{method}} requests.",
   "method_get": "GET request",
   "method_post": "POST request",

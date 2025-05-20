@@ -55,4 +55,21 @@ describe('BodyEditorKeyValue', () => {
     fireEvent.change(keyInputs[0], { target: { value: 'baz' } });
     expect(handleChange).toHaveBeenCalled();
   });
+
+  it('reorders rows via drag and keeps focus', () => {
+    const ref = createRef<BodyEditorKeyValueRef>();
+    const { getAllByPlaceholderText } = render(
+      <BodyEditorKeyValue ref={ref} method="POST" initialBody={initialPairs} />,
+    );
+    const keyInputs = getAllByPlaceholderText('Key') as HTMLInputElement[];
+    keyInputs[0].focus();
+    expect(document.activeElement).toBe(keyInputs[0]);
+    act(() => {
+      ref.current?.triggerDrag?.('1', '2');
+    });
+    const reordered = getAllByPlaceholderText('Key') as HTMLInputElement[];
+    expect(reordered[0].value).toBe('bar');
+    expect(reordered[1].value).toBe('foo');
+    expect(document.activeElement).toBe(reordered[1]);
+  });
 });

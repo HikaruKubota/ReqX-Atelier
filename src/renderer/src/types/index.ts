@@ -11,6 +11,7 @@ export interface BodyEditorKeyValueRef {
   getCurrentBodyAsJson: () => string;
   getCurrentKeyValuePairs: () => KeyValuePair[];
   importFromJson: (json: string) => boolean;
+  triggerDrag?: (activeId: string, overId: string) => void;
 }
 
 export interface ErrorInfo {
