@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useRef, useEffect } from 'react';
 import { TabItem } from '../atoms/tab/TabItem';
 import { NewRequestIconButton } from '../atoms/button/NewRequestIconButton';
 
@@ -22,18 +22,30 @@ export const TabList: React.FC<TabListProps> = ({
   onSelect,
   onClose,
   onNew,
-}) => (
-  <div className="flex items-center border-b">
-    {tabs.map((tab) => (
-      <TabItem
-        key={tab.tabId}
-        label={tab.name}
-        method={tab.method}
-        active={activeTabId === tab.tabId}
-        onSelect={() => onSelect(tab.tabId)}
-        onClose={() => onClose(tab.tabId)}
-      />
-    ))}
-    <NewRequestIconButton onClick={onNew} className="ml-2" />
-  </div>
-);
+}) => {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const activeRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (activeRef.current) {
+      activeRef.current.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+    }
+  }, [activeTabId]);
+
+  return (
+    <div ref={containerRef} className="flex items-center border-b overflow-x-auto no-scrollbar">
+      {tabs.map((tab) => (
+        <TabItem
+          key={tab.tabId}
+          ref={activeTabId === tab.tabId ? activeRef : null}
+          label={tab.name}
+          method={tab.method}
+          active={activeTabId === tab.tabId}
+          onSelect={() => onSelect(tab.tabId)}
+          onClose={() => onClose(tab.tabId)}
+        />
+      ))}
+      <NewRequestIconButton onClick={onNew} className="ml-2" />
+    </div>
+  );
+};
