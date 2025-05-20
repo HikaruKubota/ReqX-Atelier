@@ -1,7 +1,9 @@
-import React from 'react';
+import React, { useState } from 'react';
 import type { SavedRequest } from '../types';
 import { RequestListItem } from './atoms/list/RequestListItem';
 import { SidebarToggleButton } from './atoms/button/SidebarToggleButton';
+import { ContextMenu } from './atoms/menu/ContextMenu';
+import { useTranslation } from 'react-i18next';
 
 interface RequestCollectionSidebarProps {
   savedRequests: SavedRequest[];
@@ -20,6 +22,9 @@ export const RequestCollectionSidebar: React.FC<RequestCollectionSidebarProps> =
   isOpen,
   onToggle,
 }) => {
+  const { t } = useTranslation();
+  const [menu, setMenu] = useState<{ id: string; x: number; y: number } | null>(null);
+  const closeMenu = () => setMenu(null);
   return (
     <div
       data-testid="sidebar"
@@ -48,10 +53,25 @@ export const RequestCollectionSidebar: React.FC<RequestCollectionSidebarProps> =
                 isActive={activeRequestId === req.id}
                 onClick={() => onLoadRequest(req)}
                 onDelete={() => onDeleteRequest(req.id)}
+                onContextMenu={(e) => setMenu({ id: req.id, x: e.clientX, y: e.clientY })}
               />
             ))}
           </div>
         </>
+      )}
+      {menu && (
+        <ContextMenu
+          position={{ x: menu.x, y: menu.y }}
+          title={t('context_menu_title', {
+            name: savedRequests.find((r) => r.id === menu.id)?.name,
+          })}
+          items={[
+            { label: t('context_menu_action1') },
+            { label: t('context_menu_action2') },
+            { label: t('context_menu_action3') },
+          ]}
+          onClose={closeMenu}
+        />
       )}
     </div>
   );
