@@ -27,6 +27,7 @@ interface RequestEditorPanelProps {
   onAddHeader: () => void;
   onUpdateHeader: (id: string, field: 'key' | 'value' | 'enabled', value: string | boolean) => void;
   onRemoveHeader: (id: string) => void;
+  onReorderHeaders: (newHeaders: RequestHeader[]) => void;
 }
 
 export const RequestEditorPanel = forwardRef<RequestEditorPanelRef, RequestEditorPanelProps>(
@@ -48,6 +49,7 @@ export const RequestEditorPanel = forwardRef<RequestEditorPanelRef, RequestEdito
       onAddHeader,
       onUpdateHeader,
       onRemoveHeader,
+      onReorderHeaders,
     },
     ref,
   ) => {
@@ -95,6 +97,7 @@ export const RequestEditorPanel = forwardRef<RequestEditorPanelRef, RequestEdito
           onAddHeader={onAddHeader}
           onUpdateHeader={onUpdateHeader}
           onRemoveHeader={onRemoveHeader}
+          onReorderHeaders={onReorderHeaders}
         />
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>

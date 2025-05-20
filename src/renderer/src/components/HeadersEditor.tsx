@@ -1,6 +1,11 @@
 import * as React from 'react';
+import { forwardRef, useCallback, useImperativeHandle } from 'react';
+import { DndContext, type DragEndEvent } from '@dnd-kit/core';
+import { SortableContext, arrayMove } from '@dnd-kit/sortable';
+import { restrictToParentElement, restrictToWindowEdges } from '@dnd-kit/modifiers';
+import { useTranslation } from 'react-i18next';
 import type { RequestHeader } from '../types';
-import { TrashButton } from './atoms/button/TrashButton';
+import { HeaderRow } from './molecules/HeaderRow';
 
 interface HeadersEditorProps {
   headers: RequestHeader[];
@@ -11,51 +16,66 @@ interface HeadersEditorProps {
     value: string | boolean,
   ) => void;
   onRemoveHeader: (id: string) => void;
+  onReorderHeaders: (newHeaders: RequestHeader[]) => void;
 }
 
-export const HeadersEditor: React.FC<HeadersEditorProps> = ({
-  headers,
-  onAddHeader,
-  onUpdateHeader,
-  onRemoveHeader,
-}) => {
-  return (
-    <div className="flex flex-col gap-2">
-      <h4>Headers</h4>
-      {headers.map((header) => (
-        <div key={header.id} className="flex items-center gap-2">
-          <input
-            type="checkbox"
-            checked={header.enabled}
-            onChange={(e) => onUpdateHeader(header.id, 'enabled', e.target.checked)}
-            title={header.enabled ? 'Disable header' : 'Enable header'}
-            className="mr-1"
-          />
-          <input
-            type="text"
-            placeholder="Key"
-            value={header.key}
-            onChange={(e) => onUpdateHeader(header.id, 'key', e.target.value)}
-            className="w-32 p-2 border border-gray-300 rounded"
-            disabled={!header.enabled}
-          />
-          <input
-            type="text"
-            placeholder="Value"
-            value={header.value}
-            onChange={(e) => onUpdateHeader(header.id, 'value', e.target.value)}
-            className="flex-1 p-2 border border-gray-300 rounded"
-            disabled={!header.enabled}
-          />
-          <TrashButton onClick={() => onRemoveHeader(header.id)} />
-        </div>
-      ))}
-      <button
-        onClick={onAddHeader}
-        className="px-4 py-2 border border-blue-500 text-blue-500 bg-white rounded self-start"
-      >
-        Add Header
-      </button>
-    </div>
-  );
-};
+export interface HeadersEditorRef {
+  triggerDrag?: (activeId: string, overId: string) => void;
+}
+
+export const HeadersEditor = forwardRef<HeadersEditorRef, HeadersEditorProps>(
+  ({ headers, onAddHeader, onUpdateHeader, onRemoveHeader, onReorderHeaders }, ref) => {
+    const { t } = useTranslation();
+    const modifiers = [restrictToParentElement, restrictToWindowEdges];
+
+    useImperativeHandle(
+      ref,
+      () => ({
+        triggerDrag: (activeId: string, overId: string) => {
+          const oldIndex = headers.findIndex((h) => h.id === activeId);
+          const newIndex = headers.findIndex((h) => h.id === overId);
+          if (oldIndex === -1 || newIndex === -1) return;
+          onReorderHeaders(arrayMove(headers, oldIndex, newIndex));
+        },
+      }),
+      [headers, onReorderHeaders],
+    );
+
+    const handleDragEnd = useCallback(
+      (event: DragEndEvent) => {
+        const { active, over } = event;
+        if (!over || active.id === over.id) return;
+        const oldIndex = headers.findIndex((h) => h.id === active.id);
+        const newIndex = headers.findIndex((h) => h.id === over.id);
+        onReorderHeaders(arrayMove(headers, oldIndex, newIndex));
+      },
+      [headers, onReorderHeaders],
+    );
+
+    return (
+      <div className="flex flex-col gap-2">
+        <h4>Headers</h4>
+        <DndContext onDragEnd={handleDragEnd} modifiers={modifiers}>
+          <SortableContext items={headers}>
+            {headers.map((header) => (
+              <HeaderRow
+                key={header.id}
+                header={header}
+                onChange={onUpdateHeader}
+                onRemove={onRemoveHeader}
+              />
+            ))}
+          </SortableContext>
+        </DndContext>
+        <button
+          onClick={onAddHeader}
+          className="px-4 py-2 border border-blue-500 text-blue-500 bg-white rounded self-start"
+        >
+          {t('add_header') || 'Add Header'}
+        </button>
+      </div>
+    );
+  },
+);
+
+HeadersEditor.displayName = 'HeadersEditor';
