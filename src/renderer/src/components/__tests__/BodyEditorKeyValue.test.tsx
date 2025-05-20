@@ -72,4 +72,11 @@ describe('BodyEditorKeyValue', () => {
     expect(reordered[1].value).toBe('foo');
     expect(document.activeElement).toBe(reordered[1]);
   });
+
+  it('adds an empty row by default for methods with body', () => {
+    const { getAllByPlaceholderText } = render(<BodyEditorKeyValue method="POST" />);
+    const keyInputs = getAllByPlaceholderText('Key') as HTMLInputElement[];
+    expect(keyInputs).toHaveLength(1);
+    expect(keyInputs[0].value).toBe('');
+  });
 });
