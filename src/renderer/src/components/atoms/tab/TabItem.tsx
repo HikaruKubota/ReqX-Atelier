@@ -3,7 +3,7 @@ import clsx from 'clsx';
 import { useTranslation } from 'react-i18next';
 import { MethodIcon } from '../MethodIcon';
 
-interface TabItemProps {
+export interface TabItemProps {
   label: string;
   method: string;
   active: boolean;
@@ -11,29 +11,34 @@ interface TabItemProps {
   onClose: () => void;
 }
 
-export const TabItem: React.FC<TabItemProps> = ({ label, method, active, onSelect, onClose }) => {
-  const { t } = useTranslation();
-  return (
-    <div
-      className={clsx(
-        'px-3 py-1 flex items-center space-x-2 cursor-pointer border-b flex-shrink-0',
-        active
-          ? 'font-bold border-blue-500 bg-white dark:bg-gray-700'
-          : 'border-transparent bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700',
-      )}
-      onClick={onSelect}
-    >
-      <MethodIcon method={method} size={16} />
-      <span>{label}</span>
-      <button
-        onClick={(e) => {
-          e.stopPropagation();
-          onClose();
-        }}
-        aria-label={t('close_tab')}
+export const TabItem = React.forwardRef<HTMLDivElement, TabItemProps>(
+  ({ label, method, active, onSelect, onClose }, ref) => {
+    const { t } = useTranslation();
+    return (
+      <div
+        ref={ref}
+        className={clsx(
+          'px-3 py-1 flex items-center space-x-2 cursor-pointer border-b flex-shrink-0',
+          active
+            ? 'font-bold border-blue-500 bg-white dark:bg-gray-700'
+            : 'border-transparent bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700',
+        )}
+        onClick={onSelect}
       >
-        ×
-      </button>
-    </div>
-  );
-};
+        <MethodIcon method={method} size={16} />
+        <span>{label}</span>
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            onClose();
+          }}
+          aria-label={t('close_tab')}
+        >
+          ×
+        </button>
+      </div>
+    );
+  },
+);
+
+TabItem.displayName = 'TabItem';
