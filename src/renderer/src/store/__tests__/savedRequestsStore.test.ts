@@ -100,3 +100,21 @@ describe('savedFolders CRUD', () => {
     });
   });
 });
+
+describe('copyRequest', () => {
+  it('duplicates a request with copy suffix', async () => {
+    const { useSavedRequestsStore } = await import('../savedRequestsStore');
+    const id = useSavedRequestsStore.getState().addRequest({
+      name: 'Original',
+      method: 'GET',
+      url: 'https://example.com',
+      headers: [],
+      body: [],
+    });
+    const newId = useSavedRequestsStore.getState().copyRequest(id);
+    const list = useSavedRequestsStore.getState().savedRequests;
+    const copied = list.find((r) => r.id === newId);
+    expect(copied?.name).toBe('Original copy');
+    expect(list).toHaveLength(2);
+  });
+});

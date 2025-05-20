@@ -10,6 +10,7 @@ interface RequestCollectionSidebarProps {
   activeRequestId: string | null;
   onLoadRequest: (request: SavedRequest) => void;
   onDeleteRequest: (id: string) => void;
+  onCopyRequest: (id: string) => void;
   isOpen: boolean;
   onToggle: () => void;
 }
@@ -19,6 +20,7 @@ export const RequestCollectionSidebar: React.FC<RequestCollectionSidebarProps> =
   activeRequestId,
   onLoadRequest,
   onDeleteRequest,
+  onCopyRequest,
   isOpen,
   onToggle,
 }) => {
@@ -66,9 +68,14 @@ export const RequestCollectionSidebar: React.FC<RequestCollectionSidebarProps> =
             name: savedRequests.find((r) => r.id === menu.id)?.name,
           })}
           items={[
-            { label: t('context_menu_action1') },
-            { label: t('context_menu_action2') },
-            { label: t('context_menu_action3') },
+            {
+              label: t('context_menu_copy_request'),
+              onClick: () => onCopyRequest(menu.id),
+            },
+            {
+              label: t('context_menu_delete_request'),
+              onClick: () => onDeleteRequest(menu.id),
+            },
           ]}
           onClose={closeMenu}
         />

@@ -43,7 +43,6 @@
   "method_head": "HEADリクエスト",
   "method_options": "OPTIONSリクエスト",
   "context_menu_title": "{{name}}",
-  "context_menu_action1": "アクション1",
-  "context_menu_action2": "アクション2",
-  "context_menu_action3": "アクション3"
+  "context_menu_copy_request": "リクエストをコピー",
+  "context_menu_delete_request": "リクエストを削除"
 }

@@ -8,6 +8,7 @@ export interface SavedRequestsState {
   addRequest: (req: Omit<SavedRequest, 'id'>) => string;
   updateRequest: (id: string, updated: Partial<Omit<SavedRequest, 'id'>>) => void;
   deleteRequest: (id: string) => void;
+  copyRequest: (id: string) => string;
   setRequests: (reqs: SavedRequest[]) => void;
   addFolder: (folder: Omit<SavedFolder, 'id'>) => string;
   updateFolder: (id: string, updated: Partial<Omit<SavedFolder, 'id'>>) => void;
@@ -124,6 +125,18 @@ export const useSavedRequestsStore = create<SavedRequestsState>()(
       },
       deleteRequest: (id) => {
         set({ savedRequests: get().savedRequests.filter((r) => r.id !== id) });
+      },
+      copyRequest: (id) => {
+        const original = get().savedRequests.find((r) => r.id === id);
+        if (!original) return '';
+        const newId = `saved-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`;
+        const copy: SavedRequest = {
+          ...original,
+          id: newId,
+          name: `${original.name} copy`,
+        };
+        set({ savedRequests: [...get().savedRequests, copy] });
+        return newId;
       },
       setRequests: (reqs) => set({ savedRequests: reqs }),
       addFolder: (folder) => {

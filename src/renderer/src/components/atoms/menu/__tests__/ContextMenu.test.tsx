@@ -18,9 +18,7 @@ describe('ContextMenu', () => {
 
   it('calls onClose when clicking outside', () => {
     const onClose = vi.fn();
-    render(
-      <ContextMenu position={{ x: 0, y: 0 }} items={[]} onClose={onClose} />,
-    );
+    render(<ContextMenu position={{ x: 0, y: 0 }} items={[]} onClose={onClose} />);
     fireEvent.click(document.body);
     expect(onClose).toHaveBeenCalled();
   });

@@ -5,6 +5,7 @@ export const useSavedRequests = () => {
   const addRequest = useSavedRequestsStore((s) => s.addRequest);
   const updateRequest = useSavedRequestsStore((s) => s.updateRequest);
   const deleteRequest = useSavedRequestsStore((s) => s.deleteRequest);
+  const copyRequest = useSavedRequestsStore((s) => s.copyRequest);
 
-  return { savedRequests, addRequest, updateRequest, deleteRequest };
+  return { savedRequests, addRequest, updateRequest, deleteRequest, copyRequest };
 };
