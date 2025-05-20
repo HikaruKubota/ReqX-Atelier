@@ -80,8 +80,15 @@ const migrateFolders = (stored: unknown): SavedFolder[] => {
     return (list as Array<Partial<SavedFolder>>).map((f) => ({
       id: f.id || `folder-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`,
       name: f.name || 'Untitled Folder',
+      parentFolderId:
+        typeof (f as SavedFolder).parentFolderId === 'string'
+          ? (f as SavedFolder).parentFolderId
+          : null,
       requestIds: Array.isArray(f.requestIds)
         ? (f.requestIds.filter((id) => typeof id === 'string') as string[])
+        : [],
+      subFolderIds: Array.isArray((f as SavedFolder).subFolderIds)
+        ? ((f as SavedFolder).subFolderIds.filter((id) => typeof id === 'string') as string[])
         : [],
     }));
   } catch {
@@ -124,7 +131,9 @@ export const useSavedRequestsStore = create<SavedRequestsState>()(
         const newFolder: SavedFolder = {
           ...folder,
           id: newId,
+          parentFolderId: folder.parentFolderId ?? null,
           requestIds: folder.requestIds ?? [],
+          subFolderIds: folder.subFolderIds ?? [],
         };
         set({ savedFolders: [...get().savedFolders, newFolder] });
         return newId;
@@ -132,7 +141,15 @@ export const useSavedRequestsStore = create<SavedRequestsState>()(
       updateFolder: (id, updated) => {
         set({
           savedFolders: get().savedFolders.map((f) =>
-            f.id === id ? { ...f, ...updated, requestIds: updated.requestIds ?? f.requestIds } : f,
+            f.id === id
+              ? {
+                  ...f,
+                  ...updated,
+                  parentFolderId: updated.parentFolderId ?? f.parentFolderId,
+                  requestIds: updated.requestIds ?? f.requestIds,
+                  subFolderIds: updated.subFolderIds ?? f.subFolderIds,
+                }
+              : f,
           ),
         });
       },
