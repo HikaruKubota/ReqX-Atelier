@@ -283,7 +283,7 @@ export default function App() {
       >
         {tabs.tabs.length > 0 && (
           <TabBar
-            tabs={tabs.tabs}
+            tabs={tabs.tabs.map(({ tabId, name, method }) => ({ tabId, name, method }))}
             activeTabId={tabs.activeTabId}
             onSelect={(id) => {
               const active = tabs.getActiveTab();
