@@ -5,7 +5,9 @@ import { describe, it, expect, vi } from 'vitest';
 
 const press = (
   key: string,
-  mod: { meta?: boolean; ctrl?: boolean; alt?: boolean } = { meta: true },
+  mod: { meta?: boolean; ctrl?: boolean; alt?: boolean; shift?: boolean } = {
+    meta: true,
+  },
 ) =>
   window.dispatchEvent(
     new KeyboardEvent('keydown', {
@@ -13,6 +15,7 @@ const press = (
       metaKey: !!mod.meta,
       ctrlKey: !!mod.ctrl,
       altKey: !!mod.alt,
+      shiftKey: !!mod.shift,
     }),
   );
 
@@ -78,9 +81,47 @@ describe('useKeyboardShortcuts', () => {
         onNextTab: vi.fn(),
         onPrevTab: vi.fn(),
         onCloseTab,
+        onMoveTabRight: vi.fn(),
+        onMoveTabLeft: vi.fn(),
       }),
     );
     press('w');
     expect(onCloseTab).toHaveBeenCalled();
+  });
+
+  it('calls onMoveTabRight on ⌘+⇧+→', () => {
+    const onMoveTabRight = vi.fn();
+    renderHook(() =>
+      useKeyboardShortcuts({
+        onSave: vi.fn(),
+        onSend: vi.fn(),
+        onNew: vi.fn(),
+        onNextTab: vi.fn(),
+        onPrevTab: vi.fn(),
+        onCloseTab: vi.fn(),
+        onMoveTabRight,
+        onMoveTabLeft: vi.fn(),
+      }),
+    );
+    press('ArrowRight', { meta: true, shift: true });
+    expect(onMoveTabRight).toHaveBeenCalled();
+  });
+
+  it('calls onMoveTabLeft on ⌘+⇧+←', () => {
+    const onMoveTabLeft = vi.fn();
+    renderHook(() =>
+      useKeyboardShortcuts({
+        onSave: vi.fn(),
+        onSend: vi.fn(),
+        onNew: vi.fn(),
+        onNextTab: vi.fn(),
+        onPrevTab: vi.fn(),
+        onCloseTab: vi.fn(),
+        onMoveTabRight: vi.fn(),
+        onMoveTabLeft,
+      }),
+    );
+    press('ArrowLeft', { meta: true, shift: true });
+    expect(onMoveTabLeft).toHaveBeenCalled();
   });
 });

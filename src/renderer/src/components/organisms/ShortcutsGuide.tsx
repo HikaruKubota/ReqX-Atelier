@@ -22,6 +22,8 @@ export const ShortcutsGuide: React.FC<ShortcutsGuideProps> = ({ onNew }) => {
         <li>{t('shortcut_close_tab')}</li>
         <li>{t('shortcut_next_tab')}</li>
         <li>{t('shortcut_prev_tab')}</li>
+        <li>{t('shortcut_move_tab_right')}</li>
+        <li>{t('shortcut_move_tab_left')}</li>
       </ul>
       <NewRequestButton onClick={onNew} />
     </div>
