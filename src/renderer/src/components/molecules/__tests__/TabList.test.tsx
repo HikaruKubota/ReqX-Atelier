@@ -1,10 +1,13 @@
 import React from 'react';
-import { render, fireEvent } from '@testing-library/react';
+import { render, fireEvent, waitFor } from '@testing-library/react';
 import { describe, it, expect, vi } from 'vitest';
 import '../../../i18n';
 import { TabList } from '../TabList';
 
 describe('TabList', () => {
+  beforeEach(() => {
+    Element.prototype.scrollIntoView = vi.fn();
+  });
   it('calls onSelect when tab clicked', () => {
     const onSelect = vi.fn();
     const onNew = vi.fn();
@@ -29,5 +32,35 @@ describe('TabList', () => {
     );
     fireEvent.click(getByLabelText('新しいリクエスト'));
     expect(onNew).toHaveBeenCalled();
+  });
+
+  it('scrolls active tab into view', async () => {
+    const { rerender } = render(
+      <TabList
+        tabs={[
+          { tabId: '1', name: 'Tab1', method: 'GET' },
+          { tabId: '2', name: 'Tab2', method: 'POST' },
+        ]}
+        activeTabId="1"
+        onSelect={() => {}}
+        onClose={() => {}}
+        onNew={() => {}}
+      />,
+    );
+    rerender(
+      <TabList
+        tabs={[
+          { tabId: '1', name: 'Tab1', method: 'GET' },
+          { tabId: '2', name: 'Tab2', method: 'POST' },
+        ]}
+        activeTabId="2"
+        onSelect={() => {}}
+        onClose={() => {}}
+        onNew={() => {}}
+      />,
+    );
+    await waitFor(() => {
+      expect(Element.prototype.scrollIntoView).toHaveBeenCalled();
+    });
   });
 });
