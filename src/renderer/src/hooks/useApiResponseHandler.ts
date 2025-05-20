@@ -6,12 +6,15 @@ export const useApiResponseHandler = (): ApiResponseHandler => {
   const [response, setResponse] = useState<ApiResult | null>(null);
   const [error, setError] = useState<ApiError | null>(null);
   const [loading, setLoading] = useState(false);
+  const [responseTime, setResponseTime] = useState<number | null>(null);
 
   const executeRequest = useCallback(
     async (method: string, url: string, body?: string, headers?: Record<string, string>) => {
       setLoading(true);
       setError(null);
       setResponse(null);
+      setResponseTime(null);
+      const start = Date.now();
       try {
         const result = await sendApiRequest(
           method,
@@ -32,9 +35,11 @@ export const useApiResponseHandler = (): ApiResponseHandler => {
             isApiError: true,
           });
         }
+        setResponseTime(Date.now() - start);
       } catch (err: unknown) {
         const message = err instanceof Error ? err.message : 'Unknown error';
         setError({ message, isError: true, type: 'ApplicationError' });
+        setResponseTime(Date.now() - start);
       }
       setLoading(false);
     },
@@ -45,7 +50,8 @@ export const useApiResponseHandler = (): ApiResponseHandler => {
     setResponse(null);
     setError(null);
     setLoading(false);
+    setResponseTime(null);
   }, []);
 
-  return { response, error, loading, executeRequest, resetApiResponse };
+  return { response, error, loading, responseTime, executeRequest, resetApiResponse };
 };

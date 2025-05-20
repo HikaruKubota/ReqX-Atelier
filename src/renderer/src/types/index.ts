@@ -92,6 +92,7 @@ export interface ApiResponseHandler {
   response: ApiResult | null;
   error: ApiError | null;
   loading: boolean;
+  responseTime: number | null;
   executeRequest: (
     method: string,
     url: string,

@@ -13,6 +13,7 @@
   "show_sidebar": "Show Sidebar",
   "new_request": "New Request",
   "response_heading": "Response",
+  "response_time": "Response time: {{time}} ms",
   "no_response": "No response yet. Send a request or load a saved one!",
   "loading": "Loading...",
   "error_details": "Error Details:",

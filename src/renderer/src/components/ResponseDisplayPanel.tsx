@@ -11,12 +11,14 @@ interface ResponseDisplayPanelProps {
   response: unknown;
   error: ErrorInfo | null;
   loading: boolean;
+  responseTime: number | null;
 }
 
 export const ResponseDisplayPanel: React.FC<ResponseDisplayPanelProps> = ({
   response,
   error,
   loading,
+  responseTime,
 }) => {
   const { t } = useTranslation();
   const [copyToastOpen, setCopyToastOpen] = React.useState(false);
@@ -40,6 +42,9 @@ export const ResponseDisplayPanel: React.FC<ResponseDisplayPanelProps> = ({
         </Heading>
         {response ? <CopyButton onClick={handleCopyResponse} /> : null}
       </div>
+      {responseTime !== null && (
+        <p className="text-gray-500">{t('response_time', { time: responseTime })}</p>
+      )}
       <ErrorAlert error={error} onCopy={handleCopyError} />
       {response && (
         <JsonPre
