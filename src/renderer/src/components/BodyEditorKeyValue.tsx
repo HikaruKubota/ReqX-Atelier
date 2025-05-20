@@ -3,9 +3,10 @@ import { useState, useEffect, useImperativeHandle, forwardRef, useCallback } fro
 import { useTranslation } from 'react-i18next';
 import { EnableAllButton } from './atoms/button/EnableAllButton';
 import { DisableAllButton } from './atoms/button/DisableAllButton';
-import { MoveUpButton } from './atoms/button/MoveUpButton';
-import { MoveDownButton } from './atoms/button/MoveDownButton';
-import { TrashButton } from './atoms/button/TrashButton';
+import { DndContext, type DragEndEvent } from '@dnd-kit/core';
+import { SortableContext, arrayMove } from '@dnd-kit/sortable';
+import { restrictToParentElement, restrictToWindowEdges } from '@dnd-kit/modifiers';
+import { BodyKeyValueRow } from './molecules/BodyKeyValueRow';
 import { Modal } from './atoms/Modal';
 import { ScrollableContainer } from './atoms/ScrollableContainer';
 import type { BodyEditorKeyValueRef, KeyValuePair } from '../types';
@@ -24,6 +25,10 @@ export const BodyEditorKeyValue = forwardRef<BodyEditorKeyValueRef, BodyEditorKe
     const [showImport, setShowImport] = useState(false);
     const [importText, setImportText] = useState('');
     const [importError, setImportError] = useState('');
+    const modifiers = [
+      restrictToParentElement,
+      restrictToWindowEdges,       // 端を少し越えたら慣性風に戻す
+    ];
 
     useEffect(() => {
       if (method === 'GET' || method === 'HEAD') {
@@ -94,6 +99,13 @@ export const BodyEditorKeyValue = forwardRef<BodyEditorKeyValueRef, BodyEditorKe
         return body;
       },
       importFromJson,
+      triggerDrag: (activeId: string, overId: string) => {
+        setBody((prev) => {
+          const oldIndex = prev.findIndex((p) => p.id === activeId);
+          const newIndex = prev.findIndex((p) => p.id === overId);
+          return arrayMove(prev, oldIndex, newIndex);
+        });
+      },
     }));
 
     const handleKeyValuePairChange = useCallback(
@@ -136,6 +148,16 @@ export const BodyEditorKeyValue = forwardRef<BodyEditorKeyValueRef, BodyEditorKe
       });
     }, []);
 
+    const handleDragEnd = useCallback((event: DragEndEvent) => {
+      const { active, over } = event;
+      if (!over || active.id === over.id) return;
+      setBody((prev) => {
+        const oldIndex = prev.findIndex((p) => p.id === active.id);
+        const newIndex = prev.findIndex((p) => p.id === over.id);
+        return arrayMove(prev, oldIndex, newIndex);
+      });
+    }, []);
+
     const handleToggleAll = useCallback((enable: boolean) => {
       setBody((prevPairs) => prevPairs.map((pair) => ({ ...pair, enabled: enable })));
     }, []);
@@ -153,44 +175,21 @@ export const BodyEditorKeyValue = forwardRef<BodyEditorKeyValueRef, BodyEditorKe
     return (
       <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
         <ScrollableContainer height={containerHeight}>
-          {body.map((pair, index) => (
-            <div key={pair.id} className="flex items-center gap-2">
-              <input
-                type="checkbox"
-                checked={pair.enabled}
-                onChange={(e) => handleKeyValuePairChange(pair.id, 'enabled', e.target.checked)}
-                title={pair.enabled ? 'Disable this row' : 'Enable this row'}
-                className="mr-1"
-              />
-              <input
-                type="text"
-                placeholder="Key"
-                value={pair.keyName}
-                onChange={(e) => handleKeyValuePairChange(pair.id, 'keyName', e.target.value)}
-                className="w-32 p-2 text-sm border border-gray-300 rounded"
-                disabled={!pair.enabled}
-              />
-              <input
-                type="text"
-                placeholder="Value (JSON or string)"
-                value={pair.value}
-                onChange={(e) => handleKeyValuePairChange(pair.id, 'value', e.target.value)}
-                className="flex-1 p-2 text-sm border border-gray-300 rounded"
-                disabled={!pair.enabled}
-              />
-              <MoveUpButton
-                onClick={() => handleMoveKeyValuePair(index, 'up')}
-                disabled={index === 0}
-                className="mx-1"
-              />
-              <MoveDownButton
-                onClick={() => handleMoveKeyValuePair(index, 'down')}
-                disabled={index === body.length - 1}
-                className="mx-1"
-              />
-              <TrashButton onClick={() => handleRemoveKeyValuePair(pair.id)} />
-            </div>
-          ))}
+          <DndContext onDragEnd={handleDragEnd} modifiers={modifiers}>
+            <SortableContext items={body}>
+              {body.map((pair, index) => (
+                <BodyKeyValueRow
+                  key={pair.id}
+                  pair={pair}
+                  index={index}
+                  total={body.length}
+                  onChange={handleKeyValuePairChange}
+                  onRemove={handleRemoveKeyValuePair}
+                  onMove={handleMoveKeyValuePair}
+                />
+              ))}
+            </SortableContext>
+          </DndContext>
         </ScrollableContainer>
         <div className="flex gap-2 mt-2">
           <button

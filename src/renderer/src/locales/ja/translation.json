@@ -31,6 +31,7 @@
   "copy_response": "レスポンスをコピー",
   "copy_success": "コピーしました！",
   "copy_error": "エラーをコピー",
+  "drag_handle": "ドラッグで並び替え",
   "body_not_applicable": "このメソッド{{method}}にはリクエストボディを設定できません。",
   "method_get": "GETリクエスト",
   "method_post": "POSTリクエスト",
