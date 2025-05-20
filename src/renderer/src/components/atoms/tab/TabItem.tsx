@@ -16,7 +16,7 @@ export const TabItem: React.FC<TabItemProps> = ({ label, method, active, onSelec
   return (
     <div
       className={clsx(
-        'px-3 py-1 flex items-center space-x-2 cursor-pointer border-b',
+        'px-3 py-1 flex items-center space-x-2 cursor-pointer border-b flex-shrink-0',
         active
           ? 'font-bold border-blue-500 bg-white dark:bg-gray-700'
           : 'border-transparent bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700',

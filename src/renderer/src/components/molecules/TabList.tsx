@@ -1,6 +1,7 @@
 import React from 'react';
 import { TabItem } from '../atoms/tab/TabItem';
 import { NewRequestIconButton } from '../atoms/button/NewRequestIconButton';
+import { ScrollableRow } from '../atoms/ScrollableRow';
 
 export interface TabInfo {
   tabId: string;
@@ -23,7 +24,7 @@ export const TabList: React.FC<TabListProps> = ({
   onClose,
   onNew,
 }) => (
-  <div className="flex items-center border-b">
+  <ScrollableRow className="flex items-center border-b">
     {tabs.map((tab) => (
       <TabItem
         key={tab.tabId}
@@ -34,6 +35,6 @@ export const TabList: React.FC<TabListProps> = ({
         onClose={() => onClose(tab.tabId)}
       />
     ))}
-    <NewRequestIconButton onClick={onNew} className="ml-2" />
-  </div>
+    <NewRequestIconButton onClick={onNew} className="ml-2 flex-shrink-0" />
+  </ScrollableRow>
 );
