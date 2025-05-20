@@ -36,7 +36,7 @@ export const HeadersEditor: React.FC<HeadersEditorProps> = ({
             placeholder="Key"
             value={header.key}
             onChange={(e) => onUpdateHeader(header.id, 'key', e.target.value)}
-            className="flex-1 p-2 border border-gray-300 rounded"
+            className="w-32 p-2 border border-gray-300 rounded"
             disabled={!header.enabled}
           />
           <input
@@ -44,7 +44,7 @@ export const HeadersEditor: React.FC<HeadersEditorProps> = ({
             placeholder="Value"
             value={header.value}
             onChange={(e) => onUpdateHeader(header.id, 'value', e.target.value)}
-            className="flex-2 p-2 border border-gray-300 rounded"
+            className="flex-1 p-2 border border-gray-300 rounded"
             disabled={!header.enabled}
           />
           <TrashButton onClick={() => onRemoveHeader(header.id)} />
