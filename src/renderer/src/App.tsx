@@ -161,6 +161,34 @@ export default function App() {
         tabs.closeTab(active.tabId);
       }
     },
+    onMoveTabRight: () => {
+      const active = tabs.getActiveTab();
+      if (active) {
+        tabs.updateTab(active.tabId, {
+          name: requestNameForSave,
+          method,
+          url,
+          headers,
+          body: body,
+          requestId: activeRequestId,
+        });
+      }
+      tabs.moveActiveTabRight();
+    },
+    onMoveTabLeft: () => {
+      const active = tabs.getActiveTab();
+      if (active) {
+        tabs.updateTab(active.tabId, {
+          name: requestNameForSave,
+          method,
+          url,
+          headers,
+          body: body,
+          requestId: activeRequestId,
+        });
+      }
+      tabs.moveActiveTabLeft();
+    },
   });
 
   const handleLoadRequest = (req: SavedRequest) => {
