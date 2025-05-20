@@ -1,6 +1,9 @@
 import * as React from 'react';
+import { DndContext, type DragEndEvent } from '@dnd-kit/core';
+import { SortableContext } from '@dnd-kit/sortable';
 import type { RequestHeader } from '../types';
-import { TrashButton } from './atoms/button/TrashButton';
+import { restrictToParentElement, restrictToWindowEdges } from '@dnd-kit/modifiers';
+import HeaderRow from './molecules/HeaderRow';
 
 interface HeadersEditorProps {
   headers: RequestHeader[];
@@ -11,6 +14,7 @@ interface HeadersEditorProps {
     value: string | boolean,
   ) => void;
   onRemoveHeader: (id: string) => void;
+  onMoveHeader: (activeId: string, overId: string) => void;
 }
 
 export const HeadersEditor: React.FC<HeadersEditorProps> = ({
@@ -18,38 +22,48 @@ export const HeadersEditor: React.FC<HeadersEditorProps> = ({
   onAddHeader,
   onUpdateHeader,
   onRemoveHeader,
+  onMoveHeader,
 }) => {
+  const modifiers = [restrictToParentElement, restrictToWindowEdges];
+
+  const handleMove = React.useCallback(
+    (index: number, direction: 'up' | 'down') => {
+      if (direction === 'up' && index > 0) {
+        onMoveHeader(headers[index].id, headers[index - 1].id);
+      } else if (direction === 'down' && index < headers.length - 1) {
+        onMoveHeader(headers[index].id, headers[index + 1].id);
+      }
+    },
+    [headers, onMoveHeader],
+  );
+
+  const handleDragEnd = React.useCallback(
+    (event: DragEndEvent) => {
+      const { active, over } = event;
+      if (!over || active.id === over.id) return;
+      onMoveHeader(String(active.id), String(over.id));
+    },
+    [onMoveHeader],
+  );
+
   return (
     <div className="flex flex-col gap-2">
       <h4>Headers</h4>
-      {headers.map((header) => (
-        <div key={header.id} className="flex items-center gap-2">
-          <input
-            type="checkbox"
-            checked={header.enabled}
-            onChange={(e) => onUpdateHeader(header.id, 'enabled', e.target.checked)}
-            title={header.enabled ? 'Disable header' : 'Enable header'}
-            className="mr-1"
-          />
-          <input
-            type="text"
-            placeholder="Key"
-            value={header.key}
-            onChange={(e) => onUpdateHeader(header.id, 'key', e.target.value)}
-            className="w-32 p-2 border border-gray-300 rounded"
-            disabled={!header.enabled}
-          />
-          <input
-            type="text"
-            placeholder="Value"
-            value={header.value}
-            onChange={(e) => onUpdateHeader(header.id, 'value', e.target.value)}
-            className="flex-1 p-2 border border-gray-300 rounded"
-            disabled={!header.enabled}
-          />
-          <TrashButton onClick={() => onRemoveHeader(header.id)} />
-        </div>
-      ))}
+      <DndContext onDragEnd={handleDragEnd} modifiers={modifiers}>
+        <SortableContext items={headers}>
+          {headers.map((header, index) => (
+            <HeaderRow
+              key={header.id}
+              header={header}
+              index={index}
+              total={headers.length}
+              onChange={onUpdateHeader}
+              onRemove={onRemoveHeader}
+              onMove={handleMove}
+            />
+          ))}
+        </SortableContext>
+      </DndContext>
       <button
         onClick={onAddHeader}
         className="px-4 py-2 border border-blue-500 text-blue-500 bg-white rounded self-start"

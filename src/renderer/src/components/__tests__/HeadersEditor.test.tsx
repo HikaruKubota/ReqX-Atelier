@@ -12,12 +12,14 @@ describe('HeadersEditor', () => {
     const onAdd = vi.fn();
     const onUpdate = vi.fn();
     const onRemove = vi.fn();
+    const onMove = vi.fn();
     const { getByPlaceholderText, getByText, getByLabelText } = render(
       <HeadersEditor
         headers={headers}
         onAddHeader={onAdd}
         onUpdateHeader={onUpdate}
         onRemoveHeader={onRemove}
+        onMoveHeader={onMove}
       />,
     );
 

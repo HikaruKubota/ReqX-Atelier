@@ -43,6 +43,7 @@ export default function App() {
     addHeader,
     updateHeader,
     removeHeader, // Destructure header actions
+    moveHeader,
     loadRequest: loadRequestIntoEditor, // Renamed to avoid conflict if there was a local var named loadRequest
     resetEditor,
   } = useRequestEditor();
@@ -330,6 +331,7 @@ export default function App() {
               onAddHeader={addHeader}
               onUpdateHeader={updateHeader}
               onRemoveHeader={removeHeader}
+              onMoveHeader={moveHeader}
             />
 
             {/* Use the new ResponseDisplayPanel component */}

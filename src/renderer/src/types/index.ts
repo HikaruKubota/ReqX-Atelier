@@ -43,6 +43,7 @@ export interface UseHeadersManagerReturn {
     value: string | boolean,
   ) => void;
   removeHeader: (id: string) => void;
+  moveHeader: (activeId: string, overId: string) => void;
   loadHeaders: (loadedHeaders: RequestHeader[]) => void;
   resetHeaders: () => void;
 }

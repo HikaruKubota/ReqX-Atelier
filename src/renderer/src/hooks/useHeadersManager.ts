@@ -78,6 +78,19 @@ export const useHeadersManager = (): UseHeadersManagerReturn => {
     });
   }, []);
 
+  const moveHeader = useCallback((activeId: string, overId: string) => {
+    setHeadersState((prevHeaders) => {
+      const oldIndex = prevHeaders.findIndex((h) => h.id === activeId);
+      const newIndex = prevHeaders.findIndex((h) => h.id === overId);
+      if (oldIndex === -1 || newIndex === -1) return prevHeaders;
+      const newHeaders = [...prevHeaders];
+      const [moved] = newHeaders.splice(oldIndex, 1);
+      newHeaders.splice(newIndex, 0, moved);
+      headersRef.current = newHeaders;
+      return newHeaders;
+    });
+  }, []);
+
   return {
     headers: headersState,
     setHeaders, // The main setter for replacing all headers
@@ -85,6 +98,7 @@ export const useHeadersManager = (): UseHeadersManagerReturn => {
     addHeader: addHeaderCorrected, // Use corrected versions
     updateHeader: updateHeaderCorrected,
     removeHeader: removeHeaderCorrected,
+    moveHeader,
     loadHeaders,
     resetHeaders,
   };
