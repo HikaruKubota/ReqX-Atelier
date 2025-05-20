@@ -10,6 +10,7 @@ const baseProps = {
   activeRequestId: null,
   onLoadRequest: () => {},
   onDeleteRequest: () => {},
+  onCopyRequest: () => {},
 };
 
 describe('RequestCollectionSidebar', () => {
