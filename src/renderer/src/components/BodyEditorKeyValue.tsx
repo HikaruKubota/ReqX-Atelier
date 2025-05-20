@@ -38,12 +38,19 @@ export const BodyEditorKeyValue = forwardRef<BodyEditorKeyValueRef, BodyEditorKe
         return;
       }
 
-      if (initialBody) {
+      if (initialBody && initialBody.length > 0) {
         if (JSON.stringify(initialBody) !== JSON.stringify(body)) {
           setBody(initialBody);
         }
-      } else if (body.length > 0) {
-        setBody([]);
+      } else if (body.length === 0) {
+        setBody([
+          {
+            id: `kv-new-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`,
+            keyName: '',
+            value: '',
+            enabled: true,
+          },
+        ]);
       }
     }, [initialBody, method]);
 
