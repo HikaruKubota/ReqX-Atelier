@@ -5,6 +5,7 @@ import { EnableAllButton } from './atoms/button/EnableAllButton';
 import { DisableAllButton } from './atoms/button/DisableAllButton';
 import { DndContext, type DragEndEvent } from '@dnd-kit/core';
 import { SortableContext, arrayMove } from '@dnd-kit/sortable';
+import { restrictToParentElement, restrictToWindowEdges } from '@dnd-kit/modifiers';
 import { BodyKeyValueRow } from './molecules/BodyKeyValueRow';
 import { Modal } from './atoms/Modal';
 import { ScrollableContainer } from './atoms/ScrollableContainer';
@@ -24,6 +25,10 @@ export const BodyEditorKeyValue = forwardRef<BodyEditorKeyValueRef, BodyEditorKe
     const [showImport, setShowImport] = useState(false);
     const [importText, setImportText] = useState('');
     const [importError, setImportError] = useState('');
+    const modifiers = [
+      restrictToParentElement,
+      restrictToWindowEdges,       // 端を少し越えたら慣性風に戻す
+    ];
 
     useEffect(() => {
       if (method === 'GET' || method === 'HEAD') {
@@ -170,7 +175,7 @@ export const BodyEditorKeyValue = forwardRef<BodyEditorKeyValueRef, BodyEditorKe
     return (
       <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
         <ScrollableContainer height={containerHeight}>
-          <DndContext onDragEnd={handleDragEnd}>
+          <DndContext onDragEnd={handleDragEnd} modifiers={modifiers}>
             <SortableContext items={body}>
               {body.map((pair, index) => (
                 <BodyKeyValueRow
