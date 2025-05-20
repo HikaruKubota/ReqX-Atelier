@@ -8,9 +8,9 @@ describe('TabList', () => {
   it('calls onSelect when tab clicked', () => {
     const onSelect = vi.fn();
     const onNew = vi.fn();
-    const { getByText } = render(
+    const { getByText, getByLabelText } = render(
       <TabList
-        tabs={[{ tabId: '1', name: 'Tab1' }]}
+        tabs={[{ tabId: '1', name: 'Tab1', method: 'GET' }]}
         activeTabId="1"
         onSelect={onSelect}
         onClose={() => {}}
@@ -19,6 +19,7 @@ describe('TabList', () => {
     );
     fireEvent.click(getByText('Tab1'));
     expect(onSelect).toHaveBeenCalledWith('1');
+    expect(getByLabelText('GETリクエスト')).toBeInTheDocument();
   });
 
   it('calls onNew when new button clicked', () => {
