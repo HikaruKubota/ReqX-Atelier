@@ -13,7 +13,12 @@ const Wrapper: React.FC = () => {
   return (
     <>
       <button onClick={toggleMode}>toggle</button>
-      <ResponseDisplayPanel response={sampleResponse} error={null} loading={false} />
+      <ResponseDisplayPanel
+        response={sampleResponse}
+        error={null}
+        loading={false}
+        responseTime={123}
+      />
     </>
   );
 };
@@ -27,6 +32,7 @@ describe('ResponseDisplayPanel', () => {
     );
     const pre = screen.getByText(/"ok": true/);
     expect(pre.className).toMatch('dark:bg-green-900');
+    expect(screen.getByText('レスポンス時間: 123ms')).toBeInTheDocument();
     fireEvent.click(screen.getByText('toggle'));
     expect(document.documentElement.classList.contains('dark')).toBe(false);
   });
@@ -38,7 +44,12 @@ describe('ResponseDisplayPanel', () => {
 
     render(
       <ThemeProvider>
-        <ResponseDisplayPanel response={sampleResponse} error={null} loading={false} />
+        <ResponseDisplayPanel
+          response={sampleResponse}
+          error={null}
+          loading={false}
+          responseTime={123}
+        />
       </ThemeProvider>,
     );
 
@@ -57,7 +68,12 @@ describe('ResponseDisplayPanel', () => {
 
     render(
       <ThemeProvider>
-        <ResponseDisplayPanel response={null} error={sampleError} loading={false} />
+        <ResponseDisplayPanel
+          response={null}
+          error={sampleError}
+          loading={false}
+          responseTime={123}
+        />
       </ThemeProvider>,
     );
 

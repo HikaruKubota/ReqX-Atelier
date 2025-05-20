@@ -13,6 +13,7 @@
   "show_sidebar": "サイドバーを表示",
   "new_request": "新しいリクエスト",
   "response_heading": "レスポンス",
+  "response_time": "レスポンス時間: {{time}}ms",
   "no_response": "まだレスポンスがありません。リクエストを送信するか保存したものを読み込んでください。",
   "loading": "読み込み中...",
   "error_details": "エラー詳細:",

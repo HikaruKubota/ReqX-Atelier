@@ -48,7 +48,8 @@ export default function App() {
   } = useRequestEditor();
 
   // Use the new API response handler hook
-  const { response, error, loading, executeRequest, resetApiResponse } = useApiResponseHandler();
+  const { response, error, loading, responseTime, executeRequest, resetApiResponse } =
+    useApiResponseHandler();
 
   // Saved requests state (from useSavedRequests hook)
   const {
@@ -333,7 +334,12 @@ export default function App() {
             />
 
             {/* Use the new ResponseDisplayPanel component */}
-            <ResponseDisplayPanel response={response} error={error} loading={loading} />
+            <ResponseDisplayPanel
+              response={response}
+              error={error}
+              loading={loading}
+              responseTime={responseTime}
+            />
           </>
         )}
       </div>
