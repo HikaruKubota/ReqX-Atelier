@@ -79,4 +79,19 @@ describe('RequestListItem', () => {
     expect(container.firstChild).toHaveClass('font-bold');
     expect(container.firstChild).toHaveClass('border-gray-400');
   });
+
+  it('calls onContextMenu when right clicked', () => {
+    const handleContext = vi.fn();
+    const { getByText } = render(
+      <RequestListItem
+        request={sampleRequest}
+        isActive={false}
+        onClick={() => {}}
+        onDelete={() => {}}
+        onContextMenu={handleContext}
+      />,
+    );
+    fireEvent.contextMenu(getByText('テストリクエスト'));
+    expect(handleContext).toHaveBeenCalled();
+  });
 });

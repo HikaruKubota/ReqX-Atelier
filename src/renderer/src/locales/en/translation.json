@@ -41,5 +41,8 @@
   "method_patch": "PATCH request",
   "method_delete": "DELETE request",
   "method_head": "HEAD request",
-  "method_options": "OPTIONS request"
+  "method_options": "OPTIONS request",
+  "context_menu_title": "{{name}}",
+  "context_menu_copy_request": "Copy Request",
+  "context_menu_delete_request": "Delete Request"
 }

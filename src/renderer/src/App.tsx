@@ -58,6 +58,7 @@ export default function App() {
     addRequest,
     updateRequest: updateSavedRequest,
     deleteRequest,
+    copyRequest,
   } = useSavedRequests();
 
   const { executeSendRequest, executeSaveRequest } = useRequestActions({
@@ -261,6 +262,13 @@ export default function App() {
     [deleteRequest, activeRequestId, resetEditor, resetApiResponse, tabs],
   );
 
+  const handleCopyRequest = useCallback(
+    (id: string) => {
+      copyRequest(id);
+    },
+    [copyRequest],
+  );
+
   return (
     <div style={{ display: 'flex', height: '100vh' }}>
       <RequestCollectionSidebar
@@ -268,6 +276,7 @@ export default function App() {
         activeRequestId={activeRequestId}
         onLoadRequest={handleLoadRequest}
         onDeleteRequest={handleDeleteRequest}
+        onCopyRequest={handleCopyRequest}
         isOpen={sidebarOpen}
         onToggle={() => setSidebarOpen((o) => !o)}
       />

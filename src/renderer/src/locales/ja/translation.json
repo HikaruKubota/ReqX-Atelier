@@ -41,5 +41,8 @@
   "method_patch": "PATCHリクエスト",
   "method_delete": "DELETEリクエスト",
   "method_head": "HEADリクエスト",
-  "method_options": "OPTIONSリクエスト"
+  "method_options": "OPTIONSリクエスト",
+  "context_menu_title": "{{name}}",
+  "context_menu_copy_request": "リクエストをコピー",
+  "context_menu_delete_request": "リクエストを削除"
 }

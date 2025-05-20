@@ -9,6 +9,7 @@ interface RequestListItemProps {
   isActive: boolean;
   onClick: () => void;
   onDelete: () => void;
+  onContextMenu?: (e: React.MouseEvent<HTMLDivElement>) => void;
 }
 
 export const RequestListItem: React.FC<RequestListItemProps> = ({
@@ -16,9 +17,14 @@ export const RequestListItem: React.FC<RequestListItemProps> = ({
   isActive,
   onClick,
   onDelete,
+  onContextMenu,
 }) => (
   <div
     onClick={onClick}
+    onContextMenu={(e) => {
+      e.preventDefault();
+      onContextMenu?.(e);
+    }}
     className={clsx(
       'px-3 py-2 my-1 cursor-pointer border rounded flex justify-between items-center transition-colors',
       isActive
