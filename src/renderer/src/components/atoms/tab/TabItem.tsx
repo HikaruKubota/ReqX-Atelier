@@ -1,15 +1,17 @@
 import React from 'react';
 import clsx from 'clsx';
 import { useTranslation } from 'react-i18next';
+import { MethodIcon } from '../MethodIcon';
 
 interface TabItemProps {
   label: string;
+  method: string;
   active: boolean;
   onSelect: () => void;
   onClose: () => void;
 }
 
-export const TabItem: React.FC<TabItemProps> = ({ label, active, onSelect, onClose }) => {
+export const TabItem: React.FC<TabItemProps> = ({ label, method, active, onSelect, onClose }) => {
   const { t } = useTranslation();
   return (
     <div
@@ -21,6 +23,7 @@ export const TabItem: React.FC<TabItemProps> = ({ label, active, onSelect, onClo
       )}
       onClick={onSelect}
     >
+      <MethodIcon method={method} size={16} />
       <span>{label}</span>
       <button
         onClick={(e) => {
