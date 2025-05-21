@@ -117,4 +117,20 @@ describe('useTabs', () => {
     expect(result.current.tabs[0].tabId).toBe(first.tabId);
     expect(result.current.tabs[2].tabId).toBe(third.tabId);
   });
+
+  it('reorders tabs by id', () => {
+    const { result } = renderHook(() => useTabs());
+    act(() => {
+      result.current.openTab();
+      result.current.openTab();
+      result.current.openTab();
+    });
+    const [first, second, third] = result.current.tabs;
+    act(() => {
+      result.current.reorderTabs(second.tabId, first.tabId);
+    });
+    expect(result.current.tabs[0].tabId).toBe(second.tabId);
+    expect(result.current.tabs[1].tabId).toBe(first.tabId);
+    expect(result.current.tabs[2].tabId).toBe(third.tabId);
+  });
 });

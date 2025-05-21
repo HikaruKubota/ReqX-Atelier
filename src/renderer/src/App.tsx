@@ -305,6 +305,7 @@ export default function App() {
               tabs.closeTab(id);
             }}
             onNew={handleNewRequest}
+            onReorder={(activeId, overId) => tabs.reorderTabs(activeId, overId)}
           />
         )}
         <div
