@@ -44,5 +44,8 @@
   "method_options": "OPTIONS request",
   "context_menu_title": "{{name}}",
   "context_menu_copy_request": "Copy Request",
-  "context_menu_delete_request": "Delete Request"
+  "context_menu_delete_request": "Delete Request",
+  "collection_title": "My Collection",
+  "headers_heading": "Headers",
+  "request_body_heading": "Request Body"
 }
