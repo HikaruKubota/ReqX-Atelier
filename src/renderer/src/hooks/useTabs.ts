@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { arrayMove } from '@dnd-kit/sortable';
 import type { KeyValuePair, RequestHeader, SavedRequest } from '../types';
 
 export interface TabState {
@@ -83,6 +84,15 @@ export const useTabs = () => {
     });
   };
 
+  const reorderTabs = (activeId: string, overId: string) => {
+    setTabs((prev) => {
+      const oldIndex = prev.findIndex((t) => t.tabId === activeId);
+      const newIndex = prev.findIndex((t) => t.tabId === overId);
+      if (oldIndex === -1 || newIndex === -1) return prev;
+      return arrayMove(prev, oldIndex, newIndex);
+    });
+  };
+
   const moveActiveTabRight = () => {
     if (activeTabId) {
       moveTab(activeTabId, 1);
@@ -107,5 +117,6 @@ export const useTabs = () => {
     prevTab,
     moveActiveTabRight,
     moveActiveTabLeft,
+    reorderTabs,
   };
 };

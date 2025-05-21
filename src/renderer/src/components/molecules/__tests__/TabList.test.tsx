@@ -18,6 +18,7 @@ describe('TabList', () => {
         onSelect={onSelect}
         onClose={() => {}}
         onNew={onNew}
+        onReorder={() => {}}
       />,
     );
     fireEvent.click(getByText('Tab1'));
@@ -28,7 +29,14 @@ describe('TabList', () => {
   it('calls onNew when new button clicked', () => {
     const onNew = vi.fn();
     const { getByLabelText } = render(
-      <TabList tabs={[]} activeTabId={null} onSelect={() => {}} onClose={() => {}} onNew={onNew} />,
+      <TabList
+        tabs={[]}
+        activeTabId={null}
+        onSelect={() => {}}
+        onClose={() => {}}
+        onNew={onNew}
+        onReorder={() => {}}
+      />,
     );
     fireEvent.click(getByLabelText('新しいリクエスト'));
     expect(onNew).toHaveBeenCalled();
@@ -45,6 +53,7 @@ describe('TabList', () => {
         onSelect={() => {}}
         onClose={() => {}}
         onNew={() => {}}
+        onReorder={() => {}}
       />,
     );
     rerender(
@@ -57,6 +66,7 @@ describe('TabList', () => {
         onSelect={() => {}}
         onClose={() => {}}
         onNew={() => {}}
+        onReorder={() => {}}
       />,
     );
     await waitFor(() => {

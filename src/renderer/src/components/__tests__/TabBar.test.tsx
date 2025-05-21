@@ -9,9 +9,17 @@ describe('TabBar', () => {
     const onSelect = vi.fn();
     const onClose = vi.fn();
     const onNew = vi.fn();
+    const onReorder = vi.fn();
     const tabs = [{ tabId: '1', name: 'Tab1', method: 'GET' }];
     const { getByText, getByLabelText } = render(
-      <TabBar tabs={tabs} activeTabId="1" onSelect={onSelect} onClose={onClose} onNew={onNew} />,
+      <TabBar
+        tabs={tabs}
+        activeTabId="1"
+        onSelect={onSelect}
+        onClose={onClose}
+        onNew={onNew}
+        onReorder={onReorder}
+      />,
     );
     fireEvent.click(getByText('Tab1'));
     expect(onSelect).toHaveBeenCalledWith('1');
