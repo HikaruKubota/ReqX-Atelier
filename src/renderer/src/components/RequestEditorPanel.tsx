@@ -63,7 +63,7 @@ export const RequestEditorPanel = forwardRef<RequestEditorPanelRef, RequestEdito
     const { t } = useTranslation();
     const bodyEditorRef = useRef<BodyEditorKeyValueRef>(null);
     const paramsEditorRef = useRef<BodyEditorKeyValueRef>(null);
-    const [activeTab, setActiveTab] = React.useState<'body' | 'params'>('body');
+    const [activeTab, setActiveTab] = React.useState<'headers' | 'body' | 'params'>('headers');
 
     useImperativeHandle(ref, () => ({
       getRequestBodyAsJson: () => {
@@ -105,16 +105,11 @@ export const RequestEditorPanel = forwardRef<RequestEditorPanelRef, RequestEdito
           onSend={onSendRequest}
         />
 
-        <HeadersEditor
-          headers={headers}
-          onAddHeader={onAddHeader}
-          onUpdateHeader={onUpdateHeader}
-          onRemoveHeader={onRemoveHeader}
-          onReorderHeaders={onReorderHeaders}
-        />
-
         <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
           <div className="flex gap-2 mb-2">
+            <TabButton active={activeTab === 'headers'} onClick={() => setActiveTab('headers')}>
+              {t('header_tab')}
+            </TabButton>
             <TabButton active={activeTab === 'body'} onClick={() => setActiveTab('body')}>
               {t('body_tab')}
             </TabButton>
@@ -122,8 +117,22 @@ export const RequestEditorPanel = forwardRef<RequestEditorPanelRef, RequestEdito
               {t('param_tab')}
             </TabButton>
           </div>
-          <h4>{activeTab === 'body' ? t('request_body_heading') : t('request_params_heading')}</h4>
-          {activeTab === 'body' ? (
+          <h4>
+            {activeTab === 'headers'
+              ? t('headers_heading')
+              : activeTab === 'body'
+                ? t('request_body_heading')
+                : t('request_params_heading')}
+          </h4>
+          {activeTab === 'headers' ? (
+            <HeadersEditor
+              headers={headers}
+              onAddHeader={onAddHeader}
+              onUpdateHeader={onUpdateHeader}
+              onRemoveHeader={onRemoveHeader}
+              onReorderHeaders={onReorderHeaders}
+            />
+          ) : activeTab === 'body' ? (
             <BodyEditorKeyValue
               ref={bodyEditorRef}
               initialBody={initialBody}
