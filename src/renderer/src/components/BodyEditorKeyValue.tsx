@@ -16,10 +16,11 @@ interface BodyEditorKeyValueProps {
   method: string; // To determine if body is applicable and to re-initialize on method change
   onChange?: (pairs: KeyValuePair[]) => void;
   containerHeight?: number | string;
+  addRowLabelKey?: string;
 }
 
 export const BodyEditorKeyValue = forwardRef<BodyEditorKeyValueRef, BodyEditorKeyValueProps>(
-  ({ initialBody, method, onChange, containerHeight = 300 }, ref) => {
+  ({ initialBody, method, onChange, containerHeight = 300, addRowLabelKey }, ref) => {
     const { t } = useTranslation();
     const [body, setBody] = useState<KeyValuePair[]>([]);
     const [showImport, setShowImport] = useState(false);
@@ -183,7 +184,7 @@ export const BodyEditorKeyValue = forwardRef<BodyEditorKeyValueRef, BodyEditorKe
             onClick={handleAddKeyValuePair}
             className="px-4 py-2 text-sm text-white bg-blue-500 rounded"
           >
-            {t('add_body_row') || 'Add Body Row'}
+            {t(addRowLabelKey || 'add_body_row')}
           </button>
           <button
             onClick={() => {

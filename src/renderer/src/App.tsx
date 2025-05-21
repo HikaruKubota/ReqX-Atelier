@@ -32,6 +32,9 @@ export default function App() {
     urlRef,
     body,
     setBody,
+    params,
+    setParams,
+    paramsRef,
     requestNameForSave,
     setRequestNameForSave,
     requestNameForSaveRef,
@@ -66,6 +69,7 @@ export default function App() {
     methodRef,
     urlRef,
     headersRef,
+    paramsRef,
     requestNameForSaveRef,
     setRequestNameForSave,
     activeRequestIdRef,
@@ -86,6 +90,7 @@ export default function App() {
       url: tab.url,
       headers: tab.headers,
       body: tab.body,
+      params: tab.params,
     });
     setActiveRequestId(null);
     resetApiResponse();
@@ -112,6 +117,7 @@ export default function App() {
         url,
         headers,
         body: body,
+        params,
         requestId: activeRequestIdRef.current,
       });
     }
@@ -139,6 +145,7 @@ export default function App() {
           url,
           headers,
           body: body,
+          params,
           requestId: activeRequestId,
         });
       }
@@ -153,6 +160,7 @@ export default function App() {
           url,
           headers,
           body: body,
+          params,
           requestId: activeRequestId,
         });
       }
@@ -173,6 +181,7 @@ export default function App() {
           url,
           headers,
           body: body,
+          params,
           requestId: activeRequestId,
         });
       }
@@ -187,6 +196,7 @@ export default function App() {
           url,
           headers,
           body: body,
+          params,
           requestId: activeRequestId,
         });
       }
@@ -203,6 +213,7 @@ export default function App() {
         url,
         headers,
         body: body,
+        params,
         requestId: activeRequestId,
       });
     }
@@ -222,6 +233,7 @@ export default function App() {
         url: target.url,
         headers: target.headers,
         body: target.body,
+        params: target.params,
       });
       setActiveRequestId(target.requestId);
     }
@@ -238,6 +250,7 @@ export default function App() {
         url: tab.url,
         headers: tab.headers,
         body: tab.body,
+        params: tab.params,
       });
       setRequestNameForSave(tab.name);
       setActiveRequestId(tab.requestId);
@@ -334,7 +347,9 @@ export default function App() {
                 url={url}
                 onUrlChange={setUrl}
                 initialBody={body}
+                initialParams={params}
                 onBodyPairsChange={setBody}
+                onParamPairsChange={setParams}
                 activeRequestId={activeRequestId}
                 loading={loading}
                 onSaveRequest={handleSaveButtonClick}

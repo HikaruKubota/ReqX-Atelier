@@ -7,11 +7,13 @@ const getMockRefs = () => ({
     current: {
       getRequestBodyAsJson: () => '{"foo":"bar"}',
       getBody: () => [{ id: 'kv1', keyName: 'foo', value: 'bar', enabled: true }],
+      getParams: () => [{ id: 'p1', keyName: 'q', value: '1', enabled: true }],
     },
   },
   methodRef: { current: 'POST' },
   urlRef: { current: 'https://example.com' },
   headersRef: { current: [{ id: 'h1', key: 'X-Test', value: '1', enabled: true }] },
+  paramsRef: { current: [{ id: 'p1', keyName: 'q', value: '1', enabled: true }] },
   requestNameForSaveRef: { current: 'テストリクエスト' },
   activeRequestIdRef: { current: null as string | null },
   setRequestNameForSave: vi.fn(),
@@ -29,6 +31,7 @@ describe('useRequestActions', () => {
         setActiveRequestId: vi.fn(),
         addRequest: vi.fn(),
         updateSavedRequest: vi.fn(),
+        paramsRef: refs.paramsRef,
         executeRequest: mockExecuteRequest,
       }),
     );
@@ -39,7 +42,7 @@ describe('useRequestActions', () => {
 
     expect(mockExecuteRequest).toHaveBeenCalledWith(
       'POST',
-      'https://example.com',
+      'https://example.com?q=1',
       '{"foo":"bar"}',
       { 'X-Test': '1' },
     );
@@ -57,6 +60,7 @@ describe('useRequestActions', () => {
         setActiveRequestId: mockSetActiveRequestId,
         addRequest: mockAddRequest,
         updateSavedRequest: vi.fn(),
+        paramsRef: refs.paramsRef,
         executeRequest: vi.fn(),
       }),
     );
@@ -71,6 +75,7 @@ describe('useRequestActions', () => {
       url: 'https://example.com',
       headers: [{ id: 'h1', key: 'X-Test', value: '1', enabled: true }],
       body: [{ id: 'kv1', keyName: 'foo', value: 'bar', enabled: true }],
+      params: [{ id: 'p1', keyName: 'q', value: '1', enabled: true }],
     });
     expect(mockSetActiveRequestId).toHaveBeenCalledWith('new-id');
     expect(refs.setRequestNameForSave).toHaveBeenCalledWith('テストリクエスト');
@@ -88,6 +93,7 @@ describe('useRequestActions', () => {
         setActiveRequestId: vi.fn(),
         addRequest: vi.fn(),
         updateSavedRequest: mockUpdateSavedRequest,
+        paramsRef: refs.paramsRef,
         executeRequest: vi.fn(),
       }),
     );
@@ -102,6 +108,7 @@ describe('useRequestActions', () => {
       url: 'https://example.com',
       headers: [{ id: 'h1', key: 'X-Test', value: '1', enabled: true }],
       body: [{ id: 'kv1', keyName: 'foo', value: 'bar', enabled: true }],
+      params: [{ id: 'p1', keyName: 'q', value: '1', enabled: true }],
     });
     expect(refs.setRequestNameForSave).toHaveBeenCalledWith('テストリクエスト');
   });
@@ -119,6 +126,7 @@ describe('useRequestActions', () => {
         setActiveRequestId: mockSetActiveRequestId,
         addRequest: mockAddRequest,
         updateSavedRequest: vi.fn(),
+        paramsRef: refs.paramsRef,
         executeRequest: vi.fn(),
       }),
     );
@@ -133,6 +141,7 @@ describe('useRequestActions', () => {
       url: 'https://example.com',
       headers: [{ id: 'h1', key: 'X-Test', value: '1', enabled: true }],
       body: [{ id: 'kv1', keyName: 'foo', value: 'bar', enabled: true }],
+      params: [{ id: 'p1', keyName: 'q', value: '1', enabled: true }],
     });
     expect(mockSetActiveRequestId).toHaveBeenCalledWith('new-id');
     expect(refs.setRequestNameForSave).toHaveBeenCalledWith('Untitled Request');

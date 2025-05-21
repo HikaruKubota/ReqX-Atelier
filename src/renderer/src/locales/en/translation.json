@@ -47,5 +47,9 @@
   "context_menu_delete_request": "Delete Request",
   "collection_title": "My Collection",
   "headers_heading": "Headers",
-  "request_body_heading": "Request Body"
+  "request_body_heading": "Request Body",
+  "request_params_heading": "Request Params",
+  "body_tab": "Body",
+  "param_tab": "Params",
+  "add_param_row": "Add Param Row"
 }

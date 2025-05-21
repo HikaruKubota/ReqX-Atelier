@@ -10,6 +10,7 @@ export interface TabState {
   url: string;
   headers: RequestHeader[];
   body: KeyValuePair[];
+  params: KeyValuePair[];
 }
 
 const createTabState = (req?: SavedRequest): TabState => ({
@@ -20,6 +21,7 @@ const createTabState = (req?: SavedRequest): TabState => ({
   url: req?.url ?? '',
   headers: req?.headers ?? [],
   body: req?.body ?? [],
+  params: req?.params ?? [],
 });
 
 export const useTabs = () => {

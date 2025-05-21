@@ -57,6 +57,16 @@ export interface UseBodyManagerReturn {
   resetBody: () => void;
 }
 
+export interface UseParamsManagerReturn {
+  params: KeyValuePair[];
+  setParams: (pairs: KeyValuePair[]) => void;
+  paramsRef: React.MutableRefObject<KeyValuePair[]>;
+  queryString: string;
+  queryStringRef: React.MutableRefObject<string>;
+  loadParams: (pairs: KeyValuePair[]) => void;
+  resetParams: () => void;
+}
+
 export interface SavedRequest {
   id: string;
   name: string;
@@ -64,6 +74,7 @@ export interface SavedRequest {
   url: string;
   headers?: RequestHeader[];
   body?: KeyValuePair[];
+  params?: KeyValuePair[];
 }
 
 export interface SavedFolder {
@@ -105,6 +116,7 @@ export interface ApiResponseHandler {
 export interface RequestEditorPanelRef {
   getRequestBodyAsJson: () => string;
   getBody: () => KeyValuePair[];
+  getParams: () => KeyValuePair[];
 }
 
 export interface ThemeColors {
@@ -116,7 +128,8 @@ export interface ThemeColors {
 
 export interface RequestEditorState
   extends Omit<UseHeadersManagerReturn, 'loadHeaders' | 'resetHeaders'>,
-    Omit<UseBodyManagerReturn, 'loadBody' | 'resetBody'> {
+    Omit<UseBodyManagerReturn, 'loadBody' | 'resetBody'>,
+    Omit<UseParamsManagerReturn, 'loadParams' | 'resetParams'> {
   method: string;
   setMethod: (method: string) => void;
   methodRef: { current: string };

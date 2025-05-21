@@ -1,6 +1,7 @@
 import { useState, useCallback, useRef, useEffect } from 'react';
 import { useHeadersManager } from './useHeadersManager';
 import { useBodyManager } from './useBodyManager';
+import { useParamsManager } from './useParamsManager';
 import type { SavedRequest, RequestEditorState } from '../types';
 
 // RequestEditorState now inherits from both manager returns, excluding conflicting/internal methods
@@ -38,6 +39,7 @@ export const useRequestEditor = (): RequestEditorState => {
 
   const headersManager = useHeadersManager();
   const bodyManager = useBodyManager(); // Use the new body manager hook
+  const paramsManager = useParamsManager();
 
   // Remove useEffects for body-related states
   useEffect(() => {
@@ -60,21 +62,23 @@ export const useRequestEditor = (): RequestEditorState => {
       setMethodState(req.method);
       setUrlState(req.url);
       bodyManager.loadBody(req.body || []); // Use bodyManager
+      paramsManager.loadParams(req.params || []);
       headersManager.loadHeaders(req.headers || []);
       setActiveRequestIdState(req.id);
       setRequestNameForSaveState(req.name);
     },
-    [headersManager, bodyManager],
+    [headersManager, bodyManager, paramsManager],
   ); // Add bodyManager to dependencies
 
   const resetEditor = useCallback(() => {
     setMethodState('GET');
     setUrlState('');
     bodyManager.resetBody(); // Use bodyManager
+    paramsManager.resetParams();
     headersManager.resetHeaders();
     setActiveRequestIdState(null);
     setRequestNameForSaveState('');
-  }, [headersManager, bodyManager]); // Add bodyManager to dependencies
+  }, [headersManager, bodyManager, paramsManager]); // Add bodyManager to dependencies
 
   return {
     method: methodState,
@@ -83,6 +87,7 @@ export const useRequestEditor = (): RequestEditorState => {
     setUrl,
     ...headersManager, // Spread headers manager return values
     ...bodyManager, // Spread body manager return values
+    ...paramsManager,
     requestNameForSave: requestNameForSaveState,
     setRequestNameForSave,
     activeRequestId: activeRequestIdState,
