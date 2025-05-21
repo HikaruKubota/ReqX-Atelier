@@ -282,16 +282,7 @@ export default function App() {
       />
 
       {/* Right Main Area for Request Editing and Response */}
-      <div
-        style={{
-          flexGrow: 1,
-          padding: '20px',
-          display: 'flex',
-          flexDirection: 'column',
-          gap: '15px',
-          overflowY: 'auto',
-        }}
-      >
+      <div style={{ flexGrow: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
         {tabs.tabs.length > 0 && (
           <TabBar
             tabs={tabs.tabs.map(({ tabId, name, method }) => ({ tabId, name, method }))}
@@ -316,43 +307,54 @@ export default function App() {
             onNew={handleNewRequest}
           />
         )}
-        <div style={{ alignSelf: 'flex-end' }}>
-          <ThemeToggleButton />
-        </div>
-        {tabs.tabs.length === 0 ? (
-          <ShortcutsGuide onNew={handleNewRequest} />
-        ) : (
-          <>
-            <RequestEditorPanel
-              ref={editorPanelRef}
-              requestNameForSave={requestNameForSave}
-              onRequestNameForSaveChange={setRequestNameForSave}
-              method={method}
-              onMethodChange={setMethod}
-              url={url}
-              onUrlChange={setUrl}
-              initialBody={body}
-              onBodyPairsChange={setBody}
-              activeRequestId={activeRequestId}
-              loading={loading}
-              onSaveRequest={handleSaveButtonClick}
-              onSendRequest={executeSendRequest}
-              headers={headers}
-              onAddHeader={addHeader}
-              onUpdateHeader={updateHeader}
-              onRemoveHeader={removeHeader}
-              onReorderHeaders={setHeaders}
-            />
+        <div
+          style={{
+            flexGrow: 1,
+            padding: '20px',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '15px',
+            overflowY: 'auto',
+          }}
+        >
+          <div style={{ alignSelf: 'flex-end' }}>
+            <ThemeToggleButton />
+          </div>
+          {tabs.tabs.length === 0 ? (
+            <ShortcutsGuide onNew={handleNewRequest} />
+          ) : (
+            <>
+              <RequestEditorPanel
+                ref={editorPanelRef}
+                requestNameForSave={requestNameForSave}
+                onRequestNameForSaveChange={setRequestNameForSave}
+                method={method}
+                onMethodChange={setMethod}
+                url={url}
+                onUrlChange={setUrl}
+                initialBody={body}
+                onBodyPairsChange={setBody}
+                activeRequestId={activeRequestId}
+                loading={loading}
+                onSaveRequest={handleSaveButtonClick}
+                onSendRequest={executeSendRequest}
+                headers={headers}
+                onAddHeader={addHeader}
+                onUpdateHeader={updateHeader}
+                onRemoveHeader={removeHeader}
+                onReorderHeaders={setHeaders}
+              />
 
-            {/* Use the new ResponseDisplayPanel component */}
-            <ResponseDisplayPanel
-              response={response}
-              error={error}
-              loading={loading}
-              responseTime={responseTime}
-            />
-          </>
-        )}
+              {/* Use the new ResponseDisplayPanel component */}
+              <ResponseDisplayPanel
+                response={response}
+                error={error}
+                loading={loading}
+                responseTime={responseTime}
+              />
+            </>
+          )}
+        </div>
       </div>
       <Toast
         message={t('save_success')}
