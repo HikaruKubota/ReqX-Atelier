@@ -66,6 +66,9 @@ const migrateRequests = (stored: unknown): SavedRequest[] => {
         url: req.url || '',
         headers: req.headers || [],
         body: bodyPairs || legacyBody || [],
+        params: Array.isArray((req as SavedRequest).params)
+          ? ((req as SavedRequest).params as KeyValuePair[])
+          : [],
       } as SavedRequest;
     });
   } catch {
@@ -105,11 +108,13 @@ export const useSavedRequestsStore = create<SavedRequestsState>()(
       addRequest: (req) => {
         const newId = `saved-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`;
         const bodyPairs = req.body ?? [];
+        const paramPairs = req.params ?? [];
         const newReq: SavedRequest = {
           ...req,
           id: newId,
           headers: req.headers || [],
           body: bodyPairs,
+          params: paramPairs,
         };
         set({ savedRequests: [...get().savedRequests, newReq] });
         return newId;
@@ -119,7 +124,8 @@ export const useSavedRequestsStore = create<SavedRequestsState>()(
           savedRequests: get().savedRequests.map((r) => {
             if (r.id !== id) return r;
             const bodyPairs = updated.body ?? r.body;
-            return { ...r, ...updated, body: bodyPairs };
+            const paramPairs = updated.params ?? r.params;
+            return { ...r, ...updated, body: bodyPairs, params: paramPairs };
           }),
         });
       },

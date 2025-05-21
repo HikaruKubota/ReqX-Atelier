@@ -8,6 +8,8 @@ import type {
 } from '../types';
 import { HeadersEditor } from './HeadersEditor';
 import { BodyEditorKeyValue } from './BodyEditorKeyValue';
+import { ParamsEditorKeyValue } from './ParamsEditorKeyValue';
+import { TabButton } from './atoms/button/TabButton';
 import { RequestNameRow } from './molecules/RequestNameRow';
 import { RequestMethodRow } from './molecules/RequestMethodRow';
 
@@ -19,11 +21,13 @@ interface RequestEditorPanelProps {
   url: string;
   onUrlChange: (url: string) => void;
   initialBody?: KeyValuePair[];
+  initialParams?: KeyValuePair[];
   activeRequestId: string | null;
   loading: boolean;
   onSaveRequest: () => void;
   onSendRequest: () => void;
   onBodyPairsChange: (pairs: KeyValuePair[]) => void;
+  onParamPairsChange: (pairs: KeyValuePair[]) => void;
   headers: RequestHeader[];
   onAddHeader: () => void;
   onUpdateHeader: (id: string, field: 'key' | 'value' | 'enabled', value: string | boolean) => void;
@@ -41,11 +45,13 @@ export const RequestEditorPanel = forwardRef<RequestEditorPanelRef, RequestEdito
       url,
       onUrlChange,
       initialBody,
+      initialParams,
       activeRequestId,
       loading,
       onSaveRequest,
       onSendRequest,
       onBodyPairsChange,
+      onParamPairsChange,
       headers,
       onAddHeader,
       onUpdateHeader,
@@ -56,6 +62,8 @@ export const RequestEditorPanel = forwardRef<RequestEditorPanelRef, RequestEdito
   ) => {
     const { t } = useTranslation();
     const bodyEditorRef = useRef<BodyEditorKeyValueRef>(null);
+    const paramsEditorRef = useRef<BodyEditorKeyValueRef>(null);
+    const [activeTab, setActiveTab] = React.useState<'headers' | 'body' | 'params'>('headers');
 
     useImperativeHandle(ref, () => ({
       getRequestBodyAsJson: () => {
@@ -63,6 +71,9 @@ export const RequestEditorPanel = forwardRef<RequestEditorPanelRef, RequestEdito
       },
       getBody: () => {
         return bodyEditorRef.current?.getCurrentKeyValuePairs() || [];
+      },
+      getParams: () => {
+        return paramsEditorRef.current?.getCurrentKeyValuePairs() || [];
       },
     }));
 
@@ -94,23 +105,47 @@ export const RequestEditorPanel = forwardRef<RequestEditorPanelRef, RequestEdito
           onSend={onSendRequest}
         />
 
-        <HeadersEditor
-          headers={headers}
-          onAddHeader={onAddHeader}
-          onUpdateHeader={onUpdateHeader}
-          onRemoveHeader={onRemoveHeader}
-          onReorderHeaders={onReorderHeaders}
-        />
-
         <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
-          <h4>{t('request_body_heading')}</h4>
-          <BodyEditorKeyValue
-            ref={bodyEditorRef}
-            initialBody={initialBody}
-            method={method}
-            onChange={onBodyPairsChange}
-            containerHeight={300}
-          />
+          <div className="flex gap-2 mb-2">
+            <TabButton active={activeTab === 'params'} onClick={() => setActiveTab('params')}>
+              {t('param_tab')}
+            </TabButton>
+            <TabButton active={activeTab === 'headers'} onClick={() => setActiveTab('headers')}>
+              {t('header_tab')}
+            </TabButton>
+            <TabButton active={activeTab === 'body'} onClick={() => setActiveTab('body')}>
+              {t('body_tab')}
+            </TabButton>
+          </div>
+          {/* チラつきの抑制のためstyleにて表示切り替え対応 */}
+          <div className={activeTab === 'headers' ? 'block' : 'hidden'}>
+            <HeadersEditor
+              headers={headers}
+              onAddHeader={onAddHeader}
+              onUpdateHeader={onUpdateHeader}
+              onRemoveHeader={onRemoveHeader}
+              onReorderHeaders={onReorderHeaders}
+            />
+          </div>
+          {/* チラつきの抑制のためstyleにて表示切り替え対応 */}
+          <div className={activeTab === 'body' ? 'block' : 'hidden'}>
+            <BodyEditorKeyValue
+              ref={bodyEditorRef}
+              initialBody={initialBody}
+              method={method}
+              onChange={onBodyPairsChange}
+              containerHeight={300}
+            />
+          </div>
+          {/* チラつきの抑制のためstyleにて表示切り替え対応 */}
+          <div className={activeTab === 'params' ? 'block' : 'hidden'}>
+            <ParamsEditorKeyValue
+              ref={paramsEditorRef}
+              initialParams={initialParams}
+              onChange={onParamPairsChange}
+              containerHeight={300}
+            />
+          </div>
         </div>
       </div>
     );
