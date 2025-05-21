@@ -8,8 +8,6 @@ type Shortcuts = {
   onNextTab?: () => void;
   onPrevTab?: () => void;
   onCloseTab?: () => void;
-  onMoveTabRight?: () => void;
-  onMoveTabLeft?: () => void;
 };
 
 export const useKeyboardShortcuts = ({
@@ -19,13 +17,20 @@ export const useKeyboardShortcuts = ({
   onNextTab,
   onPrevTab,
   onCloseTab,
-  onMoveTabRight,
-  onMoveTabLeft,
 }: Shortcuts) => {
   const handler = useCallback(
     (e: KeyboardEvent) => {
       const mod = e.metaKey || e.ctrlKey;
       if (!mod) return;
+
+      // Skip handling for Cmd/Ctrl+Shift+Arrow combinations
+      if (
+        e.shiftKey &&
+        (e.metaKey || e.ctrlKey) &&
+        (e.key === 'ArrowRight' || e.key === 'ArrowLeft')
+      ) {
+        return;
+      }
 
       if (e.key === 's') {
         e.preventDefault();
@@ -51,16 +56,8 @@ export const useKeyboardShortcuts = ({
         e.preventDefault();
         onPrevTab();
       }
-      if (e.shiftKey && e.key === 'ArrowRight' && onMoveTabRight) {
-        e.preventDefault();
-        onMoveTabRight();
-      }
-      if (e.shiftKey && e.key === 'ArrowLeft' && onMoveTabLeft) {
-        e.preventDefault();
-        onMoveTabLeft();
-      }
     },
-    [onSave, onSend, onNew, onNextTab, onPrevTab, onCloseTab, onMoveTabRight, onMoveTabLeft],
+    [onSave, onSend, onNew, onNextTab, onPrevTab, onCloseTab],
   );
 
   useEffect(() => {

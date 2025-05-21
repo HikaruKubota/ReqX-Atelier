@@ -27,8 +27,6 @@
   "shortcut_close_tab": "Close tab: Ctrl+W (Cmd+W)",
   "shortcut_next_tab": "Next tab: Ctrl+Alt+ArrowRight (Cmd+Option+ArrowRight)",
   "shortcut_prev_tab": "Previous tab: Ctrl+Alt+ArrowLeft (Cmd+Option+ArrowLeft)",
-  "shortcut_move_tab_right": "Move tab right: Ctrl+Shift+ArrowRight (Cmd+Shift+ArrowRight)",
-  "shortcut_move_tab_left": "Move tab left: Ctrl+Shift+ArrowLeft (Cmd+Shift+ArrowLeft)",
   "save_success": "Saved successfully!",
   "copy_response": "Copy Response",
   "copy_success": "Copied!",
