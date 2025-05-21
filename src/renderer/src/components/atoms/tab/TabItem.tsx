@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { MethodIcon } from '../MethodIcon';
+import { DragHandleButton } from '../button/DragHandleButton';
 
 interface TabItemProps {
   id: string;
@@ -40,9 +41,8 @@ export const TabItem = React.forwardRef<HTMLDivElement, TabItemProps>(
             : 'border-transparent bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700',
         )}
         onClick={onSelect}
-        {...listeners}
-        {...attributes}
       >
+        <DragHandleButton {...listeners} {...attributes} />
         <MethodIcon method={method} size={16} />
         <span>{label}</span>
         <button
