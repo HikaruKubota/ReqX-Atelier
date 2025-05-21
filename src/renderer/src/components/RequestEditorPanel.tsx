@@ -117,7 +117,8 @@ export const RequestEditorPanel = forwardRef<RequestEditorPanelRef, RequestEdito
               {t('body_tab')}
             </TabButton>
           </div>
-          {activeTab === 'headers' ? (
+          {/* チラつきの抑制のためstyleにて表示切り替え対応 */}
+          <div className={activeTab === 'headers' ? 'block' : 'hidden'}>
             <HeadersEditor
               headers={headers}
               onAddHeader={onAddHeader}
@@ -125,7 +126,9 @@ export const RequestEditorPanel = forwardRef<RequestEditorPanelRef, RequestEdito
               onRemoveHeader={onRemoveHeader}
               onReorderHeaders={onReorderHeaders}
             />
-          ) : activeTab === 'body' ? (
+          </div>
+          {/* チラつきの抑制のためstyleにて表示切り替え対応 */}
+          <div className={activeTab === 'body' ? 'block' : 'hidden'}>
             <BodyEditorKeyValue
               ref={bodyEditorRef}
               initialBody={initialBody}
@@ -133,14 +136,16 @@ export const RequestEditorPanel = forwardRef<RequestEditorPanelRef, RequestEdito
               onChange={onBodyPairsChange}
               containerHeight={300}
             />
-          ) : (
+          </div>
+          {/* チラつきの抑制のためstyleにて表示切り替え対応 */}
+          <div className={activeTab === 'params' ? 'block' : 'hidden'}>
             <ParamsEditorKeyValue
               ref={paramsEditorRef}
               initialParams={initialParams}
               onChange={onParamPairsChange}
               containerHeight={300}
             />
-          )}
+          </div>
         </div>
       </div>
     );
