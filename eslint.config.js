@@ -13,6 +13,9 @@ const compat = new FlatCompat({
 });
 
 export default [
+  {
+    ignores: ['public/mockServiceWorker.js'],
+  },
   ...compat.config({
     env: { browser: true, node: true, es2021: true },
     extends: [
