@@ -17,5 +17,8 @@ export async function sendApiRequest(
       throw new Error('Invalid JSON body');
     }
   }
+  if (process.env.NODE_ENV === 'development') {
+    console.log('[sendApiRequest]', { method, url, data, headers });
+  }
   return await ipcRenderer.invoke('send-api-request', { method, url, data, headers });
 }
