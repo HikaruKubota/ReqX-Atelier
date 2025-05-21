@@ -1,5 +1,6 @@
 import { useCallback } from 'react';
 import type { SavedRequest, RequestEditorPanelRef, RequestHeader, KeyValuePair } from '../types';
+import { buildUrlWithParams } from '../utils/url';
 
 export function useRequestActions({
   editorPanelRef,
@@ -47,13 +48,7 @@ export function useRequestActions({
       );
     let finalUrl = urlRef.current;
     if (methodRef.current === 'GET') {
-      const qs = paramsRef.current
-        .filter((p) => p.enabled && p.keyName.trim() !== '')
-        .map((p) => `${encodeURIComponent(p.keyName)}=${encodeURIComponent(p.value)}`)
-        .join('&');
-      if (qs) {
-        finalUrl += (finalUrl.includes('?') ? '&' : '?') + qs;
-      }
+      finalUrl = buildUrlWithParams(finalUrl, paramsRef.current);
     }
     await executeRequest(methodRef.current, finalUrl, currentBuiltRequestBody, activeHeaders);
   }, [executeRequest, headersRef, methodRef, urlRef, paramsRef]);
