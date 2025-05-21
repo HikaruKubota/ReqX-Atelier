@@ -35,7 +35,7 @@ export const TabList: React.FC<TabListProps> = ({
   return (
     <div
       ref={containerRef}
-      className="sticky top-0 z-10 bg-background flex items-center border-b overflow-x-auto no-scrollbar"
+      className="sticky top-0 z-10 bg-background flex items-center border-t border-b overflow-x-auto no-scrollbar px-2 py-1 mt-1"
     >
       {tabs.map((tab) => (
         <TabItem
