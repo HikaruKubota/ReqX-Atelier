@@ -81,15 +81,14 @@ describe('useKeyboardShortcuts', () => {
         onNextTab: vi.fn(),
         onPrevTab: vi.fn(),
         onCloseTab,
-        onMoveTabRight: vi.fn(),
-        onMoveTabLeft: vi.fn(),
       }),
     );
     press('w');
     expect(onCloseTab).toHaveBeenCalled();
   });
 
-  it('calls onMoveTabRight on ⌘+⇧+→', () => {
+  it('ignores Cmd+⇧+arrow shortcuts', () => {
+    const onMoveTabLeft = vi.fn();
     const onMoveTabRight = vi.fn();
     renderHook(() =>
       useKeyboardShortcuts({
@@ -99,16 +98,17 @@ describe('useKeyboardShortcuts', () => {
         onNextTab: vi.fn(),
         onPrevTab: vi.fn(),
         onCloseTab: vi.fn(),
-        onMoveTabRight,
-        onMoveTabLeft: vi.fn(),
       }),
     );
     press('ArrowRight', { meta: true, shift: true });
-    expect(onMoveTabRight).toHaveBeenCalled();
+    press('ArrowLeft', { meta: true, shift: true });
+    expect(onMoveTabRight).not.toHaveBeenCalled();
+    expect(onMoveTabLeft).not.toHaveBeenCalled();
   });
 
-  it('calls onMoveTabLeft on ⌘+⇧+←', () => {
+  it('ignores Ctrl+⇧+arrow shortcuts', () => {
     const onMoveTabLeft = vi.fn();
+    const onMoveTabRight = vi.fn();
     renderHook(() =>
       useKeyboardShortcuts({
         onSave: vi.fn(),
@@ -117,11 +117,11 @@ describe('useKeyboardShortcuts', () => {
         onNextTab: vi.fn(),
         onPrevTab: vi.fn(),
         onCloseTab: vi.fn(),
-        onMoveTabRight: vi.fn(),
-        onMoveTabLeft,
       }),
     );
-    press('ArrowLeft', { meta: true, shift: true });
-    expect(onMoveTabLeft).toHaveBeenCalled();
+    press('ArrowRight', { ctrl: true, shift: true });
+    press('ArrowLeft', { ctrl: true, shift: true });
+    expect(onMoveTabRight).not.toHaveBeenCalled();
+    expect(onMoveTabLeft).not.toHaveBeenCalled();
   });
 });
