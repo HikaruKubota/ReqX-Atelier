@@ -1,7 +1,7 @@
 import React from 'react';
 import { render, fireEvent } from '@testing-library/react';
 import { describe, it, expect, vi } from 'vitest';
-import '../../i18n';
+import i18n from '../../i18n';
 import { RequestCollectionSidebar } from '../RequestCollectionSidebar';
 import type { SavedRequest } from '../../types';
 
@@ -19,7 +19,7 @@ describe('RequestCollectionSidebar', () => {
       <RequestCollectionSidebar {...baseProps} isOpen onToggle={() => {}} />,
     );
     expect(getByTestId('sidebar').style.width).toBe('250px');
-    expect(getByText('My Collection')).toBeInTheDocument();
+    expect(getByText(i18n.t('collection_title'))).toBeInTheDocument();
   });
 
   it('collapses when closed', () => {
@@ -27,7 +27,7 @@ describe('RequestCollectionSidebar', () => {
       <RequestCollectionSidebar {...baseProps} isOpen={false} onToggle={() => {}} />,
     );
     expect(getByTestId('sidebar').style.width).toBe('40px');
-    expect(queryByText('My Collection')).toBeNull();
+    expect(queryByText(i18n.t('collection_title'))).toBeNull();
   });
 
   it('fires onToggle when button clicked', () => {

@@ -1,4 +1,5 @@
 import React, { useImperativeHandle, forwardRef, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 import type {
   RequestHeader,
   BodyEditorKeyValueRef,
@@ -53,6 +54,7 @@ export const RequestEditorPanel = forwardRef<RequestEditorPanelRef, RequestEdito
     },
     ref,
   ) => {
+    const { t } = useTranslation();
     const bodyEditorRef = useRef<BodyEditorKeyValueRef>(null);
 
     useImperativeHandle(ref, () => ({
@@ -101,7 +103,7 @@ export const RequestEditorPanel = forwardRef<RequestEditorPanelRef, RequestEdito
         />
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
-          <h4>Request Body</h4>
+          <h4>{t('request_body_heading')}</h4>
           <BodyEditorKeyValue
             ref={bodyEditorRef}
             initialBody={initialBody}

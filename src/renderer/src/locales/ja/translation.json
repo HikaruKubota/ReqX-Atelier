@@ -44,5 +44,8 @@
   "method_options": "OPTIONSリクエスト",
   "context_menu_title": "{{name}}",
   "context_menu_copy_request": "リクエストをコピー",
-  "context_menu_delete_request": "リクエストを削除"
+  "context_menu_delete_request": "リクエストを削除",
+  "collection_title": "マイコレクション",
+  "headers_heading": "ヘッダー",
+  "request_body_heading": "リクエストボディ"
 }
