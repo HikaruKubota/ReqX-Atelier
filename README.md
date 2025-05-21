@@ -14,9 +14,9 @@ ReqX Atelier は **Electron + React + Vite** で構築されたシンプルな A
 ## セットアップ
 
 ```bash
-git clone <REPO_URL>
-cd reqx
-npm install
+ git clone <REPO_URL>
+ cd ReqX-Atelier
+ npm install
 ```
 
 ---
@@ -98,6 +98,7 @@ macOS では `.dmg`, Windows では `.exe` などが出力されます。
 ```bash
 npm run lint     # ESLint
 npm run format   # Prettier
+npm run typecheck # 型チェック
 ```
 
 ---
@@ -112,7 +113,7 @@ npm run format   # Prettier
 | `storybook`, `test-storybook`      | Storybook 関連                  |
 | `e2e`                              | Playwright                      |
 | `build:renderer`, `build:electron` | 本番ビルド                      |
-| `lint`, `format`                   | コード品質チェック              |
+| `lint`, `format`, `typecheck`      | コード品質チェック              |
 
 ---
 
