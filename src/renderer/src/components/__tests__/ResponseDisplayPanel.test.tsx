@@ -5,7 +5,7 @@ import { ThemeProvider, useTheme } from '../../theme/ThemeProvider';
 import { ResponseDisplayPanel } from '../ResponseDisplayPanel';
 import '../../i18n';
 
-const sampleResponse = { ok: true };
+const sampleResponse = { data: { ok: true }, headers: { foo: 'bar' } };
 const sampleError = { message: 'bad' };
 
 const Wrapper: React.FC = () => {
@@ -56,7 +56,7 @@ describe('ResponseDisplayPanel', () => {
     const btn = screen.getByRole('button', { name: 'レスポンスをコピー' });
     fireEvent.click(btn);
     expect(navigator.clipboard.writeText).toHaveBeenCalledWith(
-      JSON.stringify(sampleResponse, null, 2),
+      JSON.stringify(sampleResponse.data, null, 2),
     );
     expect(await screen.findByText('コピーしました！')).toBeInTheDocument();
   });
@@ -83,5 +83,22 @@ describe('ResponseDisplayPanel', () => {
       JSON.stringify(sampleError, null, 2),
     );
     expect(await screen.findByText('コピーしました！')).toBeInTheDocument();
+  });
+
+  it('shows headers when tab selected', () => {
+    render(
+      <ThemeProvider>
+        <ResponseDisplayPanel
+          response={sampleResponse}
+          error={null}
+          loading={false}
+          responseTime={123}
+        />
+      </ThemeProvider>,
+    );
+
+    fireEvent.click(screen.getByRole('button', { name: 'ヘッダー' }));
+    expect(screen.getByText(/"foo": "bar"/)).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'ヘッダーをコピー' })).toBeInTheDocument();
   });
 });

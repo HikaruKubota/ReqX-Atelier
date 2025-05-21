@@ -3,12 +3,13 @@ import { useTranslation } from 'react-i18next';
 import { Heading } from './atoms/Heading';
 import { JsonPre } from './atoms/JsonPre';
 import { ErrorAlert } from './molecules/ErrorAlert';
-import { ErrorInfo } from '../types';
+import type { ApiResult, ErrorInfo } from '../types';
 import { CopyButton } from './atoms/button/CopyButton';
 import { Toast } from './atoms/toast/Toast';
+import { TabButton } from './atoms/button/TabButton';
 
 interface ResponseDisplayPanelProps {
-  response: unknown;
+  response: ApiResult | null;
   error: ErrorInfo | null;
   loading: boolean;
   responseTime: number | null;
@@ -22,10 +23,19 @@ export const ResponseDisplayPanel: React.FC<ResponseDisplayPanelProps> = ({
 }) => {
   const { t } = useTranslation();
   const [copyToastOpen, setCopyToastOpen] = React.useState(false);
+  const [activeTab, setActiveTab] = React.useState<'data' | 'headers'>('data');
 
   const handleCopyResponse = React.useCallback(async () => {
     if (!response) return;
-    await navigator.clipboard.writeText(JSON.stringify(response, null, 2));
+    const data = response.data ?? response;
+    await navigator.clipboard.writeText(JSON.stringify(data, null, 2));
+    setCopyToastOpen(true);
+  }, [response]);
+
+  const handleCopyHeaders = React.useCallback(async () => {
+    const headers = response?.headers;
+    if (!headers) return;
+    await navigator.clipboard.writeText(JSON.stringify(headers, null, 2));
     setCopyToastOpen(true);
   }, [response]);
 
@@ -40,15 +50,34 @@ export const ResponseDisplayPanel: React.FC<ResponseDisplayPanelProps> = ({
         <Heading level={2} className="text-xl font-bold">
           {t('response_heading')}
         </Heading>
-        {response ? <CopyButton onClick={handleCopyResponse} /> : null}
+        {response && activeTab === 'data' && <CopyButton onClick={handleCopyResponse} />}
+        {response && activeTab === 'headers' && response.headers && (
+          <CopyButton onClick={handleCopyHeaders} labelKey="copy_headers" />
+        )}
       </div>
       {responseTime !== null && (
         <p className="text-gray-500">{t('response_time', { time: responseTime })}</p>
       )}
-      <ErrorAlert error={error} onCopy={handleCopyError} />
       {response && (
+        <div className="flex gap-2 my-2">
+          <TabButton active={activeTab === 'data'} onClick={() => setActiveTab('data')}>
+            {t('data_tab')}
+          </TabButton>
+          <TabButton active={activeTab === 'headers'} onClick={() => setActiveTab('headers')}>
+            {t('header_tab')}
+          </TabButton>
+        </div>
+      )}
+      <ErrorAlert error={error} onCopy={handleCopyError} />
+      {response && activeTab === 'data' && (
         <JsonPre
-          data={response}
+          data={response.data ?? response}
+          className="bg-green-50 dark:bg-green-900 p-4 whitespace-pre-wrap break-words rounded border border-green-200 dark:border-green-700 dark:text-green-100"
+        />
+      )}
+      {response && activeTab === 'headers' && response.headers && (
+        <JsonPre
+          data={response.headers}
           className="bg-green-50 dark:bg-green-900 p-4 whitespace-pre-wrap break-words rounded border border-green-200 dark:border-green-700 dark:text-green-100"
         />
       )}
