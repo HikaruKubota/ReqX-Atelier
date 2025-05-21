@@ -107,14 +107,14 @@ export const RequestEditorPanel = forwardRef<RequestEditorPanelRef, RequestEdito
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
           <div className="flex gap-2 mb-2">
+            <TabButton active={activeTab === 'params'} onClick={() => setActiveTab('params')}>
+              {t('param_tab')}
+            </TabButton>
             <TabButton active={activeTab === 'headers'} onClick={() => setActiveTab('headers')}>
               {t('header_tab')}
             </TabButton>
             <TabButton active={activeTab === 'body'} onClick={() => setActiveTab('body')}>
               {t('body_tab')}
-            </TabButton>
-            <TabButton active={activeTab === 'params'} onClick={() => setActiveTab('params')}>
-              {t('param_tab')}
             </TabButton>
           </div>
           {activeTab === 'headers' ? (
