@@ -1,7 +1,11 @@
 import React, { useRef, useEffect } from 'react';
 import { DndContext, type DragEndEvent } from '@dnd-kit/core';
 import { SortableContext } from '@dnd-kit/sortable';
-import { restrictToParentElement, restrictToWindowEdges } from '@dnd-kit/modifiers';
+import {
+  restrictToParentElement,
+  restrictToWindowEdges,
+  restrictToHorizontalAxis,
+} from '@dnd-kit/modifiers';
 import { TabItem } from '../atoms/tab/TabItem';
 import { NewRequestIconButton } from '../atoms/button/NewRequestIconButton';
 
@@ -30,7 +34,7 @@ export const TabList: React.FC<TabListProps> = ({
 }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const activeRef = useRef<HTMLDivElement>(null);
-  const modifiers = [restrictToParentElement, restrictToWindowEdges];
+  const modifiers = [restrictToParentElement, restrictToWindowEdges, restrictToHorizontalAxis];
 
   useEffect(() => {
     if (activeRef.current) {
