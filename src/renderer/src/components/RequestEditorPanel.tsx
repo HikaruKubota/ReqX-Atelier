@@ -117,13 +117,6 @@ export const RequestEditorPanel = forwardRef<RequestEditorPanelRef, RequestEdito
               {t('param_tab')}
             </TabButton>
           </div>
-          <h4>
-            {activeTab === 'headers'
-              ? t('headers_heading')
-              : activeTab === 'body'
-                ? t('request_body_heading')
-                : t('request_params_heading')}
-          </h4>
           {activeTab === 'headers' ? (
             <HeadersEditor
               headers={headers}
