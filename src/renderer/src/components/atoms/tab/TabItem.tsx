@@ -17,10 +17,18 @@ interface TabItemProps {
 export const TabItem = React.forwardRef<HTMLDivElement, TabItemProps>(
   ({ id, label, method, active, onSelect, onClose }, ref) => {
     const { t } = useTranslation();
-    const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id });
+    const {
+      attributes,
+      listeners,
+      setNodeRef,
+      transform,
+      transition,
+      isDragging,
+    } = useSortable({ id });
     const style = {
       transform: CSS.Transform.toString(transform),
       transition,
+      opacity: isDragging ? 0.6 : 1,
     };
 
     const combinedRef = (node: HTMLDivElement | null) => {
@@ -39,7 +47,10 @@ export const TabItem = React.forwardRef<HTMLDivElement, TabItemProps>(
             ? 'font-bold border-blue-500 bg-white dark:bg-gray-700'
             : 'border-transparent bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700',
         )}
-        onClick={onSelect}
+        onClick={() => {
+          if (isDragging) return;
+          onSelect();
+        }}
         {...listeners}
         {...attributes}
       >

@@ -1,6 +1,16 @@
 import React, { useRef, useEffect } from 'react';
-import { DndContext, type DragEndEvent } from '@dnd-kit/core';
-import { SortableContext } from '@dnd-kit/sortable';
+import {
+  DndContext,
+  type DragEndEvent,
+  PointerSensor,
+  KeyboardSensor,
+  useSensor,
+  useSensors,
+} from '@dnd-kit/core';
+import {
+  SortableContext,
+  sortableKeyboardCoordinates,
+} from '@dnd-kit/sortable';
 import {
   restrictToParentElement,
   restrictToWindowEdges,
@@ -34,6 +44,13 @@ export const TabList: React.FC<TabListProps> = ({
 }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const activeRef = useRef<HTMLDivElement>(null);
+  // クリックとドラッグを明確に分離するセンサ設定
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    }),
+  );
   const modifiers = [restrictToParentElement, restrictToWindowEdges, restrictToHorizontalAxis];
 
   useEffect(() => {
@@ -49,7 +66,7 @@ export const TabList: React.FC<TabListProps> = ({
   };
 
   return (
-    <DndContext onDragEnd={handleDragEnd} modifiers={modifiers}>
+    <DndContext sensors={sensors} onDragEnd={handleDragEnd} modifiers={modifiers}>
       <SortableContext items={tabs.map((t) => t.tabId)}>
         <div
           ref={containerRef}
