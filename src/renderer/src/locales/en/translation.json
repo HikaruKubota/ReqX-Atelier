@@ -49,6 +49,7 @@
   "headers_heading": "Headers",
   "request_body_heading": "Request Body",
   "request_params_heading": "Request Params",
+  "header_tab": "Headers",
   "body_tab": "Body",
   "param_tab": "Params",
   "add_param_row": "Add Param Row"

@@ -49,6 +49,7 @@
   "headers_heading": "ヘッダー",
   "request_body_heading": "リクエストボディ",
   "request_params_heading": "リクエストパラメータ",
+  "header_tab": "ヘッダー",
   "body_tab": "ボディ",
   "param_tab": "パラメータ",
   "add_param_row": "パラメータ行を追加"
