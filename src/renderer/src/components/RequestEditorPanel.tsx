@@ -8,6 +8,7 @@ import type {
 } from '../types';
 import { HeadersEditor } from './HeadersEditor';
 import { BodyEditorKeyValue } from './BodyEditorKeyValue';
+import { ParamsEditorKeyValue } from './ParamsEditorKeyValue';
 import { RequestNameRow } from './molecules/RequestNameRow';
 import { RequestMethodRow } from './molecules/RequestMethodRow';
 
@@ -19,11 +20,13 @@ interface RequestEditorPanelProps {
   url: string;
   onUrlChange: (url: string) => void;
   initialBody?: KeyValuePair[];
+  initialParams?: KeyValuePair[];
   activeRequestId: string | null;
   loading: boolean;
   onSaveRequest: () => void;
   onSendRequest: () => void;
   onBodyPairsChange: (pairs: KeyValuePair[]) => void;
+  onParamPairsChange: (pairs: KeyValuePair[]) => void;
   headers: RequestHeader[];
   onAddHeader: () => void;
   onUpdateHeader: (id: string, field: 'key' | 'value' | 'enabled', value: string | boolean) => void;
@@ -41,11 +44,13 @@ export const RequestEditorPanel = forwardRef<RequestEditorPanelRef, RequestEdito
       url,
       onUrlChange,
       initialBody,
+      initialParams,
       activeRequestId,
       loading,
       onSaveRequest,
       onSendRequest,
       onBodyPairsChange,
+      onParamPairsChange,
       headers,
       onAddHeader,
       onUpdateHeader,
@@ -56,6 +61,7 @@ export const RequestEditorPanel = forwardRef<RequestEditorPanelRef, RequestEdito
   ) => {
     const { t } = useTranslation();
     const bodyEditorRef = useRef<BodyEditorKeyValueRef>(null);
+    const paramsEditorRef = useRef<BodyEditorKeyValueRef>(null);
 
     useImperativeHandle(ref, () => ({
       getRequestBodyAsJson: () => {
@@ -63,6 +69,9 @@ export const RequestEditorPanel = forwardRef<RequestEditorPanelRef, RequestEdito
       },
       getBody: () => {
         return bodyEditorRef.current?.getCurrentKeyValuePairs() || [];
+      },
+      getParams: () => {
+        return paramsEditorRef.current?.getCurrentKeyValuePairs() || [];
       },
     }));
 
@@ -101,6 +110,19 @@ export const RequestEditorPanel = forwardRef<RequestEditorPanelRef, RequestEdito
           onRemoveHeader={onRemoveHeader}
           onReorderHeaders={onReorderHeaders}
         />
+
+        {method === 'GET' && (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
+            <h4>{t('request_params_heading')}</h4>
+            <ParamsEditorKeyValue
+              ref={paramsEditorRef}
+              initialParams={initialParams}
+              method={method}
+              onChange={onParamPairsChange}
+              containerHeight={150}
+            />
+          </div>
+        )}
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
           <h4>{t('request_body_heading')}</h4>

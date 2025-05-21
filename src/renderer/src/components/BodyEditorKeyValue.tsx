@@ -16,10 +16,11 @@ interface BodyEditorKeyValueProps {
   method: string; // To determine if body is applicable and to re-initialize on method change
   onChange?: (pairs: KeyValuePair[]) => void;
   containerHeight?: number | string;
+  editorType?: 'body' | 'params';
 }
 
 export const BodyEditorKeyValue = forwardRef<BodyEditorKeyValueRef, BodyEditorKeyValueProps>(
-  ({ initialBody, method, onChange, containerHeight = 300 }, ref) => {
+  ({ initialBody, method, onChange, containerHeight = 300, editorType = 'body' }, ref) => {
     const { t } = useTranslation();
     const [body, setBody] = useState<KeyValuePair[]>([]);
     const [showImport, setShowImport] = useState(false);
@@ -31,7 +32,7 @@ export const BodyEditorKeyValue = forwardRef<BodyEditorKeyValueRef, BodyEditorKe
     ];
 
     useEffect(() => {
-      if (method === 'GET' || method === 'HEAD') {
+      if (editorType === 'body' && (method === 'GET' || method === 'HEAD')) {
         if (body.length > 0) {
           setBody([]);
         }
@@ -52,7 +53,7 @@ export const BodyEditorKeyValue = forwardRef<BodyEditorKeyValueRef, BodyEditorKe
           },
         ]);
       }
-    }, [initialBody, method]);
+    }, [initialBody, method, editorType]);
 
     useEffect(() => {
       onChange?.(body);
@@ -79,7 +80,7 @@ export const BodyEditorKeyValue = forwardRef<BodyEditorKeyValueRef, BodyEditorKe
 
     useImperativeHandle(ref, () => ({
       getCurrentBodyAsJson: () => {
-        if (method === 'GET' || method === 'HEAD' || body.length === 0) {
+        if (editorType !== 'body' || method === 'GET' || method === 'HEAD' || body.length === 0) {
           return '';
         }
         try {
@@ -154,7 +155,7 @@ export const BodyEditorKeyValue = forwardRef<BodyEditorKeyValueRef, BodyEditorKe
 
     const isBodyApplicable = !(method === 'GET' || method === 'HEAD');
 
-    if (!isBodyApplicable) {
+    if (editorType === 'body' && !isBodyApplicable) {
       return (
         <p style={{ color: '#6c757d', fontSize: '0.9em' }}>
           {t('body_not_applicable', { method })}
@@ -183,46 +184,52 @@ export const BodyEditorKeyValue = forwardRef<BodyEditorKeyValueRef, BodyEditorKe
             onClick={handleAddKeyValuePair}
             className="px-4 py-2 text-sm text-white bg-blue-500 rounded"
           >
-            {t('add_body_row') || 'Add Body Row'}
+            {editorType === 'body'
+              ? t('add_body_row') || 'Add Body Row'
+              : t('add_param_row') || 'Add Parameter Row'}
           </button>
-          <button
-            onClick={() => {
-              setShowImport(true);
-              setImportText('');
-              setImportError('');
-            }}
-            className="px-4 py-2 text-sm text-white bg-gray-600 rounded"
-          >
-            {t('import_json') || 'Import JSON'}
-          </button>
+          {editorType === 'body' && (
+            <button
+              onClick={() => {
+                setShowImport(true);
+                setImportText('');
+                setImportError('');
+              }}
+              className="px-4 py-2 text-sm text-white bg-gray-600 rounded"
+            >
+              {t('import_json') || 'Import JSON'}
+            </button>
+          )}
           <EnableAllButton onClick={() => handleToggleAll(true)} disabled={body.length === 0} />
           <DisableAllButton onClick={() => handleToggleAll(false)} disabled={body.length === 0} />
         </div>
-        <Modal isOpen={showImport} onClose={() => setShowImport(false)} size="xl">
-          <textarea
-            value={importText}
-            placeholder={t('paste_json') || 'Paste JSON here'}
-            onChange={(e) => setImportText(e.target.value)}
-            style={{ width: '100%', height: '300px' }}
-          />
-          {importError && <p style={{ color: 'red' }}>{importError}</p>}
-          <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px' }}>
-            <button onClick={() => setShowImport(false)}>{t('cancel') || 'Cancel'}</button>
-            <button
-              onClick={() => {
-                if (importFromJson(importText)) {
-                  setShowImport(false);
-                  setImportText('');
-                  setImportError('');
-                } else {
-                  setImportError(t('invalid_json'));
-                }
-              }}
-            >
-              {t('import') || 'Import'}
-            </button>
-          </div>
-        </Modal>
+        {editorType === 'body' && (
+          <Modal isOpen={showImport} onClose={() => setShowImport(false)} size="xl">
+            <textarea
+              value={importText}
+              placeholder={t('paste_json') || 'Paste JSON here'}
+              onChange={(e) => setImportText(e.target.value)}
+              style={{ width: '100%', height: '300px' }}
+            />
+            {importError && <p style={{ color: 'red' }}>{importError}</p>}
+            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px' }}>
+              <button onClick={() => setShowImport(false)}>{t('cancel') || 'Cancel'}</button>
+              <button
+                onClick={() => {
+                  if (importFromJson(importText)) {
+                    setShowImport(false);
+                    setImportText('');
+                    setImportError('');
+                  } else {
+                    setImportError(t('invalid_json'));
+                  }
+                }}
+              >
+                {t('import') || 'Import'}
+              </button>
+            </div>
+          </Modal>
+        )}
       </div>
     );
   },

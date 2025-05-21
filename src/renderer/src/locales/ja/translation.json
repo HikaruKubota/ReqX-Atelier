@@ -47,5 +47,7 @@
   "context_menu_delete_request": "リクエストを削除",
   "collection_title": "マイコレクション",
   "headers_heading": "ヘッダー",
-  "request_body_heading": "リクエストボディ"
+  "request_params_heading": "URLパラメータ",
+  "request_body_heading": "リクエストボディ",
+  "add_param_row": "パラメータ行を追加"
 }

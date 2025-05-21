@@ -1,11 +1,12 @@
 import { useCallback } from 'react';
-import type { SavedRequest, RequestEditorPanelRef, RequestHeader } from '../types';
+import type { SavedRequest, RequestEditorPanelRef, RequestHeader, KeyValuePair } from '../types';
 
 export function useRequestActions({
   editorPanelRef,
   methodRef,
   urlRef,
   headersRef,
+  paramsRef,
   requestNameForSaveRef,
   setRequestNameForSave,
   activeRequestIdRef,
@@ -18,6 +19,7 @@ export function useRequestActions({
   methodRef: React.RefObject<string>;
   urlRef: React.RefObject<string>;
   headersRef: React.RefObject<RequestHeader[]>;
+  paramsRef: React.RefObject<KeyValuePair[]>;
   requestNameForSaveRef: React.RefObject<string>;
   setRequestNameForSave: (name: string) => void;
   activeRequestIdRef: React.RefObject<string | null>;
@@ -43,8 +45,18 @@ export function useRequestActions({
         },
         {} as Record<string, string>,
       );
-    await executeRequest(methodRef.current, urlRef.current, currentBuiltRequestBody, activeHeaders);
-  }, [executeRequest, headersRef, methodRef, urlRef]);
+    let finalUrl = urlRef.current;
+    if (methodRef.current === 'GET') {
+      const qs = paramsRef.current
+        .filter((p) => p.enabled && p.keyName.trim() !== '')
+        .map((p) => `${encodeURIComponent(p.keyName)}=${encodeURIComponent(p.value)}`)
+        .join('&');
+      if (qs) {
+        finalUrl += (finalUrl.includes('?') ? '&' : '?') + qs;
+      }
+    }
+    await executeRequest(methodRef.current, finalUrl, currentBuiltRequestBody, activeHeaders);
+  }, [executeRequest, headersRef, methodRef, urlRef, paramsRef]);
 
   // リクエスト保存
   const executeSaveRequest = useCallback(() => {
@@ -56,6 +68,7 @@ export function useRequestActions({
     const currentMethod = methodRef.current;
     const currentUrl = urlRef.current;
     const bodyFromEditor = editorPanelRef.current?.getBody() || [];
+    const paramsFromEditor = paramsRef.current;
     const currentActiveRequestId = activeRequestIdRef.current;
     const currentHeaders = headersRef.current;
 
@@ -65,6 +78,7 @@ export function useRequestActions({
       url: currentUrl,
       headers: currentHeaders,
       body: bodyFromEditor,
+      params: paramsFromEditor,
     };
 
     if (currentActiveRequestId) {
@@ -83,6 +97,7 @@ export function useRequestActions({
     urlRef,
     activeRequestIdRef,
     headersRef,
+    paramsRef,
   ]);
 
   return { executeSendRequest, executeSaveRequest };

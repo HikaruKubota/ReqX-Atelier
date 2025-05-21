@@ -1,17 +1,20 @@
 import { renderHook, act } from '@testing-library/react';
 import { describe, it, expect, vi } from 'vitest';
 import { useRequestActions } from '../useRequestActions';
+import type { KeyValuePair } from '../../types';
 
 const getMockRefs = () => ({
   editorPanelRef: {
     current: {
       getRequestBodyAsJson: () => '{"foo":"bar"}',
       getBody: () => [{ id: 'kv1', keyName: 'foo', value: 'bar', enabled: true }],
+      getParams: () => [],
     },
   },
   methodRef: { current: 'POST' },
   urlRef: { current: 'https://example.com' },
   headersRef: { current: [{ id: 'h1', key: 'X-Test', value: '1', enabled: true }] },
+  paramsRef: { current: [] as KeyValuePair[] },
   requestNameForSaveRef: { current: 'テストリクエスト' },
   activeRequestIdRef: { current: null as string | null },
   setRequestNameForSave: vi.fn(),
@@ -71,6 +74,7 @@ describe('useRequestActions', () => {
       url: 'https://example.com',
       headers: [{ id: 'h1', key: 'X-Test', value: '1', enabled: true }],
       body: [{ id: 'kv1', keyName: 'foo', value: 'bar', enabled: true }],
+      params: [],
     });
     expect(mockSetActiveRequestId).toHaveBeenCalledWith('new-id');
     expect(refs.setRequestNameForSave).toHaveBeenCalledWith('テストリクエスト');
@@ -102,6 +106,7 @@ describe('useRequestActions', () => {
       url: 'https://example.com',
       headers: [{ id: 'h1', key: 'X-Test', value: '1', enabled: true }],
       body: [{ id: 'kv1', keyName: 'foo', value: 'bar', enabled: true }],
+      params: [],
     });
     expect(refs.setRequestNameForSave).toHaveBeenCalledWith('テストリクエスト');
   });
@@ -133,6 +138,7 @@ describe('useRequestActions', () => {
       url: 'https://example.com',
       headers: [{ id: 'h1', key: 'X-Test', value: '1', enabled: true }],
       body: [{ id: 'kv1', keyName: 'foo', value: 'bar', enabled: true }],
+      params: [],
     });
     expect(mockSetActiveRequestId).toHaveBeenCalledWith('new-id');
     expect(refs.setRequestNameForSave).toHaveBeenCalledWith('Untitled Request');

@@ -23,51 +23,57 @@ const migrateRequests = (stored: unknown): SavedRequest[] => {
   try {
     const list = (stored as { savedRequests?: unknown }).savedRequests ?? stored;
     if (!Array.isArray(list)) return [];
-    return (list as Array<Partial<SavedRequest> & { body?: unknown }>).map((req) => {
-      let bodyPairs: KeyValuePair[] | undefined = Array.isArray(req.body)
-        ? (req.body as KeyValuePair[])
-        : undefined;
-      const legacyBody = Array.isArray(
-        (req as Partial<SavedRequest> & { bodyKeyValuePairs?: unknown }).bodyKeyValuePairs,
-      )
-        ? ((req as Partial<SavedRequest> & { bodyKeyValuePairs?: unknown })
-            .bodyKeyValuePairs as KeyValuePair[])
-        : undefined;
+    return (list as Array<Partial<SavedRequest> & { body?: unknown; params?: unknown }>).map(
+      (req) => {
+        let bodyPairs: KeyValuePair[] | undefined = Array.isArray(req.body)
+          ? (req.body as KeyValuePair[])
+          : undefined;
+        const paramsPairs: KeyValuePair[] | undefined = Array.isArray(req.params)
+          ? (req.params as KeyValuePair[])
+          : [];
+        const legacyBody = Array.isArray(
+          (req as Partial<SavedRequest> & { bodyKeyValuePairs?: unknown }).bodyKeyValuePairs,
+        )
+          ? ((req as Partial<SavedRequest> & { bodyKeyValuePairs?: unknown })
+              .bodyKeyValuePairs as KeyValuePair[])
+          : undefined;
 
-      if (!bodyPairs) {
-        if (legacyBody) {
-          bodyPairs = legacyBody;
-        } else if (typeof req.body === 'string') {
-          try {
-            const parsed = JSON.parse(req.body);
-            if (typeof parsed === 'object' && parsed !== null && !Array.isArray(parsed)) {
-              bodyPairs = Object.entries(parsed).map(([k, v], i) => ({
-                id: `kv-migrated-${k}-${i}-${Date.now()}`,
-                keyName: k,
-                value: typeof v === 'string' ? v : JSON.stringify(v, null, 2),
-                enabled: true,
-              }));
-            } else {
+        if (!bodyPairs) {
+          if (legacyBody) {
+            bodyPairs = legacyBody;
+          } else if (typeof req.body === 'string') {
+            try {
+              const parsed = JSON.parse(req.body);
+              if (typeof parsed === 'object' && parsed !== null && !Array.isArray(parsed)) {
+                bodyPairs = Object.entries(parsed).map(([k, v], i) => ({
+                  id: `kv-migrated-${k}-${i}-${Date.now()}`,
+                  keyName: k,
+                  value: typeof v === 'string' ? v : JSON.stringify(v, null, 2),
+                  enabled: true,
+                }));
+              } else {
+                bodyPairs = [];
+              }
+            } catch {
               bodyPairs = [];
             }
-          } catch {
+          } else {
             bodyPairs = [];
           }
-        } else {
-          bodyPairs = [];
         }
-      }
 
-      return {
-        ...req,
-        id: req.id || `saved-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`,
-        name: req.name || 'Untitled Request',
-        method: req.method || 'GET',
-        url: req.url || '',
-        headers: req.headers || [],
-        body: bodyPairs || legacyBody || [],
-      } as SavedRequest;
-    });
+        return {
+          ...req,
+          id: req.id || `saved-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`,
+          name: req.name || 'Untitled Request',
+          method: req.method || 'GET',
+          url: req.url || '',
+          headers: req.headers || [],
+          body: bodyPairs || legacyBody || [],
+          params: paramsPairs || [],
+        } as SavedRequest;
+      },
+    );
   } catch {
     return [];
   }
@@ -105,11 +111,13 @@ export const useSavedRequestsStore = create<SavedRequestsState>()(
       addRequest: (req) => {
         const newId = `saved-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`;
         const bodyPairs = req.body ?? [];
+        const paramsPairs = req.params ?? [];
         const newReq: SavedRequest = {
           ...req,
           id: newId,
           headers: req.headers || [],
           body: bodyPairs,
+          params: paramsPairs,
         };
         set({ savedRequests: [...get().savedRequests, newReq] });
         return newId;
@@ -119,7 +127,8 @@ export const useSavedRequestsStore = create<SavedRequestsState>()(
           savedRequests: get().savedRequests.map((r) => {
             if (r.id !== id) return r;
             const bodyPairs = updated.body ?? r.body;
-            return { ...r, ...updated, body: bodyPairs };
+            const paramsPairs = updated.params ?? r.params;
+            return { ...r, ...updated, body: bodyPairs, params: paramsPairs };
           }),
         });
       },
