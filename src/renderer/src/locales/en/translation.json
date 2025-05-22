@@ -59,5 +59,9 @@
   "save_request": "Save Request",
   "update_request": "Update Request",
   "request_url_placeholder": "Enter request URL (e.g., https://api.example.com/users)",
-  "request_name_placeholder": "Request Name (e.g., Get User Details)"
+  "request_name_placeholder": "Request Name (e.g., Get User Details)",
+  "context_menu_new_folder": "New Folder",
+  "context_menu_rename_folder": "Rename Folder",
+  "context_menu_delete_folder": "Delete Folder",
+  "prompt_folder_name": "Folder Name"
 }

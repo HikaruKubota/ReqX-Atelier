@@ -101,6 +101,53 @@ describe('savedFolders CRUD', () => {
   });
 });
 
+describe('move items between folders', () => {
+  it('moves request to folder and back', async () => {
+    const { useSavedRequestsStore } = await import('../savedRequestsStore');
+    const reqId = useSavedRequestsStore.getState().addRequest({
+      name: 'Req',
+      method: 'GET',
+      url: 'https://example.com',
+      headers: [],
+      body: [],
+    });
+    const folderId = useSavedRequestsStore.getState().addFolder({
+      name: 'F',
+      parentFolderId: null,
+      requestIds: [],
+      subFolderIds: [],
+    });
+    useSavedRequestsStore.getState().moveRequestToFolder(reqId, folderId);
+    let folder = useSavedRequestsStore.getState().savedFolders.find((f) => f.id === folderId);
+    expect(folder?.requestIds).toContain(reqId);
+    useSavedRequestsStore.getState().moveRequestToFolder(reqId, null);
+    folder = useSavedRequestsStore.getState().savedFolders.find((f) => f.id === folderId);
+    expect(folder?.requestIds).not.toContain(reqId);
+  });
+
+  it('moves folder under another folder', async () => {
+    const { useSavedRequestsStore } = await import('../savedRequestsStore');
+    const parent = useSavedRequestsStore.getState().addFolder({
+      name: 'P',
+      parentFolderId: null,
+      requestIds: [],
+      subFolderIds: [],
+    });
+    const child = useSavedRequestsStore.getState().addFolder({
+      name: 'C',
+      parentFolderId: null,
+      requestIds: [],
+      subFolderIds: [],
+    });
+    useSavedRequestsStore.getState().moveFolderToFolder(child, parent);
+    const folders = useSavedRequestsStore.getState().savedFolders;
+    const parentFolder = folders.find((f) => f.id === parent);
+    const childFolder = folders.find((f) => f.id === child);
+    expect(parentFolder?.subFolderIds).toContain(child);
+    expect(childFolder?.parentFolderId).toBe(parent);
+  });
+});
+
 describe('copyRequest', () => {
   it('duplicates a request with copy suffix', async () => {
     const { useSavedRequestsStore } = await import('../savedRequestsStore');

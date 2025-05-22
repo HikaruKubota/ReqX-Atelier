@@ -59,5 +59,9 @@
   "save_request": "リクエストを保存",
   "update_request": "リクエストを更新",
   "request_url_placeholder": "リクエストURLを入力 (例: https://api.example.com/users)",
-  "request_name_placeholder": "リクエスト名 (例: Get User Details)"
+  "request_name_placeholder": "リクエスト名 (例: Get User Details)",
+  "context_menu_new_folder": "新規フォルダ",
+  "context_menu_rename_folder": "フォルダ名を変更",
+  "context_menu_delete_folder": "フォルダを削除",
+  "prompt_folder_name": "フォルダ名"
 }

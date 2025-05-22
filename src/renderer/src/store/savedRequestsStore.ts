@@ -14,6 +14,8 @@ export interface SavedRequestsState {
   updateFolder: (id: string, updated: Partial<Omit<SavedFolder, 'id'>>) => void;
   deleteFolder: (id: string) => void;
   setFolders: (folders: SavedFolder[]) => void;
+  moveRequestToFolder: (requestId: string, folderId: string | null) => void;
+  moveFolderToFolder: (folderId: string, targetFolderId: string | null) => void;
 }
 
 const LOCAL_STORAGE_KEY = 'reqx_saved_requests';
@@ -154,7 +156,15 @@ export const useSavedRequestsStore = create<SavedRequestsState>()(
           requestIds: folder.requestIds ?? [],
           subFolderIds: folder.subFolderIds ?? [],
         };
-        set({ savedFolders: [...get().savedFolders, newFolder] });
+        set((state) => {
+          let folders = state.savedFolders.map((f) =>
+            f.id === newFolder.parentFolderId
+              ? { ...f, subFolderIds: [...f.subFolderIds, newId] }
+              : f,
+          );
+          folders = [...folders, newFolder];
+          return { savedFolders: folders };
+        });
         return newId;
       },
       updateFolder: (id, updated) => {
@@ -173,9 +183,53 @@ export const useSavedRequestsStore = create<SavedRequestsState>()(
         });
       },
       deleteFolder: (id) => {
-        set({ savedFolders: get().savedFolders.filter((f) => f.id !== id) });
+        set((state) => {
+          const target = state.savedFolders.find((f) => f.id === id);
+          if (!target) return { savedFolders: state.savedFolders };
+          let folders = state.savedFolders
+            .filter((f) => f.id !== id)
+            .map((f) => ({
+              ...f,
+              subFolderIds: f.subFolderIds.filter((sub) => sub !== id),
+            }));
+          folders = folders.map((f) =>
+            target.subFolderIds.includes(f.id) ? { ...f, parentFolderId: null } : f,
+          );
+          return { savedFolders: folders };
+        });
       },
       setFolders: (folders) => set({ savedFolders: folders }),
+      moveRequestToFolder: (requestId, folderId) => {
+        set((state) => {
+          let folders = state.savedFolders.map((f) => ({
+            ...f,
+            requestIds: f.requestIds.filter((id) => id !== requestId),
+          }));
+          if (folderId) {
+            folders = folders.map((f) =>
+              f.id === folderId ? { ...f, requestIds: [...f.requestIds, requestId] } : f,
+            );
+          }
+          return { savedFolders: folders };
+        });
+      },
+      moveFolderToFolder: (folderId, targetFolderId) => {
+        set((state) => {
+          let folders = state.savedFolders.map((f) => ({
+            ...f,
+            subFolderIds: f.subFolderIds.filter((sub) => sub !== folderId),
+          }));
+          const idx = folders.findIndex((f) => f.id === folderId);
+          if (idx === -1) return { savedFolders: folders };
+          folders[idx] = { ...folders[idx], parentFolderId: targetFolderId };
+          if (targetFolderId) {
+            folders = folders.map((f) =>
+              f.id === targetFolderId ? { ...f, subFolderIds: [...f.subFolderIds, folderId] } : f,
+            );
+          }
+          return { savedFolders: folders };
+        });
+      },
     }),
     {
       name: LOCAL_STORAGE_KEY,
