@@ -7,10 +7,7 @@ import {
   useSensor,
   useSensors,
 } from '@dnd-kit/core';
-import {
-  SortableContext,
-  sortableKeyboardCoordinates,
-} from '@dnd-kit/sortable';
+import { SortableContext, sortableKeyboardCoordinates } from '@dnd-kit/sortable';
 import {
   restrictToParentElement,
   restrictToWindowEdges,

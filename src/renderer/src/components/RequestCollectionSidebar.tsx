@@ -1,32 +1,44 @@
-import React, { useState } from 'react';
-import type { SavedRequest } from '../types';
-import { RequestListItem } from './atoms/list/RequestListItem';
+import React from 'react';
+import type { SavedRequest, SavedFolder } from '../types';
+import { RequestCollectionTree } from './RequestCollectionTree';
 import { SidebarToggleButton } from './atoms/button/SidebarToggleButton';
-import { ContextMenu } from './atoms/menu/ContextMenu';
+import { NewFolderIconButton } from './atoms/button/NewFolderIconButton';
 import { useTranslation } from 'react-i18next';
 
 interface RequestCollectionSidebarProps {
   savedRequests: SavedRequest[];
+  savedFolders: SavedFolder[];
   activeRequestId: string | null;
   onLoadRequest: (request: SavedRequest) => void;
   onDeleteRequest: (id: string) => void;
   onCopyRequest: (id: string) => void;
+  onAddFolder: (parentId: string | null) => void;
+  onAddRequest: (parentId: string | null) => void;
+  onRenameFolder: (id: string) => void;
+  onDeleteFolder: (id: string) => void;
+  moveRequest: (id: string, folderId: string | null, index?: number) => void;
+  moveFolder: (id: string, folderId: string | null, index?: number) => void;
   isOpen: boolean;
   onToggle: () => void;
 }
 
 export const RequestCollectionSidebar: React.FC<RequestCollectionSidebarProps> = ({
   savedRequests,
+  savedFolders,
   activeRequestId,
   onLoadRequest,
   onDeleteRequest,
   onCopyRequest,
+  onAddFolder,
+  onAddRequest,
+  onRenameFolder,
+  onDeleteFolder,
+  moveRequest,
+  moveFolder,
   isOpen,
   onToggle,
 }) => {
   const { t } = useTranslation();
-  const [menu, setMenu] = useState<{ id: string; x: number; y: number } | null>(null);
-  const closeMenu = () => setMenu(null);
   return (
     <div
       data-testid="sidebar"
@@ -38,40 +50,29 @@ export const RequestCollectionSidebar: React.FC<RequestCollectionSidebarProps> =
       {isOpen && (
         <>
           <h2 className="mt-0 mb-[10px] text-[1.2em]">{t('collection_title')}</h2>
+          <div className="mb-2">
+            <NewFolderIconButton onClick={() => onAddFolder(null)} />
+          </div>
           <div className="flex-grow overflow-y-auto">
-            {savedRequests.length === 0 && (
+            {savedRequests.length === 0 && savedFolders.length === 0 && (
               <p className="text-gray-500">{t('no_saved_requests')}</p>
             )}
-            {savedRequests.map((req) => (
-              <RequestListItem
-                key={req.id}
-                request={req}
-                isActive={activeRequestId === req.id}
-                onClick={() => onLoadRequest(req)}
-                onContextMenu={(e) => setMenu({ id: req.id, x: e.clientX, y: e.clientY })}
-              />
-            ))}
+            <RequestCollectionTree
+              folders={savedFolders}
+              requests={savedRequests}
+              activeRequestId={activeRequestId}
+              onLoadRequest={onLoadRequest}
+              onDeleteRequest={onDeleteRequest}
+              onCopyRequest={onCopyRequest}
+              onAddFolder={onAddFolder}
+              onAddRequest={onAddRequest}
+              onRenameFolder={onRenameFolder}
+              onDeleteFolder={onDeleteFolder}
+              moveRequest={moveRequest}
+              moveFolder={moveFolder}
+            />
           </div>
         </>
-      )}
-      {menu && (
-        <ContextMenu
-          position={{ x: menu.x, y: menu.y }}
-          title={t('context_menu_title', {
-            name: savedRequests.find((r) => r.id === menu.id)?.name,
-          })}
-          items={[
-            {
-              label: t('context_menu_copy_request'),
-              onClick: () => onCopyRequest(menu.id),
-            },
-            {
-              label: t('context_menu_delete_request'),
-              onClick: () => onDeleteRequest(menu.id),
-            },
-          ]}
-          onClose={closeMenu}
-        />
       )}
     </div>
   );

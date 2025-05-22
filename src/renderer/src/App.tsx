@@ -55,13 +55,21 @@ export default function App() {
   const { response, error, loading, responseTime, executeRequest, resetApiResponse } =
     useApiResponseHandler();
 
+  const [newRequestFolderId, setNewRequestFolderId] = useState<string | null>(null);
+
   // Saved requests state (from useSavedRequests hook)
   const {
     savedRequests,
+    savedFolders,
     addRequest,
     updateRequest: updateSavedRequest,
     deleteRequest,
     copyRequest,
+    addFolder,
+    updateFolder,
+    deleteFolderRecursive,
+    moveRequest,
+    moveFolder,
   } = useSavedRequests();
 
   const { executeSendRequest, executeSaveRequest } = useRequestActions({
@@ -104,7 +112,8 @@ export default function App() {
   // }, []);
 
   const handleSaveButtonClick = useCallback(() => {
-    executeSaveRequest();
+    const prevId = activeRequestIdRef.current;
+    const savedId = executeSaveRequest();
     setSaveToastOpen(true);
     const activeTab = tabs.getActiveTab();
     if (activeTab) {
@@ -121,6 +130,15 @@ export default function App() {
         requestId: activeRequestIdRef.current,
       });
     }
+    if (!prevId && newRequestFolderId && savedId) {
+      const folder = savedFolders.find((f) => f.id === newRequestFolderId);
+      if (folder) {
+        updateFolder(newRequestFolderId, {
+          requestIds: [...folder.requestIds, savedId],
+        });
+      }
+      setNewRequestFolderId(null);
+    }
   }, [
     executeSaveRequest,
     tabs,
@@ -130,6 +148,9 @@ export default function App() {
     body,
     requestNameForSaveRef,
     activeRequestIdRef,
+    newRequestFolderId,
+    savedFolders,
+    updateFolder,
   ]);
 
   useKeyboardShortcuts({
@@ -256,10 +277,32 @@ export default function App() {
     <div style={{ display: 'flex', height: '100vh' }}>
       <RequestCollectionSidebar
         savedRequests={savedRequests}
+        savedFolders={savedFolders}
         activeRequestId={activeRequestId}
         onLoadRequest={handleLoadRequest}
         onDeleteRequest={handleDeleteRequest}
         onCopyRequest={handleCopyRequest}
+        onAddFolder={(parentId) => {
+          addFolder({
+            name: 'New Folder',
+            parentFolderId: parentId,
+            requestIds: [],
+            subFolderIds: [],
+          });
+        }}
+        onAddRequest={(parentId) => {
+          setNewRequestFolderId(parentId);
+          handleNewRequest();
+        }}
+        onRenameFolder={(id) => {
+          const name = prompt(t('folder_name_prompt'));
+          if (name) updateFolder(id, { name });
+        }}
+        onDeleteFolder={(id) => {
+          if (confirm(t('delete_folder_confirm'))) deleteFolderRecursive(id);
+        }}
+        moveRequest={moveRequest}
+        moveFolder={moveFolder}
         isOpen={sidebarOpen}
         onToggle={() => setSidebarOpen((o) => !o)}
       />
