@@ -29,6 +29,7 @@
   "shortcut_prev_tab": "前のタブへ: Ctrl+Alt+←（Cmd+Option+←）",
   "save_success": "保存しました！",
   "copy_response": "レスポンスをコピー",
+  "copy_headers": "ヘッダーをコピー",
   "copy_success": "コピーしました！",
   "copy_error": "エラーをコピー",
   "drag_handle": "ドラッグで並び替え",
@@ -50,5 +51,6 @@
   "header_tab": "ヘッダー",
   "body_tab": "ボディ",
   "param_tab": "パラメータ",
+  "data_tab": "データ",
   "add_param_row": "パラメータ行を追加"
 }

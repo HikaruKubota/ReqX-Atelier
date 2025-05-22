@@ -29,6 +29,7 @@
   "shortcut_prev_tab": "Previous tab: Ctrl+Alt+ArrowLeft (Cmd+Option+ArrowLeft)",
   "save_success": "Saved successfully!",
   "copy_response": "Copy Response",
+  "copy_headers": "Copy Headers",
   "copy_success": "Copied!",
   "copy_error": "Copy Error",
   "drag_handle": "Drag to reorder",
@@ -50,5 +51,6 @@
   "header_tab": "Headers",
   "body_tab": "Body",
   "param_tab": "Params",
+  "data_tab": "Data",
   "add_param_row": "Add Param Row"
 }
