@@ -17,7 +17,15 @@ export const RequestListItem: React.FC<RequestListItemProps> = ({
   onContextMenu,
 }) => (
   <div
+    role="button"
+    tabIndex={0}
     onClick={onClick}
+    onKeyDown={(e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        onClick();
+      }
+    }}
     onContextMenu={(e) => {
       e.preventDefault();
       onContextMenu?.(e);
@@ -29,9 +37,9 @@ export const RequestListItem: React.FC<RequestListItemProps> = ({
         : 'bg-white font-normal border-gray-200 hover:bg-gray-100 dark:bg-gray-900 dark:border-gray-700 dark:hover:bg-gray-800 dark:text-gray-200',
     )}
   >
-    <div className="flex items-center gap-2">
+    <div className="flex items-center gap-2 flex-1 min-w-0">
       <MethodIcon method={request.method} />
-      <span>{request.name}</span>
+      <span className="truncate">{request.name}</span>
     </div>
   </div>
 );
