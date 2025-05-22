@@ -1,4 +1,7 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
+import { TextInput } from '../atoms/form/TextInput';
+import { SaveRequestButton } from '../atoms/button/SaveRequestButton';
 
 interface RequestNameRowProps {
   value: string;
@@ -14,30 +17,20 @@ export const RequestNameRow: React.FC<RequestNameRowProps> = ({
   onSave,
   saving,
   isUpdate,
-}) => (
-  <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-    <input
-      type="text"
-      placeholder="Request Name (e.g., Get User Details)"
-      value={value}
-      onChange={(e) => onChange(e.target.value)}
-      style={{ flexGrow: 1, padding: '8px', border: '1px solid #ddd', borderRadius: '4px' }}
-    />
-    <button
-      onClick={onSave}
-      disabled={saving}
-      style={{
-        padding: '8px 15px',
-        border: 'none',
-        backgroundColor: '#007bff',
-        color: 'white',
-        borderRadius: '4px',
-        cursor: 'pointer',
-      }}
-    >
-      {isUpdate ? 'Update Request' : 'Save Request'}
-    </button>
-  </div>
-);
+}) => {
+  const { t } = useTranslation();
+  return (
+    <div className="flex items-center gap-2">
+      <TextInput
+        type="text"
+        placeholder={t('request_name_placeholder')}
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        className="flex-grow"
+      />
+      <SaveRequestButton onClick={onSave} disabled={saving} isUpdate={isUpdate} />
+    </div>
+  );
+};
 
 export default RequestNameRow;

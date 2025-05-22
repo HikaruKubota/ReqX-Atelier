@@ -1,4 +1,8 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
+import { SelectBox } from '../atoms/form/SelectBox';
+import { TextInput } from '../atoms/form/TextInput';
+import { SendButton } from '../atoms/button/SendButton';
 
 const METHODS = ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'HEAD', 'OPTIONS'];
 
@@ -18,41 +22,27 @@ export const RequestMethodRow: React.FC<RequestMethodRowProps> = ({
   onUrlChange,
   loading,
   onSend,
-}) => (
-  <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-    <select
-      value={method}
-      onChange={(e) => onMethodChange(e.target.value)}
-      style={{ padding: '8px', border: '1px solid #ddd', borderRadius: '4px' }}
-    >
-      {METHODS.map((m) => (
-        <option key={m} value={m}>
-          {m}
-        </option>
-      ))}
-    </select>
-    <input
-      type="text"
-      placeholder="Enter request URL (e.g., https://api.example.com/users)"
-      value={url}
-      onChange={(e) => onUrlChange(e.target.value)}
-      style={{ flexGrow: 1, padding: '8px', border: '1px solid #ddd', borderRadius: '4px' }}
-    />
-    <button
-      onClick={onSend}
-      disabled={loading}
-      style={{
-        padding: '8px 15px',
-        border: 'none',
-        backgroundColor: '#28a745',
-        color: 'white',
-        borderRadius: '4px',
-        cursor: 'pointer',
-      }}
-    >
-      {loading ? 'Sending...' : 'Send'}
-    </button>
-  </div>
-);
+}) => {
+  const { t } = useTranslation();
+  return (
+    <div className="flex items-center gap-2">
+      <SelectBox value={method} onChange={(e) => onMethodChange(e.target.value)}>
+        {METHODS.map((m) => (
+          <option key={m} value={m}>
+            {m}
+          </option>
+        ))}
+      </SelectBox>
+      <TextInput
+        type="text"
+        placeholder={t('request_url_placeholder')}
+        value={url}
+        onChange={(e) => onUrlChange(e.target.value)}
+        className="flex-grow"
+      />
+      <SendButton onClick={onSend} disabled={loading} loading={loading} />
+    </div>
+  );
+};
 
 export default RequestMethodRow;

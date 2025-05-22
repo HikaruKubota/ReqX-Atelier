@@ -2,6 +2,7 @@ import React from 'react';
 import { render, fireEvent } from '@testing-library/react';
 import { describe, it, expect, vi } from 'vitest';
 import { RequestMethodRow } from '../RequestMethodRow';
+import '../../../i18n';
 
 describe('RequestMethodRow', () => {
   it('calls onMethodChange when method is changed', () => {
@@ -33,7 +34,7 @@ describe('RequestMethodRow', () => {
       />,
     );
     fireEvent.change(
-      getByPlaceholderText('Enter request URL (e.g., https://api.example.com/users)'),
+      getByPlaceholderText('リクエストURLを入力 (例: https://api.example.com/users)'),
       {
         target: { value: 'new' },
       },
@@ -53,7 +54,7 @@ describe('RequestMethodRow', () => {
         onSend={handleSend}
       />,
     );
-    fireEvent.click(getByText('Send'));
+    fireEvent.click(getByText('送信'));
     expect(handleSend).toHaveBeenCalled();
   });
 });

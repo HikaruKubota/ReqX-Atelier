@@ -53,5 +53,11 @@
   "param_tab": "パラメータ",
   "data_tab": "データ",
   "add_param_row": "パラメータ行を追加",
-  "no_saved_requests": "まだ保存されたリクエストがありません"
+  "no_saved_requests": "まだ保存されたリクエストがありません",
+  "send": "送信",
+  "sending": "送信中...",
+  "save_request": "リクエストを保存",
+  "update_request": "リクエストを更新",
+  "request_url_placeholder": "リクエストURLを入力 (例: https://api.example.com/users)",
+  "request_name_placeholder": "リクエスト名 (例: Get User Details)"
 }

@@ -53,5 +53,11 @@
   "param_tab": "Params",
   "data_tab": "Data",
   "add_param_row": "Add Param Row",
-  "no_saved_requests": "No requests saved yet."
+  "no_saved_requests": "No requests saved yet.",
+  "send": "Send",
+  "sending": "Sending...",
+  "save_request": "Save Request",
+  "update_request": "Update Request",
+  "request_url_placeholder": "Enter request URL (e.g., https://api.example.com/users)",
+  "request_name_placeholder": "Request Name (e.g., Get User Details)"
 }
