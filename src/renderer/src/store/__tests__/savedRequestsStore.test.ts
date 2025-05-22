@@ -165,4 +165,27 @@ describe('moveRequestToFolder', () => {
     expect(folder?.requestIds).toContain(reqId);
     expect(request?.folderId).toBe(folderId);
   });
+
+  it('moves a request out of a folder', async () => {
+    const { useSavedRequestsStore } = await import('../savedRequestsStore');
+    const reqId = useSavedRequestsStore.getState().addRequest({
+      name: 'Move Back',
+      method: 'GET',
+      url: '',
+      headers: [],
+      body: [],
+    });
+    const folderId = useSavedRequestsStore.getState().addFolder({
+      name: 'Folder',
+      parentFolderId: null,
+      requestIds: [],
+      subFolderIds: [],
+    });
+    useSavedRequestsStore.getState().moveRequestToFolder(reqId, folderId);
+    useSavedRequestsStore.getState().moveRequestToFolder(reqId, null);
+    const folder = useSavedRequestsStore.getState().savedFolders.find((f) => f.id === folderId);
+    const request = useSavedRequestsStore.getState().savedRequests.find((r) => r.id === reqId);
+    expect(folder?.requestIds).not.toContain(reqId);
+    expect(request?.folderId).toBeNull();
+  });
 });
