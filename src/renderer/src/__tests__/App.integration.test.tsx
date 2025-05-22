@@ -23,14 +23,14 @@ describe('App integration', () => {
     );
     fireEvent.click(screen.getAllByLabelText('新しいリクエスト')[0]);
 
-    fireEvent.change(screen.getByPlaceholderText('Request Name (e.g., Get User Details)'), {
+    fireEvent.change(screen.getByPlaceholderText('リクエスト名 (例: Get User Details)'), {
       target: { value: 'テストリクエスト' },
     });
     fireEvent.change(
-      screen.getByPlaceholderText('Enter request URL (e.g., https://api.example.com/users)'),
+      screen.getByPlaceholderText('リクエストURLを入力 (例: https://api.example.com/users)'),
       { target: { value: 'https://example.com' } },
     );
-    fireEvent.click(screen.getByText('Save Request'));
+    fireEvent.click(screen.getByText('リクエストを保存'));
 
     const sidebar = screen.getByTestId('sidebar');
     expect(await within(sidebar).findByText('テストリクエスト')).toBeInTheDocument();
@@ -44,11 +44,11 @@ describe('App integration', () => {
     );
     fireEvent.click(screen.getAllByLabelText('新しいリクエスト')[0]);
 
-    fireEvent.change(screen.getByPlaceholderText('Request Name (e.g., Get User Details)'), {
+    fireEvent.change(screen.getByPlaceholderText('リクエスト名 (例: Get User Details)'), {
       target: { value: 'ショートカット保存' },
     });
     fireEvent.change(
-      screen.getByPlaceholderText('Enter request URL (e.g., https://api.example.com/users)'),
+      screen.getByPlaceholderText('リクエストURLを入力 (例: https://api.example.com/users)'),
       { target: { value: 'https://example.org' } },
     );
     fireEvent.keyDown(window, { key: 's', ctrlKey: true });
@@ -66,10 +66,10 @@ describe('App integration', () => {
     fireEvent.click(screen.getAllByLabelText('新しいリクエスト')[0]);
 
     fireEvent.change(
-      screen.getByPlaceholderText('Enter request URL (e.g., https://api.example.com/users)'),
+      screen.getByPlaceholderText('リクエストURLを入力 (例: https://api.example.com/users)'),
       { target: { value: 'https://api.example.com' } },
     );
-    fireEvent.click(screen.getByText('Send'));
+    fireEvent.click(screen.getByText('送信'));
 
     expect(await screen.findByText(/ok/)).toBeInTheDocument();
   });

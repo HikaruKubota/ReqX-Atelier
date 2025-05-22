@@ -2,6 +2,7 @@ import React from 'react';
 import { render, fireEvent } from '@testing-library/react';
 import { describe, it, expect, vi } from 'vitest';
 import { RequestNameRow } from '../RequestNameRow';
+import '../../../i18n';
 
 describe('RequestNameRow', () => {
   it('calls onChange when input changes', () => {
@@ -15,7 +16,7 @@ describe('RequestNameRow', () => {
         isUpdate={false}
       />,
     );
-    fireEvent.change(getByPlaceholderText('Request Name (e.g., Get User Details)'), {
+    fireEvent.change(getByPlaceholderText('リクエスト名 (例: Get User Details)'), {
       target: { value: 'test' },
     });
     expect(handleChange).toHaveBeenCalledWith('test');
@@ -32,7 +33,7 @@ describe('RequestNameRow', () => {
         isUpdate={false}
       />,
     );
-    fireEvent.click(getByText('Save Request'));
+    fireEvent.click(getByText('リクエストを保存'));
     expect(handleSave).toHaveBeenCalled();
   });
 });
