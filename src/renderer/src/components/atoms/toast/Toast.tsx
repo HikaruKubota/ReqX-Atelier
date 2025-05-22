@@ -8,6 +8,8 @@ interface ToastProps {
   duration?: number;
   onClose?: () => void;
   className?: string;
+  actionLabel?: string;
+  onAction?: () => void;
 }
 
 export const Toast: React.FC<ToastProps> = ({
@@ -16,6 +18,8 @@ export const Toast: React.FC<ToastProps> = ({
   duration = 3000,
   onClose,
   className,
+  actionLabel,
+  onAction,
 }) => {
   useEffect(() => {
     if (!isOpen) return;
@@ -44,7 +48,12 @@ export const Toast: React.FC<ToastProps> = ({
           className,
         )}
       >
-        {message}
+        <span>{message}</span>
+        {actionLabel && onAction && (
+          <button className="ml-4 underline font-bold" onClick={onAction}>
+            {actionLabel}
+          </button>
+        )}
       </div>
     </Transition>
   );

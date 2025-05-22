@@ -12,6 +12,8 @@ export const useSavedRequests = () => {
   const deleteFolderRecursive = useSavedRequestsStore((s) => s.deleteFolderRecursive);
   const moveRequest = useSavedRequestsStore((s) => s.moveRequest);
   const moveFolder = useSavedRequestsStore((s) => s.moveFolder);
+  const setRequests = useSavedRequestsStore((s) => s.setRequests);
+  const setFolders = useSavedRequestsStore((s) => s.setFolders);
 
   return {
     savedRequests,
@@ -25,5 +27,7 @@ export const useSavedRequests = () => {
     deleteFolderRecursive,
     moveRequest,
     moveFolder,
+    setRequests,
+    setFolders,
   };
 };

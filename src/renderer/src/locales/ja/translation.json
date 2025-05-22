@@ -66,5 +66,7 @@
   "context_menu_rename_folder": "フォルダの名前を変更",
   "context_menu_delete_folder": "フォルダを削除",
   "delete_folder_confirm": "このフォルダとその中身をすべて削除してもよろしいですか？",
-  "folder_name_prompt": "フォルダ名を入力"
+  "folder_name_prompt": "フォルダ名を入力",
+  "folder_deleted": "フォルダを削除しました。",
+  "undo": "元に戻す"
 }

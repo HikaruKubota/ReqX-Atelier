@@ -1,6 +1,6 @@
 import React, { useCallback, useRef, useEffect, useState } from 'react';
 import { useSavedRequests } from './hooks/useSavedRequests';
-import type { SavedRequest } from './types';
+import type { SavedRequest, SavedFolder } from './types';
 import { useRequestEditor } from './hooks/useRequestEditor'; // Import the new hook and RequestHeader
 import { useApiResponseHandler } from './hooks/useApiResponseHandler'; // Import the new API response handler hook
 import { RequestCollectionSidebar } from './components/RequestCollectionSidebar'; // Import the new sidebar component
@@ -21,6 +21,11 @@ export default function App() {
   const editorPanelRef = useRef<RequestEditorPanelRef>(null); // Create a ref
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [saveToastOpen, setSaveToastOpen] = useState(false);
+  const [deleteToastOpen, setDeleteToastOpen] = useState(false);
+  const [undoData, setUndoData] = useState<{
+    requests: SavedRequest[];
+    folders: SavedFolder[];
+  } | null>(null);
 
   // Use the new custom hook for request editor state and logic
   const {
@@ -70,6 +75,8 @@ export default function App() {
     deleteFolderRecursive,
     moveRequest,
     moveFolder,
+    setRequests,
+    setFolders,
   } = useSavedRequests();
 
   const { executeSendRequest, executeSaveRequest } = useRequestActions({
@@ -273,6 +280,15 @@ export default function App() {
     [copyRequest],
   );
 
+  const handleUndoDeleteFolder = useCallback(() => {
+    if (undoData) {
+      setRequests(undoData.requests);
+      setFolders(undoData.folders);
+    }
+    setUndoData(null);
+    setDeleteToastOpen(false);
+  }, [undoData, setRequests, setFolders]);
+
   return (
     <div style={{ display: 'flex', height: '100vh' }}>
       <RequestCollectionSidebar
@@ -299,7 +315,11 @@ export default function App() {
           if (name) updateFolder(id, { name });
         }}
         onDeleteFolder={(id) => {
-          if (confirm(t('delete_folder_confirm'))) deleteFolderRecursive(id);
+          if (confirm(t('delete_folder_confirm'))) {
+            setUndoData({ requests: savedRequests, folders: savedFolders });
+            deleteFolderRecursive(id);
+            setDeleteToastOpen(true);
+          }
         }}
         moveRequest={moveRequest}
         moveFolder={moveFolder}
@@ -389,6 +409,13 @@ export default function App() {
         message={t('save_success')}
         isOpen={saveToastOpen}
         onClose={() => setSaveToastOpen(false)}
+      />
+      <Toast
+        message={t('folder_deleted')}
+        isOpen={deleteToastOpen}
+        actionLabel={t('undo')}
+        onAction={handleUndoDeleteFolder}
+        onClose={() => setDeleteToastOpen(false)}
       />
     </div>
   );

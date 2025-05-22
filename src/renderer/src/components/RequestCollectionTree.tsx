@@ -136,6 +136,8 @@ export const RequestCollectionTree: React.FC<Props> = ({
     null,
   );
 
+  const hoverTimer = React.useRef<NodeJS.Timeout | null>(null);
+
   const renderNode = React.useCallback(
     ({
       node,
@@ -146,6 +148,18 @@ export const RequestCollectionTree: React.FC<Props> = ({
       style: React.CSSProperties;
       dragHandle?: (el: HTMLDivElement | null) => void;
     }) => {
+      const handleDragOver = () => {
+        if (!node.isOpen) {
+          if (hoverTimer.current) clearTimeout(hoverTimer.current);
+          hoverTimer.current = setTimeout(() => node.open(), 500);
+        }
+      };
+      const clearTimer = () => {
+        if (hoverTimer.current) {
+          clearTimeout(hoverTimer.current);
+          hoverTimer.current = null;
+        }
+      };
       if (node.data.type === 'folder') {
         return (
           <div style={style} ref={dragHandle} className="select-none">
@@ -156,6 +170,9 @@ export const RequestCollectionTree: React.FC<Props> = ({
                 e.preventDefault();
                 setFolderMenu({ id: node.id, x: e.clientX, y: e.clientY });
               }}
+              onDragOver={handleDragOver}
+              onDragLeave={clearTimer}
+              onDrop={clearTimer}
             >
               {node.isOpen ? <FiChevronDown size={12} /> : <FiChevronRight size={12} />}
               <FiFolder size={14} />
