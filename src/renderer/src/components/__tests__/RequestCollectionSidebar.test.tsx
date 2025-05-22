@@ -1,9 +1,10 @@
 import React from 'react';
-import { render, fireEvent } from '@testing-library/react';
+import { render, fireEvent, act } from '@testing-library/react';
 import { describe, it, expect, vi } from 'vitest';
 import i18n from '../../i18n';
 import { RequestCollectionSidebar } from '../RequestCollectionSidebar';
 import type { SavedRequest } from '../../types';
+import type { RequestCollectionSidebarRef } from '../RequestCollectionSidebar';
 
 const baseProps = {
   savedRequests: [] as SavedRequest[],
@@ -11,6 +12,7 @@ const baseProps = {
   onLoadRequest: () => {},
   onDeleteRequest: () => {},
   onCopyRequest: () => {},
+  onReorderRequests: () => {},
 };
 
 describe('RequestCollectionSidebar', () => {
@@ -37,5 +39,44 @@ describe('RequestCollectionSidebar', () => {
     );
     fireEvent.click(getByLabelText('サイドバーを隠す'));
     expect(fn).toHaveBeenCalled();
+  });
+
+  it('reorders items via triggerDrag', () => {
+    const ref = React.createRef<RequestCollectionSidebarRef>();
+    const requests: SavedRequest[] = [
+      { id: '1', name: 'First', method: 'GET', url: '' },
+      { id: '2', name: 'Second', method: 'GET', url: '' },
+    ];
+    const Wrapper = () => {
+      const [list, setList] = React.useState<SavedRequest[]>(requests);
+      return (
+        <RequestCollectionSidebar
+          ref={ref}
+          savedRequests={list}
+          activeRequestId={null}
+          onLoadRequest={() => {}}
+          onDeleteRequest={() => {}}
+          onCopyRequest={() => {}}
+          onReorderRequests={(a, b) => {
+            const oldIndex = list.findIndex((r) => r.id === a);
+            const newIndex = list.findIndex((r) => r.id === b);
+            if (oldIndex === -1 || newIndex === -1) return;
+            const updated = [...list];
+            const [moved] = updated.splice(oldIndex, 1);
+            updated.splice(newIndex, 0, moved);
+            setList(updated);
+          }}
+          isOpen
+          onToggle={() => {}}
+        />
+      );
+    };
+    const { getAllByText } = render(<Wrapper />);
+    act(() => {
+      ref.current?.triggerDrag?.('1', '2');
+    });
+    const items = getAllByText(/First|Second/);
+    expect(items[0].textContent).toBe('Second');
+    expect(items[1].textContent).toBe('First');
   });
 });

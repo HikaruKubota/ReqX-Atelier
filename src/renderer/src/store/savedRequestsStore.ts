@@ -9,6 +9,7 @@ export interface SavedRequestsState {
   updateRequest: (id: string, updated: Partial<Omit<SavedRequest, 'id'>>) => void;
   deleteRequest: (id: string) => void;
   copyRequest: (id: string) => string;
+  reorderRequests: (activeId: string, overId: string) => void;
   setRequests: (reqs: SavedRequest[]) => void;
   addFolder: (folder: Omit<SavedFolder, 'id'>) => string;
   updateFolder: (id: string, updated: Partial<Omit<SavedFolder, 'id'>>) => void;
@@ -143,6 +144,17 @@ export const useSavedRequestsStore = create<SavedRequestsState>()(
         };
         set({ savedRequests: [...get().savedRequests, copy] });
         return newId;
+      },
+      reorderRequests: (activeId, overId) => {
+        set((state) => {
+          const oldIndex = state.savedRequests.findIndex((r) => r.id === activeId);
+          const newIndex = state.savedRequests.findIndex((r) => r.id === overId);
+          if (oldIndex === -1 || newIndex === -1) return {};
+          const updated = [...state.savedRequests];
+          const [moved] = updated.splice(oldIndex, 1);
+          updated.splice(newIndex, 0, moved);
+          return { savedRequests: updated };
+        });
       },
       setRequests: (reqs) => set({ savedRequests: reqs }),
       addFolder: (folder) => {

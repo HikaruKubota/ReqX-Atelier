@@ -118,3 +118,27 @@ describe('copyRequest', () => {
     expect(list).toHaveLength(2);
   });
 });
+
+describe('reorderRequests', () => {
+  it('reorders saved requests', async () => {
+    const { useSavedRequestsStore } = await import('../savedRequestsStore');
+    const id1 = useSavedRequestsStore.getState().addRequest({
+      name: 'A',
+      method: 'GET',
+      url: '',
+      headers: [],
+      body: [],
+    });
+    const id2 = useSavedRequestsStore.getState().addRequest({
+      name: 'B',
+      method: 'GET',
+      url: '',
+      headers: [],
+      body: [],
+    });
+    useSavedRequestsStore.getState().reorderRequests(id2, id1);
+    const list = useSavedRequestsStore.getState().savedRequests;
+    expect(list[0].id).toBe(id2);
+    expect(list[1].id).toBe(id1);
+  });
+});

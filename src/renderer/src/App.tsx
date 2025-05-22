@@ -62,6 +62,7 @@ export default function App() {
     updateRequest: updateSavedRequest,
     deleteRequest,
     copyRequest,
+    reorderRequests,
   } = useSavedRequests();
 
   const { executeSendRequest, executeSaveRequest } = useRequestActions({
@@ -260,6 +261,7 @@ export default function App() {
         onLoadRequest={handleLoadRequest}
         onDeleteRequest={handleDeleteRequest}
         onCopyRequest={handleCopyRequest}
+        onReorderRequests={reorderRequests}
         isOpen={sidebarOpen}
         onToggle={() => setSidebarOpen((o) => !o)}
       />
