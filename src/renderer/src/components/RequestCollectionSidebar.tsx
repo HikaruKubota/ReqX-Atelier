@@ -8,20 +8,26 @@ import {
   useSensors,
 } from '@dnd-kit/core';
 import { SortableContext, sortableKeyboardCoordinates } from '@dnd-kit/sortable';
+import { useDroppable } from '@dnd-kit/core';
 import { restrictToParentElement, restrictToWindowEdges } from '@dnd-kit/modifiers';
-import type { SavedRequest } from '../types';
+import type { SavedRequest, SavedFolder } from '../types';
 import { RequestListItem } from './atoms/list/RequestListItem';
 import { SidebarToggleButton } from './atoms/button/SidebarToggleButton';
 import { ContextMenu } from './atoms/menu/ContextMenu';
+import { NewFolderButton } from './atoms/button/NewFolderButton';
+import { FiChevronRight, FiChevronDown, FiFolder } from 'react-icons/fi';
 import { useTranslation } from 'react-i18next';
 
 interface RequestCollectionSidebarProps {
   savedRequests: SavedRequest[];
+  savedFolders: SavedFolder[];
   activeRequestId: string | null;
   onLoadRequest: (request: SavedRequest) => void;
   onDeleteRequest: (id: string) => void;
   onCopyRequest: (id: string) => void;
   onReorderRequests: (activeId: string, overId: string) => void;
+  onMoveRequestToFolder: (requestId: string, folderId: string) => void;
+  onAddFolder: () => void;
   isOpen: boolean;
   onToggle: () => void;
 }
@@ -37,11 +43,14 @@ export const RequestCollectionSidebar = forwardRef<
   (
     {
       savedRequests,
+      savedFolders,
       activeRequestId,
       onLoadRequest,
       onDeleteRequest,
       onCopyRequest,
       onReorderRequests,
+      onMoveRequestToFolder,
+      onAddFolder,
       isOpen,
       onToggle,
     },
@@ -55,6 +64,43 @@ export const RequestCollectionSidebar = forwardRef<
       useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }),
     );
     const modifiers = [restrictToParentElement, restrictToWindowEdges];
+    const [openFolders, setOpenFolders] = useState<Record<string, boolean>>({});
+
+    const toggleFolder = (id: string) => setOpenFolders((o) => ({ ...o, [id]: !o[id] }));
+
+    const FolderItem: React.FC<{ folder: SavedFolder }> = ({ folder }) => {
+      const requestsInFolder = savedRequests.filter((r) => r.folderId === folder.id);
+      const subFolders = savedFolders.filter((f) => f.parentFolderId === folder.id);
+      const { setNodeRef } = useDroppable({ id: `folder-${folder.id}` });
+      return (
+        <div ref={setNodeRef} className="ml-4">
+          <div
+            className="flex items-center cursor-pointer select-none"
+            onClick={() => toggleFolder(folder.id)}
+          >
+            {openFolders[folder.id] ? <FiChevronDown /> : <FiChevronRight />}
+            <FiFolder className="mx-1" />
+            <span>{folder.name}</span>
+          </div>
+          {openFolders[folder.id] && (
+            <div className="ml-4">
+              {requestsInFolder.map((req) => (
+                <RequestListItem
+                  key={req.id}
+                  request={req}
+                  isActive={activeRequestId === req.id}
+                  onClick={() => onLoadRequest(req)}
+                  onContextMenu={(e) => setMenu({ id: req.id, x: e.clientX, y: e.clientY })}
+                />
+              ))}
+              {subFolders.map((sub) => (
+                <FolderItem key={sub.id} folder={sub} />
+              ))}
+            </div>
+          )}
+        </div>
+      );
+    };
 
     useImperativeHandle(
       ref,
@@ -70,9 +116,15 @@ export const RequestCollectionSidebar = forwardRef<
       (event: DragEndEvent) => {
         const { active, over } = event;
         if (!over || active.id === over.id) return;
-        onReorderRequests(String(active.id), String(over.id));
+        const overId = String(over.id);
+        if (overId.startsWith('folder-')) {
+          const folderId = overId.replace('folder-', '');
+          onMoveRequestToFolder(String(active.id), folderId);
+        } else {
+          onReorderRequests(String(active.id), overId);
+        }
       },
-      [onReorderRequests],
+      [onReorderRequests, onMoveRequestToFolder],
     );
     return (
       <div
@@ -86,20 +138,29 @@ export const RequestCollectionSidebar = forwardRef<
           <>
             <h2 className="mt-0 mb-[10px] text-[1.2em]">{t('collection_title')}</h2>
             <div className="flex-grow overflow-y-auto">
+              <NewFolderButton onClick={onAddFolder} className="mb-2 w-full" />
               <DndContext sensors={sensors} onDragEnd={handleDragEnd} modifiers={modifiers}>
-                <SortableContext items={savedRequests.map((r) => r.id)}>
-                  {savedRequests.length === 0 && (
+                <SortableContext items={savedRequests.filter((r) => !r.folderId).map((r) => r.id)}>
+                  {savedRequests.filter((r) => !r.folderId).length === 0 && (
                     <p className="text-gray-500">{t('no_saved_requests')}</p>
                   )}
-                  {savedRequests.map((req) => (
-                    <RequestListItem
-                      key={req.id}
-                      request={req}
-                      isActive={activeRequestId === req.id}
-                      onClick={() => onLoadRequest(req)}
-                      onContextMenu={(e) => setMenu({ id: req.id, x: e.clientX, y: e.clientY })}
-                    />
-                  ))}
+                  {savedRequests
+                    .filter((r) => !r.folderId)
+                    .map((req) => (
+                      <RequestListItem
+                        key={req.id}
+                        request={req}
+                        isActive={activeRequestId === req.id}
+                        onClick={() => onLoadRequest(req)}
+                        onContextMenu={(e) => setMenu({ id: req.id, x: e.clientX, y: e.clientY })}
+                      />
+                    ))}
+                    {savedFolders
+                      .filter((f) => f.parentFolderId === null)
+                      .map((folder) => (
+                        // eslint-disable-next-line react/prop-types
+                        <FolderItem key={folder.id} folder={folder} />
+                      ))}
                 </SortableContext>
               </DndContext>
             </div>

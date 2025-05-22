@@ -72,6 +72,7 @@ export interface SavedRequest {
   name: string;
   method: string;
   url: string;
+  folderId?: string | null;
   headers?: RequestHeader[];
   body?: KeyValuePair[];
   params?: KeyValuePair[];

@@ -13,6 +13,7 @@
   "hide_sidebar": "サイドバーを隠す",
   "show_sidebar": "サイドバーを表示",
   "new_request": "新しいリクエスト",
+  "new_folder": "新しいフォルダ",
   "response_heading": "レスポンス",
   "response_time": "レスポンス時間: {{time}}ms",
   "no_response": "まだレスポンスがありません。リクエストを送信するか保存したものを読み込んでください。",

@@ -10,6 +10,7 @@ export interface SavedRequestsState {
   deleteRequest: (id: string) => void;
   copyRequest: (id: string) => string;
   reorderRequests: (activeId: string, overId: string) => void;
+  moveRequestToFolder: (requestId: string, folderId: string | null) => void;
   setRequests: (reqs: SavedRequest[]) => void;
   addFolder: (folder: Omit<SavedFolder, 'id'>) => string;
   updateFolder: (id: string, updated: Partial<Omit<SavedFolder, 'id'>>) => void;
@@ -65,6 +66,10 @@ const migrateRequests = (stored: unknown): SavedRequest[] => {
         name: req.name || 'Untitled Request',
         method: req.method || 'GET',
         url: req.url || '',
+        folderId:
+          typeof (req as SavedRequest).folderId === 'string'
+            ? (req as SavedRequest).folderId
+            : null,
         headers: req.headers || [],
         body: bodyPairs || legacyBody || [],
         params: Array.isArray((req as SavedRequest).params)
@@ -113,6 +118,7 @@ export const useSavedRequestsStore = create<SavedRequestsState>()(
         const newReq: SavedRequest = {
           ...req,
           id: newId,
+          folderId: req.folderId ?? null,
           headers: req.headers || [],
           body: bodyPairs,
           params: paramPairs,
@@ -126,7 +132,13 @@ export const useSavedRequestsStore = create<SavedRequestsState>()(
             if (r.id !== id) return r;
             const bodyPairs = updated.body ?? r.body;
             const paramPairs = updated.params ?? r.params;
-            return { ...r, ...updated, body: bodyPairs, params: paramPairs };
+            return {
+              ...r,
+              ...updated,
+              body: bodyPairs,
+              params: paramPairs,
+              folderId: updated.folderId ?? r.folderId,
+            };
           }),
         });
       },
@@ -154,6 +166,24 @@ export const useSavedRequestsStore = create<SavedRequestsState>()(
           const [moved] = updated.splice(oldIndex, 1);
           updated.splice(newIndex, 0, moved);
           return { savedRequests: updated };
+        });
+      },
+      moveRequestToFolder: (requestId, folderId) => {
+        set((state) => {
+          const updatedFolders = state.savedFolders.map((f) => ({
+            ...f,
+            requestIds: f.requestIds.filter((id) => id !== requestId),
+          }));
+          if (folderId) {
+            const target = updatedFolders.find((f) => f.id === folderId);
+            if (target && !target.requestIds.includes(requestId)) {
+              target.requestIds.push(requestId);
+            }
+          }
+          const updatedRequests = state.savedRequests.map((r) =>
+            r.id === requestId ? { ...r, folderId } : r,
+          );
+          return { savedFolders: updatedFolders, savedRequests: updatedRequests };
         });
       },
       setRequests: (reqs) => set({ savedRequests: reqs }),

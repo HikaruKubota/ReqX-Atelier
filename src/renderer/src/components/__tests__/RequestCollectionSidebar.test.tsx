@@ -8,11 +8,14 @@ import type { RequestCollectionSidebarRef } from '../RequestCollectionSidebar';
 
 const baseProps = {
   savedRequests: [] as SavedRequest[],
+  savedFolders: [],
   activeRequestId: null,
   onLoadRequest: () => {},
   onDeleteRequest: () => {},
   onCopyRequest: () => {},
   onReorderRequests: () => {},
+  onMoveRequestToFolder: () => {},
+  onAddFolder: () => {},
 };
 
 describe('RequestCollectionSidebar', () => {
@@ -53,6 +56,7 @@ describe('RequestCollectionSidebar', () => {
         <RequestCollectionSidebar
           ref={ref}
           savedRequests={list}
+          savedFolders={[]}
           activeRequestId={null}
           onLoadRequest={() => {}}
           onDeleteRequest={() => {}}
@@ -66,6 +70,8 @@ describe('RequestCollectionSidebar', () => {
             updated.splice(newIndex, 0, moved);
             setList(updated);
           }}
+          onMoveRequestToFolder={() => {}}
+          onAddFolder={() => {}}
           isOpen
           onToggle={() => {}}
         />

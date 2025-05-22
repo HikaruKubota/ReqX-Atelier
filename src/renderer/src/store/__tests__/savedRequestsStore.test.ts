@@ -142,3 +142,27 @@ describe('reorderRequests', () => {
     expect(list[1].id).toBe(id1);
   });
 });
+
+describe('moveRequestToFolder', () => {
+  it('moves a request into a folder', async () => {
+    const { useSavedRequestsStore } = await import('../savedRequestsStore');
+    const reqId = useSavedRequestsStore.getState().addRequest({
+      name: 'Move Me',
+      method: 'GET',
+      url: '',
+      headers: [],
+      body: [],
+    });
+    const folderId = useSavedRequestsStore.getState().addFolder({
+      name: 'Folder',
+      parentFolderId: null,
+      requestIds: [],
+      subFolderIds: [],
+    });
+    useSavedRequestsStore.getState().moveRequestToFolder(reqId, folderId);
+    const folder = useSavedRequestsStore.getState().savedFolders.find((f) => f.id === folderId);
+    const request = useSavedRequestsStore.getState().savedRequests.find((r) => r.id === reqId);
+    expect(folder?.requestIds).toContain(reqId);
+    expect(request?.folderId).toBe(folderId);
+  });
+});
