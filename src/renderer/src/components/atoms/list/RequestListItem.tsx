@@ -23,7 +23,7 @@ export const RequestListItem: React.FC<RequestListItemProps> = ({
       onContextMenu?.(e);
     }}
     className={clsx(
-      'px-3 py-2 flex items-center gap-2 cursor-pointer transition-colors',
+      'px-3 flex items-center gap-2 cursor-pointer transition-colors',
       isActive
         ? 'font-bold bg-[var(--color-secondary)] text-[var(--color-background)]'
         : 'bg-[var(--color-background)] text-[var(--color-text)] hover:bg-gray-100 dark:hover:bg-gray-800',
