@@ -3,14 +3,18 @@ import { render, fireEvent } from '@testing-library/react';
 import { describe, it, expect, vi } from 'vitest';
 import i18n from '../../i18n';
 import { RequestCollectionSidebar } from '../RequestCollectionSidebar';
-import type { SavedRequest } from '../../types';
+import type { SavedRequest, SavedFolder } from '../../types';
 
 const baseProps = {
   savedRequests: [] as SavedRequest[],
+  savedFolders: [] as SavedFolder[],
   activeRequestId: null,
   onLoadRequest: () => {},
   onDeleteRequest: () => {},
   onCopyRequest: () => {},
+  onAddFolder: () => {},
+  onMoveRequestToFolder: () => {},
+  onReorderRequests: () => {},
 };
 
 describe('RequestCollectionSidebar', () => {

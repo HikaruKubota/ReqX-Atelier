@@ -118,3 +118,56 @@ describe('copyRequest', () => {
     expect(list).toHaveLength(2);
   });
 });
+
+describe('folder operations', () => {
+  it('moves request into folder', async () => {
+    const { useSavedRequestsStore } = await import('../savedRequestsStore');
+    const reqId = useSavedRequestsStore.getState().addRequest({
+      name: 'Req',
+      method: 'GET',
+      url: 'https://example.com',
+      headers: [],
+      body: [],
+    });
+    const folderId = useSavedRequestsStore.getState().addFolder({
+      name: 'Folder',
+      parentFolderId: null,
+      requestIds: [],
+      subFolderIds: [],
+    });
+    useSavedRequestsStore.getState().moveRequestToFolder(reqId, folderId);
+    const folder = useSavedRequestsStore
+      .getState()
+      .savedFolders.find((f) => f.id === folderId);
+    expect(folder?.requestIds).toContain(reqId);
+  });
+
+  it('reorders requests inside folder', async () => {
+    const { useSavedRequestsStore } = await import('../savedRequestsStore');
+    const id1 = useSavedRequestsStore.getState().addRequest({
+      name: 'A',
+      method: 'GET',
+      url: 'a',
+      headers: [],
+      body: [],
+    });
+    const id2 = useSavedRequestsStore.getState().addRequest({
+      name: 'B',
+      method: 'GET',
+      url: 'b',
+      headers: [],
+      body: [],
+    });
+    const folderId = useSavedRequestsStore.getState().addFolder({
+      name: 'F',
+      parentFolderId: null,
+      requestIds: [id1, id2],
+      subFolderIds: [],
+    });
+    useSavedRequestsStore.getState().reorderRequestsInFolder(folderId, id2, id1);
+    const folder = useSavedRequestsStore
+      .getState()
+      .savedFolders.find((f) => f.id === folderId);
+    expect(folder?.requestIds).toEqual([id2, id1]);
+  });
+});

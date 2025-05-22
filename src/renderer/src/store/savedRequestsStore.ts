@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
+import { arrayMove } from '@dnd-kit/sortable';
 import type { SavedRequest, SavedFolder, KeyValuePair } from '../types';
 
 export interface SavedRequestsState {
@@ -14,6 +15,8 @@ export interface SavedRequestsState {
   updateFolder: (id: string, updated: Partial<Omit<SavedFolder, 'id'>>) => void;
   deleteFolder: (id: string) => void;
   setFolders: (folders: SavedFolder[]) => void;
+  moveRequestToFolder: (requestId: string, folderId: string | null) => void;
+  reorderRequestsInFolder: (folderId: string | null, activeId: string, overId: string) => void;
 }
 
 const LOCAL_STORAGE_KEY = 'reqx_saved_requests';
@@ -176,6 +179,44 @@ export const useSavedRequestsStore = create<SavedRequestsState>()(
         set({ savedFolders: get().savedFolders.filter((f) => f.id !== id) });
       },
       setFolders: (folders) => set({ savedFolders: folders }),
+      moveRequestToFolder: (requestId, folderId) => {
+        set((state) => {
+          const folders = state.savedFolders.map((f) => ({
+            ...f,
+            requestIds: f.requestIds.filter((id) => id !== requestId),
+          }));
+          if (folderId) {
+            const idx = folders.findIndex((f) => f.id === folderId);
+            if (idx !== -1) {
+              folders[idx] = {
+                ...folders[idx],
+                requestIds: [...folders[idx].requestIds, requestId],
+              };
+            }
+          }
+          return { savedFolders: folders };
+        });
+      },
+      reorderRequestsInFolder: (folderId, activeId, overId) => {
+        set((state) => {
+          if (folderId) {
+            const idx = state.savedFolders.findIndex((f) => f.id === folderId);
+            if (idx === -1) return {} as SavedRequestsState;
+            const ids = state.savedFolders[idx].requestIds;
+            const oldIndex = ids.indexOf(activeId);
+            const newIndex = ids.indexOf(overId);
+            if (oldIndex === -1 || newIndex === -1) return {} as SavedRequestsState;
+            const newIds = arrayMove(ids, oldIndex, newIndex);
+            const folders = state.savedFolders.slice();
+            folders[idx] = { ...folders[idx], requestIds: newIds };
+            return { savedFolders: folders };
+          }
+          const oldIndex = state.savedRequests.findIndex((r) => r.id === activeId);
+          const newIndex = state.savedRequests.findIndex((r) => r.id === overId);
+          if (oldIndex === -1 || newIndex === -1) return {} as SavedRequestsState;
+          return { savedRequests: arrayMove(state.savedRequests, oldIndex, newIndex) };
+        });
+      },
     }),
     {
       name: LOCAL_STORAGE_KEY,
