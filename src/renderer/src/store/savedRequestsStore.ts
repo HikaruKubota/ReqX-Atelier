@@ -14,6 +14,8 @@ export interface SavedRequestsState {
   updateFolder: (id: string, updated: Partial<Omit<SavedFolder, 'id'>>) => void;
   deleteFolder: (id: string) => void;
   setFolders: (folders: SavedFolder[]) => void;
+  moveRequestToFolder: (requestId: string, folderId: string | null) => void;
+  moveFolder: (folderId: string, targetFolderId: string | null) => void;
 }
 
 const LOCAL_STORAGE_KEY = 'reqx_saved_requests';
@@ -176,6 +178,42 @@ export const useSavedRequestsStore = create<SavedRequestsState>()(
         set({ savedFolders: get().savedFolders.filter((f) => f.id !== id) });
       },
       setFolders: (folders) => set({ savedFolders: folders }),
+      moveRequestToFolder: (requestId, folderId) => {
+        set((state) => {
+          const folders = state.savedFolders.map((f) => {
+            const hasReq = f.requestIds.includes(requestId);
+            const shouldContain = f.id === folderId;
+            return {
+              ...f,
+              requestIds: hasReq
+                ? f.requestIds.filter((id) => id !== requestId)
+                : shouldContain
+                  ? [...f.requestIds, requestId]
+                  : f.requestIds,
+            };
+          });
+          return { savedFolders: folders };
+        });
+      },
+      moveFolder: (id, targetFolderId) => {
+        set((state) => {
+          const folders = state.savedFolders
+            .map((f) => {
+              const isTarget = f.id === targetFolderId;
+              const isParent = f.subFolderIds.includes(id);
+              return {
+                ...f,
+                subFolderIds: isParent
+                  ? f.subFolderIds.filter((fid) => fid !== id)
+                  : isTarget
+                    ? [...f.subFolderIds, id]
+                    : f.subFolderIds,
+              };
+            })
+            .map((f) => (f.id === id ? { ...f, parentFolderId: targetFolderId } : f));
+          return { savedFolders: folders };
+        });
+      },
     }),
     {
       name: LOCAL_STORAGE_KEY,
