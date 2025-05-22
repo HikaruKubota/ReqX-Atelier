@@ -156,15 +156,11 @@ export const BodyEditorKeyValue = forwardRef<BodyEditorKeyValueRef, BodyEditorKe
     const isBodyApplicable = !(method === 'GET' || method === 'HEAD');
 
     if (!isBodyApplicable) {
-      return (
-        <p style={{ color: '#6c757d', fontSize: '0.9em' }}>
-          {t('body_not_applicable', { method })}
-        </p>
-      );
+      return <p className="text-gray-600 text-[0.9em]">{t('body_not_applicable', { method })}</p>;
     }
 
     return (
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+      <div className="flex flex-col gap-2">
         <ScrollableContainer height={containerHeight}>
           <DndContext onDragEnd={handleDragEnd} modifiers={modifiers}>
             <SortableContext items={body}>
@@ -204,10 +200,10 @@ export const BodyEditorKeyValue = forwardRef<BodyEditorKeyValueRef, BodyEditorKe
             value={importText}
             placeholder={t('paste_json') || 'Paste JSON here'}
             onChange={(e) => setImportText(e.target.value)}
-            style={{ width: '100%', height: '300px' }}
+            className="w-full h-[300px]"
           />
-          {importError && <p style={{ color: 'red' }}>{importError}</p>}
-          <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px' }}>
+          {importError && <p className="text-red-500">{importError}</p>}
+          <div className="flex justify-end gap-[10px]">
             <button onClick={() => setShowImport(false)}>{t('cancel') || 'Cancel'}</button>
             <button
               onClick={() => {

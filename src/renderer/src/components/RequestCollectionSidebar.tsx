@@ -30,27 +30,17 @@ export const RequestCollectionSidebar: React.FC<RequestCollectionSidebarProps> =
   return (
     <div
       data-testid="sidebar"
-      style={{
-        width: isOpen ? '250px' : '40px',
-        flexShrink: 0,
-        borderRight: '1px solid #ccc',
-        padding: '10px',
-        display: 'flex',
-        flexDirection: 'column',
-        backgroundColor: 'var(--color-background)',
-        color: 'var(--color-text)',
-        height: '100vh',
-      }}
+      className={`${
+        isOpen ? 'w-[250px]' : 'w-[40px]'
+      } flex-shrink-0 border-r border-gray-300 p-2 flex flex-col bg-[var(--color-background)] text-[var(--color-text)] h-screen`}
     >
       <SidebarToggleButton isOpen={isOpen} onClick={onToggle} className="self-end mb-2" />
       {isOpen && (
         <>
-          <h2 style={{ marginTop: 0, marginBottom: '10px', fontSize: '1.2em' }}>
-            {t('collection_title')}
-          </h2>
-          <div style={{ flexGrow: 1, overflowY: 'auto' }}>
+          <h2 className="mt-0 mb-[10px] text-[1.2em]">{t('collection_title')}</h2>
+          <div className="flex-grow overflow-y-auto">
             {savedRequests.length === 0 && (
-              <p style={{ color: '#777' }}>{t('no_saved_requests')}</p>
+              <p className="text-gray-500">{t('no_saved_requests')}</p>
             )}
             {savedRequests.map((req) => (
               <RequestListItem
