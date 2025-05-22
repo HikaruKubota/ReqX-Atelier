@@ -118,3 +118,50 @@ describe('copyRequest', () => {
     expect(list).toHaveLength(2);
   });
 });
+
+describe('move operations', () => {
+  it('moves a request between folders', async () => {
+    const { useSavedRequestsStore } = await import('../savedRequestsStore');
+    const reqId = useSavedRequestsStore.getState().addRequest({
+      name: 'MoveMe',
+      method: 'GET',
+      url: 'https://example.com',
+      headers: [],
+      body: [],
+    });
+    const folderA = useSavedRequestsStore.getState().addFolder({
+      name: 'A',
+      parentFolderId: null,
+      requestIds: [],
+      subFolderIds: [],
+    });
+    useSavedRequestsStore.getState().moveRequestToFolder(reqId, folderA);
+    expect(
+      useSavedRequestsStore.getState().savedFolders.find((f) => f.id === folderA)?.requestIds,
+    ).toContain(reqId);
+    useSavedRequestsStore.getState().moveRequestToFolder(reqId, null);
+    expect(
+      useSavedRequestsStore.getState().savedFolders.find((f) => f.id === folderA)?.requestIds,
+    ).not.toContain(reqId);
+  });
+
+  it('moves a folder under another folder', async () => {
+    const { useSavedRequestsStore } = await import('../savedRequestsStore');
+    const folderA = useSavedRequestsStore.getState().addFolder({
+      name: 'A',
+      parentFolderId: null,
+      requestIds: [],
+      subFolderIds: [],
+    });
+    const folderB = useSavedRequestsStore.getState().addFolder({
+      name: 'B',
+      parentFolderId: null,
+      requestIds: [],
+      subFolderIds: [],
+    });
+    useSavedRequestsStore.getState().moveFolderToFolder(folderB, folderA);
+    expect(
+      useSavedRequestsStore.getState().savedFolders.find((f) => f.id === folderA)?.subFolderIds,
+    ).toContain(folderB);
+  });
+});

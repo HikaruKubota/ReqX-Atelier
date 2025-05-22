@@ -1,5 +1,6 @@
 import React, { useCallback, useRef, useEffect, useState } from 'react';
 import { useSavedRequests } from './hooks/useSavedRequests';
+import { useSavedFolders } from './hooks/useSavedFolders';
 import type { SavedRequest } from './types';
 import { useRequestEditor } from './hooks/useRequestEditor'; // Import the new hook and RequestHeader
 import { useApiResponseHandler } from './hooks/useApiResponseHandler'; // Import the new API response handler hook
@@ -63,6 +64,15 @@ export default function App() {
     deleteRequest,
     copyRequest,
   } = useSavedRequests();
+
+  const {
+    savedFolders,
+    addFolder,
+    updateFolder,
+    deleteFolder,
+    moveRequestToFolder,
+    moveFolderToFolder,
+  } = useSavedFolders();
 
   const { executeSendRequest, executeSaveRequest } = useRequestActions({
     editorPanelRef,
@@ -252,14 +262,58 @@ export default function App() {
     [copyRequest],
   );
 
+  const handleDeleteFolder = useCallback(
+    (folderId: string) => {
+      deleteFolder(folderId);
+    },
+    [deleteFolder],
+  );
+
+  const handleRenameFolder = useCallback(
+    (folderId: string, name: string) => {
+      updateFolder(folderId, { name });
+    },
+    [updateFolder],
+  );
+
+  const handleNewFolder = useCallback(
+    (parentId: string | null) => {
+      const name = prompt(t('rename_folder_prompt'));
+      if (name) {
+        addFolder({ name, parentFolderId: parentId, requestIds: [], subFolderIds: [] });
+      }
+    },
+    [addFolder, t],
+  );
+
+  const handleMoveRequest = useCallback(
+    (requestId: string, folderId: string | null) => {
+      moveRequestToFolder(requestId, folderId);
+    },
+    [moveRequestToFolder],
+  );
+
+  const handleMoveFolder = useCallback(
+    (id: string, targetId: string | null) => {
+      moveFolderToFolder(id, targetId);
+    },
+    [moveFolderToFolder],
+  );
+
   return (
     <div style={{ display: 'flex', height: '100vh' }}>
       <RequestCollectionSidebar
         savedRequests={savedRequests}
+        savedFolders={savedFolders}
         activeRequestId={activeRequestId}
         onLoadRequest={handleLoadRequest}
         onDeleteRequest={handleDeleteRequest}
         onCopyRequest={handleCopyRequest}
+        onDeleteFolder={handleDeleteFolder}
+        onRenameFolder={handleRenameFolder}
+        onNewFolder={handleNewFolder}
+        onMoveRequest={handleMoveRequest}
+        onMoveFolder={handleMoveFolder}
         isOpen={sidebarOpen}
         onToggle={() => setSidebarOpen((o) => !o)}
       />

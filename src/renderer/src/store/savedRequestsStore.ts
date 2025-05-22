@@ -14,6 +14,8 @@ export interface SavedRequestsState {
   updateFolder: (id: string, updated: Partial<Omit<SavedFolder, 'id'>>) => void;
   deleteFolder: (id: string) => void;
   setFolders: (folders: SavedFolder[]) => void;
+  moveRequestToFolder: (requestId: string, folderId: string | null) => void;
+  moveFolderToFolder: (folderId: string, targetFolderId: string | null) => void;
 }
 
 const LOCAL_STORAGE_KEY = 'reqx_saved_requests';
@@ -176,6 +178,43 @@ export const useSavedRequestsStore = create<SavedRequestsState>()(
         set({ savedFolders: get().savedFolders.filter((f) => f.id !== id) });
       },
       setFolders: (folders) => set({ savedFolders: folders }),
+      moveRequestToFolder: (requestId, folderId) => {
+        const folders = get().savedFolders.map((f) => ({ ...f }));
+        let changed = false;
+        const current = folders.find((f) => f.requestIds.includes(requestId));
+        if (current) {
+          current.requestIds = current.requestIds.filter((id) => id !== requestId);
+          changed = true;
+        }
+        if (folderId) {
+          const target = folders.find((f) => f.id === folderId);
+          if (target && !target.requestIds.includes(requestId)) {
+            target.requestIds.push(requestId);
+            changed = true;
+          }
+        }
+        if (changed) set({ savedFolders: folders });
+      },
+      moveFolderToFolder: (folderId, targetFolderId) => {
+        const folders = get().savedFolders.map((f) => ({ ...f }));
+        const folder = folders.find((f) => f.id === folderId);
+        if (!folder) return;
+        let changed = false;
+        const current = folders.find((f) => f.subFolderIds.includes(folderId));
+        if (current) {
+          current.subFolderIds = current.subFolderIds.filter((id) => id !== folderId);
+          changed = true;
+        }
+        folder.parentFolderId = targetFolderId ?? null;
+        if (targetFolderId) {
+          const target = folders.find((f) => f.id === targetFolderId);
+          if (target && !target.subFolderIds.includes(folderId)) {
+            target.subFolderIds.push(folderId);
+            changed = true;
+          }
+        }
+        if (changed) set({ savedFolders: folders });
+      },
     }),
     {
       name: LOCAL_STORAGE_KEY,
