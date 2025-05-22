@@ -1,4 +1,18 @@
 import React, { useState } from 'react';
+import {
+  DndContext,
+  type DragEndEvent,
+  PointerSensor,
+  KeyboardSensor,
+  useSensor,
+  useSensors,
+} from '@dnd-kit/core';
+import { SortableContext, sortableKeyboardCoordinates } from '@dnd-kit/sortable';
+import {
+  restrictToParentElement,
+  restrictToWindowEdges,
+  restrictToVerticalAxis,
+} from '@dnd-kit/modifiers';
 import type { SavedRequest } from '../types';
 import { RequestListItem } from './atoms/list/RequestListItem';
 import { SidebarToggleButton } from './atoms/button/SidebarToggleButton';
@@ -11,6 +25,7 @@ interface RequestCollectionSidebarProps {
   onLoadRequest: (request: SavedRequest) => void;
   onDeleteRequest: (id: string) => void;
   onCopyRequest: (id: string) => void;
+  onReorder: (activeId: string, overId: string) => void;
   isOpen: boolean;
   onToggle: () => void;
 }
@@ -21,12 +36,24 @@ export const RequestCollectionSidebar: React.FC<RequestCollectionSidebarProps> =
   onLoadRequest,
   onDeleteRequest,
   onCopyRequest,
+  onReorder,
   isOpen,
   onToggle,
 }) => {
   const { t } = useTranslation();
   const [menu, setMenu] = useState<{ id: string; x: number; y: number } | null>(null);
   const closeMenu = () => setMenu(null);
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
+    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }),
+  );
+  const modifiers = [restrictToParentElement, restrictToWindowEdges, restrictToVerticalAxis];
+
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+    if (!over || active.id === over.id) return;
+    onReorder(String(active.id), String(over.id));
+  };
   return (
     <div
       data-testid="sidebar"
@@ -42,15 +69,19 @@ export const RequestCollectionSidebar: React.FC<RequestCollectionSidebarProps> =
             {savedRequests.length === 0 && (
               <p className="text-gray-500">{t('no_saved_requests')}</p>
             )}
-            {savedRequests.map((req) => (
-              <RequestListItem
-                key={req.id}
-                request={req}
-                isActive={activeRequestId === req.id}
-                onClick={() => onLoadRequest(req)}
-                onContextMenu={(e) => setMenu({ id: req.id, x: e.clientX, y: e.clientY })}
-              />
-            ))}
+            <DndContext sensors={sensors} onDragEnd={handleDragEnd} modifiers={modifiers}>
+              <SortableContext items={savedRequests.map((r) => r.id)}>
+                {savedRequests.map((req) => (
+                  <RequestListItem
+                    key={req.id}
+                    request={req}
+                    isActive={activeRequestId === req.id}
+                    onClick={() => onLoadRequest(req)}
+                    onContextMenu={(e) => setMenu({ id: req.id, x: e.clientX, y: e.clientY })}
+                  />
+                ))}
+              </SortableContext>
+            </DndContext>
           </div>
         </>
       )}

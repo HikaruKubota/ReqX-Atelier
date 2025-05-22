@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
+import { arrayMove } from '@dnd-kit/sortable';
 import type { SavedRequest, SavedFolder, KeyValuePair } from '../types';
 
 export interface SavedRequestsState {
@@ -9,6 +10,7 @@ export interface SavedRequestsState {
   updateRequest: (id: string, updated: Partial<Omit<SavedRequest, 'id'>>) => void;
   deleteRequest: (id: string) => void;
   copyRequest: (id: string) => string;
+  reorderRequests: (activeId: string, overId: string) => void;
   setRequests: (reqs: SavedRequest[]) => void;
   addFolder: (folder: Omit<SavedFolder, 'id'>) => string;
   updateFolder: (id: string, updated: Partial<Omit<SavedFolder, 'id'>>) => void;
@@ -143,6 +145,14 @@ export const useSavedRequestsStore = create<SavedRequestsState>()(
         };
         set({ savedRequests: [...get().savedRequests, copy] });
         return newId;
+      },
+      reorderRequests: (activeId, overId) => {
+        set(({ savedRequests }) => {
+          const oldIndex = savedRequests.findIndex((r) => r.id === activeId);
+          const newIndex = savedRequests.findIndex((r) => r.id === overId);
+          if (oldIndex === -1 || newIndex === -1) return { savedRequests };
+          return { savedRequests: arrayMove(savedRequests, oldIndex, newIndex) };
+        });
       },
       setRequests: (reqs) => set({ savedRequests: reqs }),
       addFolder: (folder) => {

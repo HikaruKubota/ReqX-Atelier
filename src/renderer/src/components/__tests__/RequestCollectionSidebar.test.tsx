@@ -11,6 +11,7 @@ const baseProps = {
   onLoadRequest: () => {},
   onDeleteRequest: () => {},
   onCopyRequest: () => {},
+  onReorder: () => {},
 };
 
 describe('RequestCollectionSidebar', () => {
