@@ -7,10 +7,13 @@ import type { SavedRequest } from '../../types';
 
 const baseProps = {
   savedRequests: [] as SavedRequest[],
+  savedFolders: [],
   activeRequestId: null,
   onLoadRequest: () => {},
   onDeleteRequest: () => {},
   onCopyRequest: () => {},
+  onMoveRequest: () => {},
+  onReorderRequest: () => {},
 };
 
 describe('RequestCollectionSidebar', () => {

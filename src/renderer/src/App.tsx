@@ -1,5 +1,6 @@
 import React, { useCallback, useRef, useEffect, useState } from 'react';
 import { useSavedRequests } from './hooks/useSavedRequests';
+import { useSavedFolders } from './hooks/useSavedFolders';
 import type { SavedRequest } from './types';
 import { useRequestEditor } from './hooks/useRequestEditor'; // Import the new hook and RequestHeader
 import { useApiResponseHandler } from './hooks/useApiResponseHandler'; // Import the new API response handler hook
@@ -63,6 +64,7 @@ export default function App() {
     deleteRequest,
     copyRequest,
   } = useSavedRequests();
+  const { savedFolders, moveRequestToFolder, reorderFolderRequests } = useSavedFolders();
 
   const { executeSendRequest, executeSaveRequest } = useRequestActions({
     editorPanelRef,
@@ -256,10 +258,13 @@ export default function App() {
     <div style={{ display: 'flex', height: '100vh' }}>
       <RequestCollectionSidebar
         savedRequests={savedRequests}
+        savedFolders={savedFolders}
         activeRequestId={activeRequestId}
         onLoadRequest={handleLoadRequest}
         onDeleteRequest={handleDeleteRequest}
         onCopyRequest={handleCopyRequest}
+        onMoveRequest={moveRequestToFolder}
+        onReorderRequest={reorderFolderRequests}
         isOpen={sidebarOpen}
         onToggle={() => setSidebarOpen((o) => !o)}
       />

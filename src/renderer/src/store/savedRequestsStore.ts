@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import type { SavedRequest, SavedFolder, KeyValuePair } from '../types';
+import { arrayMove } from '@dnd-kit/sortable';
 
 export interface SavedRequestsState {
   savedRequests: SavedRequest[];
@@ -14,6 +15,8 @@ export interface SavedRequestsState {
   updateFolder: (id: string, updated: Partial<Omit<SavedFolder, 'id'>>) => void;
   deleteFolder: (id: string) => void;
   setFolders: (folders: SavedFolder[]) => void;
+  moveRequestToFolder: (requestId: string, folderId: string | null) => void;
+  reorderFolderRequests: (folderId: string | null, activeId: string, overId: string) => void;
 }
 
 const LOCAL_STORAGE_KEY = 'reqx_saved_requests';
@@ -174,6 +177,35 @@ export const useSavedRequestsStore = create<SavedRequestsState>()(
       },
       deleteFolder: (id) => {
         set({ savedFolders: get().savedFolders.filter((f) => f.id !== id) });
+      },
+      moveRequestToFolder: (requestId, folderId) => {
+        const folders = get().savedFolders.map((f) => {
+          let reqIds = f.requestIds.filter((id) => id !== requestId);
+          if (f.id === folderId) {
+            reqIds = [...reqIds, requestId];
+          }
+          return { ...f, requestIds: reqIds };
+        });
+        set({ savedFolders: folders });
+      },
+      reorderFolderRequests: (folderId, activeId, overId) => {
+        if (folderId === null) {
+          const list = get().savedRequests;
+          const oldIndex = list.findIndex((r) => r.id === activeId);
+          const newIndex = list.findIndex((r) => r.id === overId);
+          if (oldIndex === -1 || newIndex === -1) return;
+          set({ savedRequests: arrayMove(list, oldIndex, newIndex) });
+          return;
+        }
+        set({
+          savedFolders: get().savedFolders.map((f) => {
+            if (f.id !== folderId) return f;
+            const oldIndex = f.requestIds.indexOf(activeId);
+            const newIndex = f.requestIds.indexOf(overId);
+            if (oldIndex === -1 || newIndex === -1) return f;
+            return { ...f, requestIds: arrayMove(f.requestIds, oldIndex, newIndex) };
+          }),
+        });
       },
       setFolders: (folders) => set({ savedFolders: folders }),
     }),

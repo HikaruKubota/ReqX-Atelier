@@ -59,5 +59,7 @@
   "save_request": "リクエストを保存",
   "update_request": "リクエストを更新",
   "request_url_placeholder": "リクエストURLを入力 (例: https://api.example.com/users)",
-  "request_name_placeholder": "リクエスト名 (例: Get User Details)"
+  "request_name_placeholder": "リクエスト名 (例: Get User Details)",
+  "add_folder": "フォルダ追加",
+  "folder_name_placeholder": "フォルダ名"
 }
