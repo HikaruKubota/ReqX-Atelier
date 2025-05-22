@@ -118,3 +118,46 @@ describe('copyRequest', () => {
     expect(list).toHaveLength(2);
   });
 });
+
+describe('move operations', () => {
+  it('moves request into folder', async () => {
+    const { useSavedRequestsStore } = await import('../savedRequestsStore');
+    const reqId = useSavedRequestsStore.getState().addRequest({
+      name: 'Req',
+      method: 'GET',
+      url: '',
+      headers: [],
+      body: [],
+    });
+    const folderId = useSavedRequestsStore.getState().addFolder({
+      name: 'Folder',
+      parentFolderId: null,
+      requestIds: [],
+      subFolderIds: [],
+    });
+    useSavedRequestsStore.getState().moveRequestToFolder(reqId, folderId);
+    const folder = useSavedRequestsStore.getState().savedFolders.find((f) => f.id === folderId);
+    expect(folder?.requestIds).toContain(reqId);
+  });
+
+  it('moves folder under another', async () => {
+    const { useSavedRequestsStore } = await import('../savedRequestsStore');
+    const parentId = useSavedRequestsStore.getState().addFolder({
+      name: 'Parent',
+      parentFolderId: null,
+      requestIds: [],
+      subFolderIds: [],
+    });
+    const childId = useSavedRequestsStore.getState().addFolder({
+      name: 'Child',
+      parentFolderId: null,
+      requestIds: [],
+      subFolderIds: [],
+    });
+    useSavedRequestsStore.getState().moveFolder(childId, parentId);
+    const parent = useSavedRequestsStore.getState().savedFolders.find((f) => f.id === parentId);
+    const child = useSavedRequestsStore.getState().savedFolders.find((f) => f.id === childId);
+    expect(parent?.subFolderIds).toContain(childId);
+    expect(child?.parentFolderId).toBe(parentId);
+  });
+});

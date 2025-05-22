@@ -14,6 +14,8 @@ export interface SavedRequestsState {
   updateFolder: (id: string, updated: Partial<Omit<SavedFolder, 'id'>>) => void;
   deleteFolder: (id: string) => void;
   setFolders: (folders: SavedFolder[]) => void;
+  moveRequestToFolder: (requestId: string, folderId: string | null) => void;
+  moveFolder: (folderId: string, targetFolderId: string | null) => void;
 }
 
 const LOCAL_STORAGE_KEY = 'reqx_saved_requests';
@@ -100,6 +102,13 @@ const migrateFolders = (stored: unknown): SavedFolder[] => {
   }
 };
 
+const isDescendant = (folders: SavedFolder[], targetId: string, parentId: string): boolean => {
+  const target = folders.find((f) => f.id === targetId);
+  if (!target || !target.parentFolderId) return false;
+  if (target.parentFolderId === parentId) return true;
+  return isDescendant(folders, target.parentFolderId, parentId);
+};
+
 export const useSavedRequestsStore = create<SavedRequestsState>()(
   persist(
     (set, get) => ({
@@ -174,6 +183,41 @@ export const useSavedRequestsStore = create<SavedRequestsState>()(
       },
       deleteFolder: (id) => {
         set({ savedFolders: get().savedFolders.filter((f) => f.id !== id) });
+      },
+      moveRequestToFolder: (requestId, folderId) => {
+        set({
+          savedFolders: get().savedFolders.map((f) => {
+            let reqIds = f.requestIds.filter((id) => id !== requestId);
+            if (f.id === folderId) {
+              reqIds = [...reqIds, requestId];
+            }
+            return { ...f, requestIds: reqIds };
+          }),
+        });
+      },
+      moveFolder: (folderId, targetFolderId) => {
+        set(({ savedFolders }) => {
+          if (
+            targetFolderId &&
+            (folderId === targetFolderId || isDescendant(savedFolders, targetFolderId, folderId))
+          ) {
+            return { savedFolders };
+          }
+          return {
+            savedFolders: savedFolders.map((f) => {
+              let subIds = f.subFolderIds.filter((id) => id !== folderId);
+              if (f.id === targetFolderId) {
+                subIds = [...subIds, folderId];
+              }
+              const updated: SavedFolder = {
+                ...f,
+                subFolderIds: subIds,
+                parentFolderId: f.id === folderId ? targetFolderId : f.parentFolderId,
+              };
+              return updated;
+            }),
+          };
+        });
       },
       setFolders: (folders) => set({ savedFolders: folders }),
     }),
