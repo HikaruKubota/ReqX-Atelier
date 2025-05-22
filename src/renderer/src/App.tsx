@@ -15,12 +15,15 @@ import { TabBar } from './components/organisms/TabBar';
 import { ShortcutsGuide } from './components/organisms/ShortcutsGuide';
 import { RequestEditorPanelRef } from './types'; // Import the RequestHeader type
 import { Toast } from './components/atoms/toast/Toast';
+import type { SavedFolder } from './types';
 
 export default function App() {
   const { t } = useTranslation();
   const editorPanelRef = useRef<RequestEditorPanelRef>(null); // Create a ref
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [saveToastOpen, setSaveToastOpen] = useState(false);
+  const savedFoldersRef = useRef<SavedFolder[]>([]);
+  const newRequestFolderIdRef = useRef<string | null>(null);
 
   // Use the new custom hook for request editor state and logic
   const {
@@ -58,11 +61,19 @@ export default function App() {
   // Saved requests state (from useSavedRequests hook)
   const {
     savedRequests,
+    savedFolders,
     addRequest,
     updateRequest: updateSavedRequest,
     deleteRequest,
     copyRequest,
+    addFolder,
+    updateFolder,
+    deleteFolderRecursive,
   } = useSavedRequests();
+
+  useEffect(() => {
+    savedFoldersRef.current = savedFolders;
+  }, [savedFolders]);
 
   const { executeSendRequest, executeSaveRequest } = useRequestActions({
     editorPanelRef,
@@ -74,6 +85,9 @@ export default function App() {
     setRequestNameForSave,
     activeRequestIdRef,
     setActiveRequestId,
+    savedFoldersRef,
+    defaultFolderIdRef: newRequestFolderIdRef,
+    updateFolder,
     addRequest,
     updateSavedRequest,
     executeRequest,
@@ -81,20 +95,24 @@ export default function App() {
 
   const tabs = useTabs();
 
-  const handleNewRequest = useCallback(() => {
-    const tab = tabs.openTab();
-    loadRequestIntoEditor({
-      id: tab.requestId || '',
-      name: tab.name,
-      method: tab.method,
-      url: tab.url,
-      headers: tab.headers,
-      body: tab.body,
-      params: tab.params,
-    });
-    setActiveRequestId(null);
-    resetApiResponse();
-  }, [tabs, loadRequestIntoEditor, setActiveRequestId, resetApiResponse]);
+  const handleNewRequest = useCallback(
+    (parentFolderId?: string | null) => {
+      newRequestFolderIdRef.current = parentFolderId ?? null;
+      const tab = tabs.openTab();
+      loadRequestIntoEditor({
+        id: tab.requestId || '',
+        name: tab.name,
+        method: tab.method,
+        url: tab.url,
+        headers: tab.headers,
+        body: tab.body,
+        params: tab.params,
+      });
+      setActiveRequestId(null);
+      resetApiResponse();
+    },
+    [tabs, loadRequestIntoEditor, setActiveRequestId, resetApiResponse],
+  );
 
   // 初回起動時にタブを自動生成せず、ショートカットボードを表示したままにする
   // useEffect(() => {
@@ -256,10 +274,29 @@ export default function App() {
     <div style={{ display: 'flex', height: '100vh' }}>
       <RequestCollectionSidebar
         savedRequests={savedRequests}
+        savedFolders={savedFolders}
         activeRequestId={activeRequestId}
         onLoadRequest={handleLoadRequest}
         onDeleteRequest={handleDeleteRequest}
         onCopyRequest={handleCopyRequest}
+        onAddFolder={(parentId) => {
+          addFolder({
+            name: 'New Folder',
+            parentFolderId: parentId,
+            requestIds: [],
+            subFolderIds: [],
+          });
+        }}
+        onAddRequest={(pid) => {
+          handleNewRequest(pid);
+        }}
+        onRenameFolder={(id) => {
+          const name = prompt(t('folder_name_prompt'));
+          if (name) updateFolder(id, { name });
+        }}
+        onDeleteFolder={(id) => {
+          if (confirm(t('delete_folder_confirm'))) deleteFolderRecursive(id);
+        }}
         isOpen={sidebarOpen}
         onToggle={() => setSidebarOpen((o) => !o)}
       />

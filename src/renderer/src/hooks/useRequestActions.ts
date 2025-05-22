@@ -1,5 +1,11 @@
 import { useCallback } from 'react';
-import type { SavedRequest, RequestEditorPanelRef, RequestHeader, KeyValuePair } from '../types';
+import type {
+  SavedRequest,
+  RequestEditorPanelRef,
+  RequestHeader,
+  KeyValuePair,
+  SavedFolder,
+} from '../types';
 
 export function useRequestActions({
   editorPanelRef,
@@ -11,6 +17,9 @@ export function useRequestActions({
   setRequestNameForSave,
   activeRequestIdRef,
   setActiveRequestId,
+  savedFoldersRef,
+  defaultFolderIdRef,
+  updateFolder,
   addRequest,
   updateSavedRequest,
   executeRequest,
@@ -24,6 +33,9 @@ export function useRequestActions({
   setRequestNameForSave: (name: string) => void;
   activeRequestIdRef: React.RefObject<string | null>;
   setActiveRequestId: (id: string) => void;
+  savedFoldersRef: React.RefObject<SavedFolder[]>;
+  defaultFolderIdRef: React.RefObject<string | null>;
+  updateFolder: (id: string, updated: Partial<Omit<SavedFolder, 'id'>>) => void;
   addRequest: (req: Omit<SavedRequest, 'id'>) => string;
   updateSavedRequest: (id: string, req: Partial<Omit<SavedRequest, 'id'>>) => void;
   executeRequest: (
@@ -83,6 +95,15 @@ export function useRequestActions({
     } else {
       const newId = addRequest(requestDataToSave);
       setActiveRequestId(newId);
+
+      const folderId = defaultFolderIdRef.current;
+      if (folderId) {
+        const folder = savedFoldersRef.current.find((f) => f.id === folderId);
+        if (folder) {
+          updateFolder(folderId, { requestIds: [...folder.requestIds, newId] });
+        }
+        defaultFolderIdRef.current = null;
+      }
     }
   }, [
     addRequest,
@@ -95,6 +116,9 @@ export function useRequestActions({
     activeRequestIdRef,
     headersRef,
     paramsRef,
+    savedFoldersRef,
+    defaultFolderIdRef,
+    updateFolder,
   ]);
 
   return { executeSendRequest, executeSaveRequest };

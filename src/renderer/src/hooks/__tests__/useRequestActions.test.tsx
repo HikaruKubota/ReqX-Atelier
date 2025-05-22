@@ -1,6 +1,7 @@
 import { renderHook, act } from '@testing-library/react';
 import { describe, it, expect, vi } from 'vitest';
 import { useRequestActions } from '../useRequestActions';
+import type { SavedFolder } from '../../types';
 
 const getMockRefs = () => ({
   editorPanelRef: {
@@ -17,6 +18,9 @@ const getMockRefs = () => ({
   requestNameForSaveRef: { current: 'テストリクエスト' },
   activeRequestIdRef: { current: null as string | null },
   setRequestNameForSave: vi.fn(),
+  savedFoldersRef: { current: [] as SavedFolder[] },
+  defaultFolderIdRef: { current: null as string | null },
+  updateFolder: vi.fn(),
 });
 
 describe('useRequestActions', () => {
@@ -33,6 +37,9 @@ describe('useRequestActions', () => {
         updateSavedRequest: vi.fn(),
         paramsRef: refs.paramsRef,
         executeRequest: mockExecuteRequest,
+        savedFoldersRef: refs.savedFoldersRef,
+        defaultFolderIdRef: refs.defaultFolderIdRef,
+        updateFolder: refs.updateFolder,
       }),
     );
 
@@ -62,6 +69,9 @@ describe('useRequestActions', () => {
         updateSavedRequest: vi.fn(),
         paramsRef: refs.paramsRef,
         executeRequest: vi.fn(),
+        savedFoldersRef: refs.savedFoldersRef,
+        defaultFolderIdRef: refs.defaultFolderIdRef,
+        updateFolder: refs.updateFolder,
       }),
     );
 
@@ -95,6 +105,9 @@ describe('useRequestActions', () => {
         updateSavedRequest: mockUpdateSavedRequest,
         paramsRef: refs.paramsRef,
         executeRequest: vi.fn(),
+        savedFoldersRef: refs.savedFoldersRef,
+        defaultFolderIdRef: refs.defaultFolderIdRef,
+        updateFolder: refs.updateFolder,
       }),
     );
 
@@ -128,6 +141,9 @@ describe('useRequestActions', () => {
         updateSavedRequest: vi.fn(),
         paramsRef: refs.paramsRef,
         executeRequest: vi.fn(),
+        savedFoldersRef: refs.savedFoldersRef,
+        defaultFolderIdRef: refs.defaultFolderIdRef,
+        updateFolder: refs.updateFolder,
       }),
     );
 
@@ -145,5 +161,37 @@ describe('useRequestActions', () => {
     });
     expect(mockSetActiveRequestId).toHaveBeenCalledWith('new-id');
     expect(refs.setRequestNameForSave).toHaveBeenCalledWith('Untitled Request');
+  });
+
+  it('adds new request id to folder when defaultFolderIdRef is set', () => {
+    const mockAddRequest = vi.fn().mockReturnValue('new-id');
+    const mockUpdateFolder = vi.fn();
+    const refs = getMockRefs();
+    refs.defaultFolderIdRef.current = 'f1';
+    refs.savedFoldersRef.current = [
+      { id: 'f1', name: 'F', parentFolderId: null, requestIds: [], subFolderIds: [] },
+    ];
+
+    const { result } = renderHook(() =>
+      useRequestActions({
+        ...refs,
+        setRequestNameForSave: refs.setRequestNameForSave,
+        setActiveRequestId: vi.fn(),
+        addRequest: mockAddRequest,
+        updateSavedRequest: vi.fn(),
+        paramsRef: refs.paramsRef,
+        executeRequest: vi.fn(),
+        savedFoldersRef: refs.savedFoldersRef,
+        defaultFolderIdRef: refs.defaultFolderIdRef,
+        updateFolder: mockUpdateFolder,
+      }),
+    );
+
+    act(() => {
+      result.current.executeSaveRequest();
+    });
+
+    expect(mockUpdateFolder).toHaveBeenCalledWith('f1', { requestIds: ['new-id'] });
+    expect(refs.defaultFolderIdRef.current).toBeNull();
   });
 });

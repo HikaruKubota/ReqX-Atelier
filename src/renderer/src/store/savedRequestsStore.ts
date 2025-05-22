@@ -13,6 +13,7 @@ export interface SavedRequestsState {
   addFolder: (folder: Omit<SavedFolder, 'id'>) => string;
   updateFolder: (id: string, updated: Partial<Omit<SavedFolder, 'id'>>) => void;
   deleteFolder: (id: string) => void;
+  deleteFolderRecursive: (id: string) => void;
   setFolders: (folders: SavedFolder[]) => void;
 }
 
@@ -174,6 +175,18 @@ export const useSavedRequestsStore = create<SavedRequestsState>()(
       },
       deleteFolder: (id) => {
         set({ savedFolders: get().savedFolders.filter((f) => f.id !== id) });
+      },
+      deleteFolderRecursive: (id) => {
+        const recursiveDelete = (folderId: string) => {
+          const folder = get().savedFolders.find((f) => f.id === folderId);
+          if (!folder) return;
+          folder.requestIds.forEach((rid) => get().deleteRequest(rid));
+          folder.subFolderIds.forEach((fid) => recursiveDelete(fid));
+          set({
+            savedFolders: get().savedFolders.filter((f) => f.id !== folderId),
+          });
+        };
+        recursiveDelete(id);
       },
       setFolders: (folders) => set({ savedFolders: folders }),
     }),
