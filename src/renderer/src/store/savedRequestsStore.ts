@@ -116,7 +116,7 @@ export const useSavedRequestsStore = create<SavedRequestsState>()(
           body: bodyPairs,
           params: paramPairs,
         };
-        set({ savedRequests: [...get().savedRequests, newReq] });
+        set((state) => ({ savedRequests: [...state.savedRequests, newReq] }));
         return newId;
       },
       updateRequest: (id, updated) => {
@@ -130,7 +130,13 @@ export const useSavedRequestsStore = create<SavedRequestsState>()(
         });
       },
       deleteRequest: (id) => {
-        set({ savedRequests: get().savedRequests.filter((r) => r.id !== id) });
+        set((state) => ({
+          savedRequests: state.savedRequests.filter((r) => r.id !== id),
+          savedFolders: state.savedFolders.map((f) => ({
+            ...f,
+            requestIds: f.requestIds.filter((rid) => rid !== id),
+          })),
+        }));
       },
       copyRequest: (id) => {
         const original = get().savedRequests.find((r) => r.id === id);
@@ -154,7 +160,17 @@ export const useSavedRequestsStore = create<SavedRequestsState>()(
           requestIds: folder.requestIds ?? [],
           subFolderIds: folder.subFolderIds ?? [],
         };
-        set({ savedFolders: [...get().savedFolders, newFolder] });
+        set((state) => {
+          let folders = [...state.savedFolders, newFolder];
+          if (newFolder.parentFolderId) {
+            folders = folders.map((f) =>
+              f.id === newFolder.parentFolderId
+                ? { ...f, subFolderIds: [...f.subFolderIds, newId] }
+                : f,
+            );
+          }
+          return { savedFolders: folders };
+        });
         return newId;
       },
       updateFolder: (id, updated) => {
@@ -173,7 +189,14 @@ export const useSavedRequestsStore = create<SavedRequestsState>()(
         });
       },
       deleteFolder: (id) => {
-        set({ savedFolders: get().savedFolders.filter((f) => f.id !== id) });
+        set((state) => ({
+          savedFolders: state.savedFolders
+            .filter((f) => f.id !== id)
+            .map((f) => ({
+              ...f,
+              subFolderIds: f.subFolderIds.filter((fid) => fid !== id),
+            })),
+        }));
       },
       setFolders: (folders) => set({ savedFolders: folders }),
     }),
