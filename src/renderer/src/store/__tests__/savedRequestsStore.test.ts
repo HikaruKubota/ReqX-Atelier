@@ -142,3 +142,45 @@ describe('reorderRequests', () => {
     expect(list[1].id).toBe(id1);
   });
 });
+
+describe('folder request operations', () => {
+  it('adds a request to folder', async () => {
+    const { useSavedRequestsStore } = await import('../savedRequestsStore');
+    const requestId = useSavedRequestsStore.getState().addRequest({
+      name: 'Test',
+      method: 'GET',
+      url: '',
+      headers: [],
+      body: [],
+    });
+    const folderId = useSavedRequestsStore.getState().addFolder({
+      name: 'Folder',
+      parentFolderId: null,
+      requestIds: [],
+      subFolderIds: [],
+    });
+    useSavedRequestsStore.getState().addRequestToFolder(requestId, folderId);
+    const folder = useSavedRequestsStore.getState().savedFolders.find((f) => f.id === folderId);
+    expect(folder?.requestIds).toContain(requestId);
+  });
+
+  it('removes a request from folder', async () => {
+    const { useSavedRequestsStore } = await import('../savedRequestsStore');
+    const requestId = useSavedRequestsStore.getState().addRequest({
+      name: 'Test',
+      method: 'GET',
+      url: '',
+      headers: [],
+      body: [],
+    });
+    const folderId = useSavedRequestsStore.getState().addFolder({
+      name: 'Folder',
+      parentFolderId: null,
+      requestIds: [requestId],
+      subFolderIds: [],
+    });
+    useSavedRequestsStore.getState().removeRequestFromFolder(requestId, folderId);
+    const folder = useSavedRequestsStore.getState().savedFolders.find((f) => f.id === folderId);
+    expect(folder?.requestIds).not.toContain(requestId);
+  });
+});

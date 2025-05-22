@@ -15,6 +15,8 @@ export interface SavedRequestsState {
   updateFolder: (id: string, updated: Partial<Omit<SavedFolder, 'id'>>) => void;
   deleteFolder: (id: string) => void;
   setFolders: (folders: SavedFolder[]) => void;
+  addRequestToFolder: (requestId: string, folderId: string) => void;
+  removeRequestFromFolder: (requestId: string, folderId: string) => void;
 }
 
 const LOCAL_STORAGE_KEY = 'reqx_saved_requests';
@@ -188,6 +190,28 @@ export const useSavedRequestsStore = create<SavedRequestsState>()(
         set({ savedFolders: get().savedFolders.filter((f) => f.id !== id) });
       },
       setFolders: (folders) => set({ savedFolders: folders }),
+      addRequestToFolder: (requestId, folderId) => {
+        set((state) => {
+          const folders = state.savedFolders.map((f) => ({
+            ...f,
+            requestIds: f.requestIds.filter((id) => id !== requestId),
+          }));
+          const idx = folders.findIndex((f) => f.id === folderId);
+          if (idx !== -1) {
+            folders[idx].requestIds.push(requestId);
+          }
+          return { savedFolders: folders };
+        });
+      },
+      removeRequestFromFolder: (requestId, folderId) => {
+        set({
+          savedFolders: get().savedFolders.map((f) =>
+            f.id === folderId
+              ? { ...f, requestIds: f.requestIds.filter((id) => id !== requestId) }
+              : f,
+          ),
+        });
+      },
     }),
     {
       name: LOCAL_STORAGE_KEY,
