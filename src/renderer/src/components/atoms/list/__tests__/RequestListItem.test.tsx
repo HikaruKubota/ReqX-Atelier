@@ -59,4 +59,13 @@ describe('RequestListItem', () => {
     fireEvent.contextMenu(getByText('テストリクエスト'));
     expect(handleContext).toHaveBeenCalled();
   });
+
+  it('calls onClick when Enter key is pressed', () => {
+    const handleClick = vi.fn();
+    const { getByRole } = render(
+      <RequestListItem request={sampleRequest} isActive={false} onClick={handleClick} />,
+    );
+    fireEvent.keyDown(getByRole('treeitem'), { key: 'Enter' });
+    expect(handleClick).toHaveBeenCalled();
+  });
 });

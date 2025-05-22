@@ -21,3 +21,12 @@
   -ms-overflow-style: none;
   scrollbar-width: none;
 }
+
+/* Tree row styles */
+.tree-row.request-item {
+  min-height: 28px;
+  padding: 2px 8px;
+  display: flex;
+  align-items: center;
+  line-height: 1.2;
+}

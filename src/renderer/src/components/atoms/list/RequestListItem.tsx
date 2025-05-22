@@ -17,13 +17,23 @@ export const RequestListItem: React.FC<RequestListItemProps> = ({
   onContextMenu,
 }) => (
   <div
+    role="treeitem"
+    tabIndex={0}
+    aria-selected={isActive}
     onClick={onClick}
+    onKeyDown={(e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        e.stopPropagation();
+        onClick();
+      }
+    }}
     onContextMenu={(e) => {
       e.preventDefault();
       onContextMenu?.(e);
     }}
     className={clsx(
-      'px-3 py-2 my-1 cursor-pointer border rounded flex justify-between items-center transition-colors',
+      'tree-row request-item my-1 cursor-pointer border rounded justify-between transition-colors',
       isActive
         ? 'font-bold border-gray-400 dark:border-gray-600 dark:bg-gray-800 dark:text-white'
         : 'bg-white font-normal border-gray-200 hover:bg-gray-100 dark:bg-gray-900 dark:border-gray-700 dark:hover:bg-gray-800 dark:text-gray-200',
