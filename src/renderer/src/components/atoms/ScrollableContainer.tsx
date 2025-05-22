@@ -13,7 +13,7 @@ export const ScrollableContainer: React.FC<ScrollableContainerProps> = ({
 }) => {
   const styleHeight = typeof height === 'number' ? `${height}px` : height;
   return (
-    <div className={className} style={{ maxHeight: styleHeight, overflowY: 'auto' }}>
+    <div className={`overflow-y-auto ${className ?? ''}`} style={{ maxHeight: styleHeight }}>
       {children}
     </div>
   );

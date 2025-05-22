@@ -78,16 +78,7 @@ export const RequestEditorPanel = forwardRef<RequestEditorPanelRef, RequestEdito
     }));
 
     return (
-      <div
-        style={{
-          display: 'flex',
-          flexDirection: 'column',
-          gap: '15px',
-          border: '1px solid #ccc',
-          padding: '15px',
-          borderRadius: '5px',
-        }}
-      >
+      <div className="flex flex-col gap-4 border border-gray-300 p-4 rounded">
         <RequestNameRow
           value={requestNameForSave}
           onChange={onRequestNameForSaveChange}
@@ -105,7 +96,7 @@ export const RequestEditorPanel = forwardRef<RequestEditorPanelRef, RequestEdito
           onSend={onSendRequest}
         />
 
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
+        <div className="flex flex-col gap-[5px]">
           <div className="flex gap-2 mb-2">
             <TabButton active={activeTab === 'params'} onClick={() => setActiveTab('params')}>
               {t('param_tab')}
