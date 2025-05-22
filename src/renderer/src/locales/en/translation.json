@@ -59,5 +59,8 @@
   "save_request": "Save Request",
   "update_request": "Update Request",
   "request_url_placeholder": "Enter request URL (e.g., https://api.example.com/users)",
-  "request_name_placeholder": "Request Name (e.g., Get User Details)"
+  "request_name_placeholder": "Request Name (e.g., Get User Details)",
+  "new_folder": "New Folder",
+  "folder_name_placeholder": "Folder Name",
+  "untitled_folder": "Untitled Folder"
 }

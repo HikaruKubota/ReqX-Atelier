@@ -17,14 +17,14 @@ const sampleRequest: SavedRequest = {
 describe('RequestListItem', () => {
   it('renders request name', () => {
     const { getByText } = render(
-      <RequestListItem request={sampleRequest} isActive={false} onClick={() => {}} />,
+      <RequestListItem request={sampleRequest} containerId={null} isActive={false} onClick={() => {}} />,
     );
     expect(getByText('テストリクエスト')).toBeInTheDocument();
   });
 
   it('renders method icon with aria-label', () => {
     const { getByLabelText } = render(
-      <RequestListItem request={sampleRequest} isActive={false} onClick={() => {}} />,
+      <RequestListItem request={sampleRequest} containerId={null} isActive={false} onClick={() => {}} />,
     );
     expect(getByLabelText('GETリクエスト')).toBeInTheDocument();
   });
@@ -32,7 +32,7 @@ describe('RequestListItem', () => {
   it('calls onClick when item is clicked', () => {
     const handleClick = vi.fn();
     const { getByText } = render(
-      <RequestListItem request={sampleRequest} isActive={false} onClick={handleClick} />,
+      <RequestListItem request={sampleRequest} containerId={null} isActive={false} onClick={handleClick} />,
     );
     fireEvent.click(getByText('テストリクエスト'));
     expect(handleClick).toHaveBeenCalled();
@@ -40,7 +40,7 @@ describe('RequestListItem', () => {
 
   it('applies active style when isActive is true', () => {
     const { container } = render(
-      <RequestListItem request={sampleRequest} isActive={true} onClick={() => {}} />,
+      <RequestListItem request={sampleRequest} containerId={null} isActive={true} onClick={() => {}} />,
     );
     expect(container.firstChild).toHaveClass('font-bold');
     expect(container.firstChild).toHaveClass('border-gray-400');
@@ -51,6 +51,7 @@ describe('RequestListItem', () => {
     const { getByText } = render(
       <RequestListItem
         request={sampleRequest}
+        containerId={null}
         isActive={false}
         onClick={() => {}}
         onContextMenu={handleContext}

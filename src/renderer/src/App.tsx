@@ -58,10 +58,15 @@ export default function App() {
   // Saved requests state (from useSavedRequests hook)
   const {
     savedRequests,
+    savedFolders,
     addRequest,
     updateRequest: updateSavedRequest,
     deleteRequest,
     copyRequest,
+    addFolder,
+    moveRequestToFolder,
+    reorderRequests,
+    reorderFolderRequests,
   } = useSavedRequests();
 
   const { executeSendRequest, executeSaveRequest } = useRequestActions({
@@ -256,10 +261,22 @@ export default function App() {
     <div style={{ display: 'flex', height: '100vh' }}>
       <RequestCollectionSidebar
         savedRequests={savedRequests}
+        savedFolders={savedFolders}
         activeRequestId={activeRequestId}
         onLoadRequest={handleLoadRequest}
         onDeleteRequest={handleDeleteRequest}
         onCopyRequest={handleCopyRequest}
+        onAddFolder={() => {
+          addFolder({
+            name: t('untitled_folder'),
+            parentFolderId: null,
+            requestIds: [],
+            subFolderIds: [],
+          });
+        }}
+        onMoveRequest={moveRequestToFolder}
+        onReorderRoot={reorderRequests}
+        onReorderFolder={reorderFolderRequests}
         isOpen={sidebarOpen}
         onToggle={() => setSidebarOpen((o) => !o)}
       />
