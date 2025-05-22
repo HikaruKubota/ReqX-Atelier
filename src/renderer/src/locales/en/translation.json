@@ -13,6 +13,7 @@
   "hide_sidebar": "Hide Sidebar",
   "show_sidebar": "Show Sidebar",
   "new_request": "New Request",
+  "new_folder": "New Folder",
   "response_heading": "Response",
   "response_time": "Response time: {{time}} ms",
   "no_response": "No response yet. Send a request or load a saved one!",

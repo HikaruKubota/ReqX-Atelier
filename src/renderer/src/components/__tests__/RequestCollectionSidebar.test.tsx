@@ -8,11 +8,14 @@ import type { RequestCollectionSidebarRef } from '../RequestCollectionSidebar';
 
 const baseProps = {
   savedRequests: [] as SavedRequest[],
+  savedFolders: [],
   activeRequestId: null,
   onLoadRequest: () => {},
   onDeleteRequest: () => {},
   onCopyRequest: () => {},
   onReorderRequests: () => {},
+  onMoveRequestToFolder: () => {},
+  onAddFolder: () => {},
 };
 
 describe('RequestCollectionSidebar', () => {
@@ -53,6 +56,7 @@ describe('RequestCollectionSidebar', () => {
         <RequestCollectionSidebar
           ref={ref}
           savedRequests={list}
+          savedFolders={[]}
           activeRequestId={null}
           onLoadRequest={() => {}}
           onDeleteRequest={() => {}}
@@ -66,6 +70,8 @@ describe('RequestCollectionSidebar', () => {
             updated.splice(newIndex, 0, moved);
             setList(updated);
           }}
+          onMoveRequestToFolder={() => {}}
+          onAddFolder={() => {}}
           isOpen
           onToggle={() => {}}
         />
@@ -78,5 +84,32 @@ describe('RequestCollectionSidebar', () => {
     const items = getAllByText(/First|Second/);
     expect(items[0].textContent).toBe('Second');
     expect(items[1].textContent).toBe('First');
+  });
+
+  it('moves request to folder via triggerMoveToFolder', () => {
+    const ref = React.createRef<RequestCollectionSidebarRef>();
+    const moveFn = vi.fn();
+    render(
+      <RequestCollectionSidebar
+        ref={ref}
+        savedRequests={[{ id: '1', name: 'First', method: 'GET', url: '' }]}
+        savedFolders={[
+          { id: 'f1', name: 'F', parentFolderId: null, requestIds: [], subFolderIds: [] },
+        ]}
+        activeRequestId={null}
+        onLoadRequest={() => {}}
+        onDeleteRequest={() => {}}
+        onCopyRequest={() => {}}
+        onReorderRequests={() => {}}
+        onMoveRequestToFolder={moveFn}
+        onAddFolder={() => {}}
+        isOpen
+        onToggle={() => {}}
+      />,
+    );
+    act(() => {
+      ref.current?.triggerMoveToFolder?.('1', 'f1');
+    });
+    expect(moveFn).toHaveBeenCalledWith('1', 'f1');
   });
 });
