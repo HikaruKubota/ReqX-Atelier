@@ -173,7 +173,27 @@ export const useSavedRequestsStore = create<SavedRequestsState>()(
         });
       },
       deleteFolder: (id) => {
-        set({ savedFolders: get().savedFolders.filter((f) => f.id !== id) });
+        const state = get();
+        const folderMap = new Map(state.savedFolders.map((f) => [f.id, f]));
+        const requestsToRemove: string[] = [];
+        const foldersToRemove: string[] = [];
+        const collect = (fid: string) => {
+          const folder = folderMap.get(fid);
+          if (!folder) return;
+          foldersToRemove.push(fid);
+          requestsToRemove.push(...folder.requestIds);
+          folder.subFolderIds.forEach(collect);
+        };
+        collect(id);
+
+        let folders = state.savedFolders.filter((f) => !foldersToRemove.includes(f.id));
+        folders = folders.map((f) => ({
+          ...f,
+          subFolderIds: f.subFolderIds.filter((sf) => !foldersToRemove.includes(sf)),
+          requestIds: f.requestIds.filter((r) => !requestsToRemove.includes(r)),
+        }));
+        const requests = state.savedRequests.filter((r) => !requestsToRemove.includes(r.id));
+        set({ savedFolders: folders, savedRequests: requests });
       },
       setFolders: (folders) => set({ savedFolders: folders }),
     }),

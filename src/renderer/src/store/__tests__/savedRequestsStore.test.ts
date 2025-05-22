@@ -99,6 +99,37 @@ describe('savedFolders CRUD', () => {
       subFolderIds: ['child'],
     });
   });
+
+  it('recursively deletes folders and requests', async () => {
+    const { useSavedRequestsStore } = await import('../savedRequestsStore');
+
+    const childId = useSavedRequestsStore.getState().addFolder({
+      name: 'Child',
+      parentFolderId: null,
+      requestIds: [],
+      subFolderIds: [],
+    });
+    const parentId = useSavedRequestsStore.getState().addFolder({
+      name: 'Parent',
+      parentFolderId: null,
+      requestIds: [],
+      subFolderIds: [childId],
+    });
+    const reqId = useSavedRequestsStore.getState().addRequest({
+      name: 'R',
+      method: 'GET',
+      url: 'https://ex.com',
+      headers: [],
+      body: [],
+      params: [],
+    });
+    useSavedRequestsStore.getState().updateFolder(childId, { requestIds: [reqId] });
+
+    useSavedRequestsStore.getState().deleteFolder(parentId);
+
+    expect(useSavedRequestsStore.getState().savedFolders).toHaveLength(0);
+    expect(useSavedRequestsStore.getState().savedRequests).toHaveLength(0);
+  });
 });
 
 describe('copyRequest', () => {
