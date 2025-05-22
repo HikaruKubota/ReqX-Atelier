@@ -1,5 +1,5 @@
-const { ipcRenderer } = window.require('electron');
 import type { ApiResult } from './types';
+const { electronAPI } = window;
 
 export async function sendApiRequest(
   method: string,
@@ -20,5 +20,5 @@ export async function sendApiRequest(
   if (process.env.NODE_ENV === 'development') {
     console.log('[sendApiRequest]', { method, url, data, headers });
   }
-  return await ipcRenderer.invoke('send-api-request', { method, url, data, headers });
+  return await electronAPI.sendApiRequest({ method, url, data, headers });
 }
