@@ -17,14 +17,9 @@ interface TabItemProps {
 export const TabItem = React.forwardRef<HTMLDivElement, TabItemProps>(
   ({ id, label, method, active, onSelect, onClose }, ref) => {
     const { t } = useTranslation();
-    const {
-      attributes,
-      listeners,
-      setNodeRef,
-      transform,
-      transition,
-      isDragging,
-    } = useSortable({ id });
+    const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
+      id,
+    });
     const style = {
       transform: CSS.Transform.toString(transform),
       transition,
@@ -42,7 +37,7 @@ export const TabItem = React.forwardRef<HTMLDivElement, TabItemProps>(
         ref={combinedRef}
         style={style}
         className={clsx(
-          'px-3 py-1 flex items-center space-x-2 cursor-pointer border-b',
+          'px-3 py-1 flex items-center space-x-2 cursor-pointer border-b w-40',
           active
             ? 'font-bold border-blue-500 bg-white dark:bg-gray-700'
             : 'border-transparent bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700',
@@ -55,7 +50,7 @@ export const TabItem = React.forwardRef<HTMLDivElement, TabItemProps>(
         {...attributes}
       >
         <MethodIcon method={method} size={16} />
-        <span>{label}</span>
+        <span className="flex-1 truncate">{label}</span>
         <button
           onClick={(e) => {
             e.stopPropagation();
