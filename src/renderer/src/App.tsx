@@ -58,6 +58,7 @@ export default function App() {
   // Saved requests state (from useSavedRequests hook)
   const {
     savedRequests,
+    savedFolders,
     addRequest,
     updateRequest: updateSavedRequest,
     deleteRequest,
@@ -256,10 +257,12 @@ export default function App() {
     <div style={{ display: 'flex', height: '100vh' }}>
       <RequestCollectionSidebar
         savedRequests={savedRequests}
+        savedFolders={savedFolders}
         activeRequestId={activeRequestId}
         onLoadRequest={handleLoadRequest}
         onDeleteRequest={handleDeleteRequest}
         onCopyRequest={handleCopyRequest}
+        onNewRequest={handleNewRequest}
         isOpen={sidebarOpen}
         onToggle={() => setSidebarOpen((o) => !o)}
       />
