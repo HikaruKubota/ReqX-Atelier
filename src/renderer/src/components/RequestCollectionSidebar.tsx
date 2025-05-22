@@ -49,7 +49,9 @@ export const RequestCollectionSidebar: React.FC<RequestCollectionSidebarProps> =
             {t('collection_title')}
           </h2>
           <div style={{ flexGrow: 1, overflowY: 'auto' }}>
-            {savedRequests.length === 0 && <p style={{ color: '#777' }}>No requests saved yet.</p>}
+            {savedRequests.length === 0 && (
+              <p style={{ color: '#777' }}>{t('no_saved_requests')}</p>
+            )}
             {savedRequests.map((req) => (
               <RequestListItem
                 key={req.id}

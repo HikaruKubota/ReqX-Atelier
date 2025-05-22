@@ -52,5 +52,6 @@
   "body_tab": "Body",
   "param_tab": "Params",
   "data_tab": "Data",
-  "add_param_row": "Add Param Row"
+  "add_param_row": "Add Param Row",
+  "no_saved_requests": "No requests saved yet."
 }

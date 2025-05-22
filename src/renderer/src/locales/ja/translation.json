@@ -52,5 +52,6 @@
   "body_tab": "ボディ",
   "param_tab": "パラメータ",
   "data_tab": "データ",
-  "add_param_row": "パラメータ行を追加"
+  "add_param_row": "パラメータ行を追加",
+  "no_saved_requests": "まだ保存されたリクエストがありません"
 }
