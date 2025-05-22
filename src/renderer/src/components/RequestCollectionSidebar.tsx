@@ -26,7 +26,7 @@ interface RequestCollectionSidebarProps {
   onDeleteRequest: (id: string) => void;
   onCopyRequest: (id: string) => void;
   onReorderRequests: (activeId: string, overId: string) => void;
-  onMoveRequestToFolder: (requestId: string, folderId: string) => void;
+  onMoveRequestToFolder: (requestId: string, folderId: string | null) => void;
   onAddFolder: () => void;
   isOpen: boolean;
   onToggle: () => void;
@@ -64,6 +64,7 @@ export const RequestCollectionSidebar = forwardRef<
       useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }),
     );
     const modifiers = [restrictToParentElement, restrictToWindowEdges];
+    const { setNodeRef: setRootNodeRef } = useDroppable({ id: 'root' });
     const [openFolders, setOpenFolders] = useState<Record<string, boolean>>({});
 
     const toggleFolder = (id: string) => setOpenFolders((o) => ({ ...o, [id]: !o[id] }));
@@ -117,7 +118,9 @@ export const RequestCollectionSidebar = forwardRef<
         const { active, over } = event;
         if (!over || active.id === over.id) return;
         const overId = String(over.id);
-        if (overId.startsWith('folder-')) {
+        if (overId === 'root') {
+          onMoveRequestToFolder(String(active.id), null);
+        } else if (overId.startsWith('folder-')) {
           const folderId = overId.replace('folder-', '');
           onMoveRequestToFolder(String(active.id), folderId);
         } else {
@@ -140,28 +143,32 @@ export const RequestCollectionSidebar = forwardRef<
             <div className="flex-grow overflow-y-auto">
               <NewFolderButton onClick={onAddFolder} className="mb-2 w-full" />
               <DndContext sensors={sensors} onDragEnd={handleDragEnd} modifiers={modifiers}>
-                <SortableContext items={savedRequests.filter((r) => !r.folderId).map((r) => r.id)}>
-                  {savedRequests.filter((r) => !r.folderId).length === 0 && (
-                    <p className="text-gray-500">{t('no_saved_requests')}</p>
-                  )}
-                  {savedRequests
-                    .filter((r) => !r.folderId)
-                    .map((req) => (
-                      <RequestListItem
-                        key={req.id}
-                        request={req}
-                        isActive={activeRequestId === req.id}
-                        onClick={() => onLoadRequest(req)}
-                        onContextMenu={(e) => setMenu({ id: req.id, x: e.clientX, y: e.clientY })}
-                      />
-                    ))}
+                <div ref={setRootNodeRef}>
+                  <SortableContext
+                    items={savedRequests.filter((r) => !r.folderId).map((r) => r.id)}
+                  >
+                    {savedRequests.filter((r) => !r.folderId).length === 0 && (
+                      <p className="text-gray-500">{t('no_saved_requests')}</p>
+                    )}
+                    {savedRequests
+                      .filter((r) => !r.folderId)
+                      .map((req) => (
+                        <RequestListItem
+                          key={req.id}
+                          request={req}
+                          isActive={activeRequestId === req.id}
+                          onClick={() => onLoadRequest(req)}
+                          onContextMenu={(e) => setMenu({ id: req.id, x: e.clientX, y: e.clientY })}
+                        />
+                      ))}
                     {savedFolders
                       .filter((f) => f.parentFolderId === null)
                       .map((folder) => (
                         // eslint-disable-next-line react/prop-types
                         <FolderItem key={folder.id} folder={folder} />
                       ))}
-                </SortableContext>
+                  </SortableContext>
+                </div>
               </DndContext>
             </div>
           </>
