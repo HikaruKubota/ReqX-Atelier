@@ -170,7 +170,7 @@ export const RequestCollectionTree: React.FC<Props> = ({
         <div
           style={style}
           ref={dragHandle}
-          className="ml-4"
+          className="h-full flex items-center"
           onContextMenu={(e) => {
             e.preventDefault();
             setRequestMenu({ id: node.id, x: e.clientX, y: e.clientY });
@@ -193,6 +193,7 @@ export const RequestCollectionTree: React.FC<Props> = ({
         openByDefault
         width="100%"
         height={400}
+        rowHeight={26}
         data={data}
         disableDrop={disableDrop}
         onMove={handleMove}
