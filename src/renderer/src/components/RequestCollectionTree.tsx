@@ -197,6 +197,13 @@ export const RequestCollectionTree: React.FC<Props> = ({
         data={data}
         disableDrop={disableDrop}
         onMove={handleMove}
+        onActivate={(node) => {
+          if (node.data.type === 'folder') {
+            node.toggle();
+          } else {
+            onLoadRequest(requestMap.get(node.id)!);
+          }
+        }}
       >
         {renderNode}
       </Tree>
