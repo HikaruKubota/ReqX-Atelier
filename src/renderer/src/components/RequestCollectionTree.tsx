@@ -148,7 +148,16 @@ export const RequestCollectionTree: React.FC<Props> = ({
     }) => {
       if (node.data.type === 'folder') {
         return (
-          <div style={style} ref={dragHandle} className="select-none">
+          <div
+            style={style}
+            ref={dragHandle}
+            className="select-none"
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') {
+                node.toggle();
+              }
+            }}
+          >
             <div
               className="flex items-center gap-1 cursor-pointer"
               onClick={() => node.toggle()}
@@ -171,6 +180,11 @@ export const RequestCollectionTree: React.FC<Props> = ({
           style={style}
           ref={dragHandle}
           className="h-full flex items-center"
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') {
+              onLoadRequest(req);
+            }
+          }}
           onContextMenu={(e) => {
             e.preventDefault();
             setRequestMenu({ id: node.id, x: e.clientX, y: e.clientY });
