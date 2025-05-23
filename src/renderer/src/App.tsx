@@ -15,6 +15,7 @@ import { TabBar } from './components/organisms/TabBar';
 import { ShortcutsGuide } from './components/organisms/ShortcutsGuide';
 import { RequestEditorPanelRef } from './types'; // Import the RequestHeader type
 import { Toast } from './components/atoms/toast/Toast';
+import { RenameFolderModal } from './components/RenameFolderModal';
 
 export default function App() {
   const { t } = useTranslation();
@@ -56,6 +57,8 @@ export default function App() {
     useApiResponseHandler();
 
   const [newRequestFolderId, setNewRequestFolderId] = useState<string | null>(null);
+  const [renameFolderId, setRenameFolderId] = useState<string | null>(null);
+  const [renameFolderName, setRenameFolderName] = useState('');
 
   // Saved requests state (from useSavedRequests hook)
   const {
@@ -295,8 +298,11 @@ export default function App() {
           handleNewRequest();
         }}
         onRenameFolder={(id) => {
-          const name = prompt(t('folder_name_prompt'));
-          if (name) updateFolder(id, { name });
+          const folder = savedFolders.find((f) => f.id === id);
+          if (folder) {
+            setRenameFolderId(id);
+            setRenameFolderName(folder.name);
+          }
         }}
         onDeleteFolder={(id) => {
           if (confirm(t('delete_folder_confirm'))) deleteFolderRecursive(id);
@@ -389,6 +395,17 @@ export default function App() {
         message={t('save_success')}
         isOpen={saveToastOpen}
         onClose={() => setSaveToastOpen(false)}
+      />
+      <RenameFolderModal
+        isOpen={renameFolderId !== null}
+        initialName={renameFolderName}
+        onClose={() => setRenameFolderId(null)}
+        onSave={(name) => {
+          if (renameFolderId) {
+            updateFolder(renameFolderId, { name });
+          }
+          setRenameFolderId(null);
+        }}
       />
     </div>
   );
