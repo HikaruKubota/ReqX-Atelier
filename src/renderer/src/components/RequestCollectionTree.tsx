@@ -3,7 +3,8 @@ import type { SavedFolder, SavedRequest } from '../types';
 import { RequestListItem } from './atoms/list/RequestListItem';
 import { ContextMenu } from './atoms/menu/ContextMenu';
 import { useTranslation } from 'react-i18next';
-import { Tree, NodeApi } from 'react-arborist';
+import { Tree, NodeApi, DragPreviewProps, CursorProps } from 'react-arborist';
+import { useTreeApi } from 'react-arborist/dist/main/context';
 import { FiChevronRight, FiChevronDown, FiFolder } from 'react-icons/fi';
 
 interface TreeNode {
@@ -129,6 +130,75 @@ export const RequestCollectionTree: React.FC<Props> = ({
     [],
   );
 
+  const DragPreviewComponent: React.FC<DragPreviewProps> = ({ offset, id, isDragging }) => {
+    const tree = useTreeApi<TreeNode>();
+    if (!isDragging) return null;
+    const node = id ? tree.get(id) : null;
+    if (!node) return null;
+    const style: React.CSSProperties = offset
+      ? { transform: `translate(${offset.x}px, ${offset.y}px)` }
+      : { display: 'none' };
+    return (
+      <div
+        style={{
+          position: 'fixed',
+          pointerEvents: 'none',
+          zIndex: 100,
+          left: 0,
+          top: 0,
+          width: '100%',
+          height: '100%',
+        }}
+      >
+        <div className="row preview" style={style}>
+          <tree.renderNode
+            preview
+            node={node}
+            style={{
+              paddingLeft: node.level * tree.indent,
+              opacity: 0.7,
+              boxShadow: '0 2px 6px rgba(0,0,0,0.3)',
+              background: 'transparent',
+            }}
+            tree={tree}
+          />
+        </div>
+      </div>
+    );
+  };
+
+  const DragPreview = React.memo(DragPreviewComponent);
+  DragPreview.displayName = 'DragPreview';
+
+  const CursorComponent: React.FC<CursorProps> = ({ top, left, indent }) => {
+    const style: React.CSSProperties = {
+      position: 'absolute',
+      pointerEvents: 'none',
+      top: top - 2 + 'px',
+      left: left + 'px',
+      right: indent + 'px',
+      display: 'flex',
+      alignItems: 'center',
+      zIndex: 1,
+    };
+    return (
+      <div style={style}>
+        <div
+          style={{
+            width: 4,
+            height: 4,
+            boxShadow: '0 0 0 3px var(--color-primary)',
+            borderRadius: '50%',
+          }}
+        ></div>
+        <div className="drop-cursor-line flex-1 rounded-sm"></div>
+      </div>
+    );
+  };
+
+  const Cursor = React.memo(CursorComponent);
+  Cursor.displayName = 'Cursor';
+
   const [folderMenu, setFolderMenu] = React.useState<{ id: string; x: number; y: number } | null>(
     null,
   );
@@ -146,9 +216,10 @@ export const RequestCollectionTree: React.FC<Props> = ({
       style: React.CSSProperties;
       dragHandle?: (el: HTMLDivElement | null) => void;
     }) => {
+      const dropClass = node.willReceiveDrop ? 'drop-target-outline' : '';
       if (node.data.type === 'folder') {
         return (
-          <div style={style} ref={dragHandle} className="select-none">
+          <div style={style} ref={dragHandle} className={`select-none ${dropClass}`}>
             <div
               className="flex items-center gap-1 cursor-pointer"
               onClick={() => node.toggle()}
@@ -170,7 +241,7 @@ export const RequestCollectionTree: React.FC<Props> = ({
         <div
           style={style}
           ref={dragHandle}
-          className="h-full flex items-center"
+          className={`h-full flex items-center ${dropClass}`}
           onContextMenu={(e) => {
             e.preventDefault();
             setRequestMenu({ id: node.id, x: e.clientX, y: e.clientY });
@@ -197,6 +268,8 @@ export const RequestCollectionTree: React.FC<Props> = ({
         data={data}
         disableDrop={disableDrop}
         onMove={handleMove}
+        renderDragPreview={DragPreview}
+        renderCursor={Cursor}
       >
         {renderNode}
       </Tree>

@@ -21,3 +21,13 @@
   -ms-overflow-style: none;
   scrollbar-width: none;
 }
+
+/* DnD styles */
+.drop-target-outline {
+  outline: 2px dashed var(--color-primary);
+}
+
+.drop-cursor-line {
+  height: 2px;
+  background-color: var(--color-primary);
+}
