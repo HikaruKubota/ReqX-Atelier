@@ -294,10 +294,7 @@ export default function App() {
           setNewRequestFolderId(parentId);
           handleNewRequest();
         }}
-        onRenameFolder={(id) => {
-          const name = prompt(t('folder_name_prompt'));
-          if (name) updateFolder(id, { name });
-        }}
+        updateFolder={updateFolder}
         onDeleteFolder={(id) => {
           if (confirm(t('delete_folder_confirm'))) deleteFolderRecursive(id);
         }}

@@ -5,6 +5,7 @@ import { ContextMenu } from './atoms/menu/ContextMenu';
 import { useTranslation } from 'react-i18next';
 import { Tree, NodeApi } from 'react-arborist';
 import { FiChevronRight, FiChevronDown, FiFolder } from 'react-icons/fi';
+import { TextInput } from './atoms/form/TextInput';
 
 interface TreeNode {
   id: string;
@@ -22,7 +23,7 @@ interface Props {
   onCopyRequest: (id: string) => void;
   onAddFolder: (parentId: string | null) => void;
   onAddRequest: (parentId: string | null) => void;
-  onRenameFolder: (id: string) => void;
+  updateFolder: (id: string, updated: Partial<Omit<SavedFolder, 'id'>>) => void;
   onDeleteFolder: (id: string) => void;
   moveRequest: (id: string, folderId: string | null, index?: number) => void;
   moveFolder: (id: string, folderId: string | null, index?: number) => void;
@@ -37,7 +38,7 @@ export const RequestCollectionTree: React.FC<Props> = ({
   onCopyRequest,
   onAddFolder,
   onAddRequest,
-  onRenameFolder,
+  updateFolder,
   onDeleteFolder,
   moveRequest,
   moveFolder,
@@ -136,6 +137,9 @@ export const RequestCollectionTree: React.FC<Props> = ({
     null,
   );
 
+  const [editingFolderId, setEditingFolderId] = React.useState<string | null>(null);
+  const [newName, setNewName] = React.useState('');
+
   const renderNode = React.useCallback(
     ({
       node,
@@ -159,7 +163,27 @@ export const RequestCollectionTree: React.FC<Props> = ({
             >
               {node.isOpen ? <FiChevronDown size={12} /> : <FiChevronRight size={12} />}
               <FiFolder size={14} />
-              <span>{node.data.name}</span>
+              {editingFolderId === node.id ? (
+                <TextInput
+                  autoFocus
+                  value={newName}
+                  onChange={(e) => setNewName(e.target.value)}
+                  onBlur={() => {
+                    if (newName.trim()) updateFolder(node.id, { name: newName.trim() });
+                    setEditingFolderId(null);
+                  }}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      (e.target as HTMLInputElement).blur();
+                    } else if (e.key === 'Escape') {
+                      setEditingFolderId(null);
+                    }
+                  }}
+                  className="flex-grow"
+                />
+              ) : (
+                <span>{node.data.name}</span>
+              )}
             </div>
           </div>
         );
@@ -184,7 +208,7 @@ export const RequestCollectionTree: React.FC<Props> = ({
         </div>
       );
     },
-    [activeRequestId, onLoadRequest, requestMap],
+    [activeRequestId, onLoadRequest, requestMap, editingFolderId, newName, updateFolder],
   );
 
   return (
@@ -208,7 +232,13 @@ export const RequestCollectionTree: React.FC<Props> = ({
             { label: t('context_menu_new_request'), onClick: () => onAddRequest(folderMenu.id) },
             {
               label: t('context_menu_rename_folder'),
-              onClick: () => onRenameFolder(folderMenu.id),
+              onClick: () => {
+                const node = idMap.get(folderMenu.id);
+                if (node) {
+                  setEditingFolderId(node.id);
+                  setNewName(node.name);
+                }
+              },
             },
             {
               label: t('context_menu_delete_folder'),
