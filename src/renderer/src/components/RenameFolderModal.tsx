@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useLayoutEffect } from 'react';
 import { Modal } from './atoms/Modal';
 import { TextInput } from './atoms/form/TextInput';
 import { useTranslation } from 'react-i18next';
@@ -24,10 +24,10 @@ export const RenameFolderModal: React.FC<RenameFolderModalProps> = ({
     setName(initialName);
   }, [initialName]);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (isOpen) {
-      // モーダルが開いたら入力欄にフォーカスを当てる
-      inputRef.current?.focus();
+      const id = requestAnimationFrame(() => inputRef.current?.focus());
+      return () => cancelAnimationFrame(id);
     }
   }, [isOpen]);
 
