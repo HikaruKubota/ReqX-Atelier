@@ -25,6 +25,7 @@ interface Props {
   onAddFolder: (parentId: string | null) => void;
   onAddRequest: (parentId: string | null) => void;
   onDeleteFolder: (id: string) => void;
+  onCopyFolder: (id: string) => void;
   moveRequest: (id: string, folderId: string | null, index?: number) => void;
   moveFolder: (id: string, folderId: string | null, index?: number) => void;
 }
@@ -39,6 +40,7 @@ export const RequestCollectionTree: React.FC<Props> = ({
   onAddFolder,
   onAddRequest,
   onDeleteFolder,
+  onCopyFolder,
   moveRequest,
   moveFolder,
 }) => {
@@ -158,20 +160,24 @@ export const RequestCollectionTree: React.FC<Props> = ({
         if (node.isEditing) {
           // Inline rename field
           return (
-            <div style={style} ref={dragHandle} className="select-none h-full w-full px-3 flex items-center gap-1">
+            <div
+              style={style}
+              ref={dragHandle}
+              className="select-none h-full w-full px-3 flex items-center gap-1"
+            >
               <FiFolder size={16} />
               <input
                 autoFocus
                 defaultValue={node.data.name}
                 className="w-full h-full bg-transparent text-sm leading-tight outline-none"
-                onFocus={e => e.currentTarget.select()}
+                onFocus={(e) => e.currentTarget.select()}
                 onBlur={(e) => {
                   const newName = e.currentTarget.value.trim();
                   if (newName) {
-                    node.submit(newName);               // Arborist: commit rename
+                    node.submit(newName); // Arborist: commit rename
                     updateFolder(node.id, { name: newName }); // Persist to store
                   } else {
-                    node.reset();               // Empty => cancel
+                    node.reset(); // Empty => cancel
                   }
                 }}
                 onKeyDown={(e) => {
@@ -209,20 +215,24 @@ export const RequestCollectionTree: React.FC<Props> = ({
 
       if (node.isEditing) {
         return (
-          <div style={style} ref={dragHandle} className="select-none h-full w-full px-3 flex items-center gap-1">
+          <div
+            style={style}
+            ref={dragHandle}
+            className="select-none h-full w-full px-3 flex items-center gap-1"
+          >
             <MethodIcon size={16} method={req.method} />
             <input
               autoFocus
               defaultValue={req.name}
               className="w-full h-full bg-transparent text-sm leading-tight outline-none"
-              onFocus={e => e.currentTarget.select()}
+              onFocus={(e) => e.currentTarget.select()}
               onBlur={(e) => {
                 const newName = e.currentTarget.value.trim();
                 if (newName) {
-                  node.submit(newName);               // commit rename
+                  node.submit(newName); // commit rename
                   updateRequest(req.id, { name: newName }); // Persist to store
                 } else {
-                  node.reset();              // cancel
+                  node.reset(); // cancel
                 }
               }}
               onKeyDown={(e) => {
@@ -248,10 +258,7 @@ export const RequestCollectionTree: React.FC<Props> = ({
             setRequestMenu({ id: node.id, x: e.clientX, y: e.clientY });
           }}
         >
-          <RequestListItem
-            request={req}
-            isActive={activeRequestId === req.id}
-          />
+          <RequestListItem request={req} isActive={activeRequestId === req.id} />
         </div>
       );
     },
@@ -266,7 +273,7 @@ export const RequestCollectionTree: React.FC<Props> = ({
           if (e.key === 'Enter') {
             const node = treeRef.current?.focusedNode;
             if (node && !node.isEditing) {
-              node.edit();        // start rename for folder or request
+              node.edit(); // start rename for folder or request
               e.preventDefault();
             }
           }
@@ -306,6 +313,7 @@ export const RequestCollectionTree: React.FC<Props> = ({
                 setFolderMenu(null); // close the context menu
               },
             },
+            { label: t('context_menu_copy_folder'), onClick: () => onCopyFolder(folderMenu.id) },
             {
               label: t('context_menu_delete_folder'),
               onClick: () => onDeleteFolder(folderMenu.id),
