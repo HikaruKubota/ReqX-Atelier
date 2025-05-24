@@ -6,6 +6,7 @@ import { useTranslation } from 'react-i18next';
 import { Tree, NodeApi, type TreeApi } from 'react-arborist';
 import { FiChevronRight, FiChevronDown, FiFolder } from 'react-icons/fi';
 import { useSavedRequests } from '../hooks/useSavedRequests';
+import { useElementSize } from '../hooks/useElementSize';
 import MethodIcon from './atoms/MethodIcon';
 
 interface TreeNode {
@@ -140,6 +141,7 @@ export const RequestCollectionTree: React.FC<Props> = ({
   );
 
   const treeRef = React.useRef<TreeApi<TreeNode> | null>(null);
+  const { ref: containerRef, size } = useElementSize<HTMLDivElement>();
 
   const renderNode = React.useCallback(
     ({
@@ -269,6 +271,7 @@ export const RequestCollectionTree: React.FC<Props> = ({
     <>
       <div
         tabIndex={0}
+        ref={containerRef}
         onKeyDown={(e) => {
           if (e.key === 'Enter') {
             const node = treeRef.current?.focusedNode;
@@ -278,13 +281,13 @@ export const RequestCollectionTree: React.FC<Props> = ({
             }
           }
         }}
-        className="outline-none"
+        className="outline-none h-full"
       >
         <Tree<TreeNode>
           ref={treeRef}
           openByDefault
-          width="100%"
-          height={400}
+          width={size.width}
+          height={size.height}
           rowHeight={26}
           data={data}
           disableDrop={disableDrop}
@@ -296,6 +299,7 @@ export const RequestCollectionTree: React.FC<Props> = ({
               onLoadRequest(requestMap.get(node.id)!);
             }
           }}
+          className="no-scrollbar"
         >
           {renderNode}
         </Tree>
