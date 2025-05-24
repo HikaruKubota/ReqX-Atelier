@@ -3,8 +3,10 @@ import type { SavedFolder, SavedRequest } from '../types';
 import { RequestListItem } from './atoms/list/RequestListItem';
 import { ContextMenu } from './atoms/menu/ContextMenu';
 import { useTranslation } from 'react-i18next';
-import { Tree, NodeApi } from 'react-arborist';
+import { Tree, NodeApi, type TreeApi } from 'react-arborist';
 import { FiChevronRight, FiChevronDown, FiFolder } from 'react-icons/fi';
+import { useSavedRequests } from '../hooks/useSavedRequests';
+import MethodIcon from './atoms/MethodIcon';
 
 interface TreeNode {
   id: string;
@@ -43,6 +45,7 @@ export const RequestCollectionTree: React.FC<Props> = ({
   moveFolder,
 }) => {
   const { t } = useTranslation();
+  const { updateRequest, updateFolder } = useSavedRequests();
   const requestMap = React.useMemo(() => new Map(requests.map((r) => [r.id, r])), [requests]);
 
   const buildTree = React.useCallback(
@@ -136,6 +139,8 @@ export const RequestCollectionTree: React.FC<Props> = ({
     null,
   );
 
+  const treeRef = React.useRef<TreeApi<TreeNode> | null>(null);
+
   const renderNode = React.useCallback(
     ({
       node,
@@ -147,11 +152,48 @@ export const RequestCollectionTree: React.FC<Props> = ({
       dragHandle?: (el: HTMLDivElement | null) => void;
     }) => {
       if (node.data.type === 'folder') {
+        /* ───────────────────────────────
+           VS Code‑like behaviour:
+           - Click  : select + toggle open/close
+           - Enter  : start inline rename mode
+           ─────────────────────────────── */
+        if (node.isEditing) {
+          // Inline rename field
+          return (
+            <div style={style} ref={dragHandle} className="select-none h-full w-full px-3 flex items-center gap-1">
+              <FiFolder size={16} />
+              <input
+                autoFocus
+                defaultValue={node.data.name}
+                className="w-full h-full bg-transparent text-sm leading-tight outline-none"
+                onFocus={e => e.currentTarget.select()}
+                onBlur={(e) => {
+                  const newName = e.currentTarget.value.trim();
+                  if (newName) {
+                    node.submit(newName);               // Arborist: commit rename
+                    updateFolder(node.id, { name: newName }); // Persist to store
+                  } else {
+                    node.reset();               // Empty => cancel
+                  }
+                }}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    (e.currentTarget as HTMLInputElement).blur();
+                  }
+                  if (e.key === 'Escape') {
+                    node.reset();
+                  }
+                }}
+              />
+            </div>
+          );
+        }
+
+        // Normal (non‑editing) folder row
         return (
           <div style={style} ref={dragHandle} className="select-none">
             <div
               className="flex items-center gap-1 cursor-pointer"
-              onClick={() => node.toggle()}
               onContextMenu={(e) => {
                 e.preventDefault();
                 setFolderMenu({ id: node.id, x: e.clientX, y: e.clientY });
@@ -166,6 +208,38 @@ export const RequestCollectionTree: React.FC<Props> = ({
       }
 
       const req = requestMap.get(node.id)!;
+
+      if (node.isEditing) {
+        return (
+          <div style={style} ref={dragHandle} className="select-none h-full w-full px-3 flex items-center gap-1">
+            <MethodIcon size={16} method={req.method} />
+            <input
+              autoFocus
+              defaultValue={req.name}
+              className="w-full h-full bg-transparent text-sm leading-tight outline-none"
+              onFocus={e => e.currentTarget.select()}
+              onBlur={(e) => {
+                const newName = e.currentTarget.value.trim();
+                if (newName) {
+                  node.submit(newName);               // commit rename
+                  updateRequest(req.id, { name: newName }); // Persist to store
+                } else {
+                  node.reset();              // cancel
+                }
+              }}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  (e.currentTarget as HTMLInputElement).blur();
+                }
+                if (e.key === 'Escape') {
+                  node.reset();
+                }
+              }}
+            />
+          </div>
+        );
+      }
+
       return (
         <div
           style={style}
@@ -179,27 +253,48 @@ export const RequestCollectionTree: React.FC<Props> = ({
           <RequestListItem
             request={req}
             isActive={activeRequestId === req.id}
-            onClick={() => onLoadRequest(req)}
           />
         </div>
       );
     },
-    [activeRequestId, onLoadRequest, requestMap],
+    [activeRequestId, onLoadRequest, requestMap, updateRequest],
   );
 
   return (
     <>
-      <Tree<TreeNode>
-        openByDefault
-        width="100%"
-        height={400}
-        rowHeight={26}
-        data={data}
-        disableDrop={disableDrop}
-        onMove={handleMove}
+      <div
+        tabIndex={0}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter') {
+            const node = treeRef.current?.focusedNode;
+            if (node && !node.isEditing) {
+              node.edit();        // start rename for folder or request
+              e.preventDefault();
+            }
+          }
+        }}
+        className="outline-none"
       >
-        {renderNode}
-      </Tree>
+        <Tree<TreeNode>
+          ref={treeRef}
+          openByDefault
+          width="100%"
+          height={400}
+          rowHeight={26}
+          data={data}
+          disableDrop={disableDrop}
+          onMove={handleMove}
+          onActivate={(node) => {
+            if (node.data.type === 'folder') {
+              node.toggle();
+            } else {
+              onLoadRequest(requestMap.get(node.id)!);
+            }
+          }}
+        >
+          {renderNode}
+        </Tree>
+      </div>
       {folderMenu && (
         <ContextMenu
           position={{ x: folderMenu.x, y: folderMenu.y }}
