@@ -7,6 +7,7 @@ export const useSavedRequests = () => {
   const updateRequest = useSavedRequestsStore((s) => s.updateRequest);
   const deleteRequest = useSavedRequestsStore((s) => s.deleteRequest);
   const copyRequest = useSavedRequestsStore((s) => s.copyRequest);
+  const copyFolder = useSavedRequestsStore((s) => s.copyFolder);
   const addFolder = useSavedRequestsStore((s) => s.addFolder);
   const updateFolder = useSavedRequestsStore((s) => s.updateFolder);
   const deleteFolderRecursive = useSavedRequestsStore((s) => s.deleteFolderRecursive);
@@ -20,6 +21,7 @@ export const useSavedRequests = () => {
     updateRequest,
     deleteRequest,
     copyRequest,
+    copyFolder,
     addFolder,
     updateFolder,
     deleteFolderRecursive,

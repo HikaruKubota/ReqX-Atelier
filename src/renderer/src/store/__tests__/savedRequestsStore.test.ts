@@ -118,3 +118,42 @@ describe('copyRequest', () => {
     expect(list).toHaveLength(2);
   });
 });
+
+describe('copyFolder', () => {
+  it('duplicates a folder and its contents recursively', async () => {
+    const { useSavedRequestsStore } = await import('../savedRequestsStore');
+    const reqId = useSavedRequestsStore.getState().addRequest({
+      name: 'Req',
+      method: 'GET',
+      url: 'https://example.com',
+      headers: [],
+      body: [],
+    });
+    const childFolderId = useSavedRequestsStore.getState().addFolder({
+      name: 'Child',
+      parentFolderId: null,
+      requestIds: [reqId],
+      subFolderIds: [],
+    });
+    const rootFolderId = useSavedRequestsStore.getState().addFolder({
+      name: 'Root',
+      parentFolderId: null,
+      requestIds: [],
+      subFolderIds: [childFolderId],
+    });
+
+    const newId = useSavedRequestsStore.getState().copyFolder(rootFolderId);
+    const folders = useSavedRequestsStore.getState().savedFolders;
+    const requests = useSavedRequestsStore.getState().savedRequests;
+    expect(folders).toHaveLength(4); // original two + copy and child copy
+    expect(requests).toHaveLength(2); // original + copy
+    const copied = folders.find((f) => f.id === newId)!;
+    expect(copied.name).toBe('Root copy');
+    expect(copied.subFolderIds).toHaveLength(1);
+    const copiedChild = folders.find((f) => f.id === copied.subFolderIds[0])!;
+    expect(copiedChild.name).toBe('Child');
+    expect(copiedChild.requestIds).toHaveLength(1);
+    const copiedReq = requests.find((r) => r.id === copiedChild.requestIds[0])!;
+    expect(copiedReq.name).toBe('Req');
+  });
+});

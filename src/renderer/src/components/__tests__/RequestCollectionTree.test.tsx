@@ -18,6 +18,7 @@ const baseProps = {
   onAddFolder: () => {},
   onAddRequest: () => {},
   onDeleteFolder: () => {},
+  onCopyFolder: () => {},
   moveRequest: () => {},
   moveFolder: () => {},
 };
@@ -25,9 +26,7 @@ const baseProps = {
 describe('RequestCollectionTree', () => {
   it('calls onLoadRequest when activated via keyboard', () => {
     const fn = vi.fn();
-    const { container } = render(
-      <RequestCollectionTree {...baseProps} onLoadRequest={fn} />,
-    );
+    const { container } = render(<RequestCollectionTree {...baseProps} onLoadRequest={fn} />);
     const tree = container.querySelector('[role="tree"]') as HTMLElement;
     const treeitem = container.querySelector('[role="treeitem"]') as HTMLElement;
     fireEvent.click(treeitem);

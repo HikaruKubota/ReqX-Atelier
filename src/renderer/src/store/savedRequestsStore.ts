@@ -9,6 +9,7 @@ export interface SavedRequestsState {
   updateRequest: (id: string, updated: Partial<Omit<SavedRequest, 'id'>>) => void;
   deleteRequest: (id: string) => void;
   copyRequest: (id: string) => string;
+  copyFolder: (id: string) => string;
   setRequests: (reqs: SavedRequest[]) => void;
   addFolder: (folder: Omit<SavedFolder, 'id'>) => string;
   updateFolder: (id: string, updated: Partial<Omit<SavedFolder, 'id'>>) => void;
@@ -146,6 +147,59 @@ export const useSavedRequestsStore = create<SavedRequestsState>()(
         };
         set({ savedRequests: [...get().savedRequests, copy] });
         return newId;
+      },
+      copyFolder: (id) => {
+        const folders = get().savedFolders;
+        const requests = get().savedRequests;
+        const findFolder = (fid: string) => folders.find((f) => f.id === fid);
+        const findRequest = (rid: string) => requests.find((r) => r.id === rid);
+        const newFolders = [...folders];
+        const newRequests = [...requests];
+
+        const genFolderId = () =>
+          `folder-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`;
+        const genRequestId = () =>
+          `saved-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`;
+
+        const recursiveCopy = (
+          srcId: string,
+          destParentId: string | null,
+          isRoot: boolean,
+        ): string => {
+          const srcFolder = findFolder(srcId);
+          if (!srcFolder) return '';
+          const newId = genFolderId();
+          const folderCopy: SavedFolder = {
+            ...srcFolder,
+            id: newId,
+            name: isRoot ? `${srcFolder.name} copy` : srcFolder.name,
+            parentFolderId: destParentId,
+            requestIds: [],
+            subFolderIds: [],
+          };
+          newFolders.push(folderCopy);
+
+          srcFolder.requestIds.forEach((rid) => {
+            const req = findRequest(rid);
+            if (req) {
+              const newReqId = genRequestId();
+              const reqCopy: SavedRequest = { ...req, id: newReqId };
+              newRequests.push(reqCopy);
+              folderCopy.requestIds.push(newReqId);
+            }
+          });
+
+          srcFolder.subFolderIds.forEach((fid) => {
+            const childId = recursiveCopy(fid, newId, false);
+            if (childId) folderCopy.subFolderIds.push(childId);
+          });
+
+          return newId;
+        };
+
+        const newRootId = recursiveCopy(id, findFolder(id)?.parentFolderId ?? null, true);
+        set({ savedFolders: newFolders, savedRequests: newRequests });
+        return newRootId;
       },
       setRequests: (reqs) => set({ savedRequests: reqs }),
       addFolder: (folder) => {

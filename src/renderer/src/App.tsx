@@ -65,6 +65,7 @@ export default function App() {
     updateRequest: updateSavedRequest,
     deleteRequest,
     copyRequest,
+    copyFolder,
     addFolder,
     updateFolder,
     deleteFolderRecursive,
@@ -215,6 +216,13 @@ export default function App() {
     [copyRequest],
   );
 
+  const handleCopyFolder = useCallback(
+    (id: string) => {
+      copyFolder(id);
+    },
+    [copyFolder],
+  );
+
   return (
     <div style={{ display: 'flex', height: '100vh' }}>
       <RequestCollectionSidebar
@@ -239,6 +247,7 @@ export default function App() {
         onDeleteFolder={(id) => {
           if (confirm(t('delete_folder_confirm'))) deleteFolderRecursive(id);
         }}
+        onCopyFolder={handleCopyFolder}
         moveRequest={moveRequest}
         moveFolder={moveFolder}
         isOpen={sidebarOpen}
