@@ -38,7 +38,7 @@ export function useRequestActions({
     const currentBuiltRequestBody = editorPanelRef.current?.getRequestBodyAsJson() || '';
     const queryString = paramsRef.current
       .filter((p) => p.enabled && p.keyName.trim() !== '')
-      .map((p) => `${encodeURIComponent(p.keyName)}=${encodeURIComponent(p.value)}`)
+      .map((p) => `${p.keyName}=${p.value}`)
       .join('&');
     const urlWithParams = queryString
       ? `${urlRef.current}${urlRef.current.includes('?') ? '&' : '?'}${queryString}`
