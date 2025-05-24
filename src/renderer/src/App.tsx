@@ -90,22 +90,28 @@ export default function App() {
   const tabs = useTabs();
 
   const handleNewRequest = useCallback(() => {
+    tabs.openTab();
     resetEditor();
     setActiveRequestId(null);
     resetApiResponse();
   }, [tabs, resetEditor, setActiveRequestId, resetApiResponse]);
 
   const handleSaveButtonClick = useCallback(() => {
+    const activeTab = tabs.getActiveTab();
+    if (!activeTab) return;
+
     const prevId = activeRequestIdRef.current;
     const savedId = executeSaveRequest();
+    if (!savedId) return; // safeguard
+
     setSaveToastOpen(true);
 
-    const activeTab = tabs.getActiveTab();
     if (activeTab && !activeTab.requestId) {
       tabs.updateTab(activeTab.tabId, { requestId: savedId });
     }
 
-    if (!prevId && newRequestFolderId && savedId) {
+    // If the request was just created inside a specific folder, add its ID there
+    if (!prevId && newRequestFolderId) {
       const folder = savedFolders.find((f) => f.id === newRequestFolderId);
       if (folder) {
         updateFolder(newRequestFolderId, {
@@ -117,7 +123,6 @@ export default function App() {
   }, [
     executeSaveRequest,
     tabs,
-    requestNameForSaveRef,
     activeRequestIdRef,
     newRequestFolderId,
     savedFolders,
