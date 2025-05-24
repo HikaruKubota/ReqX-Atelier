@@ -3,6 +3,7 @@ import { render, fireEvent } from '@testing-library/react';
 import { describe, it, expect, vi } from 'vitest';
 import '../../i18n';
 import { TabBar } from '../organisms/TabBar';
+import { useSavedRequestsStore } from '../../store/savedRequestsStore';
 
 describe('TabBar', () => {
   it('handles tab selection, closing, and new tab creation', () => {
@@ -10,7 +11,18 @@ describe('TabBar', () => {
     const onClose = vi.fn();
     const onNew = vi.fn();
     const onReorder = vi.fn();
-    const tabs = [{ tabId: '1', name: 'Tab1', method: 'GET' }];
+    useSavedRequestsStore.getState().setRequests([
+      {
+        id: 'req1',
+        name: 'Tab1',
+        method: 'GET',
+        url: 'https://example.com',
+        headers: [],
+        body: [],
+        params: [],
+      },
+    ]);
+    const tabs = [{ tabId: '1', requestId: 'req1' }];
     const { getByText, getByLabelText } = render(
       <TabBar
         tabs={tabs}

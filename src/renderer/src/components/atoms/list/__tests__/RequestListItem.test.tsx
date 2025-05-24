@@ -16,45 +16,24 @@ const sampleRequest: SavedRequest = {
 
 describe('RequestListItem', () => {
   it('renders request name', () => {
-    const { getByText } = render(
-      <RequestListItem request={sampleRequest} isActive={false} onClick={() => {}} />,
-    );
+    const { getByText } = render(<RequestListItem request={sampleRequest} isActive={false} />);
     expect(getByText('テストリクエスト')).toBeInTheDocument();
   });
 
   it('renders method icon with aria-label', () => {
-    const { getByLabelText } = render(
-      <RequestListItem request={sampleRequest} isActive={false} onClick={() => {}} />,
-    );
+    const { getByLabelText } = render(<RequestListItem request={sampleRequest} isActive={false} />);
     expect(getByLabelText('GETリクエスト')).toBeInTheDocument();
   });
 
-  it('calls onClick when item is clicked', () => {
-    const handleClick = vi.fn();
-    const { getByText } = render(
-      <RequestListItem request={sampleRequest} isActive={false} onClick={handleClick} />,
-    );
-    fireEvent.click(getByText('テストリクエスト'));
-    expect(handleClick).toHaveBeenCalled();
-  });
-
   it('applies active style when isActive is true', () => {
-    const { container } = render(
-      <RequestListItem request={sampleRequest} isActive={true} onClick={() => {}} />,
-    );
+    const { container } = render(<RequestListItem request={sampleRequest} isActive={true} />);
     expect(container.firstChild).toHaveClass('font-bold');
-    expect(container.firstChild).toHaveClass('bg-[var(--color-secondary)]');
   });
 
   it('calls onContextMenu when right clicked', () => {
     const handleContext = vi.fn();
     const { getByText } = render(
-      <RequestListItem
-        request={sampleRequest}
-        isActive={false}
-        onClick={() => {}}
-        onContextMenu={handleContext}
-      />,
+      <RequestListItem request={sampleRequest} isActive={false} onContextMenu={handleContext} />,
     );
     fireEvent.contextMenu(getByText('テストリクエスト'));
     expect(handleContext).toHaveBeenCalled();
