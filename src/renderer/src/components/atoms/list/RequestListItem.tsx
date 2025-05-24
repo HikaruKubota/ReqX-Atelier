@@ -20,11 +20,11 @@ export const RequestListItem: React.FC<RequestListItemProps> = ({
       onContextMenu?.(e);
     }}
     className={clsx(
-      'my-[1px] px-3 flex items-center gap-2 cursor-pointer transition-colors',
+      'my-[1px] px-3 flex items-center gap-2 cursor-pointer transition-colors w-full',
       isActive && 'font-bold',
     )}
   >
     <MethodIcon size={14} method={request.method} />
-    <span>{request.name}</span>
+    <span className="flex-1 truncate">{request.name}</span>
   </div>
 );

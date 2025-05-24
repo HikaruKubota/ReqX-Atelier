@@ -6,6 +6,7 @@ import { useTranslation } from 'react-i18next';
 import { Tree, NodeApi, type TreeApi } from 'react-arborist';
 import { FiChevronRight, FiChevronDown, FiFolder } from 'react-icons/fi';
 import { useSavedRequests } from '../hooks/useSavedRequests';
+import { useElementSize } from '../hooks/useElementSize';
 import MethodIcon from './atoms/MethodIcon';
 
 interface TreeNode {
@@ -101,13 +102,17 @@ export const RequestCollectionTree: React.FC<Props> = ({
       parentId: string | null;
       index: number;
     }) => {
+      // 最上位へのドロップは null とみなす
+      const rootId = '__REACT_ARBORIST_INTERNAL_ROOT__';
+      const targetId = !parentId || parentId === rootId ? null : parentId;
+
       const id = dragIds[0];
       const item = idMap.get(id);
       if (!item) return;
       if (item.type === 'request') {
-        moveRequest(id, parentId, index);
+        moveRequest(id, targetId, index);
       } else {
-        moveFolder(id, parentId, index);
+        moveFolder(id, targetId, index);
       }
     },
     [idMap, moveRequest, moveFolder],
@@ -140,6 +145,7 @@ export const RequestCollectionTree: React.FC<Props> = ({
   );
 
   const treeRef = React.useRef<TreeApi<TreeNode> | null>(null);
+  const { ref: containerRef, size } = useElementSize<HTMLDivElement>();
 
   const renderNode = React.useCallback(
     ({
@@ -197,7 +203,7 @@ export const RequestCollectionTree: React.FC<Props> = ({
         return (
           <div style={style} ref={dragHandle} className="select-none">
             <div
-              className="flex items-center gap-1 cursor-pointer"
+              className="flex items-center gap-1 cursor-pointer w-full"
               onContextMenu={(e) => {
                 e.preventDefault();
                 setFolderMenu({ id: node.id, x: e.clientX, y: e.clientY });
@@ -205,7 +211,7 @@ export const RequestCollectionTree: React.FC<Props> = ({
             >
               {node.isOpen ? <FiChevronDown size={12} /> : <FiChevronRight size={12} />}
               <FiFolder size={14} />
-              <span>{node.data.name}</span>
+              <span className="flex-1 truncate">{node.data.name}</span>
             </div>
           </div>
         );
@@ -269,6 +275,7 @@ export const RequestCollectionTree: React.FC<Props> = ({
     <>
       <div
         tabIndex={0}
+        ref={containerRef}
         onKeyDown={(e) => {
           if (e.key === 'Enter') {
             const node = treeRef.current?.focusedNode;
@@ -278,13 +285,13 @@ export const RequestCollectionTree: React.FC<Props> = ({
             }
           }
         }}
-        className="outline-none"
+        className="outline-none h-full"
       >
         <Tree<TreeNode>
           ref={treeRef}
           openByDefault
-          width="100%"
-          height={400}
+          width={size.width}
+          height={size.height}
           rowHeight={26}
           data={data}
           disableDrop={disableDrop}
@@ -296,6 +303,7 @@ export const RequestCollectionTree: React.FC<Props> = ({
               onLoadRequest(requestMap.get(node.id)!);
             }
           }}
+          className="no-scrollbar"
         >
           {renderNode}
         </Tree>
