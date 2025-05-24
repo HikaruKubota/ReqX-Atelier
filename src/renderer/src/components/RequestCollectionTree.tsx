@@ -24,7 +24,6 @@ interface Props {
   onCopyRequest: (id: string) => void;
   onAddFolder: (parentId: string | null) => void;
   onAddRequest: (parentId: string | null) => void;
-  onRenameFolder: (id: string) => void;
   onDeleteFolder: (id: string) => void;
   moveRequest: (id: string, folderId: string | null, index?: number) => void;
   moveFolder: (id: string, folderId: string | null, index?: number) => void;
@@ -39,7 +38,6 @@ export const RequestCollectionTree: React.FC<Props> = ({
   onCopyRequest,
   onAddFolder,
   onAddRequest,
-  onRenameFolder,
   onDeleteFolder,
   moveRequest,
   moveFolder,
@@ -303,7 +301,10 @@ export const RequestCollectionTree: React.FC<Props> = ({
             { label: t('context_menu_new_request'), onClick: () => onAddRequest(folderMenu.id) },
             {
               label: t('context_menu_rename_folder'),
-              onClick: () => onRenameFolder(folderMenu.id),
+              onClick: () => {
+                treeRef.current?.get?.(folderMenu.id)?.edit(); // start inline rename
+                setFolderMenu(null); // close the context menu
+              },
             },
             {
               label: t('context_menu_delete_folder'),

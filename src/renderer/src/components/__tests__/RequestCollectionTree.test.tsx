@@ -17,7 +17,6 @@ const baseProps = {
   onCopyRequest: () => {},
   onAddFolder: () => {},
   onAddRequest: () => {},
-  onRenameFolder: () => {},
   onDeleteFolder: () => {},
   moveRequest: () => {},
   moveFolder: () => {},
