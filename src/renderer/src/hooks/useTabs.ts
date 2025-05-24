@@ -1,27 +1,15 @@
 import { useState } from 'react';
 import { arrayMove } from '@dnd-kit/sortable';
-import type { KeyValuePair, RequestHeader, SavedRequest } from '../types';
+import type { SavedRequest } from '../types';
 
 export interface TabState {
   tabId: string;
   requestId: string | null;
-  name: string;
-  method: string;
-  url: string;
-  headers: RequestHeader[];
-  body: KeyValuePair[];
-  params: KeyValuePair[];
 }
 
 const createTabState = (req?: SavedRequest): TabState => ({
   tabId: `tab-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`,
   requestId: req?.id ?? null,
-  name: req?.name ?? 'Untitled Request',
-  method: req?.method ?? 'GET',
-  url: req?.url ?? '',
-  headers: req?.headers ?? [],
-  body: req?.body ?? [],
-  params: req?.params ?? [],
 });
 
 export const useTabs = () => {
@@ -50,7 +38,7 @@ export const useTabs = () => {
 
   const switchTab = (tabId: string) => setActiveTabId(tabId);
 
-  const updateTab = (tabId: string, data: Partial<Omit<TabState, 'tabId'>>) => {
+  const updateTab = (tabId: string, data: Partial<Pick<TabState, 'requestId'>>) => {
     setTabs((prev) => prev.map((t) => (t.tabId === tabId ? { ...t, ...data } : t)));
   };
 

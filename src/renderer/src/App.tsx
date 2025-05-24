@@ -90,46 +90,21 @@ export default function App() {
   const tabs = useTabs();
 
   const handleNewRequest = useCallback(() => {
-    const tab = tabs.openTab();
-    loadRequestIntoEditor({
-      id: tab.requestId || '',
-      name: tab.name,
-      method: tab.method,
-      url: tab.url,
-      headers: tab.headers,
-      body: tab.body,
-      params: tab.params,
-    });
+    resetEditor();
     setActiveRequestId(null);
     resetApiResponse();
-  }, [tabs, loadRequestIntoEditor, setActiveRequestId, resetApiResponse]);
-
-  // 初回起動時にタブを自動生成せず、ショートカットボードを表示したままにする
-  // useEffect(() => {
-  //   if (tabs.tabs.length === 0) {
-  //     handleNewRequest();
-  //   }
-  // }, []);
+  }, [tabs, resetEditor, setActiveRequestId, resetApiResponse]);
 
   const handleSaveButtonClick = useCallback(() => {
     const prevId = activeRequestIdRef.current;
     const savedId = executeSaveRequest();
     setSaveToastOpen(true);
+
     const activeTab = tabs.getActiveTab();
-    if (activeTab) {
-      tabs.updateTab(activeTab.tabId, {
-        name:
-          requestNameForSaveRef.current.trim() !== ''
-            ? requestNameForSaveRef.current.trim()
-            : 'Untitled Request',
-        method,
-        url,
-        headers,
-        body: body,
-        params,
-        requestId: activeRequestIdRef.current,
-      });
+    if (activeTab && !activeTab.requestId) {
+      tabs.updateTab(activeTab.tabId, { requestId: savedId });
     }
+
     if (!prevId && newRequestFolderId && savedId) {
       const folder = savedFolders.find((f) => f.id === newRequestFolderId);
       if (folder) {
@@ -142,10 +117,6 @@ export default function App() {
   }, [
     executeSaveRequest,
     tabs,
-    method,
-    url,
-    headers,
-    body,
     requestNameForSaveRef,
     activeRequestIdRef,
     newRequestFolderId,
@@ -157,36 +128,8 @@ export default function App() {
     onSave: handleSaveButtonClick,
     onSend: executeSendRequest,
     onNew: handleNewRequest,
-    onNextTab: () => {
-      const active = tabs.getActiveTab();
-      if (active) {
-        tabs.updateTab(active.tabId, {
-          name: requestNameForSave,
-          method,
-          url,
-          headers,
-          body: body,
-          params,
-          requestId: activeRequestId,
-        });
-      }
-      tabs.nextTab();
-    },
-    onPrevTab: () => {
-      const active = tabs.getActiveTab();
-      if (active) {
-        tabs.updateTab(active.tabId, {
-          name: requestNameForSave,
-          method,
-          url,
-          headers,
-          body: body,
-          params,
-          requestId: activeRequestId,
-        });
-      }
-      tabs.prevTab();
-    },
+    onNextTab: () => tabs.nextTab(),
+    onPrevTab: () => tabs.prevTab(),
     onCloseTab: () => {
       const active = tabs.getActiveTab();
       if (active) {
@@ -196,58 +139,52 @@ export default function App() {
   });
 
   const handleLoadRequest = (req: SavedRequest) => {
-    const active = tabs.getActiveTab();
-    if (active) {
-      tabs.updateTab(active.tabId, {
-        name: requestNameForSave,
-        method,
-        url,
-        headers,
-        body: body,
-        params,
-        requestId: activeRequestId,
-      });
-    }
-
     const existing = tabs.tabs.find((t) => t.requestId === req.id);
-    let target = existing;
-    if (!existing) {
-      target = tabs.openTab(req);
-    } else {
+    if (existing) {
       tabs.switchTab(existing.tabId);
+    } else {
+      tabs.openTab(req);
     }
-    if (target) {
-      loadRequestIntoEditor({
-        id: target.requestId || '',
-        name: target.name,
-        method: target.method,
-        url: target.url,
-        headers: target.headers,
-        body: target.body,
-        params: target.params,
-      });
-      setActiveRequestId(target.requestId);
-    }
+    loadRequestIntoEditor({
+      id: req.id,
+      name: req.name,
+      method: req.method,
+      url: req.url,
+      headers: req.headers,
+      body: req.body,
+      params: req.params,
+    });
+    setActiveRequestId(req.id);
     resetApiResponse();
   };
 
   useEffect(() => {
     const tab = tabs.getActiveTab();
-    if (tab) {
-      loadRequestIntoEditor({
-        id: tab.requestId || '',
-        name: tab.name,
-        method: tab.method,
-        url: tab.url,
-        headers: tab.headers,
-        body: tab.body,
-        params: tab.params,
-      });
-      setRequestNameForSave(tab.name);
-      setActiveRequestId(tab.requestId);
-      resetApiResponse();
+    if (!tab) return;
+
+    if (tab.requestId) {
+      const req = savedRequests.find((r) => r.id === tab.requestId);
+      if (req) {
+        loadRequestIntoEditor({
+          id: req.id,
+          name: req.name,
+          method: req.method,
+          url: req.url,
+          headers: req.headers,
+          body: req.body,
+          params: req.params,
+        });
+        setRequestNameForSave(req.name);
+        setActiveRequestId(req.id);
+      }
+    } else {
+      // 新規タブ
+      resetEditor();
+      setRequestNameForSave('Untitled Request');
+      setActiveRequestId(null);
     }
-  }, [tabs.activeTabId]);
+    resetApiResponse();
+  }, [tabs.activeTabId, savedRequests]);
 
   const handleDeleteRequest = useCallback(
     (idToDelete: string) => {
@@ -311,25 +248,10 @@ export default function App() {
       <div style={{ flexGrow: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
         {tabs.tabs.length > 0 && (
           <TabBar
-            tabs={tabs.tabs.map(({ tabId, name, method }) => ({ tabId, name, method }))}
+            tabs={tabs.tabs}
             activeTabId={tabs.activeTabId}
-            onSelect={(id) => {
-              const active = tabs.getActiveTab();
-              if (active) {
-                tabs.updateTab(active.tabId, {
-                  name: requestNameForSave,
-                  method,
-                  url,
-                  headers,
-                  body: body,
-                  requestId: activeRequestId,
-                });
-              }
-              tabs.switchTab(id);
-            }}
-            onClose={(id) => {
-              tabs.closeTab(id);
-            }}
+            onSelect={(id) => tabs.switchTab(id)}
+            onClose={(id) => tabs.closeTab(id)}
             onNew={handleNewRequest}
             onReorder={(activeId, overId) => tabs.reorderTabs(activeId, overId)}
           />
