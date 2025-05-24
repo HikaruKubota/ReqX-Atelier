@@ -3,17 +3,30 @@ import { render, fireEvent, waitFor } from '@testing-library/react';
 import { describe, it, expect, vi } from 'vitest';
 import '../../../i18n';
 import { TabList } from '../TabList';
+import { useSavedRequestsStore } from '../../../store/savedRequestsStore';
 
 describe('TabList', () => {
   beforeEach(() => {
     Element.prototype.scrollIntoView = vi.fn();
+    useSavedRequestsStore.getState().setRequests([]);
   });
   it('calls onSelect when tab clicked', () => {
     const onSelect = vi.fn();
     const onNew = vi.fn();
+    useSavedRequestsStore.getState().setRequests([
+      {
+        id: 'req1',
+        name: 'Tab1',
+        method: 'GET',
+        url: 'https://example.com',
+        headers: [],
+        body: [],
+        params: [],
+      },
+    ]);
     const { getByText, getByLabelText } = render(
       <TabList
-        tabs={[{ tabId: '1', name: 'Tab1', method: 'GET' }]}
+        tabs={[{ tabId: '1', requestId: 'req1' }]}
         activeTabId="1"
         onSelect={onSelect}
         onClose={() => {}}
@@ -43,11 +56,31 @@ describe('TabList', () => {
   });
 
   it('scrolls active tab into view', async () => {
+    useSavedRequestsStore.getState().setRequests([
+      {
+        id: 'req1',
+        name: 'Tab1',
+        method: 'GET',
+        url: 'https://example.com',
+        headers: [],
+        body: [],
+        params: [],
+      },
+      {
+        id: 'req2',
+        name: 'Tab2',
+        method: 'POST',
+        url: 'https://example.com',
+        headers: [],
+        body: [],
+        params: [],
+      },
+    ]);
     const { rerender } = render(
       <TabList
         tabs={[
-          { tabId: '1', name: 'Tab1', method: 'GET' },
-          { tabId: '2', name: 'Tab2', method: 'POST' },
+          { tabId: '1', requestId: 'req1' },
+          { tabId: '2', requestId: 'req2' },
         ]}
         activeTabId="1"
         onSelect={() => {}}
@@ -59,8 +92,8 @@ describe('TabList', () => {
     rerender(
       <TabList
         tabs={[
-          { tabId: '1', name: 'Tab1', method: 'GET' },
-          { tabId: '2', name: 'Tab2', method: 'POST' },
+          { tabId: '1', requestId: 'req1' },
+          { tabId: '2', requestId: 'req2' },
         ]}
         activeTabId="2"
         onSelect={() => {}}
