@@ -101,13 +101,17 @@ export const RequestCollectionTree: React.FC<Props> = ({
       parentId: string | null;
       index: number;
     }) => {
+      // react-arborist passes ROOT_ID for drops on the top level.
+      const rootId = '__REACT_ARBORIST_INTERNAL_ROOT__';
+      const targetId = parentId === rootId ? null : parentId;
+
       const id = dragIds[0];
       const item = idMap.get(id);
       if (!item) return;
       if (item.type === 'request') {
-        moveRequest(id, parentId, index);
+        moveRequest(id, targetId, index);
       } else {
-        moveFolder(id, parentId, index);
+        moveFolder(id, targetId, index);
       }
     },
     [idMap, moveRequest, moveFolder],
