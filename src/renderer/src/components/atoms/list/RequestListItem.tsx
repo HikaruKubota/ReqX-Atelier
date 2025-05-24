@@ -6,18 +6,15 @@ import { MethodIcon } from '../MethodIcon';
 interface RequestListItemProps {
   request: SavedRequest;
   isActive: boolean;
-  onClick: () => void;
   onContextMenu?: (e: React.MouseEvent<HTMLDivElement>) => void;
 }
 
 export const RequestListItem: React.FC<RequestListItemProps> = ({
   request,
   isActive,
-  onClick,
   onContextMenu,
 }) => (
   <div
-    onClick={onClick}
     onContextMenu={(e) => {
       e.preventDefault();
       onContextMenu?.(e);
