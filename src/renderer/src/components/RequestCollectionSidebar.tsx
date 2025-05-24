@@ -15,6 +15,7 @@ interface RequestCollectionSidebarProps {
   onAddFolder: (parentId: string | null) => void;
   onAddRequest: (parentId: string | null) => void;
   onDeleteFolder: (id: string) => void;
+  onCopyFolder: (id: string) => void;
   moveRequest: (id: string, folderId: string | null, index?: number) => void;
   moveFolder: (id: string, folderId: string | null, index?: number) => void;
   isOpen: boolean;
@@ -31,6 +32,7 @@ export const RequestCollectionSidebar: React.FC<RequestCollectionSidebarProps> =
   onAddFolder,
   onAddRequest,
   onDeleteFolder,
+  onCopyFolder,
   moveRequest,
   moveFolder,
   isOpen,
@@ -65,6 +67,7 @@ export const RequestCollectionSidebar: React.FC<RequestCollectionSidebarProps> =
               onAddFolder={onAddFolder}
               onAddRequest={onAddRequest}
               onDeleteFolder={onDeleteFolder}
+              onCopyFolder={onCopyFolder}
               moveRequest={moveRequest}
               moveFolder={moveFolder}
             />

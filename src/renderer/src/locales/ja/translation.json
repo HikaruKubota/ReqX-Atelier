@@ -64,6 +64,7 @@
   "context_menu_new_folder": "新規フォルダを作成",
   "context_menu_new_request": "新規リクエストを作成",
   "context_menu_rename_folder": "フォルダの名前を変更",
+  "context_menu_copy_folder": "フォルダをコピー",
   "context_menu_delete_folder": "フォルダを削除",
   "delete_folder_confirm": "このフォルダとその中身をすべて削除してもよろしいですか？",
   "folder_name_prompt": "フォルダ名を入力"
