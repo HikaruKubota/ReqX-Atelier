@@ -13,6 +13,9 @@ export interface SavedRequestsState {
   addFolder: (folder: Omit<SavedFolder, 'id'>) => string;
   updateFolder: (id: string, updated: Partial<Omit<SavedFolder, 'id'>>) => void;
   deleteFolder: (id: string) => void;
+  deleteFolderRecursive: (id: string) => void;
+  moveRequest: (id: string, targetFolderId: string | null, index?: number) => void;
+  moveFolder: (id: string, targetFolderId: string | null, index?: number) => void;
   setFolders: (folders: SavedFolder[]) => void;
 }
 
@@ -174,6 +177,56 @@ export const useSavedRequestsStore = create<SavedRequestsState>()(
       },
       deleteFolder: (id) => {
         set({ savedFolders: get().savedFolders.filter((f) => f.id !== id) });
+      },
+      deleteFolderRecursive: (id) => {
+        const recursiveDelete = (folderId: string) => {
+          const folder = get().savedFolders.find((f) => f.id === folderId);
+          if (!folder) return;
+          folder.requestIds.forEach((rid) => get().deleteRequest(rid));
+          folder.subFolderIds.forEach((fid) => recursiveDelete(fid));
+          set({
+            savedFolders: get().savedFolders.filter((f) => f.id !== folderId),
+          });
+        };
+        recursiveDelete(id);
+      },
+      moveRequest: (id, targetFolderId, index) => {
+        const folders = get().savedFolders.map((f) => {
+          let reqIds = f.requestIds.filter((rid) => rid !== id);
+          if (f.id === targetFolderId) {
+            const insertAt = index !== undefined ? index : reqIds.length;
+            reqIds = [...reqIds.slice(0, insertAt), id, ...reqIds.slice(insertAt)];
+          }
+          return { ...f, requestIds: reqIds };
+        });
+        set({ savedFolders: folders });
+      },
+      moveFolder: (id, targetFolderId, index) => {
+        const folders = get().savedFolders;
+
+        const isDescendant = (fid: string, targetId: string | null): boolean => {
+          if (!targetId) return false;
+          if (fid === targetId) return true;
+          const target = folders.find((f) => f.id === targetId);
+          if (!target) return false;
+          return target.subFolderIds.some((cid) => isDescendant(fid, cid));
+        };
+
+        if (isDescendant(id, targetFolderId)) return;
+
+        const updated = folders.map((f) => {
+          let subIds = f.subFolderIds.filter((sid) => sid !== id);
+          if (f.id === targetFolderId) {
+            const insertAt = index !== undefined ? index : subIds.length;
+            subIds = [...subIds.slice(0, insertAt), id, ...subIds.slice(insertAt)];
+          }
+          if (f.id === id) {
+            return { ...f, parentFolderId: targetFolderId };
+          }
+          return { ...f, subFolderIds: subIds };
+        });
+
+        set({ savedFolders: updated });
       },
       setFolders: (folders) => set({ savedFolders: folders }),
     }),

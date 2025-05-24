@@ -56,7 +56,7 @@ export function useRequestActions({
   }, [executeRequest, headersRef, methodRef, urlRef, paramsRef]);
 
   // リクエスト保存
-  const executeSaveRequest = useCallback(() => {
+  const executeSaveRequest = useCallback((): string => {
     const nameToSave =
       requestNameForSaveRef.current.trim() !== ''
         ? requestNameForSaveRef.current.trim()
@@ -80,9 +80,11 @@ export function useRequestActions({
 
     if (currentActiveRequestId) {
       updateSavedRequest(currentActiveRequestId, requestDataToSave);
+      return currentActiveRequestId;
     } else {
       const newId = addRequest(requestDataToSave);
       setActiveRequestId(newId);
+      return newId;
     }
   }, [
     addRequest,
