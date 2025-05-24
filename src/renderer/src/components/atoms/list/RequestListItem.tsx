@@ -21,9 +21,7 @@ export const RequestListItem: React.FC<RequestListItemProps> = ({
     }}
     className={clsx(
       'my-[1px] px-3 flex items-center gap-2 cursor-pointer transition-colors',
-      isActive
-        ? 'font-bold bg-[var(--color-secondary)] text-[var(--color-background)]'
-        : 'bg-[var(--color-background)] text-[var(--color-text)] hover:bg-gray-100 dark:hover:bg-gray-800',
+      isActive && 'font-bold'
     )}
   >
     <MethodIcon size={14} method={request.method} />
