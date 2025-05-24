@@ -2,7 +2,7 @@ import { useState, useCallback, useRef, useEffect } from 'react';
 import { useHeadersManager } from './useHeadersManager';
 import { useBodyManager } from './useBodyManager';
 import { useParamsManager } from './useParamsManager';
-import type { SavedRequest, RequestEditorState } from '../types';
+import type { SavedRequest, RequestEditorState, KeyValuePair } from '../types';
 
 // RequestEditorState now inherits from both manager returns, excluding conflicting/internal methods
 
@@ -41,6 +41,19 @@ export const useRequestEditor = (): RequestEditorState => {
   const bodyManager = useBodyManager(); // Use the new body manager hook
   const paramsManager = useParamsManager();
 
+  const parseQueryPairs = useCallback((q: string) => {
+    if (!q) return [] as KeyValuePair[];
+    return q.split('&').map((seg) => {
+      const [k, v = ''] = seg.split('=');
+      return {
+        id: `param-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`,
+        keyName: k,
+        value: v,
+        enabled: true,
+      } as KeyValuePair;
+    });
+  }, []);
+
   // Remove useEffects for body-related states
   useEffect(() => {
     methodRef.current = methodState;
@@ -56,6 +69,26 @@ export const useRequestEditor = (): RequestEditorState => {
   useEffect(() => {
     activeRequestIdRef.current = activeRequestIdState;
   }, [activeRequestIdState]);
+
+  // Sync params from URL query string
+  useEffect(() => {
+    const [, q = ''] = urlState.split('?');
+    if (q !== paramsManager.queryStringRef.current) {
+      const parsed = parseQueryPairs(q);
+      const disabled = paramsManager.paramsRef.current.filter((p) => !p.enabled);
+      paramsManager.setParams([...disabled, ...parsed]);
+    }
+  }, [urlState, parseQueryPairs, paramsManager]);
+
+  // Reflect params into URL
+  useEffect(() => {
+    const base = urlRef.current.split('?')[0];
+    const q = paramsManager.queryStringRef.current;
+    const newUrl = q ? `${base}?${q}` : base;
+    if (newUrl !== urlState) {
+      setUrlState(newUrl);
+    }
+  }, [paramsManager.queryString, urlState, paramsManager, urlRef]);
 
   const loadRequest = useCallback(
     (req: SavedRequest) => {
