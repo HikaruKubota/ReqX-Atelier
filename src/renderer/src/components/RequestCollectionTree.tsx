@@ -197,7 +197,7 @@ export const RequestCollectionTree: React.FC<Props> = ({
         return (
           <div style={style} ref={dragHandle} className="select-none">
             <div
-              className="flex items-center gap-1 cursor-pointer"
+              className="flex items-center gap-1 cursor-pointer w-full"
               onContextMenu={(e) => {
                 e.preventDefault();
                 setFolderMenu({ id: node.id, x: e.clientX, y: e.clientY });
@@ -205,7 +205,7 @@ export const RequestCollectionTree: React.FC<Props> = ({
             >
               {node.isOpen ? <FiChevronDown size={12} /> : <FiChevronRight size={12} />}
               <FiFolder size={14} />
-              <span>{node.data.name}</span>
+              <span className="flex-1 truncate">{node.data.name}</span>
             </div>
           </div>
         );
