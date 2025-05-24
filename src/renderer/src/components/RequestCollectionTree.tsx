@@ -101,13 +101,17 @@ export const RequestCollectionTree: React.FC<Props> = ({
       parentId: string | null;
       index: number;
     }) => {
+      // 最上位へのドロップは null とみなす
+      const rootId = '__REACT_ARBORIST_INTERNAL_ROOT__';
+      const targetId = !parentId || parentId === rootId ? null : parentId;
+
       const id = dragIds[0];
       const item = idMap.get(id);
       if (!item) return;
       if (item.type === 'request') {
-        moveRequest(id, parentId, index);
+        moveRequest(id, targetId, index);
       } else {
-        moveFolder(id, parentId, index);
+        moveFolder(id, targetId, index);
       }
     },
     [idMap, moveRequest, moveFolder],
