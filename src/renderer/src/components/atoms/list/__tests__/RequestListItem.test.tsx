@@ -43,7 +43,7 @@ describe('RequestListItem', () => {
       <RequestListItem request={sampleRequest} isActive={true} onClick={() => {}} />,
     );
     expect(container.firstChild).toHaveClass('font-bold');
-    expect(container.firstChild).toHaveClass('border-gray-400');
+    expect(container.firstChild).toHaveClass('bg-[var(--color-secondary)]');
   });
 
   it('calls onContextMenu when right clicked', () => {

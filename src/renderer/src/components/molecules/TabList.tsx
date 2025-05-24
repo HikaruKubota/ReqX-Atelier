@@ -7,10 +7,7 @@ import {
   useSensor,
   useSensors,
 } from '@dnd-kit/core';
-import {
-  SortableContext,
-  sortableKeyboardCoordinates,
-} from '@dnd-kit/sortable';
+import { SortableContext, sortableKeyboardCoordinates } from '@dnd-kit/sortable';
 import {
   restrictToParentElement,
   restrictToWindowEdges,
@@ -18,11 +15,11 @@ import {
 } from '@dnd-kit/modifiers';
 import { TabItem } from '../atoms/tab/TabItem';
 import { NewRequestIconButton } from '../atoms/button/NewRequestIconButton';
+import { useSavedRequestsStore } from '../../store/savedRequestsStore';
 
 export interface TabInfo {
   tabId: string;
-  name: string;
-  method: string;
+  requestId: string | null;
 }
 
 interface TabListProps {
@@ -44,6 +41,8 @@ export const TabList: React.FC<TabListProps> = ({
 }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const activeRef = useRef<HTMLDivElement>(null);
+  const saved = useSavedRequestsStore((s) => s.savedRequests);
+
   // クリックとドラッグを明確に分離するセンサ設定
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
@@ -72,18 +71,21 @@ export const TabList: React.FC<TabListProps> = ({
           ref={containerRef}
           className="sticky top-0 z-10 bg-background flex items-center border-b overflow-x-auto no-scrollbar flex-none h-11"
         >
-          {tabs.map((tab) => (
-            <TabItem
-              key={tab.tabId}
-              id={tab.tabId}
-              ref={activeTabId === tab.tabId ? activeRef : null}
-              label={tab.name}
-              method={tab.method}
-              active={activeTabId === tab.tabId}
-              onSelect={() => onSelect(tab.tabId)}
-              onClose={() => onClose(tab.tabId)}
-            />
-          ))}
+          {tabs.map((tab) => {
+            const req = saved.find((r) => r.id === tab.requestId);
+            return (
+              <TabItem
+                key={tab.tabId}
+                id={tab.tabId}
+                ref={activeTabId === tab.tabId ? activeRef : null}
+                label={req ? req.name : 'Untitled'}
+                method={req ? req.method : 'GET'}
+                active={activeTabId === tab.tabId}
+                onSelect={() => onSelect(tab.tabId)}
+                onClose={() => onClose(tab.tabId)}
+              />
+            );
+          })}
           <NewRequestIconButton onClick={onNew} className="ml-2" />
         </div>
       </SortableContext>
