@@ -53,7 +53,7 @@ export const RequestCollectionSidebar: React.FC<RequestCollectionSidebarProps> =
           <div className="mb-2">
             <NewFolderIconButton onClick={() => onAddFolder(null)} />
           </div>
-          <div className="flex-grow overflow-y-auto">
+          <div className="flex-grow overflow-y-auto no-scrollbar">
             {savedRequests.length === 0 && savedFolders.length === 0 && (
               <p className="text-gray-500">{t('no_saved_requests')}</p>
             )}
