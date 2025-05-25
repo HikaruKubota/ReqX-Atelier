@@ -210,6 +210,7 @@ export const RequestCollectionTree: React.FC<Props> = ({
               )}
               onContextMenu={(e) => {
                 e.preventDefault();
+                node.select();
                 setFolderMenu({ id: node.id, x: e.clientX, y: e.clientY });
               }}
             >
@@ -271,6 +272,7 @@ export const RequestCollectionTree: React.FC<Props> = ({
           )}
           onContextMenu={(e) => {
             e.preventDefault();
+            node.select();
             setRequestMenu({ id: node.id, x: e.clientX, y: e.clientY });
           }}
         >
@@ -325,6 +327,7 @@ export const RequestCollectionTree: React.FC<Props> = ({
       {folderMenu && (
         <ContextMenu
           position={{ x: folderMenu.x, y: folderMenu.y }}
+          title={t('context_menu_title', { name: idMap.get(folderMenu.id)?.name })}
           items={[
             { label: t('context_menu_new_folder'), onClick: () => onAddFolder(folderMenu.id) },
             { label: t('context_menu_new_request'), onClick: () => onAddRequest(folderMenu.id) },
