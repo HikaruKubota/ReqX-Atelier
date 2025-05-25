@@ -30,6 +30,13 @@ describe('RequestListItem', () => {
     expect(container.firstChild).toHaveClass('font-bold');
   });
 
+  it('applies selected style when isSelected is true', () => {
+    const { container } = render(
+      <RequestListItem request={sampleRequest} isActive={false} isSelected />,
+    );
+    expect(container.firstChild).toHaveClass('bg-blue-100');
+  });
+
   it('calls onContextMenu when right clicked', () => {
     const handleContext = vi.fn();
     const { getByText } = render(

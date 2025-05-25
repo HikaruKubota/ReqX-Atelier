@@ -33,4 +33,12 @@ describe('RequestCollectionTree', () => {
     fireEvent.keyDown(tree, { key: 'Enter' });
     expect(fn).toHaveBeenCalledWith(requests[0]);
   });
+
+  it('adds selected style when item is clicked', () => {
+    const { container } = render(<RequestCollectionTree {...baseProps} />);
+    const treeitem = container.querySelector('[role="treeitem"]') as HTMLElement;
+    fireEvent.click(treeitem);
+    const inner = treeitem.firstElementChild as HTMLElement;
+    expect(inner).toHaveClass('bg-blue-100');
+  });
 });
