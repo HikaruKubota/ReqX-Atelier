@@ -81,18 +81,23 @@ export const useRequestEditor = (): RequestEditorState => {
     }
     const [, q = ''] = urlState.split('?');
     if (q !== paramsManager.queryStringRef.current) {
-      fromUrlRef.current = true;
       const parsed = parseQueryPairs(q);
       const disabled = paramsManager.paramsRef.current.filter((p) => !p.enabled);
-      paramsManager.setParams([...disabled, ...parsed]);
+
+      // ← Skip if parsed params are identical to current enabled+parsed combo
+      const next = [...disabled, ...parsed];
+      const prev = paramsManager.paramsRef.current;
+      const isSame =
+        prev.length === next.length &&
+        prev.every((p, i) => p.enabled === next[i].enabled &&
+                             p.keyName === next[i].keyName &&
+                             p.value === next[i].value);
+      if (isSame) return;
+
+      fromUrlRef.current = true;
+      paramsManager.setParams(next);
     }
-  }, [
-    urlState,
-    parseQueryPairs,
-    paramsManager.paramsRef,
-    paramsManager.queryStringRef,
-    paramsManager.setParams,
-  ]);
+  }, [urlState, parseQueryPairs]);
 
   // パラメーターが変更されたときURLへ反映
   useEffect(() => {
@@ -107,7 +112,7 @@ export const useRequestEditor = (): RequestEditorState => {
       fromParamsRef.current = true;
       setUrlState(newUrl);
     }
-  }, [paramsManager.queryString, urlRef, urlState]);
+  }, [paramsManager.queryString, urlState]);
 
   const loadRequest = useCallback(
     (req: SavedRequest) => {
