@@ -157,3 +157,44 @@ describe('copyFolder', () => {
     expect(copiedReq.name).toBe('Req');
   });
 });
+
+describe('moveFolder', () => {
+  it('moves a folder to its grandparent correctly', async () => {
+    const { useSavedRequestsStore } = await import('../savedRequestsStore');
+
+    const grandId = useSavedRequestsStore.getState().addFolder({
+      name: 'Grand',
+      parentFolderId: null,
+      requestIds: [],
+      subFolderIds: [],
+    });
+
+    const parentId = useSavedRequestsStore.getState().addFolder({
+      name: 'Parent',
+      parentFolderId: grandId,
+      requestIds: [],
+      subFolderIds: [],
+    });
+
+    const childId = useSavedRequestsStore.getState().addFolder({
+      name: 'Child',
+      parentFolderId: parentId,
+      requestIds: [],
+      subFolderIds: [],
+    });
+
+    useSavedRequestsStore.getState().updateFolder(grandId, { subFolderIds: [parentId] });
+    useSavedRequestsStore.getState().updateFolder(parentId, { subFolderIds: [childId] });
+
+    useSavedRequestsStore.getState().moveFolder(childId, grandId);
+
+    const folders = useSavedRequestsStore.getState().savedFolders;
+    const grand = folders.find((f) => f.id === grandId)!;
+    const parent = folders.find((f) => f.id === parentId)!;
+    const child = folders.find((f) => f.id === childId)!;
+
+    expect(child.parentFolderId).toBe(grandId);
+    expect(grand.subFolderIds).toEqual([parentId, childId]);
+    expect(parent.subFolderIds).toEqual([]);
+  });
+});
