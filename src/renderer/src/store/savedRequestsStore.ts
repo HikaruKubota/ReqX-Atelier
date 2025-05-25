@@ -258,15 +258,15 @@ export const useSavedRequestsStore = create<SavedRequestsState>()(
       moveFolder: (id, targetFolderId, index) => {
         const folders = get().savedFolders;
 
-        const isDescendant = (fid: string, targetId: string | null): boolean => {
+        const isDescendant = (targetId: string | null, fid: string): boolean => {
           if (!targetId) return false;
-          if (fid === targetId) return true;
-          const target = folders.find((f) => f.id === targetId);
-          if (!target) return false;
-          return target.subFolderIds.some((cid) => isDescendant(fid, cid));
+          if (targetId === fid) return true;
+          const folder = folders.find((f) => f.id === fid);
+          if (!folder) return false;
+          return folder.subFolderIds.some((cid) => isDescendant(targetId, cid));
         };
 
-        if (isDescendant(id, targetFolderId)) return;
+        if (isDescendant(targetFolderId, id)) return;
 
         const updated = folders.map((f) => {
           let subIds = f.subFolderIds.filter((sid) => sid !== id);
