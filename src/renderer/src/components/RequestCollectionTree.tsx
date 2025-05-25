@@ -102,18 +102,21 @@ export const RequestCollectionTree: React.FC<Props> = ({
       parentId: string | null;
       index: number;
     }) => {
-      // 最上位へのドロップは null とみなす
+      // React‑Arborist 用の内部ルート ID
       const rootId = '__REACT_ARBORIST_INTERNAL_ROOT__';
       const targetId = !parentId || parentId === rootId ? null : parentId;
 
-      const id = dragIds[0];
-      const item = idMap.get(id);
-      if (!item) return;
-      if (item.type === 'request') {
-        moveRequest(id, targetId, index);
-      } else {
-        moveFolder(id, targetId, index);
-      }
+      dragIds.forEach((id, i) => {
+        const item = idMap.get(id);
+        if (!item) return;
+        const targetIndex = index + i;
+
+        if (item.type === 'request') {
+          moveRequest(id, targetId, targetIndex);
+        } else {
+          moveFolder(id, targetId, targetIndex);
+        }
+      });
     },
     [idMap, moveRequest, moveFolder],
   );
@@ -143,6 +146,11 @@ export const RequestCollectionTree: React.FC<Props> = ({
   const [requestMenu, setRequestMenu] = React.useState<{ id: string; x: number; y: number } | null>(
     null,
   );
+  const [selection, setSelection] = React.useState<string[]>([]);
+
+  React.useEffect(() => {
+    console.log({selection});
+  }, [selection])
 
   const treeRef = React.useRef<TreeApi<TreeNode> | null>(null);
   const { ref: containerRef, size } = useElementSize<HTMLDivElement>();
@@ -158,13 +166,7 @@ export const RequestCollectionTree: React.FC<Props> = ({
       dragHandle?: (el: HTMLDivElement | null) => void;
     }) => {
       if (node.data.type === 'folder') {
-        /* ───────────────────────────────
-           VS Code‑like behaviour:
-           - Click  : select + toggle open/close
-           - Enter  : start inline rename mode
-           ─────────────────────────────── */
         if (node.isEditing) {
-          // Inline rename field
           return (
             <div
               style={style}
@@ -294,6 +296,7 @@ export const RequestCollectionTree: React.FC<Props> = ({
           height={size.height}
           rowHeight={26}
           data={data}
+          onSelect={(nodes) => setSelection(nodes.map((n) => n.id))}
           disableDrop={disableDrop}
           onMove={handleMove}
           onActivate={(node) => {
