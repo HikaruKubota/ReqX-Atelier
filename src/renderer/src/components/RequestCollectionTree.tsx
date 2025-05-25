@@ -1,4 +1,5 @@
 import React from 'react';
+import clsx from 'clsx';
 import type { SavedFolder, SavedRequest } from '../types';
 import { RequestListItem } from './atoms/list/RequestListItem';
 import { ContextMenu } from './atoms/menu/ContextMenu';
@@ -102,18 +103,21 @@ export const RequestCollectionTree: React.FC<Props> = ({
       parentId: string | null;
       index: number;
     }) => {
-      // 最上位へのドロップは null とみなす
+      // React‑Arborist 用の内部ルート ID
       const rootId = '__REACT_ARBORIST_INTERNAL_ROOT__';
       const targetId = !parentId || parentId === rootId ? null : parentId;
 
-      const id = dragIds[0];
-      const item = idMap.get(id);
-      if (!item) return;
-      if (item.type === 'request') {
-        moveRequest(id, targetId, index);
-      } else {
-        moveFolder(id, targetId, index);
-      }
+      dragIds.forEach((id, i) => {
+        const item = idMap.get(id);
+        if (!item) return;
+        const targetIndex = index + i;
+
+        if (item.type === 'request') {
+          moveRequest(id, targetId, targetIndex);
+        } else {
+          moveFolder(id, targetId, targetIndex);
+        }
+      });
     },
     [idMap, moveRequest, moveFolder],
   );
@@ -158,18 +162,15 @@ export const RequestCollectionTree: React.FC<Props> = ({
       dragHandle?: (el: HTMLDivElement | null) => void;
     }) => {
       if (node.data.type === 'folder') {
-        /* ───────────────────────────────
-           VS Code‑like behaviour:
-           - Click  : select + toggle open/close
-           - Enter  : start inline rename mode
-           ─────────────────────────────── */
         if (node.isEditing) {
-          // Inline rename field
           return (
             <div
               style={style}
               ref={dragHandle}
-              className="select-none h-full w-full px-3 flex items-center gap-1"
+              className={clsx(
+                'select-none h-full w-full px-3 flex items-center gap-1',
+                node.isSelected && 'bg-blue-100 dark:bg-blue-700/50',
+              )}
             >
               <FiFolder size={16} />
               <input
@@ -203,7 +204,10 @@ export const RequestCollectionTree: React.FC<Props> = ({
         return (
           <div style={style} ref={dragHandle} className="select-none">
             <div
-              className="flex items-center gap-1 cursor-pointer w-full"
+              className={clsx(
+                'flex items-center gap-1 cursor-pointer w-full',
+                node.isSelected && 'bg-blue-100 dark:bg-blue-700/50',
+              )}
               onContextMenu={(e) => {
                 e.preventDefault();
                 setFolderMenu({ id: node.id, x: e.clientX, y: e.clientY });
@@ -224,7 +228,10 @@ export const RequestCollectionTree: React.FC<Props> = ({
           <div
             style={style}
             ref={dragHandle}
-            className="select-none h-full w-full px-3 flex items-center gap-1"
+            className={clsx(
+              'select-none h-full w-full px-3 flex items-center gap-1',
+              node.isSelected && 'bg-blue-100 dark:bg-blue-700/50',
+            )}
           >
             <MethodIcon size={16} method={req.method} />
             <input
@@ -258,13 +265,20 @@ export const RequestCollectionTree: React.FC<Props> = ({
         <div
           style={style}
           ref={dragHandle}
-          className="h-full flex items-center"
+          className={clsx(
+            'h-full flex items-center',
+            node.isSelected && 'bg-blue-100 dark:bg-blue-700/50',
+          )}
           onContextMenu={(e) => {
             e.preventDefault();
             setRequestMenu({ id: node.id, x: e.clientX, y: e.clientY });
           }}
         >
-          <RequestListItem request={req} isActive={activeRequestId === req.id} />
+          <RequestListItem
+            request={req}
+            isActive={activeRequestId === req.id}
+            isSelected={node.isSelected}
+          />
         </div>
       );
     },
