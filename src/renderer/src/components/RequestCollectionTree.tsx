@@ -93,6 +93,14 @@ export const RequestCollectionTree: React.FC<Props> = ({
     return map;
   }, [data]);
 
+  const requestParentMap = React.useMemo(() => {
+    const map = new Map<string, string | null>();
+    folders.forEach((f) => {
+      f.requestIds.forEach((rid) => map.set(rid, f.id));
+    });
+    return map;
+  }, [folders]);
+
   const handleMove = React.useCallback(
     ({
       dragIds,
@@ -141,12 +149,12 @@ export const RequestCollectionTree: React.FC<Props> = ({
     [],
   );
 
-  const [folderMenu, setFolderMenu] = React.useState<{ id: string; x: number; y: number } | null>(
-    null,
-  );
-  const [requestMenu, setRequestMenu] = React.useState<{ id: string; x: number; y: number } | null>(
-    null,
-  );
+  const [menu, setMenu] = React.useState<{
+    id: string;
+    type: 'folder' | 'request';
+    x: number;
+    y: number;
+  } | null>(null);
 
   const treeRef = React.useRef<TreeApi<TreeNode> | null>(null);
   const { ref: containerRef, size } = useElementSize<HTMLDivElement>();
@@ -211,8 +219,7 @@ export const RequestCollectionTree: React.FC<Props> = ({
               onContextMenu={(e) => {
                 e.preventDefault();
                 node.select();
-                setRequestMenu(null);
-                setFolderMenu({ id: node.id, x: e.clientX, y: e.clientY });
+                setMenu({ id: node.id, type: 'folder', x: e.clientX, y: e.clientY });
               }}
             >
               {node.isOpen ? <FiChevronDown size={12} /> : <FiChevronRight size={12} />}
@@ -274,8 +281,7 @@ export const RequestCollectionTree: React.FC<Props> = ({
           onContextMenu={(e) => {
             e.preventDefault();
             node.select();
-            setFolderMenu(null);
-            setRequestMenu({ id: node.id, x: e.clientX, y: e.clientY });
+            setMenu({ id: node.id, type: 'request', x: e.clientX, y: e.clientY });
           }}
         >
           <RequestListItem
@@ -326,41 +332,44 @@ export const RequestCollectionTree: React.FC<Props> = ({
           {renderNode}
         </Tree>
       </div>
-      {folderMenu && (
+      {menu && (
         <ContextMenu
-          position={{ x: folderMenu.x, y: folderMenu.y }}
-          title={t('context_menu_title', { name: idMap.get(folderMenu.id)?.name })}
+          position={{ x: menu.x, y: menu.y }}
+          title={t('context_menu_title', { name: idMap.get(menu.id)?.name })}
           items={[
-            { label: t('context_menu_new_folder'), onClick: () => onAddFolder(folderMenu.id) },
-            { label: t('context_menu_new_request'), onClick: () => onAddRequest(folderMenu.id) },
             {
-              label: t('context_menu_rename_folder'),
+              label: t('context_menu_copy'),
+              onClick: () =>
+                menu.type === 'folder' ? onCopyFolder(menu.id) : onCopyRequest(menu.id),
+            },
+            {
+              label: t('context_menu_delete'),
+              onClick: () =>
+                menu.type === 'folder' ? onDeleteFolder(menu.id) : onDeleteRequest(menu.id),
+            },
+            {
+              label: t('context_menu_rename'),
               onClick: () => {
-                treeRef.current?.get?.(folderMenu.id)?.edit(); // start inline rename
-                setFolderMenu(null); // close the context menu
+                treeRef.current?.get?.(menu.id)?.edit();
+                setMenu(null);
               },
             },
-            { label: t('context_menu_copy_folder'), onClick: () => onCopyFolder(folderMenu.id) },
             {
-              label: t('context_menu_delete_folder'),
-              onClick: () => onDeleteFolder(folderMenu.id),
+              label: t('context_menu_new_request'),
+              onClick: () =>
+                onAddRequest(
+                  menu.type === 'folder' ? menu.id : (requestParentMap.get(menu.id) ?? null),
+                ),
+            },
+            {
+              label: t('context_menu_new_folder'),
+              onClick: () =>
+                onAddFolder(
+                  menu.type === 'folder' ? menu.id : (requestParentMap.get(menu.id) ?? null),
+                ),
             },
           ]}
-          onClose={() => setFolderMenu(null)}
-        />
-      )}
-      {requestMenu && (
-        <ContextMenu
-          position={{ x: requestMenu.x, y: requestMenu.y }}
-          title={t('context_menu_title', { name: requestMap.get(requestMenu.id)?.name })}
-          items={[
-            { label: t('context_menu_copy_request'), onClick: () => onCopyRequest(requestMenu.id) },
-            {
-              label: t('context_menu_delete_request'),
-              onClick: () => onDeleteRequest(requestMenu.id),
-            },
-          ]}
-          onClose={() => setRequestMenu(null)}
+          onClose={() => setMenu(null)}
         />
       )}
     </>
