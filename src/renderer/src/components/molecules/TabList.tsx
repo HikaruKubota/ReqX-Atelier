@@ -20,6 +20,7 @@ import { useSavedRequestsStore } from '../../store/savedRequestsStore';
 export interface TabInfo {
   tabId: string;
   requestId: string | null;
+  folderId?: string | null;
 }
 
 interface TabListProps {
@@ -41,7 +42,8 @@ export const TabList: React.FC<TabListProps> = ({
 }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const activeRef = useRef<HTMLDivElement>(null);
-  const saved = useSavedRequestsStore((s) => s.savedRequests);
+  const savedRequests = useSavedRequestsStore((s) => s.savedRequests);
+  const savedFolders = useSavedRequestsStore((s) => s.savedFolders);
 
   // クリックとドラッグを明確に分離するセンサ設定
   const sensors = useSensors(
@@ -72,14 +74,19 @@ export const TabList: React.FC<TabListProps> = ({
           className="sticky top-0 z-10 bg-background flex items-center border-b overflow-x-auto no-scrollbar flex-none h-11"
         >
           {tabs.map((tab) => {
-            const req = saved.find((r) => r.id === tab.requestId);
+            const req = savedRequests.find((r) => r.id === tab.requestId);
+            const folder = savedFolders.find((f) => f.id === tab.folderId);
+            const label = req ? req.name : folder ? folder.name : 'Untitled';
+            const method = req ? req.method : 'GET';
+            const type = folder ? 'folder' : 'request';
             return (
               <TabItem
                 key={tab.tabId}
                 id={tab.tabId}
                 ref={activeTabId === tab.tabId ? activeRef : null}
-                label={req ? req.name : 'Untitled'}
-                method={req ? req.method : 'GET'}
+                label={label}
+                method={method}
+                type={type as 'folder' | 'request'}
                 active={activeTabId === tab.tabId}
                 onSelect={() => onSelect(tab.tabId)}
                 onClose={() => onClose(tab.tabId)}

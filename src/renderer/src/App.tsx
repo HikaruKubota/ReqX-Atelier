@@ -10,11 +10,13 @@ import { useKeyboardShortcuts } from './hooks/useKeyboardShortcuts';
 import { useTabs } from './hooks/useTabs';
 import { useRequestActions } from './hooks/useRequestActions';
 import { useTranslation } from 'react-i18next';
+import type { SavedFolder } from './types';
 import { ThemeToggleButton } from './components/ThemeToggleButton';
 import { TabBar } from './components/organisms/TabBar';
 import { ShortcutsGuide } from './components/organisms/ShortcutsGuide';
 import { RequestEditorPanelRef } from './types'; // Import the RequestHeader type
 import { Toast } from './components/atoms/toast/Toast';
+import { FolderInfoPanel } from './components/FolderInfoPanel';
 
 export default function App() {
   const { t } = useTranslation();
@@ -229,6 +231,18 @@ export default function App() {
     [copyFolder],
   );
 
+  const handleOpenFolder = useCallback(
+    (folder: SavedFolder) => {
+      const existing = tabs.tabs.find((t) => t.folderId === folder.id);
+      if (existing) {
+        tabs.switchTab(existing.tabId);
+      } else {
+        tabs.openFolderTab(folder);
+      }
+    },
+    [tabs],
+  );
+
   return (
     <div style={{ display: 'flex', height: '100vh' }}>
       <RequestCollectionSidebar
@@ -254,6 +268,7 @@ export default function App() {
           if (confirm(t('delete_folder_confirm'))) deleteFolderRecursive(id);
         }}
         onCopyFolder={handleCopyFolder}
+        onOpenFolder={handleOpenFolder}
         moveRequest={moveRequest}
         moveFolder={moveFolder}
         isOpen={sidebarOpen}
@@ -287,6 +302,13 @@ export default function App() {
           </div>
           {tabs.tabs.length === 0 ? (
             <ShortcutsGuide onNew={handleNewRequest} />
+          ) : tabs.getActiveTab()?.folderId ? (
+            <FolderInfoPanel
+              folderId={tabs.getActiveTab()!.folderId!}
+              folderName={
+                savedFolders.find((f) => f.id === tabs.getActiveTab()!.folderId)?.name || ''
+              }
+            />
           ) : (
             <>
               <RequestEditorPanel

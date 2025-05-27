@@ -28,6 +28,7 @@ interface Props {
   onAddRequest: (parentId: string | null) => void;
   onDeleteFolder: (id: string) => void;
   onCopyFolder: (id: string) => void;
+  onOpenFolder: (folder: SavedFolder) => void;
   moveRequest: (id: string, folderId: string | null, index?: number) => void;
   moveFolder: (id: string, folderId: string | null, index?: number) => void;
 }
@@ -43,6 +44,7 @@ export const RequestCollectionTree: React.FC<Props> = ({
   onAddRequest,
   onDeleteFolder,
   onCopyFolder,
+  onOpenFolder,
   moveRequest,
   moveFolder,
 }) => {
@@ -323,6 +325,8 @@ export const RequestCollectionTree: React.FC<Props> = ({
           onActivate={(node) => {
             if (node.data.type === 'folder') {
               node.toggle();
+              const folder = folders.find((f) => f.id === node.id);
+              if (folder) onOpenFolder(folder);
             } else {
               onLoadRequest(requestMap.get(node.id)!);
             }

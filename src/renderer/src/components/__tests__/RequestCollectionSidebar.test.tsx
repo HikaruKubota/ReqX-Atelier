@@ -18,6 +18,7 @@ const baseProps = {
   onCopyFolder: () => {},
   moveRequest: () => {},
   moveFolder: () => {},
+  onOpenFolder: () => {},
 };
 
 describe('RequestCollectionSidebar', () => {

@@ -21,7 +21,7 @@ export const useParamsManager = (): UseParamsManagerReturn => {
   useEffect(() => {
     const q = paramsState
       .filter((p) => p.enabled && p.keyName.trim() !== '')
-      .map((p) => `${(p.keyName)}=${(p.value)}`)
+      .map((p) => `${p.keyName}=${p.value}`)
       .join('&');
     setQueryStringState(q);
     queryStringRef.current = q;

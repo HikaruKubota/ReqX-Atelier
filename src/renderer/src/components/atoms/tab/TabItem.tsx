@@ -4,18 +4,20 @@ import { useTranslation } from 'react-i18next';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { MethodIcon } from '../MethodIcon';
+import { FiFolder } from 'react-icons/fi';
 
 interface TabItemProps {
   id: string;
   label: string;
-  method: string;
+  method?: string;
+  type?: 'request' | 'folder';
   active: boolean;
   onSelect: () => void;
   onClose: () => void;
 }
 
 export const TabItem = React.forwardRef<HTMLDivElement, TabItemProps>(
-  ({ id, label, method, active, onSelect, onClose }, ref) => {
+  ({ id, label, method = 'GET', type = 'request', active, onSelect, onClose }, ref) => {
     const { t } = useTranslation();
     const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
       id,
@@ -49,7 +51,11 @@ export const TabItem = React.forwardRef<HTMLDivElement, TabItemProps>(
         {...listeners}
         {...attributes}
       >
-        <MethodIcon method={method} size={16} />
+        {type === 'folder' ? (
+          <FiFolder size={16} aria-label={t('folder_icon')} />
+        ) : (
+          <MethodIcon method={method} size={16} />
+        )}
         <span className="flex-1 truncate">{label}</span>
         <button
           onClick={(e) => {

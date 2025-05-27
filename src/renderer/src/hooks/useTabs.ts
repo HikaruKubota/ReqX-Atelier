@@ -1,15 +1,17 @@
 import { useState } from 'react';
 import { arrayMove } from '@dnd-kit/sortable';
-import type { SavedRequest } from '../types';
+import type { SavedRequest, SavedFolder } from '../types';
 
 export interface TabState {
   tabId: string;
   requestId: string | null;
+  folderId?: string | null;
 }
 
-const createTabState = (req?: SavedRequest): TabState => ({
+const createTabState = (req?: SavedRequest, folder?: SavedFolder): TabState => ({
   tabId: `tab-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`,
   requestId: req?.id ?? null,
+  folderId: folder?.id ?? null,
 });
 
 export const useTabs = () => {
@@ -18,6 +20,13 @@ export const useTabs = () => {
 
   const openTab = (req?: SavedRequest): TabState => {
     const newTab = createTabState(req);
+    setTabs((prev) => [...prev, newTab]);
+    setActiveTabId(newTab.tabId);
+    return newTab;
+  };
+
+  const openFolderTab = (folder: SavedFolder): TabState => {
+    const newTab = createTabState(undefined, folder);
     setTabs((prev) => [...prev, newTab]);
     setActiveTabId(newTab.tabId);
     return newTab;
@@ -108,5 +117,6 @@ export const useTabs = () => {
     moveActiveTabRight,
     moveActiveTabLeft,
     reorderTabs,
+    openFolderTab,
   };
 };

@@ -89,9 +89,12 @@ export const useRequestEditor = (): RequestEditorState => {
       const prev = paramsManager.paramsRef.current;
       const isSame =
         prev.length === next.length &&
-        prev.every((p, i) => p.enabled === next[i].enabled &&
-                             p.keyName === next[i].keyName &&
-                             p.value === next[i].value);
+        prev.every(
+          (p, i) =>
+            p.enabled === next[i].enabled &&
+            p.keyName === next[i].keyName &&
+            p.value === next[i].value,
+        );
       if (isSame) return;
 
       fromUrlRef.current = true;
