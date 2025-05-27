@@ -53,5 +53,27 @@ export const useApiResponseHandler = (): ApiResponseHandler => {
     setResponseTime(null);
   }, []);
 
-  return { response, error, loading, responseTime, executeRequest, resetApiResponse };
+  const setApiResponseState = useCallback(
+    (state: {
+      response: ApiResult | null;
+      error: ApiError | null;
+      responseTime: number | null;
+    }) => {
+      setResponse(state.response);
+      setError(state.error);
+      setResponseTime(state.responseTime);
+      setLoading(false);
+    },
+    [],
+  );
+
+  return {
+    response,
+    error,
+    loading,
+    responseTime,
+    executeRequest,
+    resetApiResponse,
+    setApiResponseState,
+  };
 };
