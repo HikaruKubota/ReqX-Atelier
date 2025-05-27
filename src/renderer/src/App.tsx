@@ -1,6 +1,6 @@
 import React, { useCallback, useRef, useEffect, useState } from 'react';
 import { useSavedRequests } from './hooks/useSavedRequests';
-import type { SavedRequest } from './types';
+import type { SavedRequest, ApiResult, ApiError } from './types';
 import { useRequestEditor } from './hooks/useRequestEditor'; // Import the new hook and RequestHeader
 import { useApiResponseHandler } from './hooks/useApiResponseHandler'; // Import the new API response handler hook
 import { RequestCollectionSidebar } from './components/RequestCollectionSidebar'; // Import the new sidebar component
@@ -52,10 +52,24 @@ export default function App() {
   } = useRequestEditor();
 
   // Use the new API response handler hook
-  const { response, error, loading, responseTime, executeRequest, resetApiResponse } =
-    useApiResponseHandler();
+  const {
+    response,
+    error,
+    loading,
+    responseTime,
+    executeRequest,
+    resetApiResponse,
+    setApiResponseState,
+  } = useApiResponseHandler();
 
   const [newRequestFolderId, setNewRequestFolderId] = useState<string | null>(null);
+
+  const [tabResponses, setTabResponses] = useState<
+    Record<
+      string,
+      { response: ApiResult | null; error: ApiError | null; responseTime: number | null }
+    >
+  >({});
 
   // Saved requests state (from useSavedRequests hook)
   const {
@@ -89,6 +103,18 @@ export default function App() {
   });
 
   const tabs = useTabs();
+
+  const handleCloseTab = useCallback(
+    (id: string) => {
+      tabs.closeTab(id);
+      setTabResponses((prev) => {
+        const newState = { ...prev };
+        delete newState[id];
+        return newState;
+      });
+    },
+    [tabs],
+  );
 
   const handleNewRequest = useCallback(() => {
     tabs.openTab();
@@ -139,10 +165,33 @@ export default function App() {
     onCloseTab: () => {
       const active = tabs.getActiveTab();
       if (active) {
-        tabs.closeTab(active.tabId);
+        handleCloseTab(active.tabId);
       }
     },
   });
+
+  useEffect(() => {
+    const id = tabs.activeTabId;
+    if (!id) return;
+    setTabResponses((prev) => ({
+      ...prev,
+      [id]: { response, error, responseTime },
+    }));
+  }, [response, error, responseTime, tabs.activeTabId]);
+
+  useEffect(() => {
+    const id = tabs.activeTabId;
+    if (!id) {
+      resetApiResponse();
+      return;
+    }
+    const saved = tabResponses[id];
+    if (saved) {
+      setApiResponseState(saved);
+    } else {
+      resetApiResponse();
+    }
+  }, [tabs.activeTabId]);
 
   const handleLoadRequest = (req: SavedRequest) => {
     const existing = tabs.tabs.find((t) => t.requestId === req.id);
@@ -161,12 +210,17 @@ export default function App() {
       params: req.params,
     });
     setActiveRequestId(req.id);
-    resetApiResponse();
   };
 
   useEffect(() => {
     const tab = tabs.getActiveTab();
-    if (!tab) return;
+    if (!tab) {
+      resetEditor();
+      setRequestNameForSave('Untitled Request');
+      setActiveRequestId(null);
+      resetApiResponse();
+      return;
+    }
 
     if (tab.requestId) {
       const req = savedRequests.find((r) => r.id === tab.requestId);
@@ -189,7 +243,6 @@ export default function App() {
       setRequestNameForSave('Untitled Request');
       setActiveRequestId(null);
     }
-    resetApiResponse();
   }, [tabs.activeTabId, savedRequests]);
 
   const handleDeleteRequest = useCallback(
@@ -198,7 +251,7 @@ export default function App() {
         deleteRequest(idToDelete);
         const tab = tabs.tabs.find((t) => t.requestId === idToDelete);
         if (tab) {
-          tabs.closeTab(tab.tabId);
+          handleCloseTab(tab.tabId);
         }
         if (activeRequestId === idToDelete) {
           resetEditor();
@@ -261,7 +314,7 @@ export default function App() {
             tabs={tabs.tabs}
             activeTabId={tabs.activeTabId}
             onSelect={(id) => tabs.switchTab(id)}
-            onClose={(id) => tabs.closeTab(id)}
+            onClose={(id) => handleCloseTab(id)}
             onNew={handleNewRequest}
             onReorder={(activeId, overId) => tabs.reorderTabs(activeId, overId)}
           />

@@ -54,12 +54,33 @@ export const RequestCollectionSidebar: React.FC<RequestCollectionSidebarProps> =
     const folder = savedFolders.find((f) => f.requestIds.includes(activeRequestId));
     return folder ? folder.id : null;
   }, [focusedNode, activeRequestId, savedFolders]);
+    
+  const [width, setWidth] = React.useState(250);
+
+  const handleMouseDown = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
+    e.preventDefault();
+    const startX = e.clientX;
+    const startWidth = width;
+
+    const onMouseMove = (event: MouseEvent) => {
+      const newWidth = Math.min(Math.max(startWidth + event.clientX - startX, 150), 500);
+      setWidth(newWidth);
+    };
+
+    const onMouseUp = () => {
+      document.removeEventListener('mousemove', onMouseMove);
+      document.removeEventListener('mouseup', onMouseUp);
+    };
+
+    document.addEventListener('mousemove', onMouseMove);
+    document.addEventListener('mouseup', onMouseUp);
+  };
+  
   return (
     <div
       data-testid="sidebar"
-      className={`${
-        isOpen ? 'w-[250px]' : 'w-[40px]'
-      } flex-shrink-0 border-r border-gray-300 p-2 flex flex-col bg-[var(--color-background)] text-[var(--color-text)] h-screen`}
+      style={{ width: isOpen ? `${width}px` : '40px' }}
+      className="flex-shrink-0 border-r border-gray-300 p-2 flex flex-col bg-[var(--color-background)] text-[var(--color-text)] h-screen relative"
     >
       <SidebarToggleButton isOpen={isOpen} onClick={onToggle} className="self-end mb-2" />
       {isOpen && (
@@ -90,6 +111,14 @@ export const RequestCollectionSidebar: React.FC<RequestCollectionSidebarProps> =
             />
           </div>
         </>
+      )}
+      {isOpen && (
+        <div
+          role="separator"
+          aria-label={t('resize_sidebar')}
+          onMouseDown={handleMouseDown}
+          className="absolute top-0 right-0 w-1 h-full cursor-ew-resize"
+        />
       )}
     </div>
   );

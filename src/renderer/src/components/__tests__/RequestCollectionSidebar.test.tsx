@@ -25,7 +25,7 @@ describe('RequestCollectionSidebar', () => {
     const { getByTestId, getByText } = render(
       <RequestCollectionSidebar {...baseProps} isOpen onToggle={() => {}} />,
     );
-    expect(getByTestId('sidebar')).toHaveClass('w-[250px]');
+    expect(getByTestId('sidebar').style.width).toBe('250px');
     expect(getByText(i18n.t('collection_title'))).toBeInTheDocument();
   });
 
@@ -33,7 +33,7 @@ describe('RequestCollectionSidebar', () => {
     const { getByTestId, queryByText } = render(
       <RequestCollectionSidebar {...baseProps} isOpen={false} onToggle={() => {}} />,
     );
-    expect(getByTestId('sidebar')).toHaveClass('w-[40px]');
+    expect(getByTestId('sidebar').style.width).toBe('40px');
     expect(queryByText(i18n.t('collection_title'))).toBeNull();
   });
 
@@ -99,5 +99,11 @@ describe('RequestCollectionSidebar', () => {
     fireEvent.click(getByLabelText('新しいリクエスト'));
     expect(onAddFolder).toHaveBeenCalledWith(folderId);
     expect(onAddRequest).toHaveBeenCalledWith(folderId);
+
+  it('shows resize handle when open', () => {
+    const { getByLabelText } = render(
+      <RequestCollectionSidebar {...baseProps} isOpen onToggle={() => {}} />,
+    );
+    expect(getByLabelText('サイドバーの幅を調整')).toBeInTheDocument();
   });
 });

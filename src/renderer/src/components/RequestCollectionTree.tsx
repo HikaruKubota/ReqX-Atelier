@@ -305,7 +305,7 @@ export const RequestCollectionTree: React.FC<Props> = ({
         tabIndex={0}
         ref={containerRef}
         onKeyDown={(e) => {
-          if (e.key === 'Enter') {
+          if (e.key === 'Enter' && !e.metaKey && !e.ctrlKey) {
             const node = treeRef.current?.focusedNode;
             if (node && !node.isEditing) {
               node.edit(); // start rename for folder or request
