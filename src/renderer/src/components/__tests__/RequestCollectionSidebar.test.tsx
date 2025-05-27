@@ -46,6 +46,60 @@ describe('RequestCollectionSidebar', () => {
     expect(fn).toHaveBeenCalled();
   });
 
+  it('uses active request folder when creating items', () => {
+    const onAddFolder = vi.fn();
+    const onAddRequest = vi.fn();
+    const folderId = 'folder1';
+    const requestId = 'req1';
+    const props = {
+      ...baseProps,
+      savedFolders: [
+        {
+          id: folderId,
+          name: 'F',
+          parentFolderId: null,
+          requestIds: [requestId],
+          subFolderIds: [],
+        },
+      ],
+      savedRequests: [
+        { id: requestId, name: 'R', method: 'GET', url: '/', headers: [], body: [], params: [] },
+      ],
+      activeRequestId: requestId,
+      onAddFolder,
+      onAddRequest,
+    };
+    const { getByLabelText } = render(
+      <RequestCollectionSidebar {...props} isOpen onToggle={() => {}} />,
+    );
+    fireEvent.click(getByLabelText('新しいフォルダ'));
+    fireEvent.click(getByLabelText('新しいリクエスト'));
+    expect(onAddFolder).toHaveBeenCalledWith(folderId);
+    expect(onAddRequest).toHaveBeenCalledWith(folderId);
+  });
+
+  it('uses active folder when creating items', () => {
+    const onAddFolder = vi.fn();
+    const onAddRequest = vi.fn();
+    const folderId = 'folder1';
+    const props = {
+      ...baseProps,
+      savedFolders: [
+        { id: folderId, name: 'F', parentFolderId: null, requestIds: [], subFolderIds: [] },
+      ],
+      activeRequestId: null,
+      onAddFolder,
+      onAddRequest,
+    };
+    const { getByLabelText, getByText } = render(
+      <RequestCollectionSidebar {...props} isOpen onToggle={() => {}} />,
+    );
+    fireEvent.click(getByText('F'));
+    fireEvent.click(getByLabelText('新しいフォルダ'));
+    fireEvent.click(getByLabelText('新しいリクエスト'));
+    expect(onAddFolder).toHaveBeenCalledWith(folderId);
+    expect(onAddRequest).toHaveBeenCalledWith(folderId);
+
   it('shows resize handle when open', () => {
     const { getByLabelText } = render(
       <RequestCollectionSidebar {...baseProps} isOpen onToggle={() => {}} />,

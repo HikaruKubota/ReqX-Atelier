@@ -30,6 +30,7 @@ interface Props {
   onCopyFolder: (id: string) => void;
   moveRequest: (id: string, folderId: string | null, index?: number) => void;
   moveFolder: (id: string, folderId: string | null, index?: number) => void;
+  onFocusNode?: (info: { id: string; type: 'folder' | 'request' }) => void;
 }
 
 export const RequestCollectionTree: React.FC<Props> = ({
@@ -45,6 +46,7 @@ export const RequestCollectionTree: React.FC<Props> = ({
   onCopyFolder,
   moveRequest,
   moveFolder,
+  onFocusNode,
 }) => {
   const { t } = useTranslation();
   const { updateRequest, updateFolder } = useSavedRequests();
@@ -219,6 +221,7 @@ export const RequestCollectionTree: React.FC<Props> = ({
               onContextMenu={(e) => {
                 e.preventDefault();
                 node.select();
+                onFocusNode?.({ id: node.id, type: 'folder' });
                 setMenu({ id: node.id, type: 'folder', x: e.clientX, y: e.clientY });
               }}
             >
@@ -281,6 +284,7 @@ export const RequestCollectionTree: React.FC<Props> = ({
           onContextMenu={(e) => {
             e.preventDefault();
             node.select();
+            onFocusNode?.({ id: node.id, type: 'request' });
             setMenu({ id: node.id, type: 'request', x: e.clientX, y: e.clientY });
           }}
         >
@@ -320,6 +324,7 @@ export const RequestCollectionTree: React.FC<Props> = ({
           data={data}
           disableDrop={disableDrop}
           onMove={handleMove}
+          onFocus={(node) => onFocusNode?.({ id: node.id, type: node.data.type })}
           onActivate={(node) => {
             if (node.data.type === 'folder') {
               node.toggle();

@@ -41,4 +41,12 @@ describe('RequestCollectionTree', () => {
     const inner = treeitem.firstElementChild as HTMLElement;
     expect(inner).toHaveClass('bg-blue-100');
   });
+
+  it('calls onFocusNode when node is focused', () => {
+    const fn = vi.fn();
+    const { container } = render(<RequestCollectionTree {...baseProps} onFocusNode={fn} />);
+    const treeitem = container.querySelector('[role="treeitem"]') as HTMLElement;
+    fireEvent.click(treeitem);
+    expect(fn).toHaveBeenCalledWith({ id: '1', type: 'request' });
+  });
 });
