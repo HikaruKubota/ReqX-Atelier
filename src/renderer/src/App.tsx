@@ -166,7 +166,13 @@ export default function App() {
 
   useEffect(() => {
     const tab = tabs.getActiveTab();
-    if (!tab) return;
+    if (!tab) {
+      resetEditor();
+      setRequestNameForSave('Untitled Request');
+      setActiveRequestId(null);
+      resetApiResponse();
+      return;
+    }
 
     if (tab.requestId) {
       const req = savedRequests.find((r) => r.id === tab.requestId);
