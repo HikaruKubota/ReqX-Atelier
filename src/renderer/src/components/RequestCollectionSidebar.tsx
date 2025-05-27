@@ -3,6 +3,7 @@ import type { SavedRequest, SavedFolder } from '../types';
 import { RequestCollectionTree } from './RequestCollectionTree';
 import { SidebarToggleButton } from './atoms/button/SidebarToggleButton';
 import { NewFolderIconButton } from './atoms/button/NewFolderIconButton';
+import { NewRequestIconButton } from './atoms/button/NewRequestIconButton';
 import { useTranslation } from 'react-i18next';
 
 interface RequestCollectionSidebarProps {
@@ -39,6 +40,20 @@ export const RequestCollectionSidebar: React.FC<RequestCollectionSidebarProps> =
   onToggle,
 }) => {
   const { t } = useTranslation();
+  const [focusedNode, setFocusedNode] = React.useState<{
+    id: string;
+    type: 'folder' | 'request';
+  } | null>(null);
+  const activeParentFolderId = React.useMemo(() => {
+    if (focusedNode) {
+      if (focusedNode.type === 'folder') return focusedNode.id;
+      const folder = savedFolders.find((f) => f.requestIds.includes(focusedNode.id));
+      return folder ? folder.id : null;
+    }
+    if (!activeRequestId) return null;
+    const folder = savedFolders.find((f) => f.requestIds.includes(activeRequestId));
+    return folder ? folder.id : null;
+  }, [focusedNode, activeRequestId, savedFolders]);
   return (
     <div
       data-testid="sidebar"
@@ -50,8 +65,9 @@ export const RequestCollectionSidebar: React.FC<RequestCollectionSidebarProps> =
       {isOpen && (
         <>
           <h2 className="mt-0 mb-[10px] text-[1.2em]">{t('collection_title')}</h2>
-          <div className="mb-2">
-            <NewFolderIconButton onClick={() => onAddFolder(null)} />
+          <div className="mb-2 flex gap-2">
+            <NewFolderIconButton onClick={() => onAddFolder(activeParentFolderId)} />
+            <NewRequestIconButton onClick={() => onAddRequest(activeParentFolderId)} />
           </div>
           <div className="flex-grow overflow-y-auto no-scrollbar">
             {savedRequests.length === 0 && savedFolders.length === 0 && (
@@ -70,6 +86,7 @@ export const RequestCollectionSidebar: React.FC<RequestCollectionSidebarProps> =
               onCopyFolder={onCopyFolder}
               moveRequest={moveRequest}
               moveFolder={moveFolder}
+              onFocusNode={setFocusedNode}
             />
           </div>
         </>
