@@ -111,6 +111,11 @@ export interface ApiResponseHandler {
     headers?: Record<string, string>,
   ) => Promise<void>;
   resetApiResponse: () => void;
+  setApiResponseState: (state: {
+    response: ApiResult | null;
+    error: ApiError | null;
+    responseTime: number | null;
+  }) => void;
 }
 
 export interface RequestEditorPanelRef {
