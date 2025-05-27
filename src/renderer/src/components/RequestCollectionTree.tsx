@@ -305,6 +305,15 @@ export const RequestCollectionTree: React.FC<Props> = ({
         tabIndex={0}
         ref={containerRef}
         onKeyDown={(e) => {
+          if (
+            (e.metaKey || e.ctrlKey) &&
+            e.altKey &&
+            (e.key === 'ArrowRight' || e.key === 'ArrowLeft')
+          ) {
+            // Prevent folder toggle when using Cmd/Ctrl+Alt+Arrow for tab switch
+            e.stopPropagation();
+            return;
+          }
           if (e.key === 'Enter' && !e.metaKey && !e.ctrlKey) {
             const node = treeRef.current?.focusedNode;
             if (node && !node.isEditing) {
