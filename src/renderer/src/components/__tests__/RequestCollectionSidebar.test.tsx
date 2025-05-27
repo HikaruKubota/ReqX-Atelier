@@ -99,6 +99,7 @@ describe('RequestCollectionSidebar', () => {
     fireEvent.click(getByLabelText('新しいリクエスト'));
     expect(onAddFolder).toHaveBeenCalledWith(folderId);
     expect(onAddRequest).toHaveBeenCalledWith(folderId);
+  });
 
   it('shows resize handle when open', () => {
     const { getByLabelText } = render(
