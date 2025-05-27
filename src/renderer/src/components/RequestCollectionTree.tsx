@@ -31,6 +31,7 @@ interface Props {
   onOpenFolder: (folder: SavedFolder) => void;
   moveRequest: (id: string, folderId: string | null, index?: number) => void;
   moveFolder: (id: string, folderId: string | null, index?: number) => void;
+  onFocusNode?: (info: { id: string; type: 'folder' | 'request' }) => void;
 }
 
 export const RequestCollectionTree: React.FC<Props> = ({
@@ -47,6 +48,7 @@ export const RequestCollectionTree: React.FC<Props> = ({
   onOpenFolder,
   moveRequest,
   moveFolder,
+  onFocusNode,
 }) => {
   const { t } = useTranslation();
   const { updateRequest, updateFolder } = useSavedRequests();
@@ -221,6 +223,7 @@ export const RequestCollectionTree: React.FC<Props> = ({
               onContextMenu={(e) => {
                 e.preventDefault();
                 node.select();
+                onFocusNode?.({ id: node.id, type: 'folder' });
                 setMenu({ id: node.id, type: 'folder', x: e.clientX, y: e.clientY });
               }}
             >
@@ -283,6 +286,7 @@ export const RequestCollectionTree: React.FC<Props> = ({
           onContextMenu={(e) => {
             e.preventDefault();
             node.select();
+            onFocusNode?.({ id: node.id, type: 'request' });
             setMenu({ id: node.id, type: 'request', x: e.clientX, y: e.clientY });
           }}
         >
@@ -303,7 +307,7 @@ export const RequestCollectionTree: React.FC<Props> = ({
         tabIndex={0}
         ref={containerRef}
         onKeyDown={(e) => {
-          if (e.key === 'Enter') {
+          if (e.key === 'Enter' && !e.metaKey && !e.ctrlKey) {
             const node = treeRef.current?.focusedNode;
             if (node && !node.isEditing) {
               node.edit(); // start rename for folder or request
@@ -322,6 +326,7 @@ export const RequestCollectionTree: React.FC<Props> = ({
           data={data}
           disableDrop={disableDrop}
           onMove={handleMove}
+          onFocus={(node) => onFocusNode?.({ id: node.id, type: node.data.type })}
           onActivate={(node) => {
             if (node.data.type === 'folder') {
               node.toggle();
