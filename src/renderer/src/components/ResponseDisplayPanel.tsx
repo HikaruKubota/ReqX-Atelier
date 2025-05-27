@@ -25,6 +25,12 @@ export const ResponseDisplayPanel: React.FC<ResponseDisplayPanelProps> = ({
   const [copyToastOpen, setCopyToastOpen] = React.useState(false);
   const [activeTab, setActiveTab] = React.useState<'data' | 'headers'>('data');
 
+  React.useEffect(() => {
+    if (response) {
+      setActiveTab('data');
+    }
+  }, [response]);
+
   const handleCopyResponse = React.useCallback(async () => {
     if (!response) return;
     const data = response.data ?? response;
@@ -75,12 +81,16 @@ export const ResponseDisplayPanel: React.FC<ResponseDisplayPanelProps> = ({
           className="bg-green-50 dark:bg-green-900 p-4 whitespace-pre-wrap break-words rounded border border-green-200 dark:border-green-700 dark:text-green-100"
         />
       )}
-      {response && activeTab === 'headers' && response.headers && (
-        <JsonPre
-          data={response.headers}
-          className="bg-green-50 dark:bg-green-900 p-4 whitespace-pre-wrap break-words rounded border border-green-200 dark:border-green-700 dark:text-green-100"
-        />
-      )}
+      {response &&
+        activeTab === 'headers' &&
+        (response.headers ? (
+          <JsonPre
+            data={response.headers}
+            className="bg-green-50 dark:bg-green-900 p-4 whitespace-pre-wrap break-words rounded border border-green-200 dark:border-green-700 dark:text-green-100"
+          />
+        ) : (
+          <p className="text-gray-500">{t('no_headers')}</p>
+        ))}
       {!response && !error && !loading && <p className="text-gray-500">{t('no_response')}</p>}
       {loading && <p className="text-gray-500">{t('loading')}</p>}
       <Toast

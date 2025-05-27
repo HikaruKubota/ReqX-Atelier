@@ -17,6 +17,7 @@
   "response_time": "Response time: {{time}} ms",
   "no_response": "No response yet. Send a request or load a saved one!",
   "loading": "Loading...",
+  "no_headers": "No headers",
   "error_details": "Error Details:",
   "remove": "Remove",
   "no_tabs": "No tabs open. Use shortcuts below.",
