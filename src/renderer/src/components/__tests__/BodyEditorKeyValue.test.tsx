@@ -34,9 +34,9 @@ describe('BodyEditorKeyValue', () => {
     await act(async () => {
       expect(ref.current?.importFromJson(json)).toBe(true);
     });
-    const keyInputs = (await findAllByPlaceholderText('Key')) as HTMLInputElement[];
-    expect(keyInputs[0].value).toBe('a');
-    expect(keyInputs[1].value).toBe('b');
+    const keyInputs = (await findAllByPlaceholderText('Key')) as HTMLElement[];
+    expect((keyInputs[0] as HTMLInputElement).value).toBe('a');
+    expect((keyInputs[1] as HTMLInputElement).value).toBe('b');
   });
 
   it('opens import modal with large size', () => {
@@ -51,8 +51,8 @@ describe('BodyEditorKeyValue', () => {
     const { getAllByPlaceholderText } = render(
       <BodyEditorKeyValue method="POST" initialBody={initialPairs} onChange={handleChange} />,
     );
-    const keyInputs = getAllByPlaceholderText('Key') as HTMLInputElement[];
-    fireEvent.change(keyInputs[0], { target: { value: 'baz' } });
+    const keyInputs = getAllByPlaceholderText('Key') as HTMLElement[];
+    fireEvent.change(keyInputs[0] as HTMLInputElement, { target: { value: 'baz' } });
     expect(handleChange).toHaveBeenCalled();
   });
 
@@ -61,22 +61,23 @@ describe('BodyEditorKeyValue', () => {
     const { getAllByPlaceholderText } = render(
       <BodyEditorKeyValue ref={ref} method="POST" initialBody={initialPairs} />,
     );
-    const keyInputs = getAllByPlaceholderText('Key') as HTMLInputElement[];
-    keyInputs[0].focus();
+    const keyInputs = getAllByPlaceholderText('Key') as HTMLElement[];
+    (keyInputs[0] as HTMLInputElement).focus();
     expect(document.activeElement).toBe(keyInputs[0]);
     act(() => {
       ref.current?.triggerDrag?.('1', '2');
     });
-    const reordered = getAllByPlaceholderText('Key') as HTMLInputElement[];
-    expect(reordered[0].value).toBe('bar');
-    expect(reordered[1].value).toBe('foo');
+    const reordered = getAllByPlaceholderText('Key') as HTMLElement[];
+    expect((reordered[0] as HTMLInputElement).value).toBe('bar');
+    expect((reordered[1] as HTMLInputElement).value).toBe('foo');
     expect(document.activeElement).toBe(reordered[1]);
   });
 
-  it('adds an empty row by default for methods with body', () => {
-    const { getAllByPlaceholderText } = render(<BodyEditorKeyValue method="POST" />);
-    const keyInputs = getAllByPlaceholderText('Key') as HTMLInputElement[];
-    expect(keyInputs).toHaveLength(1);
-    expect(keyInputs[0].value).toBe('');
+  it('shows empty state for methods with body', () => {
+    const { getByText, queryByPlaceholderText } = render(<BodyEditorKeyValue method="POST" />);
+    // No rows should be present initially
+    expect(queryByPlaceholderText('Key')).toBeNull();
+    // But add button should be available
+    expect(getByText('ボディ行を追加')).toBeInTheDocument();
   });
 });
