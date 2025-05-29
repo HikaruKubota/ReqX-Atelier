@@ -118,9 +118,15 @@ export const useRequestEditor = (): RequestEditorState => {
   const loadRequest = useCallback(
     (req: SavedRequest) => {
       setMethodState(req.method);
-      setUrlState(req.url);
-      bodyManager.loadBody(req.body || []); // Use bodyManager
+      // Load params first without triggering URL update
+      isUpdatingFromUrl.current = true;
       paramsManager.loadParams(req.params || []);
+      isUpdatingFromUrl.current = false;
+      // Then set URL directly
+      setUrlState(req.url);
+      urlRef.current = req.url;
+      // Load other fields
+      bodyManager.loadBody(req.body || []); // Use bodyManager
       headersManager.loadHeaders(req.headers || []);
       setActiveRequestIdState(req.id);
       setRequestNameForSaveState(req.name);
@@ -130,9 +136,15 @@ export const useRequestEditor = (): RequestEditorState => {
 
   const resetEditor = useCallback(() => {
     setMethodState('GET');
-    setUrlState('');
-    bodyManager.resetBody(); // Use bodyManager
+    // Reset params first without triggering URL update
+    isUpdatingFromUrl.current = true;
     paramsManager.resetParams();
+    isUpdatingFromUrl.current = false;
+    // Then reset URL
+    setUrlState('');
+    urlRef.current = '';
+    // Reset other fields
+    bodyManager.resetBody(); // Use bodyManager
     headersManager.resetHeaders();
     setActiveRequestIdState(null);
     setRequestNameForSaveState('');

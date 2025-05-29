@@ -22,7 +22,26 @@ interface BodyEditorKeyValueProps {
 export const BodyEditorKeyValue = forwardRef<BodyEditorKeyValueRef, BodyEditorKeyValueProps>(
   ({ initialBody, method, onChange, containerHeight = 300, addRowLabelKey }, ref) => {
     const { t } = useTranslation();
-    const [body, setBody] = useState<KeyValuePair[]>([]);
+    
+    // Initialize state with initialBody or default value
+    const getInitialState = () => {
+      if (method === 'GET' || method === 'HEAD') {
+        return [];
+      }
+      if (initialBody && initialBody.length > 0) {
+        return initialBody;
+      }
+      return [
+        {
+          id: `kv-new-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`,
+          keyName: '',
+          value: '',
+          enabled: true,
+        },
+      ];
+    };
+    
+    const [body, setBody] = useState<KeyValuePair[]>(getInitialState);
     const [showImport, setShowImport] = useState(false);
     const [importText, setImportText] = useState('');
     const [importError, setImportError] = useState('');
@@ -31,30 +50,12 @@ export const BodyEditorKeyValue = forwardRef<BodyEditorKeyValueRef, BodyEditorKe
       restrictToWindowEdges, // 端を少し越えたら慣性風に戻す
     ];
 
-    // Combined effect to handle method changes and initialization
+    // Reset body when method changes
     useEffect(() => {
       if (method === 'GET' || method === 'HEAD') {
-        if (body.length > 0) {
-          setBody([]);
-        }
-        return;
+        setBody([]);
       }
-
-      if (initialBody && initialBody.length > 0) {
-        if (JSON.stringify(initialBody) !== JSON.stringify(body)) {
-          setBody(initialBody);
-        }
-      } else if (body.length === 0) {
-        setBody([
-          {
-            id: `kv-new-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`,
-            keyName: '',
-            value: '',
-            enabled: true,
-          },
-        ]);
-      }
-    }, [initialBody, method]);
+    }, [method]);
 
     // Call onChange when body changes
     useEffect(() => {

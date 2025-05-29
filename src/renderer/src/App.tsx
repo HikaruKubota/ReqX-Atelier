@@ -349,6 +349,7 @@ export default function App() {
           ) : (
             <>
               <RequestEditorPanel
+                key={tabs.activeTabId} // Force remount on tab change
                 ref={editorPanelRef}
                 requestNameForSave={requestNameForSave}
                 onRequestNameForSaveChange={setRequestNameForSave}
