@@ -10,12 +10,13 @@ interface TabItemProps {
   label: string;
   method: string;
   active: boolean;
+  isDirty: boolean;
   onSelect: () => void;
   onClose: () => void;
 }
 
 export const TabItem = React.forwardRef<HTMLDivElement, TabItemProps>(
-  ({ id, label, method, active, onSelect, onClose }, ref) => {
+  ({ id, label, method, active, isDirty, onSelect, onClose }, ref) => {
     const { t } = useTranslation();
     const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
       id,
@@ -50,7 +51,7 @@ export const TabItem = React.forwardRef<HTMLDivElement, TabItemProps>(
         {...attributes}
       >
         <MethodIcon method={method} size={16} />
-        <span className="flex-1 truncate">{label}</span>
+        <span className="flex-1 truncate">{label}{isDirty && '*'}</span>
         <button
           onClick={(e) => {
             e.stopPropagation();

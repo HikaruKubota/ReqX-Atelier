@@ -26,7 +26,7 @@ describe('TabList', () => {
     ]);
     const { getByText, getByLabelText } = render(
       <TabList
-        tabs={[{ tabId: '1', requestId: 'req1' }]}
+        tabs={[{ tabId: '1', requestId: 'req1', isDirty: false }]}
         activeTabId="1"
         onSelect={onSelect}
         onClose={() => {}}
@@ -79,8 +79,8 @@ describe('TabList', () => {
     const { rerender } = render(
       <TabList
         tabs={[
-          { tabId: '1', requestId: 'req1' },
-          { tabId: '2', requestId: 'req2' },
+          { tabId: '1', requestId: 'req1', isDirty: false },
+          { tabId: '2', requestId: 'req2', isDirty: false },
         ]}
         activeTabId="1"
         onSelect={() => {}}
@@ -92,8 +92,8 @@ describe('TabList', () => {
     rerender(
       <TabList
         tabs={[
-          { tabId: '1', requestId: 'req1' },
-          { tabId: '2', requestId: 'req2' },
+          { tabId: '1', requestId: 'req1', isDirty: false },
+          { tabId: '2', requestId: 'req2', isDirty: false },
         ]}
         activeTabId="2"
         onSelect={() => {}}

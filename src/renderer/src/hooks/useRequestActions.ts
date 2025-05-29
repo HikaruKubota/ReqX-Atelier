@@ -14,6 +14,7 @@ export function useRequestActions({
   addRequest,
   updateSavedRequest,
   executeRequest,
+  resetDirtyState,
 }: {
   editorPanelRef: React.RefObject<RequestEditorPanelRef | null>;
   methodRef: React.RefObject<string>;
@@ -32,6 +33,7 @@ export function useRequestActions({
     body?: string,
     headers?: Record<string, string>,
   ) => Promise<void>;
+  resetDirtyState?: () => void;
 }) {
   // リクエスト送信
   const executeSendRequest = useCallback(async () => {
@@ -53,7 +55,10 @@ export function useRequestActions({
         {} as Record<string, string>,
       );
     await executeRequest(methodRef.current, urlWithParams, currentBuiltRequestBody, activeHeaders);
-  }, [executeRequest, headersRef, methodRef, urlRef, paramsRef]);
+    if (resetDirtyState) {
+      resetDirtyState(); // Reset dirty state after sending request
+    }
+  }, [executeRequest, headersRef, methodRef, urlRef, paramsRef, resetDirtyState]);
 
   // リクエスト保存
   const executeSaveRequest = useCallback((): string => {

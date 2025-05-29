@@ -5,11 +5,13 @@ import type { SavedRequest } from '../types';
 export interface TabState {
   tabId: string;
   requestId: string | null;
+  isDirty: boolean;
 }
 
 const createTabState = (req?: SavedRequest): TabState => ({
   tabId: `tab-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`,
   requestId: req?.id ?? null,
+  isDirty: false,
 });
 
 export const useTabs = () => {
@@ -38,8 +40,16 @@ export const useTabs = () => {
 
   const switchTab = (tabId: string) => setActiveTabId(tabId);
 
-  const updateTab = (tabId: string, data: Partial<Pick<TabState, 'requestId'>>) => {
+  const updateTab = (tabId: string, data: Partial<Pick<TabState, 'requestId' | 'isDirty'>>) => {
     setTabs((prev) => prev.map((t) => (t.tabId === tabId ? { ...t, ...data } : t)));
+  };
+
+  const markTabDirty = (tabId: string) => {
+    setTabs((prev) => prev.map((t) => (t.tabId === tabId ? { ...t, isDirty: true } : t)));
+  };
+
+  const markTabClean = (tabId: string) => {
+    setTabs((prev) => prev.map((t) => (t.tabId === tabId ? { ...t, isDirty: false } : t)));
   };
 
   const getActiveTab = (): TabState | null => tabs.find((t) => t.tabId === activeTabId) || null;
@@ -102,6 +112,8 @@ export const useTabs = () => {
     closeTab,
     switchTab,
     updateTab,
+    markTabDirty,
+    markTabClean,
     getActiveTab,
     nextTab,
     prevTab,
