@@ -1,4 +1,4 @@
-import { useState, useCallback, useRef, useEffect } from 'react';
+import { useState, useCallback, useRef, useMemo } from 'react';
 import type { KeyValuePair } from '../types';
 
 export interface UseParamsManagerReturn {
@@ -15,17 +15,16 @@ export const useParamsManager = (): UseParamsManagerReturn => {
   const [paramsState, setParamsState] = useState<KeyValuePair[]>([]);
   const paramsRef = useRef<KeyValuePair[]>(paramsState);
 
-  const [queryStringState, setQueryStringState] = useState('');
-  const queryStringRef = useRef('');
-
-  useEffect(() => {
-    const q = paramsState
+  // Use useMemo to compute query string synchronously
+  const queryString = useMemo(() => {
+    return paramsState
       .filter((p) => p.enabled && p.keyName.trim() !== '')
-      .map((p) => `${(p.keyName)}=${(p.value)}`)
+      .map((p) => `${encodeURIComponent(p.keyName)}=${encodeURIComponent(p.value)}`)
       .join('&');
-    setQueryStringState(q);
-    queryStringRef.current = q;
   }, [paramsState]);
+  
+  const queryStringRef = useRef(queryString);
+  queryStringRef.current = queryString;
 
   const setParams = useCallback((pairs: KeyValuePair[]) => {
     setParamsState(pairs);
@@ -46,7 +45,7 @@ export const useParamsManager = (): UseParamsManagerReturn => {
     params: paramsState,
     setParams,
     paramsRef,
-    queryString: queryStringState,
+    queryString,
     queryStringRef,
     loadParams,
     resetParams,

@@ -170,24 +170,33 @@ export default function App() {
     },
   });
 
-  useEffect(() => {
-    const id = tabs.activeTabId;
-    if (!id) return;
-    setTabResponses((prev) => ({
-      ...prev,
-      [id]: { response, error, responseTime },
-    }));
-  }, [response, error, responseTime, tabs.activeTabId]);
-
+  // Combine tab response management into a single effect
   useEffect(() => {
     const id = tabs.activeTabId;
     if (!id) {
       resetApiResponse();
       return;
     }
+    
+    // Save current response state for the active tab
+    setTabResponses((prev) => ({
+      ...prev,
+      [id]: { response, error, responseTime },
+    }));
+  }, [response, error, responseTime, tabs.activeTabId]);
+
+  // Restore response when switching tabs
+  useEffect(() => {
+    const id = tabs.activeTabId;
+    if (!id) {
+      resetApiResponse();
+      return;
+    }
+    
     const saved = tabResponses[id];
     if (saved) {
-      setApiResponseState(saved);
+      // Use setTimeout to avoid state update conflicts
+      setTimeout(() => setApiResponseState(saved), 0);
     } else {
       resetApiResponse();
     }
@@ -212,9 +221,11 @@ export default function App() {
     setActiveRequestId(req.id);
   };
 
+  // Handle tab switching and request loading
   useEffect(() => {
     const tab = tabs.getActiveTab();
     if (!tab) {
+      // Batch all state updates together
       resetEditor();
       setRequestNameForSave('Untitled Request');
       setActiveRequestId(null);
@@ -225,6 +236,7 @@ export default function App() {
     if (tab.requestId) {
       const req = savedRequests.find((r) => r.id === tab.requestId);
       if (req) {
+        // Load all request data at once
         loadRequestIntoEditor({
           id: req.id,
           name: req.name,
@@ -238,7 +250,7 @@ export default function App() {
         setActiveRequestId(req.id);
       }
     } else {
-      // 新規タブ
+      // New tab - batch state updates
       resetEditor();
       setRequestNameForSave('Untitled Request');
       setActiveRequestId(null);

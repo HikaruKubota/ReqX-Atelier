@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { useState, useEffect, useImperativeHandle, forwardRef, useCallback } from 'react';
+import { useState, useEffect, useImperativeHandle, forwardRef, useCallback, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { EnableAllButton } from './atoms/button/EnableAllButton';
 import { DisableAllButton } from './atoms/button/DisableAllButton';
@@ -31,10 +31,13 @@ export const BodyEditorKeyValue = forwardRef<BodyEditorKeyValueRef, BodyEditorKe
       restrictToWindowEdges, // 端を少し越えたら慣性風に戻す
     ];
 
+    // Combined effect to handle method changes and initialization
     useEffect(() => {
       if (method === 'GET' || method === 'HEAD') {
         if (body.length > 0) {
-          setBody([]);
+          const newBody: KeyValuePair[] = [];
+          setBody(newBody);
+          onChange?.(newBody);
         }
         return;
       }
@@ -42,20 +45,32 @@ export const BodyEditorKeyValue = forwardRef<BodyEditorKeyValueRef, BodyEditorKe
       if (initialBody && initialBody.length > 0) {
         if (JSON.stringify(initialBody) !== JSON.stringify(body)) {
           setBody(initialBody);
+          onChange?.(initialBody);
         }
       } else if (body.length === 0) {
-        setBody([
+        const newBody = [
           {
             id: `kv-new-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`,
             keyName: '',
             value: '',
             enabled: true,
           },
-        ]);
+        ];
+        setBody(newBody);
+        onChange?.(newBody);
       }
     }, [initialBody, method]);
 
+    // Track initialization state outside the effect
+    const isInitialized = useRef(false);
+    
+    // Separate effect for body changes after user interactions
     useEffect(() => {
+      // Skip initial render and method/initialBody changes
+      if (!isInitialized.current) {
+        isInitialized.current = true;
+        return;
+      }
       onChange?.(body);
     }, [body, onChange]);
 

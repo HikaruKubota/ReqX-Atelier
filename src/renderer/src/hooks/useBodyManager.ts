@@ -1,4 +1,4 @@
-import { useState, useCallback, useRef, useEffect } from 'react';
+import { useState, useCallback, useRef, useMemo } from 'react';
 import type { KeyValuePair, UseBodyManagerReturn } from '../types';
 
 const generateJsonFromBodyPairs = (pairs: KeyValuePair[]): string => {
@@ -28,15 +28,12 @@ export const useBodyManager = (): UseBodyManagerReturn => {
   const [bodyState, setBodyState] = useState<KeyValuePair[]>([]);
   const bodyRef = useRef<KeyValuePair[]>(bodyState);
 
-  const [requestBodyState, setRequestBodyState] = useState<string>('');
-  const requestBodyRef = useRef<string>(requestBodyState);
+  // Use useMemo to compute derived state synchronously
+  const requestBody = useMemo(() => generateJsonFromBodyPairs(bodyState), [bodyState]);
+  const requestBodyRef = useRef<string>(requestBody);
 
-  // Update requestBody (JSON string) whenever bodyState changes
-  useEffect(() => {
-    const newJsonBody = generateJsonFromBodyPairs(bodyState);
-    setRequestBodyState(newJsonBody);
-    requestBodyRef.current = newJsonBody;
-  }, [bodyState]);
+  // Keep ref in sync
+  requestBodyRef.current = requestBody;
 
   const setBody = useCallback((pairs: KeyValuePair[]) => {
     setBodyState(pairs);
@@ -52,14 +49,13 @@ export const useBodyManager = (): UseBodyManagerReturn => {
   const resetBody = useCallback(() => {
     setBodyState([]);
     bodyRef.current = [];
-    // The useEffect will then set requestBodyState and requestBodyRef to ''
   }, []);
 
   return {
     body: bodyState,
     setBody,
     bodyRef,
-    requestBody: requestBodyState,
+    requestBody,
     requestBodyRef,
     loadBody,
     resetBody,
