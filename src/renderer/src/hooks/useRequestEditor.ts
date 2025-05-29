@@ -65,17 +65,18 @@ export const useRequestEditor = (): RequestEditorState => {
   }, [activeRequestIdState]);
 
   // Update URL when params change (unidirectional: params -> URL)
-  const updateUrlWithParams = useCallback((newParams: KeyValuePair[]) => {
-    const base = urlState.split('?')[0];
+  const updateUrlWithParams = useCallback((newParams: KeyValuePair[], currentUrl: string) => {
+    const base = currentUrl.split('?')[0];
     const q = newParams
       .filter((p) => p.enabled && p.keyName.trim() !== '')
       .map((p) => `${encodeURIComponent(p.keyName)}=${encodeURIComponent(p.value)}`)
       .join('&');
     const newUrl = q ? `${base}?${q}` : base;
-    if (newUrl !== urlState) {
+    if (newUrl !== currentUrl) {
       setUrlState(newUrl);
+      urlRef.current = newUrl;
     }
-  }, [urlState]);
+  }, []);
 
   // Override setUrl to parse query params when URL changes
   const setUrlWithParamSync = useCallback((val: string) => {
@@ -103,7 +104,7 @@ export const useRequestEditor = (): RequestEditorState => {
   // Override setParams to update URL
   const setParamsWithUrlSync = useCallback((pairs: KeyValuePair[]) => {
     paramsManager.setParams(pairs);
-    updateUrlWithParams(pairs);
+    updateUrlWithParams(pairs, urlRef.current);
   }, [paramsManager, updateUrlWithParams]);
 
   const loadRequest = useCallback(
