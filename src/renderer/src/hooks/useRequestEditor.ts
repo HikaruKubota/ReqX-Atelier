@@ -78,6 +78,9 @@ export const useRequestEditor = (): RequestEditorState => {
     }
   }, []);
 
+  // Track if we're updating from URL to prevent loops
+  const isUpdatingFromUrl = useRef(false);
+  
   // Override setUrl to parse query params when URL changes
   const setUrlWithParamSync = useCallback((val: string) => {
     setUrlState(val);
@@ -97,14 +100,19 @@ export const useRequestEditor = (): RequestEditorState => {
                            p.keyName === next[i].keyName &&
                            p.value === next[i].value);
     if (!isSame) {
+      isUpdatingFromUrl.current = true;
       paramsManager.setParams(next);
+      isUpdatingFromUrl.current = false;
     }
   }, [parseQueryPairs, paramsManager]);
 
   // Override setParams to update URL
   const setParamsWithUrlSync = useCallback((pairs: KeyValuePair[]) => {
     paramsManager.setParams(pairs);
-    updateUrlWithParams(pairs, urlRef.current);
+    // Only update URL if we're not currently updating from URL (to prevent loops)
+    if (!isUpdatingFromUrl.current) {
+      updateUrlWithParams(pairs, urlRef.current);
+    }
   }, [paramsManager, updateUrlWithParams]);
 
   const loadRequest = useCallback(
