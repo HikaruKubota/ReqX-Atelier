@@ -6,18 +6,25 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ReqX-Atelier is an Electron + React + TypeScript desktop application for API testing, similar to Postman or Insomnia. It uses Vite for development and building, with a component-based architecture following the Atomic Design pattern.
 
+**Requirements**: Node.js 20+
+
 ## Development Commands
 
 ```bash
-# Install dependencies (requires pnpm)
-npm run install
+# Install dependencies
+npm install
 
 # Run the Electron app with hot reload
 npm run dev
 
+# Run Electron + Storybook simultaneously
+npm run dev:all
+
 # Run tests
 npm run test
 npm run test:watch  # Watch mode
+# Run a single test file
+npm run test -- path/to/test.file
 
 # Run linting and type checking
 npm run lint
@@ -63,6 +70,12 @@ src/renderer/src/components/
 - **Tab Management**: Multiple request tabs with keyboard shortcuts
 - **Response Display**: Formatted JSON, headers, and status information
 
+### API Communication Flow
+1. UI components use `src/renderer/src/api.ts` to send requests
+2. Main process (`main.js`) receives IPC messages and makes HTTP calls with Axios
+3. Response is handled by `useApiResponseHandler` hook
+4. Results are displayed in ResponseDisplayPanel component
+
 ## Testing Approach
 
 - **Unit Tests**: Vitest with React Testing Library
@@ -83,3 +96,6 @@ npm run typecheck
 - **CORS Handling**: Main process makes HTTP requests to bypass browser CORS restrictions
 - **Dark Mode**: Implemented via Tailwind CSS class strategy, toggled through theme store
 - **i18n**: Supports English and Japanese translations in `src/locales/`
+- **Styling**: Theme colors defined as CSS variables in `src/theme/colors.ts`
+- **Hot Reload**: Works for both Electron main process and React renderer
+- **First-time E2E setup**: Run `npx playwright install` before running E2E tests
