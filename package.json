@@ -25,7 +25,6 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "packageManager": "pnpm@10.11.0",
   "devDependencies": {
     "@chromatic-com/storybook": "^3.2.6",
     "@playwright/test": "^1.52.0",
