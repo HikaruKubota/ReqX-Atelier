@@ -9,6 +9,7 @@ import { ResponseDisplayPanel } from './components/ResponseDisplayPanel'; // Imp
 import { useKeyboardShortcuts } from './hooks/useKeyboardShortcuts';
 import { useTabs } from './hooks/useTabs';
 import { useRequestActions } from './hooks/useRequestActions';
+import { useTabDirtyTracker } from './hooks/useTabDirtyTracker';
 import { useTranslation } from 'react-i18next';
 import { ThemeToggleButton } from './components/ThemeToggleButton';
 import { TabBar } from './components/organisms/TabBar';
@@ -87,6 +88,48 @@ export default function App() {
     moveFolder,
   } = useSavedRequests();
 
+  const tabs = useTabs();
+
+  const requestEditor = {
+    method,
+    setMethod,
+    methodRef,
+    url,
+    setUrl,
+    urlRef,
+    body,
+    setBody,
+    bodyRef: { current: body },
+    requestBody: '',
+    requestBodyRef: { current: '' },
+    params,
+    setParams,
+    paramsRef,
+    queryString: '',
+    queryStringRef: { current: '' },
+    requestNameForSave,
+    setRequestNameForSave,
+    requestNameForSaveRef,
+    activeRequestId,
+    setActiveRequestId,
+    activeRequestIdRef,
+    headers,
+    setHeaders,
+    headersRef,
+    addHeader,
+    updateHeader,
+    removeHeader,
+    loadRequest: loadRequestIntoEditor,
+    resetEditor,
+  };
+
+  const { resetDirtyState } = useTabDirtyTracker({
+    tabId: tabs.activeTabId,
+    requestEditor,
+    markTabDirty: tabs.markTabDirty,
+    markTabClean: tabs.markTabClean,
+  });
+
   const { executeSendRequest, executeSaveRequest } = useRequestActions({
     editorPanelRef,
     methodRef,
@@ -100,9 +143,8 @@ export default function App() {
     addRequest,
     updateSavedRequest,
     executeRequest,
+    resetDirtyState,
   });
-
-  const tabs = useTabs();
 
   const handleCloseTab = useCallback(
     (id: string) => {
@@ -132,6 +174,7 @@ export default function App() {
     if (!savedId) return; // safeguard
 
     setSaveToastOpen(true);
+    resetDirtyState(); // Reset dirty state after saving
 
     if (activeTab && !activeTab.requestId) {
       tabs.updateTab(activeTab.tabId, { requestId: savedId });
@@ -154,6 +197,7 @@ export default function App() {
     newRequestFolderId,
     savedFolders,
     updateFolder,
+    resetDirtyState,
   ]);
 
   useKeyboardShortcuts({

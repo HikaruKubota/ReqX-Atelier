@@ -20,6 +20,7 @@ import { useSavedRequestsStore } from '../../store/savedRequestsStore';
 export interface TabInfo {
   tabId: string;
   requestId: string | null;
+  isDirty: boolean;
 }
 
 interface TabListProps {
@@ -81,6 +82,7 @@ export const TabList: React.FC<TabListProps> = ({
                 label={req ? req.name : 'Untitled'}
                 method={req ? req.method : 'GET'}
                 active={activeTabId === tab.tabId}
+                isDirty={tab.isDirty}
                 onSelect={() => onSelect(tab.tabId)}
                 onClose={() => onClose(tab.tabId)}
               />

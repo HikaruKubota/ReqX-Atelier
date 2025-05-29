@@ -22,7 +22,7 @@ describe('TabBar', () => {
         params: [],
       },
     ]);
-    const tabs = [{ tabId: '1', requestId: 'req1' }];
+    const tabs = [{ tabId: '1', requestId: 'req1', isDirty: false }];
     const { getByText, getByLabelText } = render(
       <TabBar
         tabs={tabs}
