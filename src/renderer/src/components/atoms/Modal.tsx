@@ -9,6 +9,7 @@ interface ModalProps {
   onClose: () => void;
   children: React.ReactNode;
   size?: ModalSize;
+  title?: string;
 }
 
 const sizeClasses: Record<ModalSize, string> = {
@@ -18,7 +19,7 @@ const sizeClasses: Record<ModalSize, string> = {
   xl: 'max-w-xl',
 };
 
-export const Modal: React.FC<ModalProps> = ({ isOpen, onClose, children, size = 'md' }) => (
+export const Modal: React.FC<ModalProps> = ({ isOpen, onClose, children, size = 'md', title }) => (
   <Transition appear show={isOpen} as={Fragment}>
     <Dialog as="div" className="relative z-50" onClose={onClose}>
       <Transition.Child
@@ -52,6 +53,11 @@ export const Modal: React.FC<ModalProps> = ({ isOpen, onClose, children, size = 
               className={clsx('bg-white dark:bg-gray-800 p-4 rounded w-full', sizeClasses[size])}
               onClick={(e) => e.stopPropagation()}
             >
+              {title && (
+                <Dialog.Title className="text-lg font-semibold mb-4 border-b pb-2 dark:border-gray-600">
+                  {title}
+                </Dialog.Title>
+              )}
               {children}
             </Dialog.Panel>
           </Transition.Child>

@@ -131,6 +131,27 @@ export interface ThemeColors {
   secondary: string;
 }
 
+export interface Variable {
+  id: string;
+  name: string;
+  value: string;
+  enabled: boolean;
+}
+
+export interface VariableScope {
+  global: Variable[];
+  collections: Record<string, Variable[]>;
+  folders: Record<string, Variable[]>;
+  requests: Record<string, Variable[]>;
+}
+
+export interface VariableResolutionContext {
+  requestId?: string;
+  folderId?: string;
+  collectionId?: string;
+  folderHierarchy?: string[]; // Array of folder IDs from child to root
+}
+
 export interface RequestEditorState
   extends Omit<UseHeadersManagerReturn, 'loadHeaders' | 'resetHeaders'>,
     Omit<UseBodyManagerReturn, 'loadBody' | 'resetBody'>,

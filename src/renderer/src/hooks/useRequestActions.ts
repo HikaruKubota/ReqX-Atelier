@@ -1,5 +1,7 @@
 import { useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
 import type { SavedRequest, RequestEditorPanelRef, RequestHeader, KeyValuePair } from '../types';
+import { useVariableResolver } from './useVariableResolver';
 
 export function useRequestActions({
   editorPanelRef,
@@ -35,6 +37,9 @@ export function useRequestActions({
   ) => Promise<void>;
   resetDirtyState?: () => void;
 }) {
+  const { t } = useTranslation();
+  const { resolveAllVariables } = useVariableResolver();
+
   // リクエスト送信
   const executeSendRequest = useCallback(async () => {
     const currentBuiltRequestBody = editorPanelRef.current?.getRequestBodyAsJson() || '';
@@ -54,11 +59,42 @@ export function useRequestActions({
         },
         {} as Record<string, string>,
       );
-    await executeRequest(methodRef.current, urlWithParams, currentBuiltRequestBody, activeHeaders);
+    // Resolve variables before sending request
+    const {
+      url: resolvedUrl,
+      headers: resolvedHeaders,
+      body: resolvedBody,
+      undefinedVariables,
+    } = resolveAllVariables(
+      urlWithParams,
+      activeHeaders,
+      currentBuiltRequestBody,
+      activeRequestIdRef.current,
+    );
+
+    // Warn about undefined variables but still send the request
+    if (undefinedVariables.length > 0) {
+      console.warn(
+        t('variables_undefined_warning', { variables: undefinedVariables.join(', ') }),
+      );
+      // Note: In a full implementation, you might want to show a toast or modal here
+    }
+
+    await executeRequest(methodRef.current, resolvedUrl, resolvedBody, resolvedHeaders);
     if (resetDirtyState) {
       resetDirtyState(); // Reset dirty state after sending request
     }
-  }, [executeRequest, headersRef, methodRef, urlRef, paramsRef, resetDirtyState]);
+  }, [
+    executeRequest,
+    headersRef,
+    methodRef,
+    urlRef,
+    paramsRef,
+    resetDirtyState,
+    resolveAllVariables,
+    activeRequestIdRef,
+    t,
+  ]);
 
   // リクエスト保存
   const executeSaveRequest = useCallback((): string => {

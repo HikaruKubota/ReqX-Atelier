@@ -72,5 +72,18 @@
   "context_menu_copy_folder": "フォルダをコピー",
   "context_menu_delete_folder": "フォルダを削除",
   "delete_folder_confirm": "このフォルダとその中身をすべて削除してもよろしいですか？",
-  "folder_name_prompt": "フォルダ名を入力"
+  "folder_name_prompt": "フォルダ名を入力",
+  "context_menu_edit_variables": "変数を編集",
+  "variables_modal_title": "変数",
+  "variables_modal_add": "変数を追加",
+  "variables_modal_name": "名前",
+  "variables_modal_value": "値",
+  "variables_modal_enabled": "有効",
+  "variables_modal_actions": "操作",
+  "variables_modal_save": "保存",
+  "variables_modal_cancel": "キャンセル",
+  "variables_modal_delete": "削除",
+  "variables_name_invalid": "変数名は ^[a-zA-Z_][a-zA-Z0-9_]*$ のパターンに一致する必要があります",
+  "variables_name_duplicate": "変数名が既に存在します",
+  "variables_undefined_warning": "未定義の変数が見つかりました: {{variables}}"
 }

@@ -3,6 +3,7 @@ import clsx from 'clsx';
 import type { SavedFolder, SavedRequest } from '../types';
 import { RequestListItem } from './atoms/list/RequestListItem';
 import { ContextMenu } from './atoms/menu/ContextMenu';
+import { VariablesModal } from './VariablesModal';
 import { useTranslation } from 'react-i18next';
 import { Tree, NodeApi, type TreeApi } from 'react-arborist';
 import { FiChevronRight, FiChevronDown, FiFolder } from 'react-icons/fi';
@@ -157,6 +158,16 @@ export const RequestCollectionTree: React.FC<Props> = ({
     x: number;
     y: number;
   } | null>(null);
+
+  const [variablesModal, setVariablesModal] = React.useState<{
+    isOpen: boolean;
+    folderId: string | null;
+    folderName: string;
+  }>({
+    isOpen: false,
+    folderId: null,
+    folderName: '',
+  });
 
   const treeRef = React.useRef<TreeApi<TreeNode> | null>(null);
   const { ref: containerRef, size } = useElementSize<HTMLDivElement>();
@@ -368,6 +379,18 @@ export const RequestCollectionTree: React.FC<Props> = ({
                 setMenu(null);
               },
             },
+            ...(menu.type === 'folder' ? [{
+              label: t('context_menu_edit_variables'),
+              onClick: () => {
+                const folderName = idMap.get(menu.id)?.name || 'Folder';
+                setVariablesModal({
+                  isOpen: true,
+                  folderId: menu.id,
+                  folderName,
+                });
+                setMenu(null);
+              },
+            }] : []),
             {
               label: t('context_menu_new_request'),
               onClick: () =>
@@ -386,6 +409,13 @@ export const RequestCollectionTree: React.FC<Props> = ({
           onClose={() => setMenu(null)}
         />
       )}
+      <VariablesModal
+        isOpen={variablesModal.isOpen}
+        onClose={() => setVariablesModal({ isOpen: false, folderId: null, folderName: '' })}
+        scope="folders"
+        scopeId={variablesModal.folderId}
+        title={`${t('variables_modal_title')} - ${variablesModal.folderName}`}
+      />
     </>
   );
 };
