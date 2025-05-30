@@ -25,8 +25,6 @@ npm run test
 npm run test:watch  # Watch mode
 # Run a single test file
 npm run test -- path/to/test.file
-# Run tests in watch mode
-npm run test:watch
 
 # Run linting and type checking
 npm run lint
@@ -101,3 +99,9 @@ npm run typecheck
 - **Styling**: Theme colors defined as CSS variables in `src/theme/colors.ts`
 - **Hot Reload**: Works for both Electron main process and React renderer
 - **First-time E2E setup**: Run `npx playwright install` before running E2E tests
+
+# important-instruction-reminders
+Do what has been asked; nothing more, nothing less.
+NEVER create files unless they're absolutely necessary for achieving your goal.
+ALWAYS prefer editing an existing file to creating a new one.
+NEVER proactively create documentation files (*.md) or README files. Only create documentation files if explicitly requested by the User.
