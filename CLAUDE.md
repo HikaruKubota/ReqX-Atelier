@@ -25,6 +25,8 @@ npm run test
 npm run test:watch  # Watch mode
 # Run a single test file
 npm run test -- path/to/test.file
+# Run tests in watch mode
+npm run test:watch
 
 # Run linting and type checking
 npm run lint
