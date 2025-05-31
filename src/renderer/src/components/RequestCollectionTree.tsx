@@ -305,21 +305,38 @@ export const RequestCollectionTree: React.FC<Props> = ({
         tabIndex={0}
         ref={containerRef}
         onKeyDown={(e) => {
+          // Check for tab switching shortcuts first
           if (
             (e.metaKey || e.ctrlKey) &&
             e.altKey &&
             (e.key === 'ArrowRight' || e.key === 'ArrowLeft')
           ) {
-            // Prevent folder toggle when using Cmd/Ctrl+Alt+Arrow for tab switch
-            e.stopPropagation();
+            // Allow tab switching shortcuts to bubble up
             return;
           }
+
+          // Check for other global shortcuts
+          const isGlobalShortcut =
+            (e.metaKey || e.ctrlKey) &&
+            (['s', 'n', 'w'].includes(e.key.toLowerCase()) || e.key === 'Enter');
+
+          if (isGlobalShortcut) {
+            // Allow global shortcuts to bubble up
+            return;
+          }
+
+          // Handle Enter key for renaming
           if (e.key === 'Enter' && !e.metaKey && !e.ctrlKey) {
             const node = treeRef.current?.focusedNode;
             if (node && !node.isEditing) {
               node.edit(); // start rename for folder or request
               e.preventDefault();
             }
+          }
+
+          // Prevent default folder toggle on arrow keys when Alt is pressed
+          if (e.altKey && (e.key === 'ArrowRight' || e.key === 'ArrowLeft')) {
+            e.preventDefault();
           }
         }}
         className="outline-none h-full"
