@@ -1,6 +1,6 @@
 import React, { useCallback, useRef, useEffect, useState } from 'react';
 import { useSavedRequests } from './hooks/useSavedRequests';
-import type { SavedRequest, ApiResult, ApiError, KeyValuePair } from './types';
+import type { SavedRequest, ApiResult, ApiError, KeyValuePair, RequestHeader, VariableExtraction } from './types';
 import { useRequestEditor } from './hooks/useRequestEditor'; // Import the new hook and RequestHeader
 import { useApiResponseHandler } from './hooks/useApiResponseHandler'; // Import the new API response handler hook
 import { RequestCollectionSidebar } from './components/RequestCollectionSidebar'; // Import the new sidebar component
@@ -84,7 +84,15 @@ export default function App() {
   const [tabEditorStates, setTabEditorStates] = useState<
     Record<
       string,
-      { body: KeyValuePair[]; params: KeyValuePair[] }
+      { 
+        body: KeyValuePair[]; 
+        params: KeyValuePair[];
+        url?: string;
+        method?: string;
+        headers?: RequestHeader[];
+        requestNameForSave?: string;
+        variableExtraction?: VariableExtraction;
+      }
     >
   >({});
 
@@ -151,6 +159,26 @@ export default function App() {
     }));
     setParams(newParams);
   }, [tabs.activeTabId, setParams]);
+
+  // Save current tab state when any editor value changes
+  useEffect(() => {
+    const tabId = tabs.activeTabId;
+    if (!tabId) return;
+
+    setTabEditorStates(prev => ({
+      ...prev,
+      [tabId]: {
+        ...prev[tabId],
+        body: currentBody,
+        params: currentParams,
+        url,
+        method,
+        headers,
+        requestNameForSave,
+        variableExtraction,
+      }
+    }));
+  }, [tabs.activeTabId, url, method, headers, requestNameForSave, variableExtraction]);
 
   const requestEditor = {
     method,
@@ -393,9 +421,14 @@ export default function App() {
           // Use existing state
           setBody(existingState.body);
           setParams(existingState.params);
+          // Restore other states from tab state or saved request
+          setUrl(existingState.url || req.url);
+          setMethod(existingState.method || req.method);
+          setHeaders(existingState.headers || req.headers || []);
+          setVariableExtraction(existingState.variableExtraction || req.variableExtraction);
         }
         
-        setRequestNameForSave(req.name);
+        setRequestNameForSave(existingState?.requestNameForSave || req.name);
         setActiveRequestId(req.id);
       }
     } else {
@@ -417,6 +450,12 @@ export default function App() {
         // Use existing state
         setBody(existingState.body);
         setParams(existingState.params);
+        // Restore other states for new tab
+        if (existingState.url !== undefined) setUrl(existingState.url);
+        if (existingState.method !== undefined) setMethod(existingState.method);
+        if (existingState.headers !== undefined) setHeaders(existingState.headers);
+        if (existingState.requestNameForSave !== undefined) setRequestNameForSave(existingState.requestNameForSave);
+        if (existingState.variableExtraction !== undefined) setVariableExtraction(existingState.variableExtraction);
       }
     }
   }, [tabs.activeTabId]);
