@@ -3,17 +3,18 @@ import { BodyEditorKeyValue } from './BodyEditorKeyValue';
 import type { KeyValuePair, BodyEditorKeyValueRef } from '../types';
 
 interface ParamsEditorKeyValueProps {
-  initialParams?: KeyValuePair[];
+  value?: KeyValuePair[];
+  initialParams?: KeyValuePair[]; // Deprecated: use value instead
   onChange?: (pairs: KeyValuePair[]) => void;
   containerHeight?: number | string;
   activeRequestId?: string | null;
 }
 
 export const ParamsEditorKeyValue = forwardRef<BodyEditorKeyValueRef, ParamsEditorKeyValueProps>(
-  ({ initialParams, onChange, containerHeight = 300, activeRequestId }, ref) => (
+  ({ value, initialParams, onChange, containerHeight = 300, activeRequestId }, ref) => (
     <BodyEditorKeyValue
       ref={ref}
-      initialBody={initialParams}
+      value={value || initialParams}
       method="POST"
       onChange={onChange}
       containerHeight={containerHeight}

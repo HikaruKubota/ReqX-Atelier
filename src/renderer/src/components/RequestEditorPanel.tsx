@@ -131,7 +131,7 @@ export const RequestEditorPanel = forwardRef<RequestEditorPanelRef, RequestEdito
           <div className={activeTab === 'body' ? 'block' : 'hidden'}>
             <BodyEditorKeyValue
               ref={bodyEditorRef}
-              initialBody={initialBody}
+              value={initialBody}
               method={method}
               onChange={onBodyPairsChange}
               containerHeight={300}
@@ -142,7 +142,7 @@ export const RequestEditorPanel = forwardRef<RequestEditorPanelRef, RequestEdito
           <div className={activeTab === 'params' ? 'block' : 'hidden'}>
             <ParamsEditorKeyValue
               ref={paramsEditorRef}
-              initialParams={initialParams}
+              value={initialParams}
               onChange={onParamPairsChange}
               containerHeight={300}
               activeRequestId={activeRequestId}
