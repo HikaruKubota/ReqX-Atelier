@@ -1,11 +1,20 @@
 import React from 'react';
-import clsx from 'clsx';
+import { UnifiedInput, UnifiedInputProps } from './UnifiedInput';
 
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
-export interface TextInputProps extends React.InputHTMLAttributes<HTMLInputElement> {}
+export interface TextInputProps extends Omit<UnifiedInputProps, 'enableVariables'> {}
 
-export const TextInput: React.FC<TextInputProps> = ({ className, ...rest }) => (
-  <input className={clsx('p-2 border border-gray-300 rounded', className)} {...rest} />
+/**
+ * TextInput component for backward compatibility.
+ * @deprecated Use UnifiedInput directly for new components
+ */
+export const TextInput: React.FC<TextInputProps> = ({ value = '', onChange = () => {}, ...rest }) => (
+  <UnifiedInput 
+    value={value} 
+    onChange={onChange} 
+    enableVariables={false}
+    {...rest} 
+  />
 );
 
 export default TextInput;

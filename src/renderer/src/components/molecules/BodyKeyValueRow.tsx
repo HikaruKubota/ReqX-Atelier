@@ -4,6 +4,7 @@ import { CSS } from '@dnd-kit/utilities';
 import type { KeyValuePair } from '../../types';
 import { DragHandleButton } from '../atoms/button/DragHandleButton';
 import { TrashButton } from '../atoms/button/TrashButton';
+import { UnifiedInput } from '../atoms/form/UnifiedInput';
 
 export interface BodyKeyValueRowProps {
   pair: KeyValuePair;
@@ -29,21 +30,22 @@ const BodyKeyValueRowComponent: React.FC<BodyKeyValueRowProps> = ({ pair, onChan
         onChange={(e) => onChange(pair.id, 'enabled', e.target.checked)}
         className="mr-1"
       />
-      <input
-        type="text"
-        placeholder="Key"
+      <UnifiedInput
         value={pair.keyName}
-        onChange={(e) => onChange(pair.id, 'keyName', e.target.value)}
-        className="w-32 p-2 text-sm border border-gray-300 rounded"
+        onChange={(value) => onChange(pair.id, 'keyName', value)}
+        placeholder="Key"
+        className="w-32"
         disabled={!pair.enabled}
+        variant="compact"
       />
-      <input
-        type="text"
-        placeholder="Value (JSON or string)"
+      <UnifiedInput
         value={pair.value}
-        onChange={(e) => onChange(pair.id, 'value', e.target.value)}
-        className="flex-1 p-2 text-sm border border-gray-300 rounded"
+        onChange={(value) => onChange(pair.id, 'value', value)}
+        placeholder="Value (JSON or string)"
+        className="flex-1"
         disabled={!pair.enabled}
+        enableVariables={true}
+        variant="compact"
       />
       <TrashButton onClick={() => onRemove(pair.id)} />
     </div>

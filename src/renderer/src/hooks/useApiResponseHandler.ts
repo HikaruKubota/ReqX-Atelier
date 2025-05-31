@@ -1,12 +1,34 @@
 import { useState, useCallback } from 'react';
 import { sendApiRequest } from '../api';
 import type { ApiResult, ApiError, ApiResponseHandler } from '../types';
+import { useVariablesStore } from '../store/variablesStore';
 
 export const useApiResponseHandler = (): ApiResponseHandler => {
   const [response, setResponse] = useState<ApiResult | null>(null);
   const [error, setError] = useState<ApiError | null>(null);
   const [loading, setLoading] = useState(false);
   const [responseTime, setResponseTime] = useState<number | null>(null);
+  const getResolvedVariables = useVariablesStore((state) => state.getResolvedVariables);
+
+  // Helper function to resolve variables in a string
+  const resolveVariables = (str: string): string => {
+    const variables = getResolvedVariables();
+    return str.replace(/\$\{([^}]+)\}/g, (match, varName) => {
+      const variable = variables[varName];
+      return variable ? variable.value : match;
+    });
+  };
+
+  // Helper function to resolve variables in headers
+  const resolveHeaderVariables = (headers?: Record<string, string>): Record<string, string> | undefined => {
+    if (!headers) return headers;
+    
+    const resolved: Record<string, string> = {};
+    Object.entries(headers).forEach(([key, value]) => {
+      resolved[key] = resolveVariables(value);
+    });
+    return resolved;
+  };
 
   const executeRequest = useCallback(
     async (method: string, url: string, body?: string, headers?: Record<string, string>) => {
@@ -15,12 +37,18 @@ export const useApiResponseHandler = (): ApiResponseHandler => {
       setResponse(null);
       setResponseTime(null);
       const start = Date.now();
+      
+      // Resolve variables in URL, body, and headers
+      const resolvedUrl = resolveVariables(url);
+      const resolvedBody = body ? resolveVariables(body) : body;
+      const resolvedHeaders = resolveHeaderVariables(headers);
+      
       try {
         const result = await sendApiRequest(
           method,
-          url,
-          method !== 'GET' && method !== 'HEAD' ? body : undefined,
-          headers,
+          resolvedUrl,
+          method !== 'GET' && method !== 'HEAD' ? resolvedBody : undefined,
+          resolvedHeaders,
         );
         if (result.isError) {
           setError(result as ApiError);

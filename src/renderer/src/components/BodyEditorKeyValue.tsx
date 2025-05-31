@@ -1,5 +1,4 @@
-import * as React from 'react';
-import { useState, useEffect, useImperativeHandle, forwardRef, useCallback } from 'react';
+import React, { useState, useEffect, useImperativeHandle, forwardRef, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { EnableAllButton } from './atoms/button/EnableAllButton';
 import { DisableAllButton } from './atoms/button/DisableAllButton';
@@ -155,14 +154,16 @@ export const BodyEditorKeyValue = forwardRef<BodyEditorKeyValueRef, BodyEditorKe
         <ScrollableContainer height={containerHeight}>
           <DndContext onDragEnd={handleDragEnd} modifiers={modifiers}>
             <SortableContext items={body}>
-              {body.map((pair) => (
-                <BodyKeyValueRow
-                  key={pair.id}
-                  pair={pair}
-                  onChange={handleKeyValuePairChange}
-                  onRemove={handleRemoveKeyValuePair}
-                />
-              ))}
+              <div className="flex flex-col gap-4">
+                {body.map((pair) => (
+                  <BodyKeyValueRow
+                    key={pair.id}
+                    pair={pair}
+                    onChange={handleKeyValuePairChange}
+                    onRemove={handleRemoveKeyValuePair}
+                  />
+                ))}
+              </div>
             </SortableContext>
           </DndContext>
         </ScrollableContainer>

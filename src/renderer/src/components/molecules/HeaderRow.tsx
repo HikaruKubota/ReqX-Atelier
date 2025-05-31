@@ -4,6 +4,7 @@ import { CSS } from '@dnd-kit/utilities';
 import type { RequestHeader } from '../../types';
 import { DragHandleButton } from '../atoms/button/DragHandleButton';
 import { TrashButton } from '../atoms/button/TrashButton';
+import { UnifiedInput } from '../atoms/form/UnifiedInput';
 
 export interface HeaderRowProps {
   header: RequestHeader;
@@ -29,21 +30,22 @@ const HeaderRowComponent: React.FC<HeaderRowProps> = ({ header, onChange, onRemo
         onChange={(e) => onChange(header.id, 'enabled', e.target.checked)}
         className="mr-1"
       />
-      <input
-        type="text"
-        placeholder="Key"
+      <UnifiedInput
         value={header.key}
-        onChange={(e) => onChange(header.id, 'key', e.target.value)}
-        className="w-32 p-2 border border-gray-300 rounded"
+        onChange={(value) => onChange(header.id, 'key', value)}
+        placeholder="Key"
+        className="w-32 text-sm"
         disabled={!header.enabled}
+        variant='compact'
       />
-      <input
-        type="text"
-        placeholder="Value"
+      <UnifiedInput
         value={header.value}
-        onChange={(e) => onChange(header.id, 'value', e.target.value)}
-        className="flex-1 p-2 border border-gray-300 rounded"
+        onChange={(value) => onChange(header.id, 'value', value)}
+        placeholder="Value"
+        className="flex-1 text-sm"
         disabled={!header.enabled}
+        enableVariables={true}
+        variant='compact'
       />
       <TrashButton onClick={() => onRemove(header.id)} />
     </div>

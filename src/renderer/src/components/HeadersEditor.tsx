@@ -53,7 +53,7 @@ export const HeadersEditor = forwardRef<HeadersEditorRef, HeadersEditorProps>(
     );
 
     return (
-      <div className="flex flex-col gap-2">
+      <div className="flex flex-col gap-4">
         <DndContext onDragEnd={handleDragEnd} modifiers={modifiers}>
           <SortableContext items={headers}>
             {headers.map((header) => (

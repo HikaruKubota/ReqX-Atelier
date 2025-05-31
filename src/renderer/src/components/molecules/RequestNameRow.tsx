@@ -25,7 +25,7 @@ export const RequestNameRow: React.FC<RequestNameRowProps> = ({
         type="text"
         placeholder={t('request_name_placeholder')}
         value={value}
-        onChange={(e) => onChange(e.target.value)}
+        onChange={onChange}
         className="flex-grow"
       />
       <SaveRequestButton onClick={onSave} disabled={saving} isUpdate={isUpdate} />
