@@ -190,12 +190,13 @@ export const VariablesPanel: React.FC<VariablesPanelProps> = ({ isOpen, onClose 
 
   const handleAddGlobalVariable = () => {
     if (newVariableName.trim()) {
-      addGlobalVariable({
+      const newVariable = {
         name: newVariableName.trim(),
         value: newVariableValue,
         enabled: true,
         secure: newVariableSecure
-      })
+      }
+      addGlobalVariable(newVariable)
       resetAddForm()
       setShowAddGlobal(false)
     }
@@ -203,12 +204,13 @@ export const VariablesPanel: React.FC<VariablesPanelProps> = ({ isOpen, onClose 
 
   const handleAddEnvironmentVariable = () => {
     if (newVariableName.trim() && activeEnvironment) {
-      addEnvironmentVariable(activeEnvironment.id, {
+      const newVariable = {
         name: newVariableName.trim(),
         value: newVariableValue,
         enabled: true,
         secure: newVariableSecure
-      })
+      }
+      addEnvironmentVariable(activeEnvironment.id, newVariable)
       resetAddForm()
       setShowAddEnvironment(false)
     }

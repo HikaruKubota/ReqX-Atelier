@@ -191,12 +191,6 @@ export const useVariablesStore = create<VariablesState>()(
           (env) => env.id === state.activeEnvironmentId
         )
         
-        if (!activeEnvironment) {
-          return state.globalVariables
-        }
-
-        // Merge global and environment variables
-        // Environment variables override global variables
         const resolved: VariableSet = {}
         
         // Add all enabled global variables
@@ -205,6 +199,10 @@ export const useVariablesStore = create<VariablesState>()(
             resolved[name] = variable
           }
         })
+        
+        if (!activeEnvironment) {
+          return resolved
+        }
         
         // Override with enabled environment variables
         Object.entries(activeEnvironment.variables).forEach(([name, variable]) => {
