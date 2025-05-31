@@ -7,18 +7,21 @@ import { useState, useCallback } from 'react';
 export function useControlledState<T>(
   value?: T,
   defaultValue?: T,
-  onChange?: (value: T) => void
+  onChange?: (value: T) => void,
 ): [T | undefined, (value: T) => void] {
   const [internalValue, setInternalValue] = useState<T | undefined>(defaultValue);
   const isControlled = value !== undefined;
   const finalValue = isControlled ? value : internalValue;
-  
-  const setValue = useCallback((newValue: T) => {
-    if (!isControlled) {
-      setInternalValue(newValue);
-    }
-    onChange?.(newValue);
-  }, [isControlled, onChange]);
-  
+
+  const setValue = useCallback(
+    (newValue: T) => {
+      if (!isControlled) {
+        setInternalValue(newValue);
+      }
+      onChange?.(newValue);
+    },
+    [isControlled, onChange],
+  );
+
   return [finalValue, setValue];
 }

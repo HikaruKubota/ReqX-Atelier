@@ -36,7 +36,7 @@ const HeaderRowComponent: React.FC<HeaderRowProps> = ({ header, onChange, onRemo
         placeholder="Key"
         className="w-32 text-sm"
         disabled={!header.enabled}
-        variant='compact'
+        variant="compact"
       />
       <UnifiedInput
         value={header.value}
@@ -45,7 +45,7 @@ const HeaderRowComponent: React.FC<HeaderRowProps> = ({ header, onChange, onRemo
         className="flex-1 text-sm"
         disabled={!header.enabled}
         enableVariables={true}
-        variant='compact'
+        variant="compact"
       />
       <TrashButton onClick={() => onRemove(header.id)} />
     </div>
