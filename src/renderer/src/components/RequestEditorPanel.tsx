@@ -5,10 +5,12 @@ import type {
   BodyEditorKeyValueRef,
   KeyValuePair,
   RequestEditorPanelRef,
+  VariableExtraction,
 } from '../types';
 import { HeadersEditor } from './HeadersEditor';
 import { BodyEditorKeyValue } from './BodyEditorKeyValue';
 import { ParamsEditorKeyValue } from './ParamsEditorKeyValue';
+import { VariableExtractionEditor } from './VariableExtractionEditor';
 import { TabButton } from './atoms/button/TabButton';
 import { RequestNameRow } from './molecules/RequestNameRow';
 import { RequestMethodRow } from './molecules/RequestMethodRow';
@@ -33,6 +35,8 @@ interface RequestEditorPanelProps {
   onUpdateHeader: (id: string, field: 'key' | 'value' | 'enabled', value: string | boolean) => void;
   onRemoveHeader: (id: string) => void;
   onReorderHeaders: (newHeaders: RequestHeader[]) => void;
+  variableExtraction?: VariableExtraction;
+  onVariableExtractionChange?: (variableExtraction: VariableExtraction) => void;
 }
 
 export const RequestEditorPanel = forwardRef<RequestEditorPanelRef, RequestEditorPanelProps>(
@@ -57,13 +61,15 @@ export const RequestEditorPanel = forwardRef<RequestEditorPanelRef, RequestEdito
       onUpdateHeader,
       onRemoveHeader,
       onReorderHeaders,
+      variableExtraction,
+      onVariableExtractionChange,
     },
     ref,
   ) => {
     const { t } = useTranslation();
     const bodyEditorRef = useRef<BodyEditorKeyValueRef>(null);
     const paramsEditorRef = useRef<BodyEditorKeyValueRef>(null);
-    const [activeTab, setActiveTab] = React.useState<'headers' | 'body' | 'params'>('headers');
+    const [activeTab, setActiveTab] = React.useState<'headers' | 'body' | 'params' | 'tests'>('headers');
 
     useImperativeHandle(ref, () => ({
       getRequestBodyAsJson: () => {
@@ -107,6 +113,9 @@ export const RequestEditorPanel = forwardRef<RequestEditorPanelRef, RequestEdito
             <TabButton active={activeTab === 'body'} onClick={() => setActiveTab('body')}>
               {t('body_tab')}
             </TabButton>
+            <TabButton active={activeTab === 'tests'} onClick={() => setActiveTab('tests')}>
+              {t('tests_tab')}
+            </TabButton>
           </div>
           {/* チラつきの抑制のためstyleにて表示切り替え対応 */}
           <div className={activeTab === 'headers' ? 'block' : 'hidden'}>
@@ -136,6 +145,15 @@ export const RequestEditorPanel = forwardRef<RequestEditorPanelRef, RequestEdito
               onChange={onParamPairsChange}
               containerHeight={300}
             />
+          </div>
+          {/* チラつきの抑制のためstyleにて表示切り替え対応 */}
+          <div className={activeTab === 'tests' ? 'block' : 'hidden'}>
+            {onVariableExtractionChange && (
+              <VariableExtractionEditor
+                variableExtraction={variableExtraction}
+                onChange={onVariableExtractionChange}
+              />
+            )}
           </div>
         </div>
       </div>

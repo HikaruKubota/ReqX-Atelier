@@ -19,6 +19,7 @@ import { Toast } from './components/atoms/toast/Toast';
 import { EnvironmentSelector } from './components/EnvironmentSelector';
 import { VariablesButton } from './components/VariablesButton';
 import { VariablesPanel } from './components/VariablesPanel';
+import { extractVariablesFromResponse, applyExtractedVariables } from './utils/variableExtraction';
 
 export default function App() {
   const { t } = useTranslation();
@@ -52,6 +53,9 @@ export default function App() {
     addHeader,
     updateHeader,
     removeHeader, // Destructure header actions
+    variableExtraction,
+    setVariableExtraction,
+    variableExtractionRef,
     loadRequest: loadRequestIntoEditor, // Renamed to avoid conflict if there was a local var named loadRequest
     resetEditor,
   } = useRequestEditor();
@@ -94,6 +98,16 @@ export default function App() {
 
   const tabs = useTabs();
 
+  // Execute variable extraction when response is received
+  React.useEffect(() => {
+    if (response && variableExtraction && tabs.activeTabId) {
+      const results = extractVariablesFromResponse(response, variableExtraction);
+      if (results.length > 0) {
+        applyExtractedVariables(results);
+      }
+    }
+  }, [response, variableExtraction, tabs.activeTabId]);
+
   const requestEditor = {
     method,
     setMethod,
@@ -123,6 +137,9 @@ export default function App() {
     addHeader,
     updateHeader,
     removeHeader,
+    variableExtraction,
+    setVariableExtraction,
+    variableExtractionRef,
     loadRequest: loadRequestIntoEditor,
     resetEditor,
   };
@@ -140,6 +157,7 @@ export default function App() {
     urlRef,
     headersRef,
     paramsRef,
+    variableExtractionRef,
     requestNameForSaveRef,
     setRequestNameForSave,
     activeRequestIdRef,
@@ -256,6 +274,7 @@ export default function App() {
       headers: req.headers,
       body: req.body,
       params: req.params,
+      variableExtraction: req.variableExtraction,
     });
     setActiveRequestId(req.id);
   };
@@ -281,6 +300,7 @@ export default function App() {
           headers: req.headers,
           body: req.body,
           params: req.params,
+          variableExtraction: req.variableExtraction,
         });
         setRequestNameForSave(req.name);
         setActiveRequestId(req.id);
@@ -407,6 +427,8 @@ export default function App() {
                 onUpdateHeader={updateHeader}
                 onRemoveHeader={removeHeader}
                 onReorderHeaders={setHeaders}
+                variableExtraction={variableExtraction}
+                onVariableExtractionChange={setVariableExtraction}
               />
 
               {/* Use the new ResponseDisplayPanel component */}
