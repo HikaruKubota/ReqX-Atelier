@@ -72,5 +72,13 @@
   "context_menu_copy_folder": "フォルダをコピー",
   "context_menu_delete_folder": "フォルダを削除",
   "delete_folder_confirm": "このフォルダとその中身をすべて削除してもよろしいですか？",
-  "folder_name_prompt": "フォルダ名を入力"
+  "folder_name_prompt": "フォルダ名を入力",
+  "tests_tab": "変数",
+  "extract_variables": "変数の抽出",
+  "extract_variables_desc": "レスポンスから値を抽出して変数として保存",
+  "add_extraction_rule": "+ 抽出ルールを追加",
+  "will_set_variable": "変数",
+  "from": "から設定",
+  "variable_name": "変数名",
+  "extract_from": "抽出元"
 }

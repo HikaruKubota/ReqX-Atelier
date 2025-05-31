@@ -1,5 +1,5 @@
 import { useCallback } from 'react';
-import type { SavedRequest, RequestEditorPanelRef, RequestHeader, KeyValuePair } from '../types';
+import type { SavedRequest, RequestEditorPanelRef, RequestHeader, KeyValuePair, VariableExtraction } from '../types';
 import { useVariablesStore } from '../store/variablesStore';
 
 export function useRequestActions({
@@ -8,6 +8,7 @@ export function useRequestActions({
   urlRef,
   headersRef,
   paramsRef,
+  variableExtractionRef,
   requestNameForSaveRef,
   setRequestNameForSave,
   activeRequestIdRef,
@@ -22,6 +23,7 @@ export function useRequestActions({
   urlRef: React.RefObject<string>;
   headersRef: React.RefObject<RequestHeader[]>;
   paramsRef: React.RefObject<KeyValuePair[]>;
+  variableExtractionRef?: React.RefObject<VariableExtraction | undefined>;
   requestNameForSaveRef: React.RefObject<string>;
   setRequestNameForSave: (name: string) => void;
   activeRequestIdRef: React.RefObject<string | null>;
@@ -111,6 +113,9 @@ export function useRequestActions({
     const currentActiveRequestId = activeRequestIdRef.current;
     const currentHeaders = headersRef.current;
 
+    const currentVariableExtraction = variableExtractionRef?.current;
+    console.log('[executeSaveRequest] variableExtraction:', currentVariableExtraction);
+
     const requestDataToSave: Omit<SavedRequest, 'id'> = {
       name: nameToSave,
       method: currentMethod,
@@ -118,7 +123,9 @@ export function useRequestActions({
       headers: currentHeaders,
       body: bodyFromEditor,
       params: paramsFromEditor,
+      variableExtraction: currentVariableExtraction,
     };
+    console.log('[executeSaveRequest] requestDataToSave:', requestDataToSave);
 
     if (currentActiveRequestId) {
       updateSavedRequest(currentActiveRequestId, requestDataToSave);
@@ -139,6 +146,8 @@ export function useRequestActions({
     activeRequestIdRef,
     headersRef,
     paramsRef,
+    variableExtractionRef,
+    editorPanelRef,
   ]);
 
   return { executeSendRequest, executeSaveRequest };
