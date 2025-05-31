@@ -136,7 +136,7 @@ export const useRequestEditor = (): RequestEditorState => {
       setVariableExtractionState(req.variableExtraction);
     },
     [headersManager, bodyManager, paramsManager],
-  ); // Add bodyManager to dependencies
+  );
 
   const resetEditor = useCallback(() => {
     setMethodState('GET');
@@ -147,7 +147,7 @@ export const useRequestEditor = (): RequestEditorState => {
     setActiveRequestIdState(null);
     setRequestNameForSaveState('');
     setVariableExtractionState(undefined);
-  }, [headersManager, bodyManager, paramsManager]); // Add bodyManager to dependencies
+  }, [headersManager, bodyManager, paramsManager]);
 
   return {
     method: methodState,

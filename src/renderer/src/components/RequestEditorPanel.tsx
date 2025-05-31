@@ -135,6 +135,7 @@ export const RequestEditorPanel = forwardRef<RequestEditorPanelRef, RequestEdito
               method={method}
               onChange={onBodyPairsChange}
               containerHeight={300}
+              activeRequestId={activeRequestId}
             />
           </div>
           {/* チラつきの抑制のためstyleにて表示切り替え対応 */}
@@ -144,6 +145,7 @@ export const RequestEditorPanel = forwardRef<RequestEditorPanelRef, RequestEdito
               initialParams={initialParams}
               onChange={onParamPairsChange}
               containerHeight={300}
+              activeRequestId={activeRequestId}
             />
           </div>
           {/* チラつきの抑制のためstyleにて表示切り替え対応 */}

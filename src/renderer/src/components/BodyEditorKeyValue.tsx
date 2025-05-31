@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useImperativeHandle, forwardRef, useCallback } from 'react';
+import React, { useState, useEffect, useImperativeHandle, forwardRef, useCallback, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { EnableAllButton } from './atoms/button/EnableAllButton';
 import { DisableAllButton } from './atoms/button/DisableAllButton';
@@ -16,12 +16,19 @@ interface BodyEditorKeyValueProps {
   onChange?: (pairs: KeyValuePair[]) => void;
   containerHeight?: number | string;
   addRowLabelKey?: string;
+  activeRequestId?: string | null;
 }
 
 export const BodyEditorKeyValue = forwardRef<BodyEditorKeyValueRef, BodyEditorKeyValueProps>(
-  ({ initialBody, method, onChange, containerHeight = 300, addRowLabelKey }, ref) => {
+  ({ initialBody, method, onChange, containerHeight = 300, addRowLabelKey, activeRequestId }, ref) => {
     const { t } = useTranslation();
-    const [body, setBody] = useState<KeyValuePair[]>([]);
+    const [body, setBody] = useState<KeyValuePair[]>(() => {
+      // Initialize with initialBody only on mount
+      if (method === 'GET' || method === 'HEAD') {
+        return [];
+      }
+      return initialBody || [];
+    });
     const [showImport, setShowImport] = useState(false);
     const [importText, setImportText] = useState('');
     const [importError, setImportError] = useState('');
@@ -29,21 +36,28 @@ export const BodyEditorKeyValue = forwardRef<BodyEditorKeyValueRef, BodyEditorKe
       restrictToParentElement,
       restrictToWindowEdges, // 端を少し越えたら慣性風に戻す
     ];
+    
+    // Track previous activeRequestId to detect changes
+    const prevActiveRequestIdRef = useRef<string | null | undefined>(activeRequestId);
 
     useEffect(() => {
+      // Only clear body when method changes to GET/HEAD
       if (method === 'GET' || method === 'HEAD') {
         if (body.length > 0) {
           setBody([]);
         }
-        return;
       }
-
-      if (initialBody && initialBody.length > 0) {
-        if (JSON.stringify(initialBody) !== JSON.stringify(body)) {
-          setBody(initialBody);
+    }, [method, body.length]);
+    
+    useEffect(() => {
+      // When activeRequestId changes, reset body to initialBody
+      if (activeRequestId !== prevActiveRequestIdRef.current) {
+        prevActiveRequestIdRef.current = activeRequestId;
+        if (method !== 'GET' && method !== 'HEAD') {
+          setBody(initialBody || []);
         }
       }
-    }, [initialBody, method]);
+    }, [activeRequestId, initialBody, method]);
 
     useEffect(() => {
       onChange?.(body);
