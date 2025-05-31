@@ -107,7 +107,7 @@ export const RequestEditorPanel = forwardRef<RequestEditorPanelRef, RequestEdito
         />
 
         <div className="flex flex-col gap-[5px]">
-          <div className="flex gap-2 mb-2">
+          <div className="flex mb-2">
             <TabButton active={activeTab === 'params'} onClick={() => setActiveTab('params')}>
               {t('param_tab')}
             </TabButton>
