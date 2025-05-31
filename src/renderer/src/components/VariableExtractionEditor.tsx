@@ -10,7 +10,10 @@ interface VariableExtractionEditorProps {
   onChange: (variableExtraction: VariableExtraction) => void;
 }
 
-export const VariableExtractionEditor: React.FC<VariableExtractionEditorProps> = ({ variableExtraction, onChange }) => {
+export const VariableExtractionEditor: React.FC<VariableExtractionEditorProps> = ({
+  variableExtraction,
+  onChange,
+}) => {
   const { t } = useTranslation();
   const [rules, setRules] = useState<ExtractionRule[]>(variableExtraction?.extractionRules || []);
 
@@ -37,27 +40,31 @@ export const VariableExtractionEditor: React.FC<VariableExtractionEditorProps> =
     });
   }, [rules, onChange, variableExtraction]);
 
-  const handleUpdateRule = useCallback((id: string, updates: Partial<ExtractionRule>) => {
-    const updatedRules = rules.map(rule => 
-      rule.id === id ? { ...rule, ...updates } : rule
-    );
-    setRules(updatedRules);
-    onChange({
-      extractionRules: updatedRules,
-      customScript: variableExtraction?.customScript || '',
-      enabled: variableExtraction?.enabled ?? true,
-    });
-  }, [rules, onChange, variableExtraction]);
+  const handleUpdateRule = useCallback(
+    (id: string, updates: Partial<ExtractionRule>) => {
+      const updatedRules = rules.map((rule) => (rule.id === id ? { ...rule, ...updates } : rule));
+      setRules(updatedRules);
+      onChange({
+        extractionRules: updatedRules,
+        customScript: variableExtraction?.customScript || '',
+        enabled: variableExtraction?.enabled ?? true,
+      });
+    },
+    [rules, onChange, variableExtraction],
+  );
 
-  const handleRemoveRule = useCallback((id: string) => {
-    const updatedRules = rules.filter(rule => rule.id !== id);
-    setRules(updatedRules);
-    onChange({
-      extractionRules: updatedRules,
-      customScript: variableExtraction?.customScript || '',
-      enabled: variableExtraction?.enabled ?? true,
-    });
-  }, [rules, onChange, variableExtraction]);
+  const handleRemoveRule = useCallback(
+    (id: string) => {
+      const updatedRules = rules.filter((rule) => rule.id !== id);
+      setRules(updatedRules);
+      onChange({
+        extractionRules: updatedRules,
+        customScript: variableExtraction?.customScript || '',
+        enabled: variableExtraction?.enabled ?? true,
+      });
+    },
+    [rules, onChange, variableExtraction],
+  );
 
   return (
     <div className="flex flex-col gap-4">
@@ -71,8 +78,12 @@ export const VariableExtractionEditor: React.FC<VariableExtractionEditorProps> =
 
         {rules.length > 0 && (
           <div className="grid grid-cols-2 gap-2 mb-2">
-            <div className="text-xs text-gray-600 dark:text-gray-400 font-medium">{t('variable_name') || 'Variable Name'}</div>
-            <div className="text-xs text-gray-600 dark:text-gray-400 font-medium">{t('extract_from') || 'Extract From'}</div>
+            <div className="text-xs text-gray-600 dark:text-gray-400 font-medium">
+              {t('variable_name') || 'Variable Name'}
+            </div>
+            <div className="text-xs text-gray-600 dark:text-gray-400 font-medium">
+              {t('extract_from') || 'Extract From'}
+            </div>
           </div>
         )}
 
@@ -132,8 +143,10 @@ const ExtractionRuleRow: React.FC<ExtractionRuleRowProps> = ({ rule, onUpdate, o
             onChange={(e) => onUpdate({ source: e.target.value as ExtractionSource })}
             className="text-sm"
           >
-            {sourceOptions.map(opt => (
-              <option key={opt.value} value={opt.value}>{opt.label}</option>
+            {sourceOptions.map((opt) => (
+              <option key={opt.value} value={opt.value}>
+                {opt.label}
+              </option>
             ))}
           </SelectBox>
           <SelectBox
@@ -141,14 +154,16 @@ const ExtractionRuleRow: React.FC<ExtractionRuleRowProps> = ({ rule, onUpdate, o
             onChange={(e) => onUpdate({ scope: e.target.value as VariableScope })}
             className="text-sm"
           >
-            {scopeOptions.map(opt => (
-              <option key={opt.value} value={opt.value}>{opt.label}</option>
+            {scopeOptions.map((opt) => (
+              <option key={opt.value} value={opt.value}>
+                {opt.label}
+              </option>
             ))}
           </SelectBox>
         </div>
         <TrashButton onClick={onRemove} />
       </div>
-      
+
       <div className="grid grid-cols-2 gap-2">
         <UnifiedInput
           value={rule.variableName}
@@ -159,7 +174,7 @@ const ExtractionRuleRow: React.FC<ExtractionRuleRowProps> = ({ rule, onUpdate, o
           className="text-sm"
         />
         <UnifiedInput
-          value={rule.source === 'header' ? (rule.headerName || '') : (rule.path || '')}
+          value={rule.source === 'header' ? rule.headerName || '' : rule.path || ''}
           onChange={(value) => {
             if (rule.source === 'header') {
               onUpdate({ headerName: value, path: undefined });
@@ -173,10 +188,15 @@ const ExtractionRuleRow: React.FC<ExtractionRuleRowProps> = ({ rule, onUpdate, o
           className="text-sm"
         />
       </div>
-      
-      {((rule.path || rule.headerName) && rule.variableName) && (
+
+      {(rule.path || rule.headerName) && rule.variableName && (
         <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-          {t('will_set_variable') || 'Will set'} <code className="bg-gray-200 dark:bg-gray-700 px-1 rounded">${rule.variableName}</code> {t('from') || 'from'} <code className="bg-gray-200 dark:bg-gray-700 px-1 rounded">{rule.source === 'header' ? rule.headerName : rule.path}</code>
+          {t('will_set_variable') || 'Will set'}{' '}
+          <code className="bg-gray-200 dark:bg-gray-700 px-1 rounded">${rule.variableName}</code>{' '}
+          {t('from') || 'from'}{' '}
+          <code className="bg-gray-200 dark:bg-gray-700 px-1 rounded">
+            {rule.source === 'header' ? rule.headerName : rule.path}
+          </code>
         </p>
       )}
     </div>

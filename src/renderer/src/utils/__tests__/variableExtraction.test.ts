@@ -19,10 +19,10 @@ describe('variableExtraction', () => {
           token: 'abc123',
           user: {
             id: 'user456',
-            name: 'John Doe'
-          }
+            name: 'John Doe',
+          },
         },
-        headers: {}
+        headers: {},
       };
 
       const variableExtraction: VariableExtraction = {
@@ -34,7 +34,7 @@ describe('variableExtraction', () => {
             path: '$.token',
             variableName: 'authToken',
             scope: 'environment',
-            enabled: true
+            enabled: true,
           },
           {
             id: '2',
@@ -42,10 +42,10 @@ describe('variableExtraction', () => {
             path: '$.user.id',
             variableName: 'userId',
             scope: 'global',
-            enabled: true
-          }
+            enabled: true,
+          },
         ],
-        customScript: ''
+        customScript: '',
       };
 
       const results = extractVariablesFromResponse(response, variableExtraction);
@@ -55,13 +55,13 @@ describe('variableExtraction', () => {
         variableName: 'authToken',
         value: 'abc123',
         scope: 'environment',
-        success: true
+        success: true,
       });
       expect(results[1]).toEqual({
         variableName: 'userId',
         value: 'user456',
         scope: 'global',
-        success: true
+        success: true,
       });
     });
 
@@ -69,7 +69,7 @@ describe('variableExtraction', () => {
       const response: ApiResult = {
         status: 200,
         data: { token: 'abc123' },
-        headers: {}
+        headers: {},
       };
 
       const variableExtraction: VariableExtraction = {
@@ -81,10 +81,10 @@ describe('variableExtraction', () => {
             path: '$.missingField',
             variableName: 'testVar',
             scope: 'environment',
-            enabled: true
-          }
+            enabled: true,
+          },
         ],
-        customScript: ''
+        customScript: '',
       };
 
       const results = extractVariablesFromResponse(response, variableExtraction);
@@ -100,8 +100,8 @@ describe('variableExtraction', () => {
         data: {},
         headers: {
           'X-Auth-Token': 'bearer123',
-          'Content-Type': 'application/json'
-        }
+          'Content-Type': 'application/json',
+        },
       };
 
       const variableExtraction: VariableExtraction = {
@@ -113,10 +113,10 @@ describe('variableExtraction', () => {
             headerName: 'X-Auth-Token',
             variableName: 'authHeader',
             scope: 'environment',
-            enabled: true
-          }
+            enabled: true,
+          },
         ],
-        customScript: ''
+        customScript: '',
       };
 
       const results = extractVariablesFromResponse(response, variableExtraction);
@@ -126,7 +126,7 @@ describe('variableExtraction', () => {
         variableName: 'authHeader',
         value: 'bearer123',
         scope: 'environment',
-        success: true
+        success: true,
       });
     });
 
@@ -134,7 +134,7 @@ describe('variableExtraction', () => {
       const response: ApiResult = {
         status: 200,
         data: { token: 'abc123' },
-        headers: {}
+        headers: {},
       };
 
       const variableExtraction: VariableExtraction = {
@@ -146,10 +146,10 @@ describe('variableExtraction', () => {
             path: '$.token',
             variableName: 'authToken',
             scope: 'environment',
-            enabled: false
-          }
+            enabled: false,
+          },
         ],
-        customScript: ''
+        customScript: '',
       };
 
       const results = extractVariablesFromResponse(response, variableExtraction);
@@ -163,13 +163,11 @@ describe('variableExtraction', () => {
       const mockStore = {
         globalVariables: {},
         activeEnvironmentId: 'dev',
-        environments: [
-          { id: 'dev', name: 'Development', variables: {} }
-        ],
+        environments: [{ id: 'dev', name: 'Development', variables: {} }],
         addGlobalVariable: vi.fn(),
         updateGlobalVariable: vi.fn(),
         addEnvironmentVariable: vi.fn(),
-        updateEnvironmentVariable: vi.fn()
+        updateEnvironmentVariable: vi.fn(),
       };
 
       (useVariablesStore.getState as ReturnType<typeof vi.fn>).mockReturnValue(mockStore);
@@ -179,14 +177,14 @@ describe('variableExtraction', () => {
           variableName: 'token',
           value: 'abc123',
           scope: 'environment' as const,
-          success: true
+          success: true,
         },
         {
           variableName: 'apiUrl',
           value: 'https://api.example.com',
           scope: 'global' as const,
-          success: true
-        }
+          success: true,
+        },
       ];
 
       applyExtractedVariables(results);
@@ -195,14 +193,14 @@ describe('variableExtraction', () => {
         name: 'token',
         value: 'abc123',
         enabled: true,
-        secure: false
+        secure: false,
       });
 
       expect(mockStore.addGlobalVariable).toHaveBeenCalledWith({
         name: 'apiUrl',
         value: 'https://api.example.com',
         enabled: true,
-        secure: false
+        secure: false,
       });
     });
   });

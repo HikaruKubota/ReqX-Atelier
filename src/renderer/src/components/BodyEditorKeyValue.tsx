@@ -75,7 +75,7 @@ export const BodyEditorKeyValue = forwardRef<BodyEditorKeyValueRef, BodyEditorKe
       } catch {
         return false;
       }
-    }, []);
+    }, [setBody]);
 
     useImperativeHandle(ref, () => ({
       getCurrentBodyAsJson: () => {

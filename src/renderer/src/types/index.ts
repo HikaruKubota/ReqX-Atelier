@@ -162,8 +162,8 @@ export type VariableScope = 'global' | 'environment';
 export interface ExtractionRule {
   id: string;
   source: ExtractionSource;
-  path?: string;        // JSONPath or regex for body extraction
-  headerName?: string;  // for header source
+  path?: string; // JSONPath or regex for body extraction
+  headerName?: string; // for header source
   variableName: string;
   scope: VariableScope;
   enabled: boolean;

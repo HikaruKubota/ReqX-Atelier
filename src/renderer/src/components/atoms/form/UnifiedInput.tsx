@@ -2,7 +2,8 @@ import React from 'react';
 import clsx from 'clsx';
 import { VariableInput } from '../VariableInput';
 
-export interface UnifiedInputProps extends Omit<React.InputHTMLAttributes<HTMLInputElement>, 'onChange' | 'type'> {
+export interface UnifiedInputProps
+  extends Omit<React.InputHTMLAttributes<HTMLInputElement>, 'onChange' | 'type'> {
   /** Value of the input */
   value: string;
   /** Change handler */
@@ -39,7 +40,7 @@ export const UnifiedInput: React.FC<UnifiedInputProps> = ({
     {
       'p-2': variant === 'default',
       'p-2 text-sm': variant === 'compact',
-    }
+    },
   );
 
   const focusStyles = showFocusRing

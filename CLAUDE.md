@@ -47,10 +47,12 @@ npm run e2e
 ## Architecture
 
 ### Process Communication
+
 - **Main Process** (`main.js`): Handles IPC communication and makes actual HTTP requests to bypass CORS
 - **Renderer Process** (`src/renderer/`): React application that sends API requests via IPC
 
 ### Component Structure
+
 ```
 src/renderer/src/components/
 ├── atoms/       # Basic UI elements (buttons, inputs, modals)
@@ -60,17 +62,20 @@ src/renderer/src/components/
 ```
 
 ### State Management
+
 - **Zustand stores** in `src/store/`:
   - `savedRequestsStore.ts`: Manages saved API requests
   - `themeStore.ts`: Handles dark/light theme switching
 
 ### Key Features Implementation
+
 - **API Requests**: Frontend sends request data via IPC to main process, which executes the actual HTTP request
 - **Request Collections**: Tree structure with folders and requests, drag-and-drop support
 - **Tab Management**: Multiple request tabs with keyboard shortcuts
 - **Response Display**: Formatted JSON, headers, and status information
 
 ### API Communication Flow
+
 1. UI components use `src/renderer/src/api.ts` to send requests
 2. Main process (`main.js`) receives IPC messages and makes HTTP calls with Axios
 3. Response is handled by `useApiResponseHandler` hook
@@ -84,6 +89,7 @@ src/renderer/src/components/
 - **E2E Tests**: Playwright
 
 Always run tests before committing changes:
+
 ```bash
 npm run test
 npm run lint
@@ -101,7 +107,16 @@ npm run typecheck
 - **First-time E2E setup**: Run `npx playwright install` before running E2E tests
 
 # important-instruction-reminders
+
 Do what has been asked; nothing more, nothing less.
 NEVER create files unless they're absolutely necessary for achieving your goal.
 ALWAYS prefer editing an existing file to creating a new one.
-NEVER proactively create documentation files (*.md) or README files. Only create documentation files if explicitly requested by the User.
+NEVER proactively create documentation files (\*.md) or README files. Only create documentation files if explicitly requested by the User.
+
+Always run tests before committing changes:
+
+```bash
+npm run test
+npm run lint
+npm run typecheck
+```
