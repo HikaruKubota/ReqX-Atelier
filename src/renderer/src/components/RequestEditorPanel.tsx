@@ -76,10 +76,12 @@ export const RequestEditorPanel = forwardRef<RequestEditorPanelRef, RequestEdito
         return bodyEditorRef.current?.getCurrentBodyAsJson() || '';
       },
       getBody: () => {
-        return bodyEditorRef.current?.getCurrentKeyValuePairs() || [];
+        // Return the controlled value directly from props
+        return initialBody || [];
       },
       getParams: () => {
-        return paramsEditorRef.current?.getCurrentKeyValuePairs() || [];
+        // Return the controlled value directly from props
+        return initialParams || [];
       },
     }));
 
@@ -135,7 +137,6 @@ export const RequestEditorPanel = forwardRef<RequestEditorPanelRef, RequestEdito
               method={method}
               onChange={onBodyPairsChange}
               containerHeight={300}
-              activeRequestId={activeRequestId}
             />
           </div>
           {/* チラつきの抑制のためstyleにて表示切り替え対応 */}
@@ -145,7 +146,6 @@ export const RequestEditorPanel = forwardRef<RequestEditorPanelRef, RequestEdito
               value={initialParams}
               onChange={onParamPairsChange}
               containerHeight={300}
-              activeRequestId={activeRequestId}
             />
           </div>
           {/* チラつきの抑制のためstyleにて表示切り替え対応 */}

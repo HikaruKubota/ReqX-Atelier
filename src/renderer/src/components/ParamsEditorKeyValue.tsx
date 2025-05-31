@@ -7,11 +7,10 @@ interface ParamsEditorKeyValueProps {
   initialParams?: KeyValuePair[]; // Deprecated: use value instead
   onChange?: (pairs: KeyValuePair[]) => void;
   containerHeight?: number | string;
-  activeRequestId?: string | null;
 }
 
 export const ParamsEditorKeyValue = forwardRef<BodyEditorKeyValueRef, ParamsEditorKeyValueProps>(
-  ({ value, initialParams, onChange, containerHeight = 300, activeRequestId }, ref) => (
+  ({ value, initialParams, onChange, containerHeight = 300 }, ref) => (
     <BodyEditorKeyValue
       ref={ref}
       value={value || initialParams}
@@ -19,7 +18,6 @@ export const ParamsEditorKeyValue = forwardRef<BodyEditorKeyValueRef, ParamsEdit
       onChange={onChange}
       containerHeight={containerHeight}
       addRowLabelKey="add_param_row"
-      activeRequestId={activeRequestId}
     />
   ),
 );

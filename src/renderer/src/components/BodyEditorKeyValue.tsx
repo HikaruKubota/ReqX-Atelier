@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useImperativeHandle, forwardRef, useCallback, useRef } from 'react';
+import React, { useState, useEffect, useImperativeHandle, forwardRef, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { EnableAllButton } from './atoms/button/EnableAllButton';
 import { DisableAllButton } from './atoms/button/DisableAllButton';
@@ -17,11 +17,10 @@ interface BodyEditorKeyValueProps {
   onChange?: (pairs: KeyValuePair[]) => void;
   containerHeight?: number | string;
   addRowLabelKey?: string;
-  activeRequestId?: string | null;
 }
 
 export const BodyEditorKeyValue = forwardRef<BodyEditorKeyValueRef, BodyEditorKeyValueProps>(
-  ({ value, initialBody, method, onChange, containerHeight = 300, addRowLabelKey, activeRequestId }, ref) => {
+  ({ value, initialBody, method, onChange, containerHeight = 300, addRowLabelKey }, ref) => {
     const { t } = useTranslation();
     
     // Support both controlled (value) and uncontrolled (initialBody) modes
@@ -50,9 +49,6 @@ export const BodyEditorKeyValue = forwardRef<BodyEditorKeyValueRef, BodyEditorKe
       restrictToWindowEdges, // 端を少し越えたら慣性風に戻す
     ];
     
-    // Track previous activeRequestId to detect changes
-    const prevActiveRequestIdRef = useRef<string | null | undefined>(activeRequestId);
-
     useEffect(() => {
       // Only clear body when method changes to GET/HEAD
       if (method === 'GET' || method === 'HEAD') {
@@ -61,16 +57,6 @@ export const BodyEditorKeyValue = forwardRef<BodyEditorKeyValueRef, BodyEditorKe
         }
       }
     }, [method, body.length, setBody]);
-    
-    useEffect(() => {
-      // When activeRequestId changes and in uncontrolled mode, reset to initialBody
-      if (!isControlled && activeRequestId !== prevActiveRequestIdRef.current) {
-        prevActiveRequestIdRef.current = activeRequestId;
-        if (method !== 'GET' && method !== 'HEAD') {
-          setInternalBody(initialBody || []);
-        }
-      }
-    }, [activeRequestId, initialBody, method, isControlled]);
 
     const importFromJson = useCallback((json: string): boolean => {
       try {
