@@ -128,7 +128,7 @@ describe('UnifiedInput', () => {
     );
 
     input = screen.getByPlaceholderText('Compact variant');
-    expect(input).toHaveClass('px-3', 'py-2', 'text-sm');
+    expect(input).toHaveClass('p-2', 'text-sm');
   });
 
   it('supports different input types', () => {
