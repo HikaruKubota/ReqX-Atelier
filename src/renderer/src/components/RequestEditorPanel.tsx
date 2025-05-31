@@ -69,7 +69,9 @@ export const RequestEditorPanel = forwardRef<RequestEditorPanelRef, RequestEdito
     const { t } = useTranslation();
     const bodyEditorRef = useRef<BodyEditorKeyValueRef>(null);
     const paramsEditorRef = useRef<BodyEditorKeyValueRef>(null);
-    const [activeTab, setActiveTab] = React.useState<'headers' | 'body' | 'params' | 'tests'>('headers');
+    const [activeTab, setActiveTab] = React.useState<'headers' | 'body' | 'params' | 'tests'>(
+      'headers',
+    );
 
     useImperativeHandle(ref, () => ({
       getRequestBodyAsJson: () => {

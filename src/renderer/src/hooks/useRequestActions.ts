@@ -1,5 +1,11 @@
 import { useCallback } from 'react';
-import type { SavedRequest, RequestEditorPanelRef, RequestHeader, KeyValuePair, VariableExtraction } from '../types';
+import type {
+  SavedRequest,
+  RequestEditorPanelRef,
+  RequestHeader,
+  KeyValuePair,
+  VariableExtraction,
+} from '../types';
 import { useVariablesStore } from '../store/variablesStore';
 
 export function useRequestActions({
@@ -41,25 +47,28 @@ export function useRequestActions({
   const getResolvedVariables = useVariablesStore((state) => state.getResolvedVariables);
 
   // Helper function to resolve variables in a string
-  const resolveVariablesInString = useCallback((str: string): string => {
-    const variables = getResolvedVariables();
-    
-    const resolved = str.replace(/\$\{([^}]+)\}/g, (match, varName) => {
-      const variable = variables[varName];
-      if (!variable) {
-        return match;
-      }
-      return variable.value;
-    });
-    
-    return resolved;
-  }, [getResolvedVariables]);
+  const resolveVariablesInString = useCallback(
+    (str: string): string => {
+      const variables = getResolvedVariables();
+
+      const resolved = str.replace(/\$\{([^}]+)\}/g, (match, varName) => {
+        const variable = variables[varName];
+        if (!variable) {
+          return match;
+        }
+        return variable.value;
+      });
+
+      return resolved;
+    },
+    [getResolvedVariables],
+  );
 
   // リクエスト送信
   const executeSendRequest = useCallback(async () => {
     // Resolve variables in the URL first
     const resolvedUrl = resolveVariablesInString(urlRef.current);
-    
+
     // Resolve variables in query parameters
     const queryString = paramsRef.current
       .filter((p) => p.enabled && p.keyName.trim() !== '')
@@ -69,11 +78,11 @@ export function useRequestActions({
         return `${encodeURIComponent(resolvedKey)}=${encodeURIComponent(resolvedValue)}`;
       })
       .join('&');
-    
+
     const urlWithParams = queryString
       ? `${resolvedUrl}${resolvedUrl.includes('?') ? '&' : '?'}${queryString}`
       : resolvedUrl;
-    
+
     // Resolve variables in headers
     const activeHeaders = headersRef.current
       .filter((h) => h.enabled && h.key.trim() !== '')
@@ -86,18 +95,26 @@ export function useRequestActions({
         },
         {} as Record<string, string>,
       );
-    
+
     // Resolve variables in request body
     let resolvedBody = editorPanelRef.current?.getRequestBodyAsJson() || '';
     if (resolvedBody) {
       resolvedBody = resolveVariablesInString(resolvedBody);
     }
-    
+
     await executeRequest(methodRef.current, urlWithParams, resolvedBody, activeHeaders);
     if (resetDirtyState) {
       resetDirtyState(); // Reset dirty state after sending request
     }
-  }, [executeRequest, headersRef, methodRef, urlRef, paramsRef, resetDirtyState, resolveVariablesInString]);
+  }, [
+    executeRequest,
+    headersRef,
+    methodRef,
+    urlRef,
+    paramsRef,
+    resetDirtyState,
+    resolveVariablesInString,
+  ]);
 
   // リクエスト保存
   const executeSaveRequest = useCallback((): string => {

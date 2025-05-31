@@ -131,7 +131,16 @@ export const useSavedRequestsStore = create<SavedRequestsState>()(
             if (r.id !== id) return r;
             const bodyPairs = updated.body ?? r.body;
             const paramPairs = updated.params ?? r.params;
-            return { ...r, ...updated, body: bodyPairs, params: paramPairs, variableExtraction: updated.variableExtraction !== undefined ? updated.variableExtraction : r.variableExtraction };
+            return {
+              ...r,
+              ...updated,
+              body: bodyPairs,
+              params: paramPairs,
+              variableExtraction:
+                updated.variableExtraction !== undefined
+                  ? updated.variableExtraction
+                  : r.variableExtraction,
+            };
           }),
         });
       },
@@ -186,7 +195,11 @@ export const useSavedRequestsStore = create<SavedRequestsState>()(
             const req = findRequest(rid);
             if (req) {
               const newReqId = genRequestId();
-              const reqCopy: SavedRequest = { ...req, id: newReqId, variableExtraction: req.variableExtraction };
+              const reqCopy: SavedRequest = {
+                ...req,
+                id: newReqId,
+                variableExtraction: req.variableExtraction,
+              };
               newRequests.push(reqCopy);
               folderCopy.requestIds.push(newReqId);
             }

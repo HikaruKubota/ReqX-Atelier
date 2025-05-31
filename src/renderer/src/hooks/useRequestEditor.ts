@@ -37,7 +37,9 @@ export const useRequestEditor = (): RequestEditorState => {
     activeRequestIdRef.current = val;
   }, []);
 
-  const [variableExtractionState, setVariableExtractionState] = useState<VariableExtraction | undefined>(undefined);
+  const [variableExtractionState, setVariableExtractionState] = useState<
+    VariableExtraction | undefined
+  >(undefined);
   const variableExtractionRef = useRef(variableExtractionState);
   const setVariableExtraction = useCallback((val: VariableExtraction | undefined) => {
     setVariableExtractionState(val);
@@ -99,9 +101,12 @@ export const useRequestEditor = (): RequestEditorState => {
       const prev = paramsManager.paramsRef.current;
       const isSame =
         prev.length === next.length &&
-        prev.every((p, i) => p.enabled === next[i].enabled &&
-                             p.keyName === next[i].keyName &&
-                             p.value === next[i].value);
+        prev.every(
+          (p, i) =>
+            p.enabled === next[i].enabled &&
+            p.keyName === next[i].keyName &&
+            p.value === next[i].value,
+        );
       if (isSame) return;
 
       fromUrlRef.current = true;
