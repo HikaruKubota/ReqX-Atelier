@@ -16,12 +16,16 @@ import { TabBar } from './components/organisms/TabBar';
 import { ShortcutsGuide } from './components/organisms/ShortcutsGuide';
 import { RequestEditorPanelRef } from './types'; // Import the RequestHeader type
 import { Toast } from './components/atoms/toast/Toast';
+import { EnvironmentSelector } from './components/EnvironmentSelector';
+import { VariablesButton } from './components/VariablesButton';
+import { VariablesPanel } from './components/VariablesPanel';
 
 export default function App() {
   const { t } = useTranslation();
   const editorPanelRef = useRef<RequestEditorPanelRef>(null); // Create a ref
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [saveToastOpen, setSaveToastOpen] = useState(false);
+  const [variablesPanelOpen, setVariablesPanelOpen] = useState(false);
 
   // Use the new custom hook for request editor state and logic
   const {
@@ -373,7 +377,9 @@ export default function App() {
             overflowY: 'auto',
           }}
         >
-          <div style={{ alignSelf: 'flex-end' }}>
+          <div style={{ alignSelf: 'flex-end', display: 'flex', gap: '10px' }}>
+            <EnvironmentSelector />
+            <VariablesButton onClick={() => setVariablesPanelOpen(true)} />
             <ThemeToggleButton />
           </div>
           {tabs.tabs.length === 0 ? (
@@ -418,6 +424,10 @@ export default function App() {
         message={t('save_success')}
         isOpen={saveToastOpen}
         onClose={() => setSaveToastOpen(false)}
+      />
+      <VariablesPanel
+        isOpen={variablesPanelOpen}
+        onClose={() => setVariablesPanelOpen(false)}
       />
     </div>
   );

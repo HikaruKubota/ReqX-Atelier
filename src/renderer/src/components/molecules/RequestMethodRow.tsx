@@ -1,8 +1,8 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { SelectBox } from '../atoms/form/SelectBox';
-import { TextInput } from '../atoms/form/TextInput';
 import { SendButton } from '../atoms/button/SendButton';
+import { UnifiedInput } from '../atoms/form/UnifiedInput';
 
 const METHODS = ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'HEAD', 'OPTIONS'];
 
@@ -25,7 +25,7 @@ export const RequestMethodRow: React.FC<RequestMethodRowProps> = ({
 }) => {
   const { t } = useTranslation();
   return (
-    <div className="flex items-center gap-2">
+    <div className="flex items-center gap-2 mb-6">
       <SelectBox value={method} onChange={(e) => onMethodChange(e.target.value)}>
         {METHODS.map((m) => (
           <option key={m} value={m}>
@@ -33,12 +33,13 @@ export const RequestMethodRow: React.FC<RequestMethodRowProps> = ({
           </option>
         ))}
       </SelectBox>
-      <TextInput
-        type="text"
-        placeholder={t('request_url_placeholder')}
+      <UnifiedInput
         value={url}
-        onChange={(e) => onUrlChange(e.target.value)}
+        onChange={onUrlChange}
+        placeholder={t('request_url_placeholder')}
         className="flex-grow"
+        enableVariables={true}
+        variant="compact"
       />
       <SendButton onClick={onSend} disabled={loading} loading={loading} />
     </div>

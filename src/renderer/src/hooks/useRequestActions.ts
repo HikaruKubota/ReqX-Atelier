@@ -1,5 +1,6 @@
 import { useCallback } from 'react';
 import type { SavedRequest, RequestEditorPanelRef, RequestHeader, KeyValuePair } from '../types';
+import { useVariablesStore } from '../store/variablesStore';
 
 export function useRequestActions({
   editorPanelRef,
@@ -35,30 +36,66 @@ export function useRequestActions({
   ) => Promise<void>;
   resetDirtyState?: () => void;
 }) {
+  const getResolvedVariables = useVariablesStore((state) => state.getResolvedVariables);
+
+  // Helper function to resolve variables in a string
+  const resolveVariablesInString = useCallback((str: string): string => {
+    const variables = getResolvedVariables();
+    
+    const resolved = str.replace(/\$\{([^}]+)\}/g, (match, varName) => {
+      const variable = variables[varName];
+      if (!variable) {
+        return match;
+      }
+      return variable.value;
+    });
+    
+    return resolved;
+  }, [getResolvedVariables]);
+
   // リクエスト送信
   const executeSendRequest = useCallback(async () => {
-    const currentBuiltRequestBody = editorPanelRef.current?.getRequestBodyAsJson() || '';
+    // Resolve variables in the URL first
+    const resolvedUrl = resolveVariablesInString(urlRef.current);
+    
+    // Resolve variables in query parameters
     const queryString = paramsRef.current
       .filter((p) => p.enabled && p.keyName.trim() !== '')
-      .map((p) => `${encodeURIComponent(p.keyName)}=${encodeURIComponent(p.value)}`)
+      .map((p) => {
+        const resolvedKey = resolveVariablesInString(p.keyName);
+        const resolvedValue = resolveVariablesInString(p.value);
+        return `${encodeURIComponent(resolvedKey)}=${encodeURIComponent(resolvedValue)}`;
+      })
       .join('&');
+    
     const urlWithParams = queryString
-      ? `${urlRef.current}${urlRef.current.includes('?') ? '&' : '?'}${queryString}`
-      : urlRef.current;
+      ? `${resolvedUrl}${resolvedUrl.includes('?') ? '&' : '?'}${queryString}`
+      : resolvedUrl;
+    
+    // Resolve variables in headers
     const activeHeaders = headersRef.current
       .filter((h) => h.enabled && h.key.trim() !== '')
       .reduce(
         (acc, h) => {
-          acc[h.key] = h.value;
+          const resolvedKey = resolveVariablesInString(h.key);
+          const resolvedValue = resolveVariablesInString(h.value);
+          acc[resolvedKey] = resolvedValue;
           return acc;
         },
         {} as Record<string, string>,
       );
-    await executeRequest(methodRef.current, urlWithParams, currentBuiltRequestBody, activeHeaders);
+    
+    // Resolve variables in request body
+    let resolvedBody = editorPanelRef.current?.getRequestBodyAsJson() || '';
+    if (resolvedBody) {
+      resolvedBody = resolveVariablesInString(resolvedBody);
+    }
+    
+    await executeRequest(methodRef.current, urlWithParams, resolvedBody, activeHeaders);
     if (resetDirtyState) {
       resetDirtyState(); // Reset dirty state after sending request
     }
-  }, [executeRequest, headersRef, methodRef, urlRef, paramsRef, resetDirtyState]);
+  }, [executeRequest, headersRef, methodRef, urlRef, paramsRef, resetDirtyState, resolveVariablesInString]);
 
   // リクエスト保存
   const executeSaveRequest = useCallback((): string => {

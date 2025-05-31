@@ -39,7 +39,7 @@ describe('Modal', () => {
         <div>content</div>
       </Modal>,
     );
-    const panel = document.querySelector('.max-w-xl');
+    const panel = document.querySelector('.max-w-6xl');
     expect(panel).toBeTruthy();
   });
 });
