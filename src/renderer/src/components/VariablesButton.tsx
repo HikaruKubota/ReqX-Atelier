@@ -1,7 +1,7 @@
-import React from 'react'
+import React from 'react';
 
 interface VariablesButtonProps {
-  onClick: () => void
+  onClick: () => void;
 }
 
 export const VariablesButton: React.FC<VariablesButtonProps> = ({ onClick }) => {
@@ -13,5 +13,5 @@ export const VariablesButton: React.FC<VariablesButtonProps> = ({ onClick }) => 
     >
       <span className="text-lg font-mono">{'{x}'}</span>
     </button>
-  )
-}
+  );
+};

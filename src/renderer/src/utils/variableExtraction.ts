@@ -12,7 +12,7 @@ export interface ExtractionResult {
 
 export function extractVariablesFromResponse(
   response: ApiResult,
-  variableExtraction: VariableExtraction | undefined
+  variableExtraction: VariableExtraction | undefined,
 ): ExtractionResult[] {
   if (!variableExtraction?.enabled || !variableExtraction.extractionRules.length) {
     return [];
@@ -38,7 +38,7 @@ export function extractVariablesFromResponse(
               path: rule.path,
               json: response.data,
             });
-            
+
             if (values.length > 0) {
               // Take the first match
               result.value = typeof values[0] === 'string' ? values[0] : JSON.stringify(values[0]);
@@ -49,7 +49,7 @@ export function extractVariablesFromResponse(
           }
           break;
         }
-        
+
         case 'header': {
           if (rule.headerName && response.headers) {
             const headerValue = response.headers[rule.headerName];
@@ -62,7 +62,7 @@ export function extractVariablesFromResponse(
           }
           break;
         }
-        
+
         case 'status': {
           if (response.status) {
             result.value = String(response.status);
@@ -70,7 +70,7 @@ export function extractVariablesFromResponse(
           }
           break;
         }
-        
+
         // Other sources can be implemented later
         default:
           result.error = `Source type not implemented: ${rule.source}`;
@@ -87,7 +87,12 @@ export function extractVariablesFromResponse(
 
 export function applyExtractedVariables(results: ExtractionResult[]): void {
   const store = useVariablesStore.getState();
-  const { addGlobalVariable, updateGlobalVariable, addEnvironmentVariable, updateEnvironmentVariable } = store;
+  const {
+    addGlobalVariable,
+    updateGlobalVariable,
+    addEnvironmentVariable,
+    updateEnvironmentVariable,
+  } = store;
   const activeEnvironmentId = store.activeEnvironmentId;
 
   for (const result of results) {
@@ -108,10 +113,12 @@ export function applyExtractedVariables(results: ExtractionResult[]): void {
         addGlobalVariable(variable);
       }
     } else if (result.scope === 'environment' && activeEnvironmentId) {
-      const activeEnv = store.environments.find(env => env.id === activeEnvironmentId);
+      const activeEnv = store.environments.find((env) => env.id === activeEnvironmentId);
       if (activeEnv) {
         if (activeEnv.variables[result.variableName]) {
-          updateEnvironmentVariable(activeEnvironmentId, result.variableName, { value: result.value });
+          updateEnvironmentVariable(activeEnvironmentId, result.variableName, {
+            value: result.value,
+          });
         } else {
           addEnvironmentVariable(activeEnvironmentId, variable);
         }
