@@ -2,7 +2,7 @@ import { useState, useCallback, useRef, useEffect } from 'react';
 import { useHeadersManager } from './useHeadersManager';
 import { useBodyManager } from './useBodyManager';
 import { useParamsManager } from './useParamsManager';
-import type { SavedRequest, RequestEditorState, KeyValuePair } from '../types';
+import type { SavedRequest, RequestEditorState, KeyValuePair, VariableExtraction } from '../types';
 
 // RequestEditorState now inherits from both manager returns, excluding conflicting/internal methods
 
@@ -35,6 +35,15 @@ export const useRequestEditor = (): RequestEditorState => {
   const setActiveRequestId = useCallback((val: string | null) => {
     setActiveRequestIdState(val);
     activeRequestIdRef.current = val;
+  }, []);
+
+  const [variableExtractionState, setVariableExtractionState] = useState<
+    VariableExtraction | undefined
+  >(undefined);
+  const variableExtractionRef = useRef(variableExtractionState);
+  const setVariableExtraction = useCallback((val: VariableExtraction | undefined) => {
+    setVariableExtractionState(val);
+    variableExtractionRef.current = val;
   }, []);
 
   const headersManager = useHeadersManager();
@@ -72,6 +81,9 @@ export const useRequestEditor = (): RequestEditorState => {
   useEffect(() => {
     activeRequestIdRef.current = activeRequestIdState;
   }, [activeRequestIdState]);
+  useEffect(() => {
+    variableExtractionRef.current = variableExtractionState;
+  }, [variableExtractionState]);
 
   // URLに上書きされたクエリストリングをパラメーターへ反映
   useEffect(() => {
@@ -89,9 +101,12 @@ export const useRequestEditor = (): RequestEditorState => {
       const prev = paramsManager.paramsRef.current;
       const isSame =
         prev.length === next.length &&
-        prev.every((p, i) => p.enabled === next[i].enabled &&
-                             p.keyName === next[i].keyName &&
-                             p.value === next[i].value);
+        prev.every(
+          (p, i) =>
+            p.enabled === next[i].enabled &&
+            p.keyName === next[i].keyName &&
+            p.value === next[i].value,
+        );
       if (isSame) return;
 
       fromUrlRef.current = true;
@@ -123,9 +138,10 @@ export const useRequestEditor = (): RequestEditorState => {
       headersManager.loadHeaders(req.headers || []);
       setActiveRequestIdState(req.id);
       setRequestNameForSaveState(req.name);
+      setVariableExtractionState(req.variableExtraction);
     },
     [headersManager, bodyManager, paramsManager],
-  ); // Add bodyManager to dependencies
+  );
 
   const resetEditor = useCallback(() => {
     setMethodState('GET');
@@ -135,7 +151,8 @@ export const useRequestEditor = (): RequestEditorState => {
     headersManager.resetHeaders();
     setActiveRequestIdState(null);
     setRequestNameForSaveState('');
-  }, [headersManager, bodyManager, paramsManager]); // Add bodyManager to dependencies
+    setVariableExtractionState(undefined);
+  }, [headersManager, bodyManager, paramsManager]);
 
   return {
     method: methodState,
@@ -155,6 +172,9 @@ export const useRequestEditor = (): RequestEditorState => {
     requestNameForSaveRef,
     activeRequestIdRef,
     // headersRef is part of headersManager
+    variableExtraction: variableExtractionState,
+    setVariableExtraction,
+    variableExtractionRef,
     loadRequest,
     resetEditor,
   };

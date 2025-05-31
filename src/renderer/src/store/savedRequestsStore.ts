@@ -73,6 +73,7 @@ const migrateRequests = (stored: unknown): SavedRequest[] => {
         params: Array.isArray((req as SavedRequest).params)
           ? ((req as SavedRequest).params as KeyValuePair[])
           : [],
+        variableExtraction: (req as SavedRequest).variableExtraction,
       } as SavedRequest;
     });
   } catch {
@@ -119,6 +120,7 @@ export const useSavedRequestsStore = create<SavedRequestsState>()(
           headers: req.headers || [],
           body: bodyPairs,
           params: paramPairs,
+          variableExtraction: req.variableExtraction,
         };
         set({ savedRequests: [...get().savedRequests, newReq] });
         return newId;
@@ -129,7 +131,16 @@ export const useSavedRequestsStore = create<SavedRequestsState>()(
             if (r.id !== id) return r;
             const bodyPairs = updated.body ?? r.body;
             const paramPairs = updated.params ?? r.params;
-            return { ...r, ...updated, body: bodyPairs, params: paramPairs };
+            return {
+              ...r,
+              ...updated,
+              body: bodyPairs,
+              params: paramPairs,
+              variableExtraction:
+                updated.variableExtraction !== undefined
+                  ? updated.variableExtraction
+                  : r.variableExtraction,
+            };
           }),
         });
       },
@@ -144,6 +155,7 @@ export const useSavedRequestsStore = create<SavedRequestsState>()(
           ...original,
           id: newId,
           name: `${original.name} copy`,
+          variableExtraction: original.variableExtraction,
         };
         set({ savedRequests: [...get().savedRequests, copy] });
         return newId;
@@ -183,7 +195,11 @@ export const useSavedRequestsStore = create<SavedRequestsState>()(
             const req = findRequest(rid);
             if (req) {
               const newReqId = genRequestId();
-              const reqCopy: SavedRequest = { ...req, id: newReqId };
+              const reqCopy: SavedRequest = {
+                ...req,
+                id: newReqId,
+                variableExtraction: req.variableExtraction,
+              };
               newRequests.push(reqCopy);
               folderCopy.requestIds.push(newReqId);
             }

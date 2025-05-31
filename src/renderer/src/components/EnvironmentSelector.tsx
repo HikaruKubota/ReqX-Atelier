@@ -1,53 +1,49 @@
-import React, { useState, useRef, useEffect } from 'react'
-import { useVariablesStore } from '../store/variablesStore'
-import { IoChevronDown } from 'react-icons/io5'
+import React, { useState, useRef, useEffect } from 'react';
+import { useVariablesStore } from '../store/variablesStore';
+import { IoChevronDown } from 'react-icons/io5';
 
 export const EnvironmentSelector: React.FC = () => {
-  const [isOpen, setIsOpen] = useState(false)
-  const [showAddEnvironment, setShowAddEnvironment] = useState(false)
-  const [newEnvironmentName, setNewEnvironmentName] = useState('')
-  const dropdownRef = useRef<HTMLDivElement>(null)
-  
-  const {
-    environments,
-    activeEnvironmentId,
-    setActiveEnvironment,
-    addEnvironment
-  } = useVariablesStore()
+  const [isOpen, setIsOpen] = useState(false);
+  const [showAddEnvironment, setShowAddEnvironment] = useState(false);
+  const [newEnvironmentName, setNewEnvironmentName] = useState('');
+  const dropdownRef = useRef<HTMLDivElement>(null);
 
-  const activeEnvironment = environments.find(env => env.id === activeEnvironmentId)
+  const { environments, activeEnvironmentId, setActiveEnvironment, addEnvironment } =
+    useVariablesStore();
+
+  const activeEnvironment = environments.find((env) => env.id === activeEnvironmentId);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
-        setIsOpen(false)
-        setShowAddEnvironment(false)
+        setIsOpen(false);
+        setShowAddEnvironment(false);
       }
-    }
+    };
 
-    document.addEventListener('mousedown', handleClickOutside)
-    return () => document.removeEventListener('mousedown', handleClickOutside)
-  }, [])
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   const handleSelectEnvironment = (environmentId: string) => {
-    setActiveEnvironment(environmentId)
-    setIsOpen(false)
-  }
+    setActiveEnvironment(environmentId);
+    setIsOpen(false);
+  };
 
   const handleAddEnvironment = (e: React.FormEvent) => {
-    e.preventDefault()
+    e.preventDefault();
     if (newEnvironmentName.trim()) {
-      const newId = newEnvironmentName.toLowerCase().replace(/\s+/g, '-')
+      const newId = newEnvironmentName.toLowerCase().replace(/\s+/g, '-');
       addEnvironment({
         id: newId,
         name: newEnvironmentName.trim(),
-        variables: {}
-      })
-      setNewEnvironmentName('')
-      setShowAddEnvironment(false)
-      setActiveEnvironment(newId)
+        variables: {},
+      });
+      setNewEnvironmentName('');
+      setShowAddEnvironment(false);
+      setActiveEnvironment(newId);
     }
-  }
+  };
 
   return (
     <div className="relative" ref={dropdownRef}>
@@ -76,9 +72,9 @@ export const EnvironmentSelector: React.FC = () => {
               </span>
             </button>
           ))}
-          
+
           <div className="border-t border-gray-200 dark:border-gray-700 my-1" />
-          
+
           {!showAddEnvironment ? (
             <button
               onClick={() => setShowAddEnvironment(true)}
@@ -107,8 +103,8 @@ export const EnvironmentSelector: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => {
-                    setShowAddEnvironment(false)
-                    setNewEnvironmentName('')
+                    setShowAddEnvironment(false);
+                    setNewEnvironmentName('');
                   }}
                   className="flex-1 px-2 py-1 text-xs bg-gray-300 dark:bg-gray-600 rounded hover:bg-gray-400 dark:hover:bg-gray-500"
                 >
@@ -120,5 +116,5 @@ export const EnvironmentSelector: React.FC = () => {
         </div>
       )}
     </div>
-  )
-}
+  );
+};

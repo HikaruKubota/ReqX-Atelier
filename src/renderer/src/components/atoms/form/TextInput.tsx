@@ -8,13 +8,10 @@ export interface TextInputProps extends Omit<UnifiedInputProps, 'enableVariables
  * TextInput component for backward compatibility.
  * @deprecated Use UnifiedInput directly for new components
  */
-export const TextInput: React.FC<TextInputProps> = ({ value = '', onChange = () => {}, ...rest }) => (
-  <UnifiedInput 
-    value={value} 
-    onChange={onChange} 
-    enableVariables={false}
-    {...rest} 
-  />
-);
+export const TextInput: React.FC<TextInputProps> = ({
+  value = '',
+  onChange = () => {},
+  ...rest
+}) => <UnifiedInput value={value} onChange={onChange} enableVariables={false} {...rest} />;
 
 export default TextInput;

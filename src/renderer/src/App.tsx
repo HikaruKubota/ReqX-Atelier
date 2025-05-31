@@ -1,6 +1,13 @@
 import React, { useCallback, useRef, useEffect, useState } from 'react';
 import { useSavedRequests } from './hooks/useSavedRequests';
-import type { SavedRequest, ApiResult, ApiError } from './types';
+import type {
+  SavedRequest,
+  ApiResult,
+  ApiError,
+  KeyValuePair,
+  RequestHeader,
+  VariableExtraction,
+} from './types';
 import { useRequestEditor } from './hooks/useRequestEditor'; // Import the new hook and RequestHeader
 import { useApiResponseHandler } from './hooks/useApiResponseHandler'; // Import the new API response handler hook
 import { RequestCollectionSidebar } from './components/RequestCollectionSidebar'; // Import the new sidebar component
@@ -19,6 +26,7 @@ import { Toast } from './components/atoms/toast/Toast';
 import { EnvironmentSelector } from './components/EnvironmentSelector';
 import { VariablesButton } from './components/VariablesButton';
 import { VariablesPanel } from './components/VariablesPanel';
+import { extractVariablesFromResponse, applyExtractedVariables } from './utils/variableExtraction';
 
 export default function App() {
   const { t } = useTranslation();
@@ -52,6 +60,9 @@ export default function App() {
     addHeader,
     updateHeader,
     removeHeader, // Destructure header actions
+    variableExtraction,
+    setVariableExtraction,
+    variableExtractionRef,
     loadRequest: loadRequestIntoEditor, // Renamed to avoid conflict if there was a local var named loadRequest
     resetEditor,
   } = useRequestEditor();
@@ -76,6 +87,22 @@ export default function App() {
     >
   >({});
 
+  // Tab-specific editor states
+  const [tabEditorStates, setTabEditorStates] = useState<
+    Record<
+      string,
+      {
+        body: KeyValuePair[];
+        params: KeyValuePair[];
+        url?: string;
+        method?: string;
+        headers?: RequestHeader[];
+        requestNameForSave?: string;
+        variableExtraction?: VariableExtraction;
+      }
+    >
+  >({});
+
   // Saved requests state (from useSavedRequests hook)
   const {
     savedRequests,
@@ -94,6 +121,78 @@ export default function App() {
 
   const tabs = useTabs();
 
+  // Execute variable extraction when response is received
+  React.useEffect(() => {
+    if (response && variableExtraction && tabs.activeTabId) {
+      const results = extractVariablesFromResponse(response, variableExtraction);
+      if (results.length > 0) {
+        applyExtractedVariables(results);
+      }
+    }
+  }, [response, variableExtraction, tabs.activeTabId]);
+
+  // Get current tab's editor state
+  const currentTabEditorState = tabs.activeTabId ? tabEditorStates[tabs.activeTabId] : undefined;
+  const currentBody = currentTabEditorState?.body || body;
+  const currentParams = currentTabEditorState?.params || params;
+
+  // Update tab editor state when body or params change
+  const updateTabBody = useCallback(
+    (newBody: KeyValuePair[]) => {
+      const tabId = tabs.activeTabId;
+      if (!tabId) return;
+
+      setTabEditorStates((prev) => ({
+        ...prev,
+        [tabId]: {
+          ...prev[tabId],
+          body: newBody,
+          params: prev[tabId]?.params || [],
+        },
+      }));
+      setBody(newBody);
+    },
+    [tabs.activeTabId, setBody],
+  );
+
+  const updateTabParams = useCallback(
+    (newParams: KeyValuePair[]) => {
+      const tabId = tabs.activeTabId;
+      if (!tabId) return;
+
+      setTabEditorStates((prev) => ({
+        ...prev,
+        [tabId]: {
+          ...prev[tabId],
+          body: prev[tabId]?.body || [],
+          params: newParams,
+        },
+      }));
+      setParams(newParams);
+    },
+    [tabs.activeTabId, setParams],
+  );
+
+  // Save current tab state when any editor value changes
+  useEffect(() => {
+    const tabId = tabs.activeTabId;
+    if (!tabId) return;
+
+    setTabEditorStates((prev) => ({
+      ...prev,
+      [tabId]: {
+        ...prev[tabId],
+        body: currentBody,
+        params: currentParams,
+        url,
+        method,
+        headers,
+        requestNameForSave,
+        variableExtraction,
+      },
+    }));
+  }, [tabs.activeTabId, url, method, headers, requestNameForSave, variableExtraction]);
+
   const requestEditor = {
     method,
     setMethod,
@@ -101,14 +200,14 @@ export default function App() {
     url,
     setUrl,
     urlRef,
-    body,
-    setBody,
-    bodyRef: { current: body },
+    body: currentBody,
+    setBody: updateTabBody,
+    bodyRef: { current: currentBody },
     requestBody: '',
     requestBodyRef: { current: '' },
-    params,
-    setParams,
-    paramsRef,
+    params: currentParams,
+    setParams: updateTabParams,
+    paramsRef: { current: currentParams },
     queryString: '',
     queryStringRef: { current: '' },
     requestNameForSave,
@@ -123,6 +222,9 @@ export default function App() {
     addHeader,
     updateHeader,
     removeHeader,
+    variableExtraction,
+    setVariableExtraction,
+    variableExtractionRef,
     loadRequest: loadRequestIntoEditor,
     resetEditor,
   };
@@ -140,6 +242,7 @@ export default function App() {
     urlRef,
     headersRef,
     paramsRef,
+    variableExtractionRef,
     requestNameForSaveRef,
     setRequestNameForSave,
     activeRequestIdRef,
@@ -158,12 +261,27 @@ export default function App() {
         delete newState[id];
         return newState;
       });
+      setTabEditorStates((prev) => {
+        const newState = { ...prev };
+        delete newState[id];
+        return newState;
+      });
     },
     [tabs],
   );
 
   const handleNewRequest = useCallback(() => {
-    tabs.openTab();
+    const newTab = tabs.openTab();
+
+    // Initialize empty state for new tab
+    setTabEditorStates((prev) => ({
+      ...prev,
+      [newTab.tabId]: {
+        body: [],
+        params: [],
+      },
+    }));
+
     resetEditor();
     setActiveRequestId(null);
     resetApiResponse();
@@ -243,11 +361,25 @@ export default function App() {
 
   const handleLoadRequest = (req: SavedRequest) => {
     const existing = tabs.tabs.find((t) => t.requestId === req.id);
+    let targetTabId: string;
+
     if (existing) {
       tabs.switchTab(existing.tabId);
+      targetTabId = existing.tabId;
     } else {
-      tabs.openTab(req);
+      const newTab = tabs.openTab(req);
+      targetTabId = newTab.tabId;
     }
+
+    // Initialize tab editor state with request data
+    setTabEditorStates((prev) => ({
+      ...prev,
+      [targetTabId]: {
+        body: req.body || [],
+        params: req.params || [],
+      },
+    }));
+
     loadRequestIntoEditor({
       id: req.id,
       name: req.name,
@@ -256,6 +388,7 @@ export default function App() {
       headers: req.headers,
       body: req.body,
       params: req.params,
+      variableExtraction: req.variableExtraction,
     });
     setActiveRequestId(req.id);
   };
@@ -270,28 +403,77 @@ export default function App() {
       return;
     }
 
+    // Check if we already have editor state for this tab
+    const existingState = tabEditorStates[tab.tabId];
+
     if (tab.requestId) {
       const req = savedRequests.find((r) => r.id === tab.requestId);
       if (req) {
-        loadRequestIntoEditor({
-          id: req.id,
-          name: req.name,
-          method: req.method,
-          url: req.url,
-          headers: req.headers,
-          body: req.body,
-          params: req.params,
-        });
-        setRequestNameForSave(req.name);
+        // Only load request data if we don't have existing state
+        if (!existingState) {
+          loadRequestIntoEditor({
+            id: req.id,
+            name: req.name,
+            method: req.method,
+            url: req.url,
+            headers: req.headers,
+            body: req.body,
+            params: req.params,
+            variableExtraction: req.variableExtraction,
+          });
+
+          // Initialize tab editor state
+          setTabEditorStates((prev) => ({
+            ...prev,
+            [tab.tabId]: {
+              body: req.body || [],
+              params: req.params || [],
+            },
+          }));
+        } else {
+          // Use existing state
+          setBody(existingState.body);
+          setParams(existingState.params);
+          // Restore other states from tab state or saved request
+          setUrl(existingState.url || req.url);
+          setMethod(existingState.method || req.method);
+          setHeaders(existingState.headers || req.headers || []);
+          setVariableExtraction(existingState.variableExtraction || req.variableExtraction);
+        }
+
+        setRequestNameForSave(existingState?.requestNameForSave || req.name);
         setActiveRequestId(req.id);
       }
     } else {
-      // 新規タブ
-      resetEditor();
-      setRequestNameForSave('Untitled Request');
-      setActiveRequestId(null);
+      // New tab
+      if (!existingState) {
+        resetEditor();
+        setRequestNameForSave('Untitled Request');
+        setActiveRequestId(null);
+
+        // Initialize empty state for new tab
+        setTabEditorStates((prev) => ({
+          ...prev,
+          [tab.tabId]: {
+            body: [],
+            params: [],
+          },
+        }));
+      } else {
+        // Use existing state
+        setBody(existingState.body);
+        setParams(existingState.params);
+        // Restore other states for new tab
+        if (existingState.url !== undefined) setUrl(existingState.url);
+        if (existingState.method !== undefined) setMethod(existingState.method);
+        if (existingState.headers !== undefined) setHeaders(existingState.headers);
+        if (existingState.requestNameForSave !== undefined)
+          setRequestNameForSave(existingState.requestNameForSave);
+        if (existingState.variableExtraction !== undefined)
+          setVariableExtraction(existingState.variableExtraction);
+      }
     }
-  }, [tabs.activeTabId, savedRequests]);
+  }, [tabs.activeTabId]);
 
   const handleDeleteRequest = useCallback(
     (idToDelete: string) => {
@@ -394,10 +576,10 @@ export default function App() {
                 onMethodChange={setMethod}
                 url={url}
                 onUrlChange={setUrl}
-                initialBody={body}
-                initialParams={params}
-                onBodyPairsChange={setBody}
-                onParamPairsChange={setParams}
+                initialBody={currentBody}
+                initialParams={currentParams}
+                onBodyPairsChange={updateTabBody}
+                onParamPairsChange={updateTabParams}
                 activeRequestId={activeRequestId}
                 loading={loading}
                 onSaveRequest={handleSaveButtonClick}
@@ -407,6 +589,8 @@ export default function App() {
                 onUpdateHeader={updateHeader}
                 onRemoveHeader={removeHeader}
                 onReorderHeaders={setHeaders}
+                variableExtraction={variableExtraction}
+                onVariableExtractionChange={setVariableExtraction}
               />
 
               {/* Use the new ResponseDisplayPanel component */}
@@ -425,10 +609,7 @@ export default function App() {
         isOpen={saveToastOpen}
         onClose={() => setSaveToastOpen(false)}
       />
-      <VariablesPanel
-        isOpen={variablesPanelOpen}
-        onClose={() => setVariablesPanelOpen(false)}
-      />
+      <VariablesPanel isOpen={variablesPanelOpen} onClose={() => setVariablesPanelOpen(false)} />
     </div>
   );
 }

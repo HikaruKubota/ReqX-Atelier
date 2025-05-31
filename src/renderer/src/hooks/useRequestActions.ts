@@ -1,5 +1,11 @@
 import { useCallback } from 'react';
-import type { SavedRequest, RequestEditorPanelRef, RequestHeader, KeyValuePair } from '../types';
+import type {
+  SavedRequest,
+  RequestEditorPanelRef,
+  RequestHeader,
+  KeyValuePair,
+  VariableExtraction,
+} from '../types';
 import { useVariablesStore } from '../store/variablesStore';
 
 export function useRequestActions({
@@ -8,6 +14,7 @@ export function useRequestActions({
   urlRef,
   headersRef,
   paramsRef,
+  variableExtractionRef,
   requestNameForSaveRef,
   setRequestNameForSave,
   activeRequestIdRef,
@@ -22,6 +29,7 @@ export function useRequestActions({
   urlRef: React.RefObject<string>;
   headersRef: React.RefObject<RequestHeader[]>;
   paramsRef: React.RefObject<KeyValuePair[]>;
+  variableExtractionRef?: React.RefObject<VariableExtraction | undefined>;
   requestNameForSaveRef: React.RefObject<string>;
   setRequestNameForSave: (name: string) => void;
   activeRequestIdRef: React.RefObject<string | null>;
@@ -39,25 +47,28 @@ export function useRequestActions({
   const getResolvedVariables = useVariablesStore((state) => state.getResolvedVariables);
 
   // Helper function to resolve variables in a string
-  const resolveVariablesInString = useCallback((str: string): string => {
-    const variables = getResolvedVariables();
-    
-    const resolved = str.replace(/\$\{([^}]+)\}/g, (match, varName) => {
-      const variable = variables[varName];
-      if (!variable) {
-        return match;
-      }
-      return variable.value;
-    });
-    
-    return resolved;
-  }, [getResolvedVariables]);
+  const resolveVariablesInString = useCallback(
+    (str: string): string => {
+      const variables = getResolvedVariables();
+
+      const resolved = str.replace(/\$\{([^}]+)\}/g, (match, varName) => {
+        const variable = variables[varName];
+        if (!variable) {
+          return match;
+        }
+        return variable.value;
+      });
+
+      return resolved;
+    },
+    [getResolvedVariables],
+  );
 
   // リクエスト送信
   const executeSendRequest = useCallback(async () => {
     // Resolve variables in the URL first
     const resolvedUrl = resolveVariablesInString(urlRef.current);
-    
+
     // Resolve variables in query parameters
     const queryString = paramsRef.current
       .filter((p) => p.enabled && p.keyName.trim() !== '')
@@ -67,11 +78,11 @@ export function useRequestActions({
         return `${encodeURIComponent(resolvedKey)}=${encodeURIComponent(resolvedValue)}`;
       })
       .join('&');
-    
+
     const urlWithParams = queryString
       ? `${resolvedUrl}${resolvedUrl.includes('?') ? '&' : '?'}${queryString}`
       : resolvedUrl;
-    
+
     // Resolve variables in headers
     const activeHeaders = headersRef.current
       .filter((h) => h.enabled && h.key.trim() !== '')
@@ -84,18 +95,26 @@ export function useRequestActions({
         },
         {} as Record<string, string>,
       );
-    
+
     // Resolve variables in request body
     let resolvedBody = editorPanelRef.current?.getRequestBodyAsJson() || '';
     if (resolvedBody) {
       resolvedBody = resolveVariablesInString(resolvedBody);
     }
-    
+
     await executeRequest(methodRef.current, urlWithParams, resolvedBody, activeHeaders);
     if (resetDirtyState) {
       resetDirtyState(); // Reset dirty state after sending request
     }
-  }, [executeRequest, headersRef, methodRef, urlRef, paramsRef, resetDirtyState, resolveVariablesInString]);
+  }, [
+    executeRequest,
+    headersRef,
+    methodRef,
+    urlRef,
+    paramsRef,
+    resetDirtyState,
+    resolveVariablesInString,
+  ]);
 
   // リクエスト保存
   const executeSaveRequest = useCallback((): string => {
@@ -111,6 +130,9 @@ export function useRequestActions({
     const currentActiveRequestId = activeRequestIdRef.current;
     const currentHeaders = headersRef.current;
 
+    const currentVariableExtraction = variableExtractionRef?.current;
+    console.log('[executeSaveRequest] variableExtraction:', currentVariableExtraction);
+
     const requestDataToSave: Omit<SavedRequest, 'id'> = {
       name: nameToSave,
       method: currentMethod,
@@ -118,7 +140,9 @@ export function useRequestActions({
       headers: currentHeaders,
       body: bodyFromEditor,
       params: paramsFromEditor,
+      variableExtraction: currentVariableExtraction,
     };
+    console.log('[executeSaveRequest] requestDataToSave:', requestDataToSave);
 
     if (currentActiveRequestId) {
       updateSavedRequest(currentActiveRequestId, requestDataToSave);
@@ -139,6 +163,8 @@ export function useRequestActions({
     activeRequestIdRef,
     headersRef,
     paramsRef,
+    variableExtractionRef,
+    editorPanelRef,
   ]);
 
   return { executeSendRequest, executeSaveRequest };

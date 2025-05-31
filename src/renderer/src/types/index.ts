@@ -75,6 +75,7 @@ export interface SavedRequest {
   headers?: RequestHeader[];
   body?: KeyValuePair[];
   params?: KeyValuePair[];
+  variableExtraction?: VariableExtraction;
 }
 
 export interface SavedFolder {
@@ -147,6 +148,29 @@ export interface RequestEditorState
   activeRequestId: string | null;
   setActiveRequestId: (id: string | null) => void;
   activeRequestIdRef: { current: string | null };
+  variableExtraction: VariableExtraction | undefined;
+  setVariableExtraction: (variableExtraction: VariableExtraction | undefined) => void;
+  variableExtractionRef: { current: VariableExtraction | undefined };
   loadRequest: (request: SavedRequest) => void;
   resetEditor: () => void;
+}
+
+// Auto Variable Extraction Types
+export type ExtractionSource = 'body-json' | 'body-text' | 'header' | 'status' | 'time';
+export type VariableScope = 'global' | 'environment';
+
+export interface ExtractionRule {
+  id: string;
+  source: ExtractionSource;
+  path?: string; // JSONPath or regex for body extraction
+  headerName?: string; // for header source
+  variableName: string;
+  scope: VariableScope;
+  enabled: boolean;
+}
+
+export interface VariableExtraction {
+  extractionRules: ExtractionRule[];
+  customScript: string;
+  enabled: boolean;
 }

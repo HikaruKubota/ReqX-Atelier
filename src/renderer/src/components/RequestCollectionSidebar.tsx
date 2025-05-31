@@ -54,7 +54,7 @@ export const RequestCollectionSidebar: React.FC<RequestCollectionSidebarProps> =
     const folder = savedFolders.find((f) => f.requestIds.includes(activeRequestId));
     return folder ? folder.id : null;
   }, [focusedNode, activeRequestId, savedFolders]);
-    
+
   const [width, setWidth] = React.useState(250);
 
   const handleMouseDown = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
@@ -75,7 +75,7 @@ export const RequestCollectionSidebar: React.FC<RequestCollectionSidebarProps> =
     document.addEventListener('mousemove', onMouseMove);
     document.addEventListener('mouseup', onMouseUp);
   };
-  
+
   return (
     <div
       data-testid="sidebar"

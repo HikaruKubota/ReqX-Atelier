@@ -1,12 +1,12 @@
-import React, { useRef } from 'react'
-import { useVariablesStore } from '../../store/variablesStore'
+import React, { useRef } from 'react';
+import { useVariablesStore } from '../../store/variablesStore';
 
 interface VariableInputProps {
-  value: string
-  onChange: (value: string) => void
-  placeholder?: string
-  className?: string
-  type?: 'text' | 'textarea'
+  value: string;
+  onChange: (value: string) => void;
+  placeholder?: string;
+  className?: string;
+  type?: 'text' | 'textarea';
 }
 
 export const VariableInput: React.FC<VariableInputProps> = ({
@@ -14,36 +14,36 @@ export const VariableInput: React.FC<VariableInputProps> = ({
   onChange,
   placeholder,
   className = '',
-  type = 'text'
+  type = 'text',
 }) => {
-  const inputRef = useRef<HTMLInputElement | HTMLTextAreaElement>(null)
-  const getResolvedVariables = useVariablesStore((state) => state.getResolvedVariables)
-  
+  const inputRef = useRef<HTMLInputElement | HTMLTextAreaElement>(null);
+  const getResolvedVariables = useVariablesStore((state) => state.getResolvedVariables);
+
   // Check for undefined variables
-  const variables = getResolvedVariables()
-  const variableMatches = Array.from(value.matchAll(/\$\{([^}]+)\}/g))
-  const hasUndefinedVariables = variableMatches.some(match => !variables[match[1]])
-  
+  const variables = getResolvedVariables();
+  const variableMatches = Array.from(value.matchAll(/\$\{([^}]+)\}/g));
+  const hasUndefinedVariables = variableMatches.some((match) => !variables[match[1]]);
+
   // Add warning style if there are undefined variables
-  const baseClassName = 'w-full'
-  const inputClassName = `${baseClassName} ${className} ${hasUndefinedVariables ? 'border-yellow-500 dark:border-yellow-400' : ''}`
-  
+  const baseClassName = 'w-full';
+  const inputClassName = `${baseClassName} ${className} ${hasUndefinedVariables ? 'border-yellow-500 dark:border-yellow-400' : ''}`;
+
   // Show resolved value as placeholder hint
   const resolvedValue = value.replace(/\$\{([^}]+)\}/g, (match, varName) => {
-    const variable = variables[varName]
-    console.log(`[VariableInput] Resolving variable ${varName}:`, variable)
+    const variable = variables[varName];
+    console.log(`[VariableInput] Resolving variable ${varName}:`, variable);
     if (!variable) {
-      console.log(`[VariableInput] Variable ${varName} not found!`)
-      return match
+      console.log(`[VariableInput] Variable ${varName} not found!`);
+      return match;
     }
     // Hide secure variable values
-    const result = variable.secure ? '•••••••••' : variable.value
-    console.log(`[VariableInput] Resolved ${varName} to: ${result}`)
-    return result
-  })
-  
-  const showHint = value !== resolvedValue && value.includes('${')
-  
+    const result = variable.secure ? '•••••••••' : variable.value;
+    console.log(`[VariableInput] Resolved ${varName} to: ${result}`);
+    return result;
+  });
+
+  const showHint = value !== resolvedValue && value.includes('${');
+
   if (type === 'textarea') {
     return (
       <div className="relative flex-1">
@@ -65,9 +65,9 @@ export const VariableInput: React.FC<VariableInputProps> = ({
           </div>
         )}
       </div>
-    )
+    );
   }
-  
+
   return (
     <div className="relative flex-1">
       <input
@@ -89,5 +89,5 @@ export const VariableInput: React.FC<VariableInputProps> = ({
         </div>
       )}
     </div>
-  )
-}
+  );
+};

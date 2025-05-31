@@ -1,55 +1,59 @@
-import { create } from 'zustand'
-import { persist } from 'zustand/middleware'
+import { create } from 'zustand';
+import { persist } from 'zustand/middleware';
 
 export interface Variable {
-  name: string
-  value: string
-  enabled: boolean
-  secure?: boolean
-  description?: string
+  name: string;
+  value: string;
+  enabled: boolean;
+  secure?: boolean;
+  description?: string;
 }
 
 export interface VariableSet {
-  [key: string]: Variable
+  [key: string]: Variable;
 }
 
 export interface Environment {
-  id: string
-  name: string
-  variables: VariableSet
+  id: string;
+  name: string;
+  variables: VariableSet;
 }
 
 interface VariablesState {
   // Global variables (shared across all environments)
-  globalVariables: VariableSet
-  
+  globalVariables: VariableSet;
+
   // Environment configurations
-  environments: Environment[]
-  
+  environments: Environment[];
+
   // Current active environment ID
-  activeEnvironmentId: string
-  
+  activeEnvironmentId: string;
+
   // Actions
-  setActiveEnvironment: (environmentId: string) => void
-  
+  setActiveEnvironment: (environmentId: string) => void;
+
   // Global variable actions
-  addGlobalVariable: (variable: Variable) => void
-  updateGlobalVariable: (name: string, updates: Partial<Variable>) => void
-  deleteGlobalVariable: (name: string) => void
-  
+  addGlobalVariable: (variable: Variable) => void;
+  updateGlobalVariable: (name: string, updates: Partial<Variable>) => void;
+  deleteGlobalVariable: (name: string) => void;
+
   // Environment variable actions
-  addEnvironmentVariable: (environmentId: string, variable: Variable) => void
-  updateEnvironmentVariable: (environmentId: string, name: string, updates: Partial<Variable>) => void
-  deleteEnvironmentVariable: (environmentId: string, name: string) => void
-  
+  addEnvironmentVariable: (environmentId: string, variable: Variable) => void;
+  updateEnvironmentVariable: (
+    environmentId: string,
+    name: string,
+    updates: Partial<Variable>,
+  ) => void;
+  deleteEnvironmentVariable: (environmentId: string, name: string) => void;
+
   // Environment management
-  addEnvironment: (environment: Environment) => void
-  updateEnvironment: (environmentId: string, updates: Partial<Environment>) => void
-  deleteEnvironment: (environmentId: string) => void
-  
+  addEnvironment: (environment: Environment) => void;
+  updateEnvironment: (environmentId: string, updates: Partial<Environment>) => void;
+  deleteEnvironment: (environmentId: string) => void;
+
   // Utility functions
-  getResolvedVariables: () => VariableSet
-  resolveVariable: (variableName: string) => string | undefined
+  getResolvedVariables: () => VariableSet;
+  resolveVariable: (variableName: string) => string | undefined;
 }
 
 // Default environments
@@ -57,19 +61,19 @@ const defaultEnvironments: Environment[] = [
   {
     id: 'development',
     name: 'Development',
-    variables: {}
+    variables: {},
   },
   {
     id: 'staging',
     name: 'Staging',
-    variables: {}
+    variables: {},
   },
   {
     id: 'production',
     name: 'Production',
-    variables: {}
-  }
-]
+    variables: {},
+  },
+];
 
 export const useVariablesStore = create<VariablesState>()(
   persist(
@@ -79,7 +83,7 @@ export const useVariablesStore = create<VariablesState>()(
       activeEnvironmentId: 'development',
 
       setActiveEnvironment: (environmentId) => {
-        set({ activeEnvironmentId: environmentId })
+        set({ activeEnvironmentId: environmentId });
       },
 
       // Global variable actions
@@ -87,9 +91,9 @@ export const useVariablesStore = create<VariablesState>()(
         set((state) => ({
           globalVariables: {
             ...state.globalVariables,
-            [variable.name]: variable
-          }
-        }))
+            [variable.name]: variable,
+          },
+        }));
       },
 
       updateGlobalVariable: (name, updates) => {
@@ -98,18 +102,18 @@ export const useVariablesStore = create<VariablesState>()(
             ...state.globalVariables,
             [name]: {
               ...state.globalVariables[name],
-              ...updates
-            }
-          }
-        }))
+              ...updates,
+            },
+          },
+        }));
       },
 
       deleteGlobalVariable: (name) => {
         set((state) => {
           // eslint-disable-next-line @typescript-eslint/no-unused-vars
-          const { [name]: _, ...rest } = state.globalVariables
-          return { globalVariables: rest }
-        })
+          const { [name]: _, ...rest } = state.globalVariables;
+          return { globalVariables: rest };
+        });
       },
 
       // Environment variable actions
@@ -121,12 +125,12 @@ export const useVariablesStore = create<VariablesState>()(
                   ...env,
                   variables: {
                     ...env.variables,
-                    [variable.name]: variable
-                  }
+                    [variable.name]: variable,
+                  },
                 }
-              : env
-          )
-        }))
+              : env,
+          ),
+        }));
       },
 
       updateEnvironmentVariable: (environmentId, name, updates) => {
@@ -139,13 +143,13 @@ export const useVariablesStore = create<VariablesState>()(
                     ...env.variables,
                     [name]: {
                       ...env.variables[name],
-                      ...updates
-                    }
-                  }
+                      ...updates,
+                    },
+                  },
                 }
-              : env
-          )
-        }))
+              : env,
+          ),
+        }));
       },
 
       deleteEnvironmentVariable: (environmentId, name) => {
@@ -155,74 +159,74 @@ export const useVariablesStore = create<VariablesState>()(
               ? {
                   ...env,
                   variables: Object.fromEntries(
-                    Object.entries(env.variables).filter(([key]) => key !== name)
-                  )
+                    Object.entries(env.variables).filter(([key]) => key !== name),
+                  ),
                 }
-              : env
-          )
-        }))
+              : env,
+          ),
+        }));
       },
 
       // Environment management
       addEnvironment: (environment) => {
         set((state) => ({
-          environments: [...state.environments, environment]
-        }))
+          environments: [...state.environments, environment],
+        }));
       },
 
       updateEnvironment: (environmentId, updates) => {
         set((state) => ({
           environments: state.environments.map((env) =>
-            env.id === environmentId ? { ...env, ...updates } : env
-          )
-        }))
+            env.id === environmentId ? { ...env, ...updates } : env,
+          ),
+        }));
       },
 
       deleteEnvironment: (environmentId) => {
         set((state) => ({
-          environments: state.environments.filter((env) => env.id !== environmentId)
-        }))
+          environments: state.environments.filter((env) => env.id !== environmentId),
+        }));
       },
 
       // Utility functions
       getResolvedVariables: () => {
-        const state = get()
+        const state = get();
         const activeEnvironment = state.environments.find(
-          (env) => env.id === state.activeEnvironmentId
-        )
-        
-        const resolved: VariableSet = {}
-        
+          (env) => env.id === state.activeEnvironmentId,
+        );
+
+        const resolved: VariableSet = {};
+
         // Add all enabled global variables
         Object.entries(state.globalVariables).forEach(([name, variable]) => {
           if (variable.enabled) {
-            resolved[name] = variable
+            resolved[name] = variable;
           }
-        })
-        
+        });
+
         if (!activeEnvironment) {
-          return resolved
+          return resolved;
         }
-        
+
         // Override with enabled environment variables
         Object.entries(activeEnvironment.variables).forEach(([name, variable]) => {
           if (variable.enabled) {
-            resolved[name] = variable
+            resolved[name] = variable;
           }
-        })
-        
-        return resolved
+        });
+
+        return resolved;
       },
 
       resolveVariable: (variableName: string) => {
-        const resolved = get().getResolvedVariables()
-        const variable = resolved[variableName]
-        return variable?.enabled ? variable.value : undefined
-      }
+        const resolved = get().getResolvedVariables();
+        const variable = resolved[variableName];
+        return variable?.enabled ? variable.value : undefined;
+      },
     }),
     {
       name: 'variables-storage',
-      version: 1
-    }
-  )
-)
+      version: 1,
+    },
+  ),
+);

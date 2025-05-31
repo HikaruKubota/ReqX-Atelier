@@ -51,7 +51,10 @@ export const TabItem = React.forwardRef<HTMLDivElement, TabItemProps>(
         {...attributes}
       >
         <MethodIcon method={method} size={16} />
-        <span className="flex-1 truncate">{label}{isDirty && '*'}</span>
+        <span className="flex-1 truncate">
+          {label}
+          {isDirty && '*'}
+        </span>
         <button
           onClick={(e) => {
             e.stopPropagation();

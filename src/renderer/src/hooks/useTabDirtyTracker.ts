@@ -35,7 +35,7 @@ export const useTabDirtyTracker = ({
   // Track initial values when tab is created or request is loaded
   const setInitialValues = () => {
     if (!tabId) return;
-    
+
     const values = {
       method: requestEditor.method,
       url: requestEditor.url,
@@ -44,7 +44,7 @@ export const useTabDirtyTracker = ({
       body: requestEditor.body,
       params: requestEditor.params,
     };
-    
+
     initialValuesRef.current = JSON.parse(JSON.stringify(values));
     currentValuesRef.current = JSON.parse(JSON.stringify(values));
   };
@@ -63,7 +63,7 @@ export const useTabDirtyTracker = ({
     };
 
     const hasChanged = JSON.stringify(currentValues) !== JSON.stringify(initialValuesRef.current);
-    
+
     if (hasChanged) {
       markTabDirty(tabId);
     } else {
@@ -76,7 +76,7 @@ export const useTabDirtyTracker = ({
   // Reset dirty state (called when saving or sending request)
   const resetDirtyState = () => {
     if (!tabId) return;
-    
+
     setInitialValues();
     markTabClean(tabId);
   };
@@ -84,10 +84,10 @@ export const useTabDirtyTracker = ({
   // Set initial values when tab changes or request is loaded
   useEffect(() => {
     if (!tabId) return;
-    
+
     // Always mark tab as clean when switching tabs initially
     markTabClean(tabId);
-    
+
     // Set initial values immediately to establish baseline
     setInitialValues();
   }, [tabId, requestEditor.activeRequestId]);
@@ -96,7 +96,7 @@ export const useTabDirtyTracker = ({
   useEffect(() => {
     // Skip check if no initial values are set yet
     if (!initialValuesRef.current) return;
-    
+
     checkForChanges();
   }, [
     requestEditor.method,

@@ -1,57 +1,57 @@
-import React, { useState } from 'react'
-import { IoClose, IoSearch, IoEllipsisVertical } from 'react-icons/io5'
-import { useVariablesStore, Variable } from '../store/variablesStore'
-import { Modal } from './atoms/Modal'
+import React, { useState } from 'react';
+import { IoClose, IoSearch, IoEllipsisVertical } from 'react-icons/io5';
+import { useVariablesStore, Variable } from '../store/variablesStore';
+import { Modal } from './atoms/Modal';
 
 interface VariablesPanelProps {
-  isOpen: boolean
-  onClose: () => void
+  isOpen: boolean;
+  onClose: () => void;
 }
 
 interface VariableRowProps {
-  variable: Variable
-  onUpdate: (updates: Partial<Variable>) => void
-  onDelete: () => void
-  onDuplicate: () => void
-  hasGlobalOverride?: boolean
+  variable: Variable;
+  onUpdate: (updates: Partial<Variable>) => void;
+  onDelete: () => void;
+  onDuplicate: () => void;
+  hasGlobalOverride?: boolean;
 }
 
-const VariableRow: React.FC<VariableRowProps> = ({ 
-  variable, 
-  onUpdate, 
-  onDelete, 
+const VariableRow: React.FC<VariableRowProps> = ({
+  variable,
+  onUpdate,
+  onDelete,
   onDuplicate,
-  hasGlobalOverride 
+  hasGlobalOverride,
 }) => {
-  const [showMenu, setShowMenu] = useState(false)
-  const [isEditing, setIsEditing] = useState(false)
-  const [editName, setEditName] = useState(variable.name)
-  const [editValue, setEditValue] = useState(variable.value)
+  const [showMenu, setShowMenu] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+  const [editName, setEditName] = useState(variable.name);
+  const [editValue, setEditValue] = useState(variable.value);
 
   const handleEdit = () => {
-    setIsEditing(true)
-    setShowMenu(false)
-  }
+    setIsEditing(true);
+    setShowMenu(false);
+  };
 
   const handleSaveEdit = () => {
     if (editName.trim()) {
-      onUpdate({ name: editName.trim(), value: editValue })
-      setIsEditing(false)
+      onUpdate({ name: editName.trim(), value: editValue });
+      setIsEditing(false);
     }
-  }
+  };
 
   const handleCancelEdit = () => {
-    setEditName(variable.name)
-    setEditValue(variable.value)
-    setIsEditing(false)
-  }
+    setEditName(variable.name);
+    setEditValue(variable.value);
+    setIsEditing(false);
+  };
 
   const handleMakeSecure = () => {
-    onUpdate({ secure: !variable.secure })
-    setShowMenu(false)
-  }
+    onUpdate({ secure: !variable.secure });
+    setShowMenu(false);
+  };
 
-  const displayValue = variable.secure ? '•••••••••' : variable.value
+  const displayValue = variable.secure ? '•••••••••' : variable.value;
 
   if (isEditing) {
     return (
@@ -83,7 +83,7 @@ const VariableRow: React.FC<VariableRowProps> = ({
           Cancel
         </button>
       </div>
-    )
+    );
   }
 
   return (
@@ -109,7 +109,7 @@ const VariableRow: React.FC<VariableRowProps> = ({
         >
           <IoEllipsisVertical className="w-5 h-5" />
         </button>
-        
+
         {showMenu && (
           <div className="absolute right-0 mt-1 w-40 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-md shadow-lg z-50">
             <button
@@ -120,8 +120,8 @@ const VariableRow: React.FC<VariableRowProps> = ({
             </button>
             <button
               onClick={() => {
-                onDuplicate()
-                setShowMenu(false)
+                onDuplicate();
+                setShowMenu(false);
               }}
               className="w-full px-4 py-2 text-sm text-left hover:bg-gray-100 dark:hover:bg-gray-700"
             >
@@ -137,8 +137,8 @@ const VariableRow: React.FC<VariableRowProps> = ({
             <div className="border-t border-gray-200 dark:border-gray-700" />
             <button
               onClick={() => {
-                onDelete()
-                setShowMenu(false)
+                onDelete();
+                setShowMenu(false);
               }}
               className="w-full px-4 py-2 text-sm text-left text-red-600 hover:bg-gray-100 dark:hover:bg-gray-700"
             >
@@ -148,16 +148,16 @@ const VariableRow: React.FC<VariableRowProps> = ({
         )}
       </div>
     </div>
-  )
-}
+  );
+};
 
 export const VariablesPanel: React.FC<VariablesPanelProps> = ({ isOpen, onClose }) => {
-  const [searchQuery, setSearchQuery] = useState('')
-  const [showAddGlobal, setShowAddGlobal] = useState(false)
-  const [showAddEnvironment, setShowAddEnvironment] = useState(false)
-  const [newVariableName, setNewVariableName] = useState('')
-  const [newVariableValue, setNewVariableValue] = useState('')
-  const [newVariableSecure, setNewVariableSecure] = useState(false)
+  const [searchQuery, setSearchQuery] = useState('');
+  const [showAddGlobal, setShowAddGlobal] = useState(false);
+  const [showAddEnvironment, setShowAddEnvironment] = useState(false);
+  const [newVariableName, setNewVariableName] = useState('');
+  const [newVariableValue, setNewVariableValue] = useState('');
+  const [newVariableSecure, setNewVariableSecure] = useState(false);
 
   const {
     globalVariables,
@@ -168,25 +168,26 @@ export const VariablesPanel: React.FC<VariablesPanelProps> = ({ isOpen, onClose 
     deleteGlobalVariable,
     addEnvironmentVariable,
     updateEnvironmentVariable,
-    deleteEnvironmentVariable
-  } = useVariablesStore()
+    deleteEnvironmentVariable,
+  } = useVariablesStore();
 
-  const activeEnvironment = environments.find(env => env.id === activeEnvironmentId)
+  const activeEnvironment = environments.find((env) => env.id === activeEnvironmentId);
 
   // Filter variables based on search query
   const filterVariables = (variables: Record<string, Variable>) => {
-    if (!searchQuery) return Object.entries(variables)
-    
-    return Object.entries(variables).filter(([name, variable]) =>
-      name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      variable.value.toLowerCase().includes(searchQuery.toLowerCase())
-    )
-  }
+    if (!searchQuery) return Object.entries(variables);
 
-  const filteredGlobalVariables = filterVariables(globalVariables)
-  const filteredEnvironmentVariables = activeEnvironment 
+    return Object.entries(variables).filter(
+      ([name, variable]) =>
+        name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        variable.value.toLowerCase().includes(searchQuery.toLowerCase()),
+    );
+  };
+
+  const filteredGlobalVariables = filterVariables(globalVariables);
+  const filteredEnvironmentVariables = activeEnvironment
     ? filterVariables(activeEnvironment.variables)
-    : []
+    : [];
 
   const handleAddGlobalVariable = () => {
     if (newVariableName.trim()) {
@@ -194,13 +195,13 @@ export const VariablesPanel: React.FC<VariablesPanelProps> = ({ isOpen, onClose 
         name: newVariableName.trim(),
         value: newVariableValue,
         enabled: true,
-        secure: newVariableSecure
-      }
-      addGlobalVariable(newVariable)
-      resetAddForm()
-      setShowAddGlobal(false)
+        secure: newVariableSecure,
+      };
+      addGlobalVariable(newVariable);
+      resetAddForm();
+      setShowAddGlobal(false);
     }
-  }
+  };
 
   const handleAddEnvironmentVariable = () => {
     if (newVariableName.trim() && activeEnvironment) {
@@ -208,34 +209,34 @@ export const VariablesPanel: React.FC<VariablesPanelProps> = ({ isOpen, onClose 
         name: newVariableName.trim(),
         value: newVariableValue,
         enabled: true,
-        secure: newVariableSecure
-      }
-      addEnvironmentVariable(activeEnvironment.id, newVariable)
-      resetAddForm()
-      setShowAddEnvironment(false)
+        secure: newVariableSecure,
+      };
+      addEnvironmentVariable(activeEnvironment.id, newVariable);
+      resetAddForm();
+      setShowAddEnvironment(false);
     }
-  }
+  };
 
   const resetAddForm = () => {
-    setNewVariableName('')
-    setNewVariableValue('')
-    setNewVariableSecure(false)
-  }
+    setNewVariableName('');
+    setNewVariableValue('');
+    setNewVariableSecure(false);
+  };
 
   const handleDuplicateVariable = (variable: Variable, isGlobal: boolean) => {
     const duplicatedVar = {
       ...variable,
-      name: `${variable.name}_copy`
-    }
-    
-    if (isGlobal) {
-      addGlobalVariable(duplicatedVar)
-    } else if (activeEnvironment) {
-      addEnvironmentVariable(activeEnvironment.id, duplicatedVar)
-    }
-  }
+      name: `${variable.name}_copy`,
+    };
 
-  if (!isOpen) return null
+    if (isGlobal) {
+      addGlobalVariable(duplicatedVar);
+    } else if (activeEnvironment) {
+      addEnvironmentVariable(activeEnvironment.id, duplicatedVar);
+    }
+  };
+
+  if (!isOpen) return null;
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} size="xl">
@@ -277,7 +278,7 @@ export const VariablesPanel: React.FC<VariablesPanelProps> = ({ isOpen, onClose 
                 Global Variables (All Environments)
               </h3>
             </div>
-            
+
             {filteredGlobalVariables.length === 0 ? (
               <div className="px-6 py-4 text-sm text-gray-500 dark:text-gray-400">
                 No global variables found
@@ -293,7 +294,7 @@ export const VariablesPanel: React.FC<VariablesPanelProps> = ({ isOpen, onClose 
                 />
               ))
             )}
-            
+
             {!showAddGlobal ? (
               <button
                 onClick={() => setShowAddGlobal(true)}
@@ -334,8 +335,8 @@ export const VariablesPanel: React.FC<VariablesPanelProps> = ({ isOpen, onClose 
                 </button>
                 <button
                   onClick={() => {
-                    setShowAddGlobal(false)
-                    resetAddForm()
+                    setShowAddGlobal(false);
+                    resetAddForm();
                   }}
                   className="px-3 py-1 text-sm bg-gray-300 dark:bg-gray-600 rounded hover:bg-gray-400 dark:hover:bg-gray-500"
                 >
@@ -353,27 +354,32 @@ export const VariablesPanel: React.FC<VariablesPanelProps> = ({ isOpen, onClose 
                 Environment Variables ({activeEnvironment?.name})
               </h3>
             </div>
-            
+
             {filteredEnvironmentVariables.length === 0 ? (
               <div className="px-6 py-4 text-sm text-gray-500 dark:text-gray-400">
                 No environment variables found
               </div>
             ) : (
               filteredEnvironmentVariables.map(([name, variable]) => {
-                const hasGlobalOverride = globalVariables[name] !== undefined
+                const hasGlobalOverride = globalVariables[name] !== undefined;
                 return (
                   <VariableRow
                     key={name}
                     variable={variable}
-                    onUpdate={(updates) => activeEnvironment && updateEnvironmentVariable(activeEnvironment.id, name, updates)}
-                    onDelete={() => activeEnvironment && deleteEnvironmentVariable(activeEnvironment.id, name)}
+                    onUpdate={(updates) =>
+                      activeEnvironment &&
+                      updateEnvironmentVariable(activeEnvironment.id, name, updates)
+                    }
+                    onDelete={() =>
+                      activeEnvironment && deleteEnvironmentVariable(activeEnvironment.id, name)
+                    }
                     onDuplicate={() => handleDuplicateVariable(variable, false)}
                     hasGlobalOverride={hasGlobalOverride}
                   />
-                )
+                );
               })
             )}
-            
+
             {!showAddEnvironment ? (
               <button
                 onClick={() => setShowAddEnvironment(true)}
@@ -414,8 +420,8 @@ export const VariablesPanel: React.FC<VariablesPanelProps> = ({ isOpen, onClose 
                 </button>
                 <button
                   onClick={() => {
-                    setShowAddEnvironment(false)
-                    resetAddForm()
+                    setShowAddEnvironment(false);
+                    resetAddForm();
                   }}
                   className="px-3 py-1 text-sm bg-gray-300 dark:bg-gray-600 rounded hover:bg-gray-400 dark:hover:bg-gray-500"
                 >
@@ -437,5 +443,5 @@ export const VariablesPanel: React.FC<VariablesPanelProps> = ({ isOpen, onClose 
         </div>
       </div>
     </Modal>
-  )
-}
+  );
+};

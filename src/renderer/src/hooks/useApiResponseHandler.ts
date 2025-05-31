@@ -20,9 +20,11 @@ export const useApiResponseHandler = (): ApiResponseHandler => {
   };
 
   // Helper function to resolve variables in headers
-  const resolveHeaderVariables = (headers?: Record<string, string>): Record<string, string> | undefined => {
+  const resolveHeaderVariables = (
+    headers?: Record<string, string>,
+  ): Record<string, string> | undefined => {
     if (!headers) return headers;
-    
+
     const resolved: Record<string, string> = {};
     Object.entries(headers).forEach(([key, value]) => {
       resolved[key] = resolveVariables(value);
@@ -37,12 +39,12 @@ export const useApiResponseHandler = (): ApiResponseHandler => {
       setResponse(null);
       setResponseTime(null);
       const start = Date.now();
-      
+
       // Resolve variables in URL, body, and headers
       const resolvedUrl = resolveVariables(url);
       const resolvedBody = body ? resolveVariables(body) : body;
       const resolvedHeaders = resolveHeaderVariables(headers);
-      
+
       try {
         const result = await sendApiRequest(
           method,
