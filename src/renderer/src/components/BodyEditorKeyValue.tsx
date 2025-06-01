@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useImperativeHandle, forwardRef, useCallback } from 'react';
+import React, { useState, useEffect, useImperativeHandle, forwardRef, useCallback, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { EnableAllButton } from './atoms/button/EnableAllButton';
 import { DisableAllButton } from './atoms/button/DisableAllButton';
@@ -52,9 +52,15 @@ export const BodyEditorKeyValue = forwardRef<BodyEditorKeyValueRef, BodyEditorKe
       restrictToWindowEdges, // 端を少し越えたら慣性風に戻す
     ];
 
+    // Track previous method to detect changes
+    const prevMethodRef = useRef(method);
+    
     useEffect(() => {
-      // Only clear body when method changes to GET/HEAD
-      if (method === 'GET' || method === 'HEAD') {
+      // Only clear body when method CHANGES TO GET/HEAD
+      const prevMethod = prevMethodRef.current;
+      prevMethodRef.current = method;
+      
+      if (prevMethod !== method && (method === 'GET' || method === 'HEAD')) {
         if (body.length > 0) {
           setBody([]);
         }
