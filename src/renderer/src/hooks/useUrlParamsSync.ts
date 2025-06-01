@@ -119,7 +119,7 @@ export const useUrlParamsSync = ({
     }
 
     lastUrlRef.current = url;
-    
+
     // Mark that URL just changed - this will prevent params->URL sync
     urlJustChangedRef.current = true;
 
@@ -127,7 +127,7 @@ export const useUrlParamsSync = ({
     if (isSyncingUrlToParamsRef.current) {
       return;
     }
-    
+
     // Skip if this URL change was from params->URL sync
     if (isSyncingParamsToUrlRef.current) {
       return;
@@ -135,7 +135,7 @@ export const useUrlParamsSync = ({
 
     // Extract params from URL
     const extractedParams = extractParamsFromUrl(url);
-    
+
     const extractedJson = JSON.stringify(
       extractedParams
         .map((p) => ({ k: p.keyName, v: p.value }))
@@ -149,7 +149,6 @@ export const useUrlParamsSync = ({
         .map((p) => ({ k: p.keyName, v: p.value || '' }))
         .sort((a, b) => a.k.localeCompare(b.k)),
     );
-    
 
     if (extractedJson !== currentJson) {
       isSyncingUrlToParamsRef.current = true;

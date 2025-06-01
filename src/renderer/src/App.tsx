@@ -139,7 +139,6 @@ export default function App() {
   const currentTabEditorState = tabs.activeTabId ? tabEditorStates[tabs.activeTabId] : undefined;
   const currentBody = currentTabEditorState?.body || body;
   const currentParams = currentTabEditorState?.params || params;
-  
 
   // Update tab editor state when body or params change
   const updateTabBody = useCallback(
