@@ -361,15 +361,31 @@ export default function App() {
 
   const handleLoadRequest = (req: SavedRequest) => {
     const existing = tabs.tabs.find((t) => t.requestId === req.id);
-    let targetTabId: string;
 
     if (existing) {
+      // If the tab exists, just switch to it
       tabs.switchTab(existing.tabId);
-      targetTabId = existing.tabId;
-    } else {
-      const newTab = tabs.openTab(req);
-      targetTabId = newTab.tabId;
+      return;
     }
+
+    // Check if current tab has unsaved changes
+    const currentTab = tabs.getActiveTab();
+    if (currentTab && currentTab.isDirty) {
+      // Show confirmation dialog
+      const confirmMessage = t('discard_changes_confirm', {
+        defaultValue:
+          'You have unsaved changes. Do you want to discard them and open the new request?',
+      });
+
+      if (!confirm(confirmMessage)) {
+        // User cancelled, don't load the new request
+        return;
+      }
+    }
+
+    // Open new tab with the request
+    const newTab = tabs.openTab(req);
+    const targetTabId = newTab.tabId;
 
     // Initialize tab editor state with request data
     setTabEditorStates((prev) => ({
