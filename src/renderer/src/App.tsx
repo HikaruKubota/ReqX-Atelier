@@ -494,10 +494,6 @@ export default function App() {
           }));
         } else {
           // Use existing state
-          console.log('[Tab switch] Restoring state:', {
-            params: existingState.params,
-            url: existingState.url || req.url,
-          });
           setBody(existingState.body);
           setParams(existingState.params);
           // Restore other states from tab state or saved request
