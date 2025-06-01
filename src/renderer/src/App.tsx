@@ -27,6 +27,7 @@ import { EnvironmentSelector } from './components/EnvironmentSelector';
 import { VariablesButton } from './components/VariablesButton';
 import { VariablesPanel } from './components/VariablesPanel';
 import { extractVariablesFromResponse, applyExtractedVariables } from './utils/variableExtraction';
+import { useUrlParamsSync } from './hooks/useUrlParamsSync';
 
 export default function App() {
   const { t } = useTranslation();
@@ -34,6 +35,9 @@ export default function App() {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [saveToastOpen, setSaveToastOpen] = useState(false);
   const [variablesPanelOpen, setVariablesPanelOpen] = useState(false);
+
+  // Track if we're switching tabs to prevent sync issues
+  const isSwitchingTabRef = useRef(false);
 
   // Use the new custom hook for request editor state and logic
   const {
@@ -135,6 +139,7 @@ export default function App() {
   const currentTabEditorState = tabs.activeTabId ? tabEditorStates[tabs.activeTabId] : undefined;
   const currentBody = currentTabEditorState?.body || body;
   const currentParams = currentTabEditorState?.params || params;
+  
 
   // Update tab editor state when body or params change
   const updateTabBody = useCallback(
@@ -173,7 +178,35 @@ export default function App() {
     [tabs.activeTabId, setParams],
   );
 
+  // Update tab URL when URL changes
+  const updateTabUrl = useCallback(
+    (newUrl: string) => {
+      const tabId = tabs.activeTabId;
+      if (!tabId) return;
+
+      setTabEditorStates((prev) => ({
+        ...prev,
+        [tabId]: {
+          ...prev[tabId],
+          url: newUrl,
+        },
+      }));
+      setUrl(newUrl);
+    },
+    [tabs.activeTabId, setUrl],
+  );
+
+  // Use URL params synchronization
+  useUrlParamsSync({
+    url,
+    params: currentParams,
+    onUrlChange: updateTabUrl,
+    onParamsChange: updateTabParams,
+    skipSync: isSwitchingTabRef.current,
+  });
+
   // Save current tab state when any editor value changes
+  // NOTE: Removing currentBody and currentParams from dependencies to avoid circular updates
   useEffect(() => {
     const tabId = tabs.activeTabId;
     if (!tabId) return;
@@ -182,8 +215,9 @@ export default function App() {
       ...prev,
       [tabId]: {
         ...prev[tabId],
-        body: currentBody,
-        params: currentParams,
+        // Keep existing body and params from state instead of overwriting
+        // body: currentBody,
+        // params: currentParams,
         url,
         method,
         headers,
@@ -191,7 +225,16 @@ export default function App() {
         variableExtraction,
       },
     }));
-  }, [tabs.activeTabId, url, method, headers, requestNameForSave, variableExtraction]);
+  }, [
+    tabs.activeTabId,
+    url,
+    method,
+    headers,
+    requestNameForSave,
+    variableExtraction,
+    // currentBody,  // Removed to avoid circular updates
+    // currentParams, // Removed to avoid circular updates
+  ]);
 
   const requestEditor = {
     method,
@@ -419,6 +462,9 @@ export default function App() {
       return;
     }
 
+    // Mark that we're switching tabs
+    isSwitchingTabRef.current = true;
+
     // Check if we already have editor state for this tab
     const existingState = tabEditorStates[tab.tabId];
 
@@ -448,6 +494,10 @@ export default function App() {
           }));
         } else {
           // Use existing state
+          console.log('[Tab switch] Restoring state:', {
+            params: existingState.params,
+            url: existingState.url || req.url,
+          });
           setBody(existingState.body);
           setParams(existingState.params);
           // Restore other states from tab state or saved request
@@ -489,6 +539,11 @@ export default function App() {
           setVariableExtraction(existingState.variableExtraction);
       }
     }
+
+    // Reset the flag after all state updates are done
+    setTimeout(() => {
+      isSwitchingTabRef.current = false;
+    }, 0);
   }, [tabs.activeTabId]);
 
   const handleDeleteRequest = useCallback(

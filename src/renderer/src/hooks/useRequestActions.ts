@@ -67,21 +67,10 @@ export function useRequestActions({
   // リクエスト送信
   const executeSendRequest = useCallback(async () => {
     // Resolve variables in the URL first
+    // Since URL and params are now synced, the URL should already contain the params
+    // Just resolve variables in the URL
     const resolvedUrl = resolveVariablesInString(urlRef.current);
-
-    // Resolve variables in query parameters
-    const queryString = paramsRef.current
-      .filter((p) => p.enabled && p.keyName.trim() !== '')
-      .map((p) => {
-        const resolvedKey = resolveVariablesInString(p.keyName);
-        const resolvedValue = resolveVariablesInString(p.value);
-        return `${encodeURIComponent(resolvedKey)}=${encodeURIComponent(resolvedValue)}`;
-      })
-      .join('&');
-
-    const urlWithParams = queryString
-      ? `${resolvedUrl}${resolvedUrl.includes('?') ? '&' : '?'}${queryString}`
-      : resolvedUrl;
+    console.log('[executeSendRequest] URL:', urlRef.current, 'Resolved URL:', resolvedUrl);
 
     // Resolve variables in headers
     const activeHeaders = headersRef.current
@@ -102,7 +91,7 @@ export function useRequestActions({
       resolvedBody = resolveVariablesInString(resolvedBody);
     }
 
-    await executeRequest(methodRef.current, urlWithParams, resolvedBody, activeHeaders);
+    await executeRequest(methodRef.current, resolvedUrl, resolvedBody, activeHeaders);
     if (resetDirtyState) {
       resetDirtyState(); // Reset dirty state after sending request
     }
