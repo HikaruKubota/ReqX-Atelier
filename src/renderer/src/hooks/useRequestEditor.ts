@@ -2,7 +2,7 @@ import { useState, useCallback, useRef, useEffect } from 'react';
 import { useHeadersManager } from './useHeadersManager';
 import { useBodyManager } from './useBodyManager';
 import { useParamsManager } from './useParamsManager';
-import type { SavedRequest, RequestEditorState, KeyValuePair, VariableExtraction } from '../types';
+import type { SavedRequest, RequestEditorState, VariableExtraction } from '../types';
 
 // RequestEditorState now inherits from both manager returns, excluding conflicting/internal methods
 
@@ -50,21 +50,7 @@ export const useRequestEditor = (): RequestEditorState => {
   const bodyManager = useBodyManager(); // Use the new body manager hook
   const paramsManager = useParamsManager();
 
-  const fromParamsRef = useRef(false);
-  const fromUrlRef = useRef(false);
-
-  const parseQueryPairs = useCallback((q: string) => {
-    if (!q) return [] as KeyValuePair[];
-    return q.split('&').map((seg) => {
-      const [k, v = ''] = seg.split('=');
-      return {
-        id: `param-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`,
-        keyName: decodeURIComponent(k),
-        value: decodeURIComponent(v),
-        enabled: true,
-      } as KeyValuePair;
-    });
-  }, []);
+  // Removed old sync implementation - now handled by useUrlParamsSync hook
 
   // Remove useEffects for body-related states
   useEffect(() => {
@@ -85,49 +71,9 @@ export const useRequestEditor = (): RequestEditorState => {
     variableExtractionRef.current = variableExtractionState;
   }, [variableExtractionState]);
 
-  // URLに上書きされたクエリストリングをパラメーターへ反映
-  useEffect(() => {
-    if (fromParamsRef.current) {
-      fromParamsRef.current = false;
-      return;
-    }
-    const [, q = ''] = urlState.split('?');
-    if (q !== paramsManager.queryStringRef.current) {
-      const parsed = parseQueryPairs(q);
-      const disabled = paramsManager.paramsRef.current.filter((p) => !p.enabled);
-
-      // ← Skip if parsed params are identical to current enabled+parsed combo
-      const next = [...disabled, ...parsed];
-      const prev = paramsManager.paramsRef.current;
-      const isSame =
-        prev.length === next.length &&
-        prev.every(
-          (p, i) =>
-            p.enabled === next[i].enabled &&
-            p.keyName === next[i].keyName &&
-            p.value === next[i].value,
-        );
-      if (isSame) return;
-
-      fromUrlRef.current = true;
-      paramsManager.setParams(next);
-    }
-  }, [urlState, parseQueryPairs]);
-
-  // パラメーターが変更されたときURLへ反映
-  useEffect(() => {
-    if (fromUrlRef.current) {
-      fromUrlRef.current = false;
-      return;
-    }
-    const base = urlRef.current.split('?')[0];
-    const q = paramsManager.queryStringRef.current;
-    const newUrl = q ? `${base}?${q}` : base;
-    if (newUrl !== urlState) {
-      fromParamsRef.current = true;
-      setUrlState(newUrl);
-    }
-  }, [paramsManager.queryString, urlState]);
+  // Old URL-params sync removed - now handled by useUrlParamsSync hook in App.tsx
+  // The bidirectional sync between URL and params is now managed at the App level
+  // to avoid conflicts and ensure proper state management across tabs
 
   const loadRequest = useCallback(
     (req: SavedRequest) => {
