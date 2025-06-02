@@ -70,7 +70,6 @@ export function useRequestActions({
     // Since URL and params are now synced, the URL should already contain the params
     // Just resolve variables in the URL
     const resolvedUrl = resolveVariablesInString(urlRef.current);
-    console.log('[executeSendRequest] URL:', urlRef.current, 'Resolved URL:', resolvedUrl);
 
     // Resolve variables in headers
     const activeHeaders = headersRef.current
@@ -120,7 +119,6 @@ export function useRequestActions({
     const currentHeaders = headersRef.current;
 
     const currentVariableExtraction = variableExtractionRef?.current;
-    console.log('[executeSaveRequest] variableExtraction:', currentVariableExtraction);
 
     const requestDataToSave: Omit<SavedRequest, 'id'> = {
       name: nameToSave,
@@ -131,7 +129,6 @@ export function useRequestActions({
       params: paramsFromEditor,
       variableExtraction: currentVariableExtraction,
     };
-    console.log('[executeSaveRequest] requestDataToSave:', requestDataToSave);
 
     if (currentActiveRequestId) {
       updateSavedRequest(currentActiveRequestId, requestDataToSave);

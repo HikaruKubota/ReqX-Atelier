@@ -31,14 +31,11 @@ export const VariableInput: React.FC<VariableInputProps> = ({
   // Show resolved value as placeholder hint
   const resolvedValue = value.replace(/\$\{([^}]+)\}/g, (match, varName) => {
     const variable = variables[varName];
-    console.log(`[VariableInput] Resolving variable ${varName}:`, variable);
     if (!variable) {
-      console.log(`[VariableInput] Variable ${varName} not found!`);
       return match;
     }
     // Hide secure variable values
     const result = variable.secure ? '•••••••••' : variable.value;
-    console.log(`[VariableInput] Resolved ${varName} to: ${result}`);
     return result;
   });
 

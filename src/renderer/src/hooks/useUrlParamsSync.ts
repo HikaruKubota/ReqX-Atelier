@@ -109,7 +109,6 @@ export const useUrlParamsSync = ({
   useEffect(() => {
     // Skip if syncing is disabled
     if (skipSync) {
-      console.log('[Sync] Skipping all sync (skipSync=true)');
       return;
     }
 
