@@ -103,10 +103,7 @@ const VariableRow: React.FC<VariableRowProps> = ({
         className="w-4 h-4"
       />
       <div className="relative">
-        <button
-          onClick={() => setShowMenu(!showMenu)}
-          className="p-1 hover:bg-accent rounded"
-        >
+        <button onClick={() => setShowMenu(!showMenu)} className="p-1 hover:bg-accent rounded">
           <IoEllipsisVertical className="w-5 h-5" />
         </button>
 
@@ -246,10 +243,7 @@ export const VariablesPanel: React.FC<VariablesPanelProps> = ({ isOpen, onClose 
           <h2 className="text-lg font-semibold">
             Variables - {activeEnvironment?.name || 'No Environment'}
           </h2>
-          <button
-            onClick={onClose}
-            className="p-1 hover:bg-accent rounded"
-          >
+          <button onClick={onClose} className="p-1 hover:bg-accent rounded">
             <IoClose className="w-5 h-5" />
           </button>
         </div>

@@ -39,7 +39,7 @@ describe('ThemeProvider', () => {
     expect(btn.textContent).toBe('現在:dark');
     expect(document.documentElement.classList.contains('dark')).toBe(true);
     expect(document.documentElement.getAttribute('data-theme')).toBe('dark');
-    
+
     fireEvent.click(btn);
     expect(btn.textContent).toBe('現在:light');
     expect(document.documentElement.classList.contains('light')).toBe(true);
@@ -56,7 +56,7 @@ describe('ThemeProvider', () => {
     const root = document.documentElement;
     expect(root.style.getPropertyValue('--color-background')).toBe(themes.dark.colors.background);
     expect(root.style.getPropertyValue('--color-foreground')).toBe(themes.dark.colors.foreground);
-    
+
     fireEvent.click(screen.getByRole('button'));
     expect(root.style.getPropertyValue('--color-background')).toBe(themes.light.colors.background);
     expect(root.style.getPropertyValue('--color-foreground')).toBe(themes.light.colors.foreground);
@@ -69,17 +69,17 @@ describe('ThemeProvider', () => {
       </ThemeProvider>,
     );
     const select = screen.getByRole('combobox');
-    
+
     // Check that all themes are available
     expect(screen.getByText('light')).toBeInTheDocument();
     expect(screen.getByText('dark')).toBeInTheDocument();
     expect(screen.getByText('sepia')).toBeInTheDocument();
-    
+
     // Switch to sepia theme
     fireEvent.change(select, { target: { value: 'sepia' } });
     expect(document.documentElement.getAttribute('data-theme')).toBe('sepia');
     expect(document.documentElement.style.getPropertyValue('--color-background')).toBe(
-      themes.sepia.colors.background
+      themes.sepia.colors.background,
     );
   });
 });

@@ -192,8 +192,7 @@ const ExtractionRuleRow: React.FC<ExtractionRuleRowProps> = ({ rule, onUpdate, o
       {(rule.path || rule.headerName) && rule.variableName && (
         <p className="text-xs text-muted-foreground mt-1">
           {t('will_set_variable') || 'Will set'}{' '}
-          <code className="bg-muted px-1 rounded">${rule.variableName}</code>{' '}
-          {t('from') || 'from'}{' '}
+          <code className="bg-muted px-1 rounded">${rule.variableName}</code> {t('from') || 'from'}{' '}
           <code className="bg-muted px-1 rounded">
             {rule.source === 'header' ? rule.headerName : rule.path}
           </code>

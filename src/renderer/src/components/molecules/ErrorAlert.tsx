@@ -10,10 +10,7 @@ export const ErrorAlert: React.FC<ErrorAlertProps> = ({ error, className, onCopy
   const { t } = useTranslation();
   return (
     <div
-      className={clsx(
-        'border-2 border-destructive bg-destructive/10 p-4 my-2 rounded',
-        className,
-      )}
+      className={clsx('border-2 border-destructive bg-destructive/10 p-4 my-2 rounded', className)}
     >
       <div className="flex items-center justify-between">
         <h3 className="text-destructive mt-0">{t('error_details')}</h3>

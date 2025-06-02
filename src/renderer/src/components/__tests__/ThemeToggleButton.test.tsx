@@ -13,12 +13,12 @@ describe('ThemeToggleButton', () => {
     );
     const select = screen.getByRole('combobox');
     expect(select).toBeInTheDocument();
-    
+
     // Check that the light theme option is present
     expect(screen.getByText('ライト')).toBeInTheDocument();
     expect(screen.getByText('ダーク')).toBeInTheDocument();
     expect(screen.getByText('セピア')).toBeInTheDocument();
-    
+
     // Change to dark theme
     fireEvent.change(select, { target: { value: 'dark' } });
     expect(document.documentElement.getAttribute('data-theme')).toBe('dark');

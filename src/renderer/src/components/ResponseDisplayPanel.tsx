@@ -91,7 +91,9 @@ export const ResponseDisplayPanel: React.FC<ResponseDisplayPanelProps> = ({
         ) : (
           <p className="text-muted-foreground">{t('no_headers')}</p>
         ))}
-      {!response && !error && !loading && <p className="text-muted-foreground">{t('no_response')}</p>}
+      {!response && !error && !loading && (
+        <p className="text-muted-foreground">{t('no_response')}</p>
+      )}
       {loading && <p className="text-muted-foreground">{t('loading')}</p>}
       <Toast
         message={t('copy_success')}

@@ -5,11 +5,8 @@ import clsx from 'clsx';
 export interface SelectBoxProps extends React.SelectHTMLAttributes<HTMLSelectElement> {}
 
 export const SelectBox: React.FC<SelectBoxProps> = ({ className, children, ...rest }) => (
-  <select 
-    className={clsx(
-      'p-2 border border-border rounded bg-input text-foreground',
-      className
-    )} 
+  <select
+    className={clsx('p-2 border border-border rounded bg-input text-foreground', className)}
     {...rest}
   >
     {children}

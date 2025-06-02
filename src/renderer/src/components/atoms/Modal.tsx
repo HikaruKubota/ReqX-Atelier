@@ -49,10 +49,7 @@ export const Modal: React.FC<ModalProps> = ({ isOpen, onClose, children, size = 
             leaveTo="opacity-0 scale-95"
           >
             <Dialog.Panel
-              className={clsx(
-                'bg-card rounded-lg shadow-xl w-full',
-                sizeClasses[size],
-              )}
+              className={clsx('bg-card rounded-lg shadow-xl w-full', sizeClasses[size])}
               onClick={(e) => e.stopPropagation()}
             >
               {children}

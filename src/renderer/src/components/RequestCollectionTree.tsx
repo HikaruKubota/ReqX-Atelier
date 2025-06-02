@@ -277,10 +277,7 @@ export const RequestCollectionTree: React.FC<Props> = ({
         <div
           style={style}
           ref={dragHandle}
-          className={clsx(
-            'h-full flex items-center',
-            node.isSelected && 'bg-primary/10',
-          )}
+          className={clsx('h-full flex items-center', node.isSelected && 'bg-primary/10')}
           onContextMenu={(e) => {
             e.preventDefault();
             node.select();
