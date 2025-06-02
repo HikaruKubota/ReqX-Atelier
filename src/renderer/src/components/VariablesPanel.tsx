@@ -72,13 +72,13 @@ const VariableRow: React.FC<VariableRowProps> = ({
         />
         <button
           onClick={handleSaveEdit}
-          className="px-3 py-1 text-sm bg-blue-500 text-white rounded hover:bg-blue-600"
+          className="px-3 py-1 text-sm bg-primary text-primary-foreground rounded hover:bg-primary/90"
         >
           Save
         </button>
         <button
           onClick={handleCancelEdit}
-          className="px-3 py-1 text-sm bg-secondary rounded hover:bg-accent"
+          className="px-3 py-1 text-sm bg-secondary text-secondary-foreground rounded hover:bg-accent"
         >
           Cancel
         </button>
@@ -292,7 +292,7 @@ export const VariablesPanel: React.FC<VariablesPanelProps> = ({ isOpen, onClose 
             {!showAddGlobal ? (
               <button
                 onClick={() => setShowAddGlobal(true)}
-                className="w-full px-6 py-2 text-sm text-left text-blue-600 hover:bg-accent"
+                className="w-full px-6 py-2 text-sm text-left text-primary hover:bg-accent"
               >
                 + Add Global Variable
               </button>
@@ -323,7 +323,7 @@ export const VariablesPanel: React.FC<VariablesPanelProps> = ({ isOpen, onClose 
                 </label>
                 <button
                   onClick={handleAddGlobalVariable}
-                  className="px-3 py-1 text-sm bg-blue-500 text-white rounded hover:bg-blue-600"
+                  className="px-3 py-1 text-sm bg-primary text-primary-foreground rounded hover:bg-primary/90"
                 >
                   Add
                 </button>
@@ -332,7 +332,7 @@ export const VariablesPanel: React.FC<VariablesPanelProps> = ({ isOpen, onClose 
                     setShowAddGlobal(false);
                     resetAddForm();
                   }}
-                  className="px-3 py-1 text-sm bg-secondary rounded hover:bg-accent"
+                  className="px-3 py-1 text-sm bg-secondary text-secondary-foreground rounded hover:bg-accent"
                 >
                   Cancel
                 </button>
@@ -377,7 +377,7 @@ export const VariablesPanel: React.FC<VariablesPanelProps> = ({ isOpen, onClose 
             {!showAddEnvironment ? (
               <button
                 onClick={() => setShowAddEnvironment(true)}
-                className="w-full px-6 py-2 text-sm text-left text-blue-600 hover:bg-accent"
+                className="w-full px-6 py-2 text-sm text-left text-primary hover:bg-accent"
               >
                 + Add Environment Variable
               </button>
@@ -408,7 +408,7 @@ export const VariablesPanel: React.FC<VariablesPanelProps> = ({ isOpen, onClose 
                 </label>
                 <button
                   onClick={handleAddEnvironmentVariable}
-                  className="px-3 py-1 text-sm bg-blue-500 text-white rounded hover:bg-blue-600"
+                  className="px-3 py-1 text-sm bg-primary text-primary-foreground rounded hover:bg-primary/90"
                 >
                   Add
                 </button>
@@ -417,7 +417,7 @@ export const VariablesPanel: React.FC<VariablesPanelProps> = ({ isOpen, onClose 
                     setShowAddEnvironment(false);
                     resetAddForm();
                   }}
-                  className="px-3 py-1 text-sm bg-secondary rounded hover:bg-accent"
+                  className="px-3 py-1 text-sm bg-secondary text-secondary-foreground rounded hover:bg-accent"
                 >
                   Cancel
                 </button>
