@@ -213,7 +213,7 @@ export const BodyEditorKeyValue = forwardRef<BodyEditorKeyValueRef, BodyEditorKe
               setImportText('');
               setImportError('');
             }}
-            className="px-4 py-2 text-sm bg-secondary text-secondary-foreground rounded hover:bg-secondary/80 border border-border"
+            className="px-4 py-2 text-sm bg-muted text-foreground rounded hover:bg-accent border border-border"
           >
             {t('import_json') || 'Import JSON'}
           </button>
