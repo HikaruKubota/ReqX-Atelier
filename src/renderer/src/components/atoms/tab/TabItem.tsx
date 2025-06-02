@@ -51,16 +51,17 @@ export const TabItem = React.forwardRef<HTMLDivElement, TabItemProps>(
         {...attributes}
       >
         <MethodIcon method={method} size={16} />
-        <span className="flex-1 truncate">
+        <span className="flex-1 truncate" title={label}>
           {label}
-          {isDirty && '*'}
         </span>
+        {isDirty && <span className="text-red-500 flex-shrink-0">*</span>}
         <button
           onClick={(e) => {
             e.stopPropagation();
             onClose();
           }}
           aria-label={t('close_tab')}
+          className="flex-shrink-0"
         >
           ×
         </button>

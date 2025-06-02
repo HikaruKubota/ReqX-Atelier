@@ -72,7 +72,8 @@ describe('TabBar Integration Tests', () => {
 
     // Check that all tabs are rendered by their content
     expect(screen.getByText('Get Users')).toBeInTheDocument();
-    expect(screen.getByText('Create User*')).toBeInTheDocument(); // * for dirty indicator
+    expect(screen.getByText('Create User')).toBeInTheDocument();
+    expect(screen.getByText('*')).toBeInTheDocument(); // dirty indicator
     expect(screen.getByText('Untitled')).toBeInTheDocument(); // Tab with no saved request
 
     // Check method icons are displayed
@@ -84,7 +85,7 @@ describe('TabBar Integration Tests', () => {
     render(<TabBar {...defaultProps} />);
 
     // Click on the Create User tab
-    const createUserTab = screen.getByText('Create User*');
+    const createUserTab = screen.getByText('Create User');
     fireEvent.click(createUserTab.parentElement!);
 
     expect(defaultProps.onSelect).toHaveBeenCalledWith('tab-2');
@@ -118,7 +119,7 @@ describe('TabBar Integration Tests', () => {
     expect(getUsersTab).toHaveClass('font-bold', 'border-blue-500');
 
     // Inactive tabs should not have those classes
-    const createUserTab = screen.getByText('Create User*').parentElement;
+    const createUserTab = screen.getByText('Create User').closest('[role="button"]');
     expect(createUserTab).toHaveClass('border-transparent');
   });
 
@@ -129,7 +130,7 @@ describe('TabBar Integration Tests', () => {
     rerender(<TabBar {...defaultProps} activeTabId="tab-2" />);
 
     // New active tab should have specific classes
-    const createUserTab = screen.getByText('Create User*').parentElement;
+    const createUserTab = screen.getByText('Create User').closest('[role="button"]');
     expect(createUserTab).toHaveClass('font-bold', 'border-blue-500');
 
     // Previous active tab should not
