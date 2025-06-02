@@ -203,7 +203,7 @@ export const BodyEditorKeyValue = forwardRef<BodyEditorKeyValueRef, BodyEditorKe
         <div className="flex gap-2 mt-2">
           <button
             onClick={handleAddKeyValuePair}
-            className="px-4 py-2 text-sm text-white bg-blue-500 rounded"
+            className="px-4 py-2 text-sm bg-primary text-primary-foreground rounded hover:bg-primary/90"
           >
             {t(addRowLabelKey || 'add_body_row')}
           </button>
@@ -213,7 +213,7 @@ export const BodyEditorKeyValue = forwardRef<BodyEditorKeyValueRef, BodyEditorKe
               setImportText('');
               setImportError('');
             }}
-            className="px-4 py-2 text-sm bg-secondary text-secondary-foreground rounded hover:bg-accent"
+            className="px-4 py-2 text-sm bg-secondary text-secondary-foreground rounded hover:bg-secondary/80 border border-border"
           >
             {t('import_json') || 'Import JSON'}
           </button>
