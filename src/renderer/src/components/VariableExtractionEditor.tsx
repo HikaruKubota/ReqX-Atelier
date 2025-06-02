@@ -68,20 +68,20 @@ export const VariableExtractionEditor: React.FC<VariableExtractionEditorProps> =
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="border border-gray-300 dark:border-gray-700 rounded-lg p-4">
+      <div className="border border-border rounded-lg p-4">
         <h3 className="text-sm font-semibold mb-3">
           {t('extract_variables') || 'Extract Variables'}
         </h3>
-        <p className="text-xs text-gray-600 dark:text-gray-400 mb-4">
+        <p className="text-xs text-muted-foreground mb-4">
           {t('extract_variables_desc') || 'Extract values from response and save as variables'}
         </p>
 
         {rules.length > 0 && (
           <div className="grid grid-cols-2 gap-2 mb-2">
-            <div className="text-xs text-gray-600 dark:text-gray-400 font-medium">
+            <div className="text-xs text-muted-foreground font-medium">
               {t('variable_name') || 'Variable Name'}
             </div>
-            <div className="text-xs text-gray-600 dark:text-gray-400 font-medium">
+            <div className="text-xs text-muted-foreground font-medium">
               {t('extract_from') || 'Extract From'}
             </div>
           </div>
@@ -129,7 +129,7 @@ const ExtractionRuleRow: React.FC<ExtractionRuleRowProps> = ({ rule, onUpdate, o
   ];
 
   return (
-    <div className="flex flex-col gap-2 p-3 bg-gray-50 dark:bg-gray-800 rounded border border-gray-200 dark:border-gray-700">
+    <div className="flex flex-col gap-2 p-3 bg-secondary rounded border border-border">
       <div className="flex items-center gap-2">
         <input
           type="checkbox"
@@ -190,11 +190,11 @@ const ExtractionRuleRow: React.FC<ExtractionRuleRowProps> = ({ rule, onUpdate, o
       </div>
 
       {(rule.path || rule.headerName) && rule.variableName && (
-        <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+        <p className="text-xs text-muted-foreground mt-1">
           {t('will_set_variable') || 'Will set'}{' '}
-          <code className="bg-gray-200 dark:bg-gray-700 px-1 rounded">${rule.variableName}</code>{' '}
+          <code className="bg-muted px-1 rounded">${rule.variableName}</code>{' '}
           {t('from') || 'from'}{' '}
-          <code className="bg-gray-200 dark:bg-gray-700 px-1 rounded">
+          <code className="bg-muted px-1 rounded">
             {rule.source === 'header' ? rule.headerName : rule.path}
           </code>
         </p>

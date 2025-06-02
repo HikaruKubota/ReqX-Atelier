@@ -177,7 +177,7 @@ export const BodyEditorKeyValue = forwardRef<BodyEditorKeyValueRef, BodyEditorKe
     const isBodyApplicable = !(method === 'GET' || method === 'HEAD');
 
     if (!isBodyApplicable) {
-      return <p className="text-gray-600 text-[0.9em]">{t('body_not_applicable', { method })}</p>;
+      return <p className="text-muted-foreground text-[0.9em]">{t('body_not_applicable', { method })}</p>;
     }
 
     return (
@@ -211,7 +211,7 @@ export const BodyEditorKeyValue = forwardRef<BodyEditorKeyValueRef, BodyEditorKe
               setImportText('');
               setImportError('');
             }}
-            className="px-4 py-2 text-sm text-white bg-gray-600 rounded"
+            className="px-4 py-2 text-sm text-white bg-secondary rounded"
           >
             {t('import_json') || 'Import JSON'}
           </button>

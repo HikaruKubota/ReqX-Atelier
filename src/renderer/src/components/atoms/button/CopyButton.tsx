@@ -22,7 +22,7 @@ export const CopyButton: React.FC<CopyButtonProps> = ({
       variant={variant}
       className={clsx(
         'flex items-center gap-1 px-2 py-1 rounded-md transition-colors',
-        'hover:bg-gray-200 dark:hover:bg-gray-700',
+        'hover:bg-accent',
         className,
       )}
       aria-label={t(labelKey)}

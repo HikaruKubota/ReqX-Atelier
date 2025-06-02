@@ -1,37 +1,55 @@
-import React, { createContext, useContext, useEffect } from 'react';
-import { darkColors, lightColors } from './colors';
-import type { ThemeColors } from '../types';
+import React, { createContext, useContext, useEffect, useMemo } from 'react';
+import { themes } from './themes';
+import type { Theme, ThemeColors } from './types';
 import { useThemeStore } from '../store/themeStore';
 
-export type ThemeMode = 'light' | 'dark';
-
 interface ThemeContextValue {
-  mode: ThemeMode;
+  theme: Theme;
   colors: ThemeColors;
-  toggleMode: () => void;
+  setTheme: (theme: string) => void;
+  availableThemes: string[];
 }
 
 const ThemeContext = createContext<ThemeContextValue | undefined>(undefined);
 
-const applyColors = (colors: ThemeColors) => {
+const applyTheme = (theme: Theme) => {
   const root = document.documentElement;
-  Object.entries(colors).forEach(([key, value]) => {
+  
+  // Remove all theme classes
+  Object.keys(themes).forEach((themeName) => {
+    root.classList.remove(themeName);
+  });
+  
+  // Add current theme class
+  root.classList.add(theme.name);
+  
+  // Apply theme colors as CSS variables
+  Object.entries(theme.colors).forEach(([key, value]) => {
     root.style.setProperty(`--color-${key}`, value);
   });
+  
+  // Set data-theme attribute for custom styling
+  root.setAttribute('data-theme', theme.name);
 };
 
 export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const mode = useThemeStore((s) => s.mode);
-  const toggleMode = useThemeStore((s) => s.toggleMode);
-  const colors = mode === 'light' ? lightColors : darkColors;
+  const themeName = useThemeStore((s) => s.theme);
+  const setTheme = useThemeStore((s) => s.setTheme);
+  
+  const theme = useMemo(() => {
+    return themes[themeName] || themes.light;
+  }, [themeName]);
+  
+  const availableThemes = useMemo(() => Object.keys(themes), []);
 
   useEffect(() => {
-    applyColors(colors);
-    document.documentElement.classList.toggle('dark', mode === 'dark');
-  }, [mode, colors]);
+    applyTheme(theme);
+  }, [theme]);
 
   return (
-    <ThemeContext.Provider value={{ mode, colors, toggleMode }}>{children}</ThemeContext.Provider>
+    <ThemeContext.Provider value={{ theme, colors: theme.colors, setTheme, availableThemes }}>
+      {children}
+    </ThemeContext.Provider>
   );
 };
 

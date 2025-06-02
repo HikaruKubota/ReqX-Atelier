@@ -50,7 +50,7 @@ export const Modal: React.FC<ModalProps> = ({ isOpen, onClose, children, size = 
           >
             <Dialog.Panel
               className={clsx(
-                'bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full',
+                'bg-card rounded-lg shadow-xl w-full',
                 sizeClasses[size],
               )}
               onClick={(e) => e.stopPropagation()}

@@ -78,7 +78,7 @@ export const VariableTooltip: React.FC<VariableTooltipProps> = ({ value, classNa
     if (undefinedVariables.length === 0) return null;
 
     return (
-      <div className={`text-xs text-yellow-600 dark:text-yellow-400 mt-1 ${className}`}>
+      <div className={`text-xs text-yellow-600 mt-1 ${className}`}>
         ⚠️ Undefined variables: {undefinedVariables.join(', ')}
       </div>
     );
@@ -104,7 +104,7 @@ export const VariableTooltip: React.FC<VariableTooltipProps> = ({ value, classNa
           <>
             <div className="font-semibold text-yellow-400">⚠️ Undefined Variable</div>
             <div>&apos;{hoveredVariable}&apos; is not defined</div>
-            <div className="border-t border-gray-600 mt-2 pt-2">
+            <div className="border-t border-slate-600 mt-2 pt-2">
               <div className="text-xs">💡 Add to Global Variables</div>
               <div className="text-xs">💡 Add to Environment Variables</div>
             </div>
@@ -114,14 +114,14 @@ export const VariableTooltip: React.FC<VariableTooltipProps> = ({ value, classNa
             <div className="font-semibold">
               {hoveredVariable}: &quot;{variable.secure ? '•••••••••' : variable.value}&quot;
             </div>
-            <div className="text-xs text-gray-300">
+            <div className="text-xs text-slate-300">
               Scope: {isGlobal ? '🌍 Global' : '🌐 Environment'}
             </div>
             {!isGlobal && globalVariables[hoveredVariable] && (
               <>
-                <div className="text-xs text-gray-300">Overrides: Global</div>
-                <div className="border-t border-gray-600 mt-1 pt-1">
-                  <div className="text-xs text-gray-400">
+                <div className="text-xs text-slate-300">Overrides: Global</div>
+                <div className="border-t border-slate-600 mt-1 pt-1">
+                  <div className="text-xs text-slate-400">
                     Global value: &quot;
                     {globalVariables[hoveredVariable].secure
                       ? '•••••••••'

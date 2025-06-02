@@ -80,7 +80,7 @@ export const RequestCollectionSidebar: React.FC<RequestCollectionSidebarProps> =
     <div
       data-testid="sidebar"
       style={{ width: isOpen ? `${width}px` : '40px' }}
-      className="flex-shrink-0 border-r border-gray-300 p-2 flex flex-col bg-[var(--color-background)] text-[var(--color-text)] h-screen relative"
+      className="flex-shrink-0 border-r border-border p-2 flex flex-col bg-background text-foreground h-screen relative"
     >
       <SidebarToggleButton isOpen={isOpen} onClick={onToggle} className="self-end mb-2" />
       {isOpen && (
@@ -92,7 +92,7 @@ export const RequestCollectionSidebar: React.FC<RequestCollectionSidebarProps> =
           </div>
           <div className="flex-grow overflow-y-auto no-scrollbar">
             {savedRequests.length === 0 && savedFolders.length === 0 && (
-              <p className="text-gray-500">{t('no_saved_requests')}</p>
+              <p className="text-muted-foreground">{t('no_saved_requests')}</p>
             )}
             <RequestCollectionTree
               folders={savedFolders}

@@ -62,7 +62,7 @@ export const ResponseDisplayPanel: React.FC<ResponseDisplayPanelProps> = ({
         )}
       </div>
       {responseTime !== null && (
-        <p className="text-gray-500">{t('response_time', { time: responseTime })}</p>
+        <p className="text-muted-foreground">{t('response_time', { time: responseTime })}</p>
       )}
       {response && (
         <div className="flex gap-2 my-2">
@@ -78,7 +78,7 @@ export const ResponseDisplayPanel: React.FC<ResponseDisplayPanelProps> = ({
       {response && activeTab === 'data' && (
         <JsonPre
           data={response.data ?? response}
-          className="bg-green-50 dark:bg-green-900 p-4 whitespace-pre-wrap break-words rounded border border-green-200 dark:border-green-700 dark:text-green-100"
+          className="bg-green-100 p-4 whitespace-pre-wrap break-words rounded border border-green-300 text-green-900"
         />
       )}
       {response &&
@@ -86,13 +86,13 @@ export const ResponseDisplayPanel: React.FC<ResponseDisplayPanelProps> = ({
         (response.headers ? (
           <JsonPre
             data={response.headers}
-            className="bg-green-50 dark:bg-green-900 p-4 whitespace-pre-wrap break-words rounded border border-green-200 dark:border-green-700 dark:text-green-100"
+            className="bg-green-100 p-4 whitespace-pre-wrap break-words rounded border border-green-300 text-green-900"
           />
         ) : (
-          <p className="text-gray-500">{t('no_headers')}</p>
+          <p className="text-muted-foreground">{t('no_headers')}</p>
         ))}
-      {!response && !error && !loading && <p className="text-gray-500">{t('no_response')}</p>}
-      {loading && <p className="text-gray-500">{t('loading')}</p>}
+      {!response && !error && !loading && <p className="text-muted-foreground">{t('no_response')}</p>}
+      {loading && <p className="text-muted-foreground">{t('loading')}</p>}
       <Toast
         message={t('copy_success')}
         isOpen={copyToastOpen}

@@ -13,8 +13,8 @@ export const TabButton: React.FC<TabButtonProps> = ({ active, className, ...prop
     className={clsx(
       'rounded-none px-4 py-1 border-b-2',
       active
-        ? 'font-bold border-blue-500 bg-white dark:bg-gray-700'
-        : 'border-transparent bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700',
+        ? 'font-bold border-primary bg-card'
+        : 'border-transparent bg-muted hover:bg-accent',
       className,
     )}
     {...props}

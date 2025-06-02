@@ -15,7 +15,7 @@ export const TrashButton: React.FC<BaseButtonProps> = ({
     <BaseButton
       size={size}
       variant={variant}
-      className={clsx('p-1 text-red-600 hover:bg-red-100 dark:hover:bg-red-800 rounded', className)}
+      className={clsx('p-1 text-destructive hover:bg-destructive/10 rounded', className)}
       aria-label={t('remove')}
       {...props}
     >

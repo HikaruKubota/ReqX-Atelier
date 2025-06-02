@@ -143,7 +143,7 @@ describe('VariableExtractionEditor', () => {
     // Look for the preview text paragraph that contains all the elements
     const previewText = screen.getByText((content, element) => {
       return !!(
-        element?.className === 'text-xs text-gray-500 dark:text-gray-400 mt-1' &&
+        element?.className === 'text-xs text-muted-foreground mt-1' &&
         content.includes('Will set') &&
         element?.textContent?.includes('$authToken') &&
         element?.textContent?.includes('$.token')

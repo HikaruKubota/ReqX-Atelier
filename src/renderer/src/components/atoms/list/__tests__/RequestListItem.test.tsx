@@ -34,7 +34,7 @@ describe('RequestListItem', () => {
     const { container } = render(
       <RequestListItem request={sampleRequest} isActive={false} isSelected />,
     );
-    expect(container.firstChild).toHaveClass('bg-blue-100');
+    expect(container.firstChild).toHaveClass('bg-primary/10');
   });
 
   it('calls onContextMenu when right clicked', () => {
