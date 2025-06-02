@@ -11,10 +11,16 @@ describe('ThemeToggleButton', () => {
         <ThemeToggleButton />
       </ThemeProvider>,
     );
-    const btn = screen.getByRole('button');
-    expect(btn.textContent).toBe('ライトモード');
-    fireEvent.click(btn);
-    expect(btn.textContent).toBe('ダークモード');
-    expect(document.documentElement.classList.contains('dark')).toBe(false);
+    const select = screen.getByRole('combobox');
+    expect(select).toBeInTheDocument();
+
+    // Check that the light theme option is present
+    expect(screen.getByText('ライト')).toBeInTheDocument();
+    expect(screen.getByText('ダーク')).toBeInTheDocument();
+    expect(screen.getByText('セピア')).toBeInTheDocument();
+
+    // Change to dark theme
+    fireEvent.change(select, { target: { value: 'dark' } });
+    expect(document.documentElement.getAttribute('data-theme')).toBe('dark');
   });
 });

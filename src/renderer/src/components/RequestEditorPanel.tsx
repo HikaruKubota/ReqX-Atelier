@@ -88,7 +88,7 @@ export const RequestEditorPanel = forwardRef<RequestEditorPanelRef, RequestEdito
     }));
 
     return (
-      <div className="flex flex-col gap-4 border border-gray-300 p-4 rounded">
+      <div className="flex flex-col gap-4 border border-border p-4 rounded">
         <RequestNameRow
           value={requestNameForSave}
           onChange={onRequestNameForSaveChange}

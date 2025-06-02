@@ -26,7 +26,7 @@ export const VariableInput: React.FC<VariableInputProps> = ({
 
   // Add warning style if there are undefined variables
   const baseClassName = 'w-full';
-  const inputClassName = `${baseClassName} ${className} ${hasUndefinedVariables ? 'border-yellow-500 dark:border-yellow-400' : ''}`;
+  const inputClassName = `${baseClassName} ${className} ${hasUndefinedVariables ? 'border-destructive' : ''}`;
 
   // Show resolved value as placeholder hint
   const resolvedValue = value.replace(/\$\{([^}]+)\}/g, (match, varName) => {
@@ -52,12 +52,12 @@ export const VariableInput: React.FC<VariableInputProps> = ({
           className={inputClassName}
         />
         {showHint && (
-          <div className="absolute top-full mt-1 left-0 text-xs text-gray-500 dark:text-gray-400 truncate max-w-full z-10 bg-white dark:bg-gray-800 px-1 rounded">
+          <div className="absolute top-full mt-1 left-0 text-xs text-muted-foreground truncate max-w-full z-10 bg-popover px-1 rounded">
             → {resolvedValue}
           </div>
         )}
         {hasUndefinedVariables && (
-          <div className="absolute top-full mt-1 right-0 text-xs text-yellow-600 dark:text-yellow-400 z-10 bg-white dark:bg-gray-800 px-1 rounded">
+          <div className="absolute top-full mt-1 right-0 text-xs text-destructive z-10 bg-popover px-1 rounded">
             ⚠️ Undefined variable(s)
           </div>
         )}
@@ -76,12 +76,12 @@ export const VariableInput: React.FC<VariableInputProps> = ({
         className={inputClassName}
       />
       {showHint && (
-        <div className="absolute top-full mt-1 left-0 text-xs text-gray-500 dark:text-gray-400 truncate max-w-full z-10 bg-white dark:bg-gray-800 px-1 rounded">
+        <div className="absolute top-full mt-1 left-0 text-xs text-muted-foreground truncate max-w-full z-10 bg-popover px-1 rounded">
           → {resolvedValue}
         </div>
       )}
       {hasUndefinedVariables && (
-        <div className="absolute top-full mt-1 right-0 text-xs text-yellow-600 dark:text-yellow-400 z-10 bg-white dark:bg-gray-800 px-1 rounded">
+        <div className="absolute top-full mt-1 right-0 text-xs text-destructive z-10 bg-popover px-1 rounded">
           ⚠️ Undefined variable(s)
         </div>
       )}

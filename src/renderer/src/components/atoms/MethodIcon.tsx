@@ -23,15 +23,15 @@ const COLOR_MAP: Record<string, string> = {
   PUT: 'text-yellow-500',
   PATCH: 'text-purple-500',
   DELETE: 'text-red-500',
-  HEAD: 'text-gray-500',
-  OPTIONS: 'text-gray-500',
+  HEAD: 'text-muted-foreground',
+  OPTIONS: 'text-muted-foreground',
 };
 
 export const MethodIcon: React.FC<MethodIconProps> = ({ method, size = 18 }) => {
   const { t } = useTranslation();
   const upper = method.toUpperCase();
   const Icon = ICON_MAP[upper] || FiList;
-  const color = COLOR_MAP[upper] || 'text-gray-500';
+  const color = COLOR_MAP[upper] || 'text-muted-foreground';
   return <Icon size={size} className={color} aria-label={t(`method_${upper.toLowerCase()}`)} />;
 };
 

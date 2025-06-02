@@ -12,7 +12,9 @@
       "Bash(git add:*)",
       "Bash(grep:*)",
       "Bash(git push:*)",
-      "Bash(git commit:*)"
+      "Bash(git commit:*)",
+      "Bash(rg:*)",
+      "Bash(npm run lint:*)"
     ],
     "deny": []
   }

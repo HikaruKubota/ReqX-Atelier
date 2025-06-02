@@ -20,7 +20,7 @@ export const SidebarToggleButton: React.FC<SidebarToggleButtonProps> = ({
       size="sm"
       className={clsx(
         'flex items-center gap-1 px-2 py-1 rounded-md shadow transition-colors',
-        'bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600',
+        'bg-accent hover:bg-accent',
         className,
       )}
       aria-label={isOpen ? t('hide_sidebar') : t('show_sidebar')}

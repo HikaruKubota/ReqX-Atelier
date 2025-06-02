@@ -39,7 +39,7 @@ describe('RequestCollectionTree', () => {
     const treeitem = container.querySelector('[role="treeitem"]') as HTMLElement;
     fireEvent.click(treeitem);
     const inner = treeitem.firstElementChild as HTMLElement;
-    expect(inner).toHaveClass('bg-blue-100');
+    expect(inner).toHaveClass('bg-primary/10');
   });
 
   it('calls onFocusNode when node is focused', () => {

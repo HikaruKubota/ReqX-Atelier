@@ -24,7 +24,7 @@ export const RequestListItem: React.FC<RequestListItemProps> = ({
     className={clsx(
       'my-[1px] px-3 flex items-center gap-2 cursor-pointer transition-colors w-full',
       isActive && 'font-bold',
-      isSelected && 'bg-blue-100 dark:bg-blue-700/50',
+      isSelected && 'bg-primary/10',
     )}
   >
     <MethodIcon size={14} method={request.method} />

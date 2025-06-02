@@ -12,10 +12,7 @@ export const DeleteButton: React.FC<BaseButtonProps> = ({
   <BaseButton
     variant={variant}
     size={size}
-    className={clsx(
-      'hover:bg-red-100 hover:text-red-600 dark:hover:bg-red-800 dark:hover:text-red-300',
-      className,
-    )}
+    className={clsx('hover:bg-destructive/10 hover:text-destructive', className)}
     aria-label="Delete"
     {...props}
   >

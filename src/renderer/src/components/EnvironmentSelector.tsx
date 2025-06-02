@@ -49,7 +49,7 @@ export const EnvironmentSelector: React.FC = () => {
     <div className="relative" ref={dropdownRef}>
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center gap-2 px-3 py-2 text-sm bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-md transition-colors"
+        className="flex items-center gap-2 px-3 py-2 text-sm bg-secondary hover:bg-accent rounded-md transition-colors"
       >
         <span className="text-base">🌐</span>
         <span className="font-medium">Environment: {activeEnvironment?.name || 'None'}</span>
@@ -57,13 +57,13 @@ export const EnvironmentSelector: React.FC = () => {
       </button>
 
       {isOpen && (
-        <div className="absolute right-0 mt-1 w-64 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-md shadow-lg z-50">
+        <div className="absolute right-0 mt-1 w-64 bg-card border border-border rounded-md shadow-lg z-50">
           {environments.map((env) => (
             <button
               key={env.id}
               onClick={() => handleSelectEnvironment(env.id)}
-              className={`w-full px-4 py-2 text-sm text-left hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center gap-2 ${
-                env.id === activeEnvironmentId ? 'bg-gray-50 dark:bg-gray-700' : ''
+              className={`w-full px-4 py-2 text-sm text-left hover:bg-accent flex items-center gap-2 ${
+                env.id === activeEnvironmentId ? 'bg-muted' : ''
               }`}
             >
               {env.id === activeEnvironmentId && <span>✓</span>}
@@ -73,12 +73,12 @@ export const EnvironmentSelector: React.FC = () => {
             </button>
           ))}
 
-          <div className="border-t border-gray-200 dark:border-gray-700 my-1" />
+          <div className="border-t border-border my-1" />
 
           {!showAddEnvironment ? (
             <button
               onClick={() => setShowAddEnvironment(true)}
-              className="w-full px-4 py-2 text-sm text-left hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center gap-2"
+              className="w-full px-4 py-2 text-sm text-left hover:bg-accent flex items-center gap-2"
             >
               <span>+</span>
               <span>Add Custom Environment...</span>
@@ -90,7 +90,7 @@ export const EnvironmentSelector: React.FC = () => {
                 value={newEnvironmentName}
                 onChange={(e) => setNewEnvironmentName(e.target.value)}
                 placeholder="Environment name"
-                className="w-full px-2 py-1 text-sm border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-700"
+                className="w-full px-2 py-1 text-sm border border-border rounded bg-input text-foreground"
                 autoFocus
               />
               <div className="flex gap-2 mt-2">
@@ -106,7 +106,7 @@ export const EnvironmentSelector: React.FC = () => {
                     setShowAddEnvironment(false);
                     setNewEnvironmentName('');
                   }}
-                  className="flex-1 px-2 py-1 text-xs bg-gray-300 dark:bg-gray-600 rounded hover:bg-gray-400 dark:hover:bg-gray-500"
+                  className="flex-1 px-2 py-1 text-xs bg-secondary text-secondary-foreground rounded hover:bg-accent"
                 >
                   Cancel
                 </button>

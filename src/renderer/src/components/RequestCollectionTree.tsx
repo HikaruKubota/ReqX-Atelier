@@ -179,7 +179,7 @@ export const RequestCollectionTree: React.FC<Props> = ({
               ref={dragHandle}
               className={clsx(
                 'select-none h-full w-full px-3 flex items-center gap-1',
-                node.isSelected && 'bg-blue-100 dark:bg-blue-700/50',
+                node.isSelected && 'bg-selection/50',
               )}
             >
               <FiFolder size={16} />
@@ -216,7 +216,7 @@ export const RequestCollectionTree: React.FC<Props> = ({
             <div
               className={clsx(
                 'flex items-center gap-1 cursor-pointer w-full',
-                node.isSelected && 'bg-blue-100 dark:bg-blue-700/50',
+                node.isSelected && 'bg-selection/50',
               )}
               onContextMenu={(e) => {
                 e.preventDefault();
@@ -242,7 +242,7 @@ export const RequestCollectionTree: React.FC<Props> = ({
             ref={dragHandle}
             className={clsx(
               'select-none h-full w-full px-3 flex items-center gap-1',
-              node.isSelected && 'bg-blue-100 dark:bg-blue-700/50',
+              node.isSelected && 'bg-primary/10',
             )}
           >
             <MethodIcon size={16} method={req.method} />
@@ -277,10 +277,7 @@ export const RequestCollectionTree: React.FC<Props> = ({
         <div
           style={style}
           ref={dragHandle}
-          className={clsx(
-            'h-full flex items-center',
-            node.isSelected && 'bg-blue-100 dark:bg-blue-700/50',
-          )}
+          className={clsx('h-full flex items-center', node.isSelected && 'bg-primary/10')}
           onContextMenu={(e) => {
             e.preventDefault();
             node.select();

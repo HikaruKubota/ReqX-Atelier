@@ -18,6 +18,6 @@ describe('BaseButton', () => {
       </BaseButton>,
     );
     const btn = screen.getByText('OK');
-    expect(btn).toHaveClass('btn-secondary', 'btn-lg');
+    expect(btn).toHaveClass('bg-secondary', 'text-secondary-foreground', 'h-12', 'px-8', 'text-lg');
   });
 });

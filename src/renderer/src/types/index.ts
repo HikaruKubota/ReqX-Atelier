@@ -125,12 +125,8 @@ export interface RequestEditorPanelRef {
   getParams: () => KeyValuePair[];
 }
 
-export interface ThemeColors {
-  background: string;
-  text: string;
-  primary: string;
-  secondary: string;
-}
+// Re-export theme types from theme module
+export type { ThemeColors, Theme, ThemeMode } from '../theme/types';
 
 export interface RequestEditorState
   extends Omit<UseHeadersManagerReturn, 'loadHeaders' | 'resetHeaders'>,

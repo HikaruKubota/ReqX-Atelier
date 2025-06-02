@@ -55,30 +55,30 @@ const VariableRow: React.FC<VariableRowProps> = ({
 
   if (isEditing) {
     return (
-      <div className="flex items-center gap-2 px-4 py-2 border-b border-gray-200 dark:border-gray-700">
+      <div className="flex items-center gap-2 px-4 py-2 border-b border-border">
         <input
           type="text"
           value={editName}
           onChange={(e) => setEditName(e.target.value)}
-          className="w-48 px-2 py-1 text-sm border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-700"
+          className="w-48 px-2 py-1 text-sm border border-border rounded bg-background"
           placeholder="Variable name"
         />
         <input
           type={variable.secure ? 'password' : 'text'}
           value={editValue}
           onChange={(e) => setEditValue(e.target.value)}
-          className="flex-1 px-2 py-1 text-sm border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-700"
+          className="flex-1 px-2 py-1 text-sm border border-border rounded bg-background"
           placeholder="Value"
         />
         <button
           onClick={handleSaveEdit}
-          className="px-3 py-1 text-sm bg-blue-500 text-white rounded hover:bg-blue-600"
+          className="px-3 py-1 text-sm bg-primary text-primary-foreground rounded hover:bg-primary/90"
         >
           Save
         </button>
         <button
           onClick={handleCancelEdit}
-          className="px-3 py-1 text-sm bg-gray-300 dark:bg-gray-600 rounded hover:bg-gray-400 dark:hover:bg-gray-500"
+          className="px-3 py-1 text-sm bg-secondary text-secondary-foreground rounded hover:bg-accent"
         >
           Cancel
         </button>
@@ -87,12 +87,12 @@ const VariableRow: React.FC<VariableRowProps> = ({
   }
 
   return (
-    <div className="flex items-center gap-4 px-4 py-2 hover:bg-gray-50 dark:hover:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
+    <div className="flex items-center gap-4 px-4 py-2 hover:bg-accent border-b border-border">
       <div className="w-48 font-mono text-sm">
         {variable.name}
         {variable.secure && <span className="ml-2">🔒</span>}
       </div>
-      <div className="flex-1 font-mono text-sm text-gray-600 dark:text-gray-400 truncate">
+      <div className="flex-1 font-mono text-sm text-muted-foreground truncate">
         {displayValue}
         {hasGlobalOverride && <span className="ml-2 text-xs">ⓘ</span>}
       </div>
@@ -103,18 +103,15 @@ const VariableRow: React.FC<VariableRowProps> = ({
         className="w-4 h-4"
       />
       <div className="relative">
-        <button
-          onClick={() => setShowMenu(!showMenu)}
-          className="p-1 hover:bg-gray-200 dark:hover:bg-gray-700 rounded"
-        >
+        <button onClick={() => setShowMenu(!showMenu)} className="p-1 hover:bg-accent rounded">
           <IoEllipsisVertical className="w-5 h-5" />
         </button>
 
         {showMenu && (
-          <div className="absolute right-0 mt-1 w-40 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-md shadow-lg z-50">
+          <div className="absolute right-0 mt-1 w-40 bg-popover border border-border rounded-md shadow-lg z-50">
             <button
               onClick={handleEdit}
-              className="w-full px-4 py-2 text-sm text-left hover:bg-gray-100 dark:hover:bg-gray-700"
+              className="w-full px-4 py-2 text-sm text-left hover:bg-accent"
             >
               編集
             </button>
@@ -123,24 +120,24 @@ const VariableRow: React.FC<VariableRowProps> = ({
                 onDuplicate();
                 setShowMenu(false);
               }}
-              className="w-full px-4 py-2 text-sm text-left hover:bg-gray-100 dark:hover:bg-gray-700"
+              className="w-full px-4 py-2 text-sm text-left hover:bg-accent"
             >
               コピー
             </button>
-            <div className="border-t border-gray-200 dark:border-gray-700" />
+            <div className="border-t border-border" />
             <button
               onClick={handleMakeSecure}
-              className="w-full px-4 py-2 text-sm text-left hover:bg-gray-100 dark:hover:bg-gray-700"
+              className="w-full px-4 py-2 text-sm text-left hover:bg-accent"
             >
               {variable.secure ? 'セキュア解除' : 'セキュア化'} 🔒
             </button>
-            <div className="border-t border-gray-200 dark:border-gray-700" />
+            <div className="border-t border-border" />
             <button
               onClick={() => {
                 onDelete();
                 setShowMenu(false);
               }}
-              className="w-full px-4 py-2 text-sm text-left text-red-600 hover:bg-gray-100 dark:hover:bg-gray-700"
+              className="w-full px-4 py-2 text-sm text-left text-red-600 hover:bg-accent"
             >
               削除
             </button>
@@ -240,30 +237,27 @@ export const VariablesPanel: React.FC<VariablesPanelProps> = ({ isOpen, onClose 
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} size="xl">
-      <div className="w-full h-[600px] max-h-[80vh] flex flex-col bg-white dark:bg-gray-800 rounded-lg overflow-hidden">
+      <div className="w-full h-[600px] max-h-[80vh] flex flex-col bg-background rounded-lg overflow-hidden">
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-border">
           <h2 className="text-lg font-semibold">
             Variables - {activeEnvironment?.name || 'No Environment'}
           </h2>
-          <button
-            onClick={onClose}
-            className="p-1 hover:bg-gray-200 dark:hover:bg-gray-700 rounded"
-          >
+          <button onClick={onClose} className="p-1 hover:bg-accent rounded">
             <IoClose className="w-5 h-5" />
           </button>
         </div>
 
         {/* Search */}
-        <div className="px-6 py-3 border-b border-gray-200 dark:border-gray-700">
+        <div className="px-6 py-3 border-b border-border">
           <div className="relative">
-            <IoSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+            <IoSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-muted-foreground" />
             <input
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search all variables..."
-              className="w-full pl-10 pr-4 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700"
+              className="w-full pl-10 pr-4 py-2 text-sm border border-border rounded-md bg-background"
             />
           </div>
         </div>
@@ -272,7 +266,7 @@ export const VariablesPanel: React.FC<VariablesPanelProps> = ({ isOpen, onClose 
         <div className="flex-1 overflow-y-auto">
           {/* Global Variables */}
           <div className="mb-6">
-            <div className="px-6 py-3 bg-gray-50 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
+            <div className="px-6 py-3 bg-secondary border-b border-border">
               <h3 className="font-medium flex items-center gap-2">
                 <span>🌍</span>
                 Global Variables (All Environments)
@@ -280,7 +274,7 @@ export const VariablesPanel: React.FC<VariablesPanelProps> = ({ isOpen, onClose 
             </div>
 
             {filteredGlobalVariables.length === 0 ? (
-              <div className="px-6 py-4 text-sm text-gray-500 dark:text-gray-400">
+              <div className="px-6 py-4 text-sm text-muted-foreground">
                 No global variables found
               </div>
             ) : (
@@ -298,18 +292,18 @@ export const VariablesPanel: React.FC<VariablesPanelProps> = ({ isOpen, onClose 
             {!showAddGlobal ? (
               <button
                 onClick={() => setShowAddGlobal(true)}
-                className="w-full px-6 py-2 text-sm text-left text-blue-600 hover:bg-gray-50 dark:hover:bg-gray-800"
+                className="w-full px-6 py-2 text-sm text-left text-primary hover:bg-accent"
               >
                 + Add Global Variable
               </button>
             ) : (
-              <div className="px-6 py-3 bg-gray-50 dark:bg-gray-800 flex items-center gap-2">
+              <div className="px-6 py-3 bg-secondary flex items-center gap-2">
                 <input
                   type="text"
                   value={newVariableName}
                   onChange={(e) => setNewVariableName(e.target.value)}
                   placeholder="Variable name"
-                  className="w-48 px-2 py-1 text-sm border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-700"
+                  className="w-48 px-2 py-1 text-sm border border-border rounded bg-background"
                   autoFocus
                 />
                 <input
@@ -317,7 +311,7 @@ export const VariablesPanel: React.FC<VariablesPanelProps> = ({ isOpen, onClose 
                   value={newVariableValue}
                   onChange={(e) => setNewVariableValue(e.target.value)}
                   placeholder="Value"
-                  className="flex-1 px-2 py-1 text-sm border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-700"
+                  className="flex-1 px-2 py-1 text-sm border border-border rounded bg-background"
                 />
                 <label className="flex items-center gap-1 text-sm">
                   <input
@@ -329,7 +323,7 @@ export const VariablesPanel: React.FC<VariablesPanelProps> = ({ isOpen, onClose 
                 </label>
                 <button
                   onClick={handleAddGlobalVariable}
-                  className="px-3 py-1 text-sm bg-blue-500 text-white rounded hover:bg-blue-600"
+                  className="px-3 py-1 text-sm bg-primary text-primary-foreground rounded hover:bg-primary/90"
                 >
                   Add
                 </button>
@@ -338,7 +332,7 @@ export const VariablesPanel: React.FC<VariablesPanelProps> = ({ isOpen, onClose 
                     setShowAddGlobal(false);
                     resetAddForm();
                   }}
-                  className="px-3 py-1 text-sm bg-gray-300 dark:bg-gray-600 rounded hover:bg-gray-400 dark:hover:bg-gray-500"
+                  className="px-3 py-1 text-sm bg-secondary text-secondary-foreground rounded hover:bg-accent"
                 >
                   Cancel
                 </button>
@@ -348,7 +342,7 @@ export const VariablesPanel: React.FC<VariablesPanelProps> = ({ isOpen, onClose 
 
           {/* Environment Variables */}
           <div>
-            <div className="px-6 py-3 bg-gray-50 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
+            <div className="px-6 py-3 bg-secondary border-b border-border">
               <h3 className="font-medium flex items-center gap-2">
                 <span>🌐</span>
                 Environment Variables ({activeEnvironment?.name})
@@ -356,7 +350,7 @@ export const VariablesPanel: React.FC<VariablesPanelProps> = ({ isOpen, onClose 
             </div>
 
             {filteredEnvironmentVariables.length === 0 ? (
-              <div className="px-6 py-4 text-sm text-gray-500 dark:text-gray-400">
+              <div className="px-6 py-4 text-sm text-muted-foreground">
                 No environment variables found
               </div>
             ) : (
@@ -383,18 +377,18 @@ export const VariablesPanel: React.FC<VariablesPanelProps> = ({ isOpen, onClose 
             {!showAddEnvironment ? (
               <button
                 onClick={() => setShowAddEnvironment(true)}
-                className="w-full px-6 py-2 text-sm text-left text-blue-600 hover:bg-gray-50 dark:hover:bg-gray-800"
+                className="w-full px-6 py-2 text-sm text-left text-primary hover:bg-accent"
               >
                 + Add Environment Variable
               </button>
             ) : (
-              <div className="px-6 py-3 bg-gray-50 dark:bg-gray-800 flex items-center gap-2">
+              <div className="px-6 py-3 bg-secondary flex items-center gap-2">
                 <input
                   type="text"
                   value={newVariableName}
                   onChange={(e) => setNewVariableName(e.target.value)}
                   placeholder="Variable name"
-                  className="w-48 px-2 py-1 text-sm border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-700"
+                  className="w-48 px-2 py-1 text-sm border border-border rounded bg-background"
                   autoFocus
                 />
                 <input
@@ -402,7 +396,7 @@ export const VariablesPanel: React.FC<VariablesPanelProps> = ({ isOpen, onClose 
                   value={newVariableValue}
                   onChange={(e) => setNewVariableValue(e.target.value)}
                   placeholder="Value"
-                  className="flex-1 px-2 py-1 text-sm border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-700"
+                  className="flex-1 px-2 py-1 text-sm border border-border rounded bg-background"
                 />
                 <label className="flex items-center gap-1 text-sm">
                   <input
@@ -414,7 +408,7 @@ export const VariablesPanel: React.FC<VariablesPanelProps> = ({ isOpen, onClose 
                 </label>
                 <button
                   onClick={handleAddEnvironmentVariable}
-                  className="px-3 py-1 text-sm bg-blue-500 text-white rounded hover:bg-blue-600"
+                  className="px-3 py-1 text-sm bg-primary text-primary-foreground rounded hover:bg-primary/90"
                 >
                   Add
                 </button>
@@ -423,7 +417,7 @@ export const VariablesPanel: React.FC<VariablesPanelProps> = ({ isOpen, onClose 
                     setShowAddEnvironment(false);
                     resetAddForm();
                   }}
-                  className="px-3 py-1 text-sm bg-gray-300 dark:bg-gray-600 rounded hover:bg-gray-400 dark:hover:bg-gray-500"
+                  className="px-3 py-1 text-sm bg-secondary text-secondary-foreground rounded hover:bg-accent"
                 >
                   Cancel
                 </button>
@@ -433,11 +427,11 @@ export const VariablesPanel: React.FC<VariablesPanelProps> = ({ isOpen, onClose 
         </div>
 
         {/* Footer */}
-        <div className="px-6 py-3 border-t border-gray-200 dark:border-gray-700 flex items-center gap-2">
-          <button className="px-3 py-1 text-sm bg-gray-200 dark:bg-gray-700 rounded hover:bg-gray-300 dark:hover:bg-gray-600">
+        <div className="px-6 py-3 border-t border-border flex items-center gap-2">
+          <button className="px-3 py-1 text-sm bg-secondary rounded hover:bg-accent">
             🔒 Secure Variables
           </button>
-          <button className="px-3 py-1 text-sm bg-gray-200 dark:bg-gray-700 rounded hover:bg-gray-300 dark:hover:bg-gray-600">
+          <button className="px-3 py-1 text-sm bg-secondary rounded hover:bg-accent">
             ❓ Help
           </button>
         </div>

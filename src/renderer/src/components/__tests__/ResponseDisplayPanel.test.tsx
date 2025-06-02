@@ -9,10 +9,10 @@ const sampleResponse = { data: { ok: true }, headers: { foo: 'bar' } };
 const sampleError = { message: 'bad' };
 
 const Wrapper: React.FC = () => {
-  const { toggleMode } = useTheme();
+  const { theme, setTheme } = useTheme();
   return (
     <>
-      <button onClick={toggleMode}>toggle</button>
+      <button onClick={() => setTheme(theme.name === 'light' ? 'dark' : 'light')}>toggle</button>
       <ResponseDisplayPanel
         response={sampleResponse}
         error={null}
@@ -31,10 +31,10 @@ describe('ResponseDisplayPanel', () => {
       </ThemeProvider>,
     );
     const pre = screen.getByText(/"ok": true/);
-    expect(pre.className).toMatch('dark:bg-green-900');
+    expect(pre.className).toMatch('bg-green-100');
     expect(screen.getByText('レスポンス時間: 123ms')).toBeInTheDocument();
     fireEvent.click(screen.getByText('toggle'));
-    expect(document.documentElement.classList.contains('dark')).toBe(false);
+    expect(document.documentElement.getAttribute('data-theme')).toBe('dark');
   });
 
   it('shows copy button and fires clipboard copy', async () => {
