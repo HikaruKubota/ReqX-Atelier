@@ -34,11 +34,39 @@ export const ContextMenu: React.FC<ContextMenuProps> = ({
     return () => window.removeEventListener('click', handleClick);
   }, [onClose]);
 
+  useEffect(() => {
+    // Adjust position to ensure menu stays within viewport
+    if (ref.current) {
+      const rect = ref.current.getBoundingClientRect();
+      const viewportWidth = window.innerWidth;
+      const viewportHeight = window.innerHeight;
+      
+      let adjustedX = position.x;
+      let adjustedY = position.y;
+      
+      // If menu would go off the right edge, position it to the left of cursor
+      if (rect.right > viewportWidth) {
+        adjustedX = Math.max(0, position.x - rect.width);
+      }
+      
+      // If menu would go off the bottom edge, position it above cursor
+      if (rect.bottom > viewportHeight) {
+        adjustedY = Math.max(0, position.y - rect.height);
+      }
+      
+      // Apply adjusted position if needed
+      if (adjustedX !== position.x || adjustedY !== position.y) {
+        ref.current.style.left = `${adjustedX}px`;
+        ref.current.style.top = `${adjustedY}px`;
+      }
+    }
+  }, [position]);
+
   return (
     <div
       ref={ref}
       className={clsx(
-        'absolute bg-popover border-border border rounded shadow z-50 text-sm',
+        'fixed bg-popover border-border border rounded shadow-lg z-50 text-sm min-w-[200px]',
         className,
       )}
       style={{ top: position.y, left: position.x }}
@@ -49,7 +77,7 @@ export const ContextMenu: React.FC<ContextMenuProps> = ({
           key={idx}
           variant="ghost"
           size="sm"
-          className="block w-full text-left px-4 py-2 hover:bg-accent"
+          className="block w-full text-left px-4 py-2 hover:bg-accent whitespace-nowrap"
           onClick={() => {
             item.onClick?.();
             onClose();
