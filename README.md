@@ -19,6 +19,22 @@ ReqX Atelier は **Electron + React + Vite** で構築されたシンプルな A
  npm install
 ```
 
+### Git Hooks の設定（推奨）
+
+このプロジェクトでは、コード品質の維持とワークフローの統一のため、Git Hooksの使用を推奨しています。
+
+```bash
+git config core.hooksPath .githooks
+```
+
+#### 含まれているGit Hooks
+
+- **pre-push**: mainブランチへの直接pushを防止します
+  - すべての変更はfeatureブランチとPull Request経由で行うことを強制
+  - 誤ってmainに直接pushしてしまうミスを防ぎます
+
+この設定により、より安全で追跡可能な開発フローを維持できます。
+
 ---
 
 ## 開発 (ホットリロード)

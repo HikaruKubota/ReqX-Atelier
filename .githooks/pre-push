@@ -1,0 +1,26 @@
+#!/bin/sh
+
+# Git hook to prevent direct pushes to the main branch
+# This forces all changes to go through pull requests
+
+# Get the branch being pushed to
+while read local_ref local_sha remote_ref remote_sha
+do
+    # Extract branch name from remote ref
+    remote_branch=$(echo "$remote_ref" | sed 's/refs\/heads\///')
+    
+    # Check if pushing to main branch
+    if [ "$remote_branch" = "main" ]; then
+        echo "❌ Direct push to main branch is not allowed!"
+        echo "📝 Please create a feature branch and submit a pull request instead."
+        echo ""
+        echo "To create a new branch from your current changes:"
+        echo "  git checkout -b feature/your-feature-name"
+        echo "  git push -u origin feature/your-feature-name"
+        echo ""
+        echo "Then create a pull request on GitHub."
+        exit 1
+    fi
+done
+
+exit 0
