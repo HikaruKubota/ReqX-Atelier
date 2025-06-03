@@ -65,7 +65,7 @@ export const ResponseDisplayPanel: React.FC<ResponseDisplayPanelProps> = ({
         <p className="text-muted-foreground">{t('response_time', { time: responseTime })}</p>
       )}
       {response && (
-        <div className="flex gap-2 my-2">
+        <div className="flex my-2">
           <TabButton active={activeTab === 'data'} onClick={() => setActiveTab('data')}>
             {t('data_tab')}
           </TabButton>
