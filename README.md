@@ -19,6 +19,14 @@ ReqX Atelier は **Electron + React + Vite** で構築されたシンプルな A
  npm install
 ```
 
+### Git Hooks の設定（オプション）
+
+mainブランチへの直接pushを防ぐためのGit Hookを設定する場合：
+
+```bash
+git config core.hooksPath .githooks
+```
+
 ---
 
 ## 開発 (ホットリロード)
