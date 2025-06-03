@@ -66,18 +66,18 @@ export const ContextMenu: React.FC<ContextMenuProps> = ({
     <div
       ref={ref}
       className={clsx(
-        'fixed bg-popover border-border border rounded shadow-lg z-50 text-sm min-w-[200px]',
+        'fixed bg-popover border-border border rounded shadow-md z-50 text-sm min-w-[120px]',
         className,
       )}
       style={{ top: position.y, left: position.x }}
     >
-      {title && <div className="px-4 py-2 font-bold border-b border-border">{title}</div>}
+      {title && <div className="px-3 py-1.5 font-bold border-b border-border text-xs">{title}</div>}
       {items.map((item, idx) => (
         <BaseButton
           key={idx}
           variant="ghost"
           size="sm"
-          className="block w-full text-left px-4 py-2 hover:bg-accent whitespace-nowrap"
+          className="block w-full text-left px-3 py-1.5 hover:bg-accent whitespace-nowrap text-xs"
           onClick={() => {
             item.onClick?.();
             onClose();
