@@ -34,3 +34,6 @@ ehthumbs.db
 *.sw?
 
 *storybook.log
+
+# Local settings
+.claude/settings.local.json
