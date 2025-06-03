@@ -78,10 +78,37 @@ export const sepiaTheme: Theme = {
   },
 };
 
+export const pinkTheme: Theme = {
+  name: 'pink',
+  colors: {
+    background: '#fef5f9',
+    foreground: '#4a1d34',
+    card: '#fde8f3',
+    cardForeground: '#4a1d34',
+    popover: '#fde8f3',
+    popoverForeground: '#4a1d34',
+    primary: '#ec4899',
+    primaryForeground: '#ffffff',
+    secondary: '#fce7f3',
+    secondaryForeground: '#831843',
+    muted: '#fbcfe8',
+    mutedForeground: '#be185d',
+    accent: '#f9a8d4',
+    accentForeground: '#701a75',
+    destructive: '#e11d48',
+    destructiveForeground: '#ffffff',
+    border: '#f9a8d4',
+    input: '#fef5f9',
+    ring: '#ec4899',
+    selection: '#fce7f3',
+  },
+};
+
 export const themes: Record<string, Theme> = {
   light: lightTheme,
   dark: darkTheme,
   sepia: sepiaTheme,
+  pink: pinkTheme,
 };
 
 export const defaultTheme = 'light';
