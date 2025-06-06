@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { render, screen, fireEvent } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { VariablesPanel } from '../VariablesPanel';
@@ -28,7 +28,7 @@ const mockStore = {
 describe('VariablesPanel', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    (useVariablesStore as any).mockReturnValue(mockStore);
+    vi.mocked(useVariablesStore).mockReturnValue(mockStore);
   });
 
   it('should render when open', () => {
@@ -69,7 +69,7 @@ describe('VariablesPanel', () => {
           },
         },
       };
-      (useVariablesStore as any).mockReturnValue(storeWithVars);
+      vi.mocked(useVariablesStore).mockReturnValue(storeWithVars);
 
       render(<VariablesPanel isOpen={true} onClose={vi.fn()} />);
 
@@ -153,7 +153,7 @@ describe('VariablesPanel', () => {
           { id: 'production', name: 'Production', variables: {} },
         ],
       };
-      (useVariablesStore as any).mockReturnValue(storeWithEnvVars);
+      vi.mocked(useVariablesStore).mockReturnValue(storeWithEnvVars);
 
       render(<VariablesPanel isOpen={true} onClose={vi.fn()} />);
 
@@ -202,7 +202,7 @@ describe('VariablesPanel', () => {
           SECRET_TOKEN: { name: 'SECRET_TOKEN', value: 'token-456', enabled: true },
         },
       };
-      (useVariablesStore as any).mockReturnValue(storeWithVars);
+      vi.mocked(useVariablesStore).mockReturnValue(storeWithVars);
 
       render(<VariablesPanel isOpen={true} onClose={vi.fn()} />);
 
@@ -230,7 +230,7 @@ describe('VariablesPanel', () => {
           VAR2: { name: 'VAR2', value: 'example.com', enabled: true },
         },
       };
-      (useVariablesStore as any).mockReturnValue(storeWithVars);
+      vi.mocked(useVariablesStore).mockReturnValue(storeWithVars);
 
       render(<VariablesPanel isOpen={true} onClose={vi.fn()} />);
 
@@ -251,7 +251,7 @@ describe('VariablesPanel', () => {
           TEST_VAR: { name: 'TEST_VAR', value: 'test', enabled: true },
         },
       };
-      (useVariablesStore as any).mockReturnValue(storeWithVars);
+      vi.mocked(useVariablesStore).mockReturnValue(storeWithVars);
 
       render(<VariablesPanel isOpen={true} onClose={vi.fn()} />);
 
@@ -283,7 +283,7 @@ describe('VariablesPanel', () => {
           { id: 'production', name: 'Production', variables: {} },
         ],
       };
-      (useVariablesStore as any).mockReturnValue(storeWithOverride);
+      vi.mocked(useVariablesStore).mockReturnValue(storeWithOverride);
 
       render(<VariablesPanel isOpen={true} onClose={vi.fn()} />);
 

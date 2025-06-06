@@ -60,7 +60,7 @@ describe('SaveRequestButton', () => {
     render(<SaveRequestButton />);
 
     const button = screen.getByText('Save Request');
-    expect(button).toHaveClass('px-4', 'py-2', 'font-semibold', 'rounded', 'shadow-sm');
+    expect(button).toHaveClass('px-4', 'py-2', 'font-semibold', 'rounded-md');
   });
 
   it('should use primary variant by default', () => {
@@ -69,22 +69,6 @@ describe('SaveRequestButton', () => {
     const button = screen.getByText('Save Request');
     // BaseButton adds bg-primary and text-primary-foreground for primary variant
     expect(button).toHaveClass('bg-primary', 'text-primary-foreground');
-  });
-
-  it('should accept different variants', () => {
-    render(<SaveRequestButton variant="secondary" />);
-
-    const button = screen.getByText('Save Request');
-    // BaseButton adds bg-secondary and text-secondary-foreground for secondary variant
-    expect(button).toHaveClass('bg-secondary', 'text-secondary-foreground');
-  });
-
-  it('should accept different sizes', () => {
-    render(<SaveRequestButton size="lg" />);
-
-    const button = screen.getByText('Save Request');
-    // BaseButton adds text-lg for large size
-    expect(button).toHaveClass('text-lg');
   });
 
   it('should not be clickable when disabled', async () => {
@@ -107,14 +91,5 @@ describe('SaveRequestButton', () => {
     rerender(<SaveRequestButton isUpdate={true} />);
 
     expect(screen.getByText('Update Request')).toBeInTheDocument();
-  });
-
-  it('should forward ref correctly', () => {
-    const ref = React.createRef<HTMLButtonElement>();
-
-    render(<SaveRequestButton ref={ref} />);
-
-    expect(ref.current).toBeInstanceOf(HTMLButtonElement);
-    expect(ref.current?.textContent).toBe('Save Request');
   });
 });

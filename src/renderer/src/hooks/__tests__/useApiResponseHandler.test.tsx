@@ -22,17 +22,19 @@ describe('useApiResponseHandler', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     // Mock the entire useVariablesStore hook
-    vi.mocked(useVariablesStore).mockImplementation((selector: any) => {
-      // If a selector is provided, call it with our mock state
-      if (typeof selector === 'function') {
-        const mockState = {
-          getResolvedVariables: mockGetResolvedVariables,
-        };
-        return selector(mockState);
-      }
-      // Otherwise return the mock function directly
-      return mockGetResolvedVariables;
-    });
+    vi.mocked(useVariablesStore).mockImplementation(
+      (selector: (state: { getResolvedVariables: typeof mockGetResolvedVariables }) => unknown) => {
+        // If a selector is provided, call it with our mock state
+        if (typeof selector === 'function') {
+          const mockState = {
+            getResolvedVariables: mockGetResolvedVariables,
+          };
+          return selector(mockState);
+        }
+        // Otherwise return the mock function directly
+        return mockGetResolvedVariables;
+      },
+    );
     mockGetResolvedVariables.mockReturnValue({});
   });
 

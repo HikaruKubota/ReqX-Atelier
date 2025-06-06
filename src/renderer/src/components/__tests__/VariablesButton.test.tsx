@@ -91,7 +91,6 @@ describe('VariablesButton', () => {
   });
 
   it('should maintain hover state classes', async () => {
-    const user = userEvent.setup();
     render(<VariablesButton onClick={() => {}} />);
 
     const button = screen.getByRole('button');

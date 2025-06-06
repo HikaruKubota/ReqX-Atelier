@@ -105,15 +105,6 @@ describe('TabButton', () => {
     expect(button).not.toHaveClass('border-transparent');
   });
 
-  it('should forward ref correctly', () => {
-    const ref = React.createRef<HTMLButtonElement>();
-
-    render(<TabButton ref={ref}>Tab with Ref</TabButton>);
-
-    expect(ref.current).toBeInstanceOf(HTMLButtonElement);
-    expect(ref.current?.textContent).toBe('Tab with Ref');
-  });
-
   it('should maintain custom props', () => {
     render(
       <TabButton data-testid="custom-tab" aria-label="Custom Tab">

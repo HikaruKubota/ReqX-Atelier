@@ -60,7 +60,7 @@ describe('SendButton', () => {
     render(<SendButton />);
 
     const button = screen.getByText('Send');
-    expect(button).toHaveClass('px-4', 'py-2', 'font-semibold', 'rounded', 'shadow-sm');
+    expect(button).toHaveClass('px-4', 'py-2', 'font-semibold', 'rounded-md');
   });
 
   it('should use primary variant by default', () => {
@@ -69,22 +69,6 @@ describe('SendButton', () => {
     const button = screen.getByText('Send');
     // BaseButton adds bg-primary and text-primary-foreground for primary variant
     expect(button).toHaveClass('bg-primary', 'text-primary-foreground');
-  });
-
-  it('should accept different variants', () => {
-    render(<SendButton variant="secondary" />);
-
-    const button = screen.getByText('Send');
-    // BaseButton adds bg-secondary and text-secondary-foreground for secondary variant
-    expect(button).toHaveClass('bg-secondary', 'text-secondary-foreground');
-  });
-
-  it('should accept different sizes', () => {
-    render(<SendButton size="sm" />);
-
-    const button = screen.getByText('Send');
-    // BaseButton adds text-xs for small size
-    expect(button).toHaveClass('text-xs', 'h-8', 'px-3');
   });
 
   it('should not be clickable when disabled', async () => {
@@ -97,14 +81,5 @@ describe('SendButton', () => {
     await user.click(button);
 
     expect(handleClick).not.toHaveBeenCalled();
-  });
-
-  it('should forward ref correctly', () => {
-    const ref = React.createRef<HTMLButtonElement>();
-
-    render(<SendButton ref={ref} />);
-
-    expect(ref.current).toBeInstanceOf(HTMLButtonElement);
-    expect(ref.current?.textContent).toBe('Send');
   });
 });

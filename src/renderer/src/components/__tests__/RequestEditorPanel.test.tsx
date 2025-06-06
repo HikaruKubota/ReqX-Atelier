@@ -1,9 +1,9 @@
 import React from 'react';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { RequestEditorPanel } from '../RequestEditorPanel';
-import type { HeaderKeyValuePair, KeyValuePair, VariableExtraction } from '../../types';
+import type { RequestHeader, KeyValuePair } from '../../types';
 
 // Mock react-i18next with tab translations
 vi.mock('react-i18next', () => ({
@@ -25,9 +25,15 @@ vi.mock('react-i18next', () => ({
 
 // Mock child components
 vi.mock('../HeadersEditor', () => ({
-  HeadersEditor: ({ headers, onAddHeader }: any) => (
+  HeadersEditor: ({
+    headers,
+    onAddHeader,
+  }: {
+    headers: RequestHeader[];
+    onAddHeader: () => void;
+  }) => (
     <div data-testid="headers-editor">
-      {headers.map((h: any) => (
+      {headers.map((h: RequestHeader) => (
         <div key={h.id}>
           {h.key}: {h.value}
         </div>
@@ -37,8 +43,11 @@ vi.mock('../HeadersEditor', () => ({
   ),
 }));
 
-vi.mock('../BodyEditorKeyValue', () => ({
-  BodyEditorKeyValue: React.forwardRef(({ value, onChange, method }: any, ref) => {
+vi.mock('../BodyEditorKeyValue', () => {
+  const MockBodyEditorKeyValue = React.forwardRef<
+    unknown,
+    { value?: KeyValuePair[]; onChange?: (pairs: KeyValuePair[]) => void; method: string }
+  >(({ value, onChange, method }, ref) => {
     React.useImperativeHandle(ref, () => ({
       getCurrentBodyAsJson: () => JSON.stringify(value || []),
       getCurrentKeyValuePairs: () => value || [],
@@ -55,23 +64,29 @@ vi.mock('../BodyEditorKeyValue', () => ({
         </button>
       </div>
     );
-  }),
-}));
+  });
+  MockBodyEditorKeyValue.displayName = 'MockBodyEditorKeyValue';
+  return { BodyEditorKeyValue: MockBodyEditorKeyValue };
+});
 
-vi.mock('../ParamsEditorKeyValue', () => ({
-  ParamsEditorKeyValue: React.forwardRef(({ value, onChange }: any, ref) => {
+vi.mock('../ParamsEditorKeyValue', () => {
+  const MockParamsEditorKeyValue = React.forwardRef<
+    unknown,
+    { value?: KeyValuePair[]; onChange?: (pairs: KeyValuePair[]) => void }
+  >(({ value, onChange }, ref) => {
     React.useImperativeHandle(ref, () => ({
       getCurrentKeyValuePairs: () => value || [],
     }));
     return (
       <div data-testid="params-editor">
-        {(value || []).map((p: any) => (
+        {(value || []).map((p: KeyValuePair) => (
           <div key={p.id}>
             {p.keyName}: {p.value}
           </div>
         ))}
         <button
           onClick={() =>
+            onChange &&
             onChange([
               ...(value || []),
               { id: 'new', keyName: 'param', value: 'value', enabled: true },
@@ -82,21 +97,31 @@ vi.mock('../ParamsEditorKeyValue', () => ({
         </button>
       </div>
     );
-  }),
-}));
+  });
+  MockParamsEditorKeyValue.displayName = 'MockParamsEditorKeyValue';
+  return { ParamsEditorKeyValue: MockParamsEditorKeyValue };
+});
 
 vi.mock('../VariableExtractionEditor', () => ({
-  VariableExtractionEditor: ({ variableExtraction, onChange }: any) => (
+  VariableExtractionEditor: ({ onChange }: { onChange?: (extraction: unknown) => void }) => (
     <div data-testid="variable-extraction-editor">
       Variable Extraction Editor
       <button
         onClick={() =>
           onChange &&
           onChange({
-            id: '1',
-            extractions: [
-              { id: '1', variableName: 'token', extractFrom: 'data.token', enabled: true },
+            extractionRules: [
+              {
+                id: '1',
+                variableName: 'token',
+                source: 'body-json',
+                path: 'data.token',
+                scope: 'global',
+                enabled: true,
+              },
             ],
+            customScript: '',
+            enabled: true,
           })
         }
       >
@@ -108,7 +133,7 @@ vi.mock('../VariableExtractionEditor', () => ({
 
 // Mock RequestNameRow and RequestMethodRow
 vi.mock('../molecules/RequestNameRow', () => ({
-  RequestNameRow: ({ value, onChange }: any) => (
+  RequestNameRow: ({ value, onChange }: { value: string; onChange: (value: string) => void }) => (
     <input
       data-testid="request-name"
       value={value}
@@ -119,7 +144,15 @@ vi.mock('../molecules/RequestNameRow', () => ({
 }));
 
 vi.mock('../molecules/RequestMethodRow', () => ({
-  RequestMethodRow: ({ method, url, onUrlChange }: any) => (
+  RequestMethodRow: ({
+    method,
+    url,
+    onUrlChange,
+  }: {
+    method: string;
+    url: string;
+    onUrlChange: (url: string) => void;
+  }) => (
     <div>
       <span data-testid="method">{method}</span>
       <input
@@ -147,7 +180,7 @@ const defaultProps = {
   onSendRequest: vi.fn(),
   onBodyPairsChange: vi.fn(),
   onParamPairsChange: vi.fn(),
-  headers: [] as HeaderKeyValuePair[],
+  headers: [] as RequestHeader[],
   onAddHeader: vi.fn(),
   onUpdateHeader: vi.fn(),
   onRemoveHeader: vi.fn(),
@@ -340,10 +373,18 @@ describe('RequestEditorPanel', () => {
     it('should pass variableExtraction to VariableExtractionEditor', async () => {
       const user = userEvent.setup();
       const variableExtraction = {
-        id: '1',
-        extractions: [
-          { id: '1', variableName: 'authToken', extractFrom: 'data.token', enabled: true },
+        extractionRules: [
+          {
+            id: '1',
+            variableName: 'authToken',
+            source: 'body-json' as const,
+            path: 'data.token',
+            scope: 'global' as const,
+            enabled: true,
+          },
         ],
+        customScript: '',
+        enabled: true,
       };
 
       render(<RequestEditorPanel {...defaultProps} variableExtraction={variableExtraction} />);
@@ -361,8 +402,18 @@ describe('RequestEditorPanel', () => {
       await user.click(screen.getByText('Add Extraction'));
 
       expect(defaultProps.onVariableExtractionChange).toHaveBeenCalledWith({
-        id: '1',
-        extractions: [{ id: '1', variableName: 'token', extractFrom: 'data.token', enabled: true }],
+        extractionRules: [
+          {
+            id: '1',
+            variableName: 'token',
+            source: 'body-json',
+            path: 'data.token',
+            scope: 'global',
+            enabled: true,
+          },
+        ],
+        customScript: '',
+        enabled: true,
       });
     });
   });
