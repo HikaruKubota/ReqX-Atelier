@@ -68,7 +68,7 @@ export const HeadersEditor = forwardRef<HeadersEditorRef, HeadersEditorProps>(
         </DndContext>
         <button
           onClick={onAddHeader}
-          className="px-4 py-2 border border-blue-500 text-blue-500 bg-white rounded self-start"
+          className="px-4 py-2 border border-primary text-primary bg-background hover:bg-primary hover:text-primary-foreground rounded-md self-start transition-all duration-200"
         >
           {t('add_header') || 'Add Header'}
         </button>

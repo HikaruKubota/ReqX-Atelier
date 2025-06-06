@@ -100,7 +100,7 @@ export const VariableExtractionEditor: React.FC<VariableExtractionEditorProps> =
 
         <button
           onClick={handleAddRule}
-          className="mt-4 px-4 py-2 text-sm text-white bg-blue-500 rounded hover:bg-blue-600"
+          className="mt-4 px-4 py-2 text-sm text-primary-foreground bg-primary rounded hover:bg-primary/90"
         >
           {t('add_extraction_rule') || '+ Add Extraction Rule'}
         </button>
