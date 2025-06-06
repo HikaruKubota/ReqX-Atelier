@@ -36,7 +36,7 @@ describe('variablesStore', () => {
 
     it('should update a global variable', () => {
       const { result } = renderHook(() => useVariablesStore());
-      
+
       // Add initial variable
       act(() => {
         result.current.addGlobalVariable({
@@ -63,7 +63,7 @@ describe('variablesStore', () => {
 
     it('should delete a global variable', () => {
       const { result } = renderHook(() => useVariablesStore());
-      
+
       // Add variables
       act(() => {
         result.current.addGlobalVariable({
@@ -107,7 +107,7 @@ describe('variablesStore', () => {
 
     it('should update an environment variable', () => {
       const { result } = renderHook(() => useVariablesStore());
-      
+
       // Add initial variable
       act(() => {
         result.current.addEnvironmentVariable('staging', {
@@ -136,7 +136,7 @@ describe('variablesStore', () => {
 
     it('should delete an environment variable', () => {
       const { result } = renderHook(() => useVariablesStore());
-      
+
       // Add variables
       act(() => {
         result.current.addEnvironmentVariable('production', {

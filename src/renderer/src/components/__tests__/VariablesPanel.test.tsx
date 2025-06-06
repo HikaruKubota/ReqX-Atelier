@@ -33,7 +33,7 @@ describe('VariablesPanel', () => {
 
   it('should render when open', () => {
     render(<VariablesPanel isOpen={true} onClose={vi.fn()} />);
-    
+
     expect(screen.getByText(/Variables - Development/)).toBeInTheDocument();
     expect(screen.getByText('Global Variables (All Environments)')).toBeInTheDocument();
     expect(screen.getByText('Environment Variables (Development)')).toBeInTheDocument();
@@ -41,17 +41,17 @@ describe('VariablesPanel', () => {
 
   it('should not render when closed', () => {
     const { container } = render(<VariablesPanel isOpen={false} onClose={vi.fn()} />);
-    
+
     expect(container.firstChild).toBeNull();
   });
 
   it('should call onClose when close button is clicked', () => {
     const onClose = vi.fn();
     render(<VariablesPanel isOpen={true} onClose={onClose} />);
-    
+
     const closeButton = screen.getByRole('button', { name: '' }); // Close button has no text
     fireEvent.click(closeButton);
-    
+
     expect(onClose).toHaveBeenCalled();
   });
 
@@ -61,13 +61,18 @@ describe('VariablesPanel', () => {
         ...mockStore,
         globalVariables: {
           API_KEY: { name: 'API_KEY', value: '12345', enabled: true },
-          API_URL: { name: 'API_URL', value: 'https://api.example.com', enabled: false, secure: true },
+          API_URL: {
+            name: 'API_URL',
+            value: 'https://api.example.com',
+            enabled: false,
+            secure: true,
+          },
         },
       };
       (useVariablesStore as any).mockReturnValue(storeWithVars);
 
       render(<VariablesPanel isOpen={true} onClose={vi.fn()} />);
-      
+
       expect(screen.getByText('API_KEY')).toBeInTheDocument();
       expect(screen.getByText('12345')).toBeInTheDocument();
       expect(screen.getByText('API_URL')).toBeInTheDocument();
@@ -77,22 +82,22 @@ describe('VariablesPanel', () => {
     it('should add a new global variable', async () => {
       const user = userEvent.setup();
       render(<VariablesPanel isOpen={true} onClose={vi.fn()} />);
-      
+
       // Click add global variable button
       const addButton = screen.getByText('+ Add Global Variable');
       await user.click(addButton);
-      
+
       // Fill in the form
       const nameInput = screen.getAllByPlaceholderText('Variable name')[0];
       const valueInput = screen.getAllByPlaceholderText('Value')[0];
-      
+
       await user.type(nameInput, 'NEW_VAR');
       await user.type(valueInput, 'new-value');
-      
+
       // Submit
       const submitButton = screen.getAllByText('Add')[0];
       await user.click(submitButton);
-      
+
       expect(mockStore.addGlobalVariable).toHaveBeenCalledWith({
         name: 'NEW_VAR',
         value: 'new-value',
@@ -104,24 +109,24 @@ describe('VariablesPanel', () => {
     it('should add a secure global variable', async () => {
       const user = userEvent.setup();
       render(<VariablesPanel isOpen={true} onClose={vi.fn()} />);
-      
+
       // Click add global variable button
       const addButton = screen.getByText('+ Add Global Variable');
       await user.click(addButton);
-      
+
       // Fill in the form
       const nameInput = screen.getAllByPlaceholderText('Variable name')[0];
       const valueInput = screen.getAllByPlaceholderText('Value')[0];
       const secureCheckbox = screen.getAllByRole('checkbox')[0];
-      
+
       await user.type(nameInput, 'SECRET_KEY');
       await user.type(valueInput, 'secret-value');
       await user.click(secureCheckbox);
-      
+
       // Submit
       const submitButton = screen.getAllByText('Add')[0];
       await user.click(submitButton);
-      
+
       expect(mockStore.addGlobalVariable).toHaveBeenCalledWith({
         name: 'SECRET_KEY',
         value: 'secret-value',
@@ -151,7 +156,7 @@ describe('VariablesPanel', () => {
       (useVariablesStore as any).mockReturnValue(storeWithEnvVars);
 
       render(<VariablesPanel isOpen={true} onClose={vi.fn()} />);
-      
+
       expect(screen.getByText('DB_HOST')).toBeInTheDocument();
       expect(screen.getByText('localhost')).toBeInTheDocument();
       expect(screen.getByText('DB_PORT')).toBeInTheDocument();
@@ -161,22 +166,22 @@ describe('VariablesPanel', () => {
     it('should add a new environment variable', async () => {
       const user = userEvent.setup();
       render(<VariablesPanel isOpen={true} onClose={vi.fn()} />);
-      
+
       // Click add environment variable button
       const addButton = screen.getByText('+ Add Environment Variable');
       await user.click(addButton);
-      
+
       // Fill in the form
       const nameInputs = screen.getAllByPlaceholderText('Variable name');
       const valueInputs = screen.getAllByPlaceholderText('Value');
-      
+
       await user.type(nameInputs[nameInputs.length - 1], 'ENV_VAR');
       await user.type(valueInputs[valueInputs.length - 1], 'env-value');
-      
+
       // Submit
       const submitButtons = screen.getAllByText('Add');
       await user.click(submitButtons[submitButtons.length - 1]);
-      
+
       expect(mockStore.addEnvironmentVariable).toHaveBeenCalledWith('development', {
         name: 'ENV_VAR',
         value: 'env-value',
@@ -200,16 +205,16 @@ describe('VariablesPanel', () => {
       (useVariablesStore as any).mockReturnValue(storeWithVars);
 
       render(<VariablesPanel isOpen={true} onClose={vi.fn()} />);
-      
+
       // Initially all variables should be visible
       expect(screen.getByText('API_KEY')).toBeInTheDocument();
       expect(screen.getByText('DATABASE_URL')).toBeInTheDocument();
       expect(screen.getByText('SECRET_TOKEN')).toBeInTheDocument();
-      
+
       // Search for "API"
       const searchInput = screen.getByPlaceholderText('Search all variables...');
       await user.type(searchInput, 'API');
-      
+
       // Only API_KEY should be visible
       expect(screen.getByText('API_KEY')).toBeInTheDocument();
       expect(screen.queryByText('DATABASE_URL')).not.toBeInTheDocument();
@@ -228,10 +233,10 @@ describe('VariablesPanel', () => {
       (useVariablesStore as any).mockReturnValue(storeWithVars);
 
       render(<VariablesPanel isOpen={true} onClose={vi.fn()} />);
-      
+
       const searchInput = screen.getByPlaceholderText('Search all variables...');
       await user.type(searchInput, 'localhost');
-      
+
       expect(screen.getByText('VAR1')).toBeInTheDocument();
       expect(screen.queryByText('VAR2')).not.toBeInTheDocument();
     });
@@ -249,12 +254,12 @@ describe('VariablesPanel', () => {
       (useVariablesStore as any).mockReturnValue(storeWithVars);
 
       render(<VariablesPanel isOpen={true} onClose={vi.fn()} />);
-      
+
       const checkbox = screen.getByRole('checkbox');
       expect(checkbox).toBeChecked();
-      
+
       await user.click(checkbox);
-      
+
       expect(mockStore.updateGlobalVariable).toHaveBeenCalledWith('TEST_VAR', {
         enabled: false,
       });
@@ -281,9 +286,10 @@ describe('VariablesPanel', () => {
       (useVariablesStore as any).mockReturnValue(storeWithOverride);
 
       render(<VariablesPanel isOpen={true} onClose={vi.fn()} />);
-      
+
       // The environment variable should show override indicator
-      const envSection = screen.getByText('Environment Variables (Development)').parentElement?.parentElement;
+      const envSection = screen.getByText('Environment Variables (Development)').parentElement
+        ?.parentElement;
       expect(envSection).toHaveTextContent('ⓘ');
     });
   });
@@ -291,13 +297,13 @@ describe('VariablesPanel', () => {
   describe('No Variables State', () => {
     it('should show empty state for global variables', () => {
       render(<VariablesPanel isOpen={true} onClose={vi.fn()} />);
-      
+
       expect(screen.getByText('No global variables found')).toBeInTheDocument();
     });
 
     it('should show empty state for environment variables', () => {
       render(<VariablesPanel isOpen={true} onClose={vi.fn()} />);
-      
+
       expect(screen.getByText('No environment variables found')).toBeInTheDocument();
     });
   });

@@ -17,8 +17,10 @@ export const BaseButton: React.FC<BaseButtonProps> = ({
   ...rest
 }) => {
   const variantStyles = {
-    primary: 'bg-primary text-primary-foreground hover:bg-primary/90 active:bg-primary/80 shadow-sm',
-    secondary: 'bg-secondary text-secondary-foreground hover:bg-secondary/80 active:bg-secondary/70',
+    primary:
+      'bg-primary text-primary-foreground hover:bg-primary/90 active:bg-primary/80 shadow-sm',
+    secondary:
+      'bg-secondary text-secondary-foreground hover:bg-secondary/80 active:bg-secondary/70',
     ghost: 'hover:bg-accent hover:text-accent-foreground active:bg-accent/80',
   };
 

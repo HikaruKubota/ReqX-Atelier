@@ -13,7 +13,7 @@ const localStorageMock = {
     delete localStorageData[key];
   }),
   clear: vi.fn(() => {
-    Object.keys(localStorageData).forEach(key => delete localStorageData[key]);
+    Object.keys(localStorageData).forEach((key) => delete localStorageData[key]);
   }),
   length: 0,
   key: vi.fn(),
@@ -91,7 +91,7 @@ describe('themeStore', () => {
       });
 
       // Wait for zustand persist to save
-      await new Promise(resolve => setTimeout(resolve, 100));
+      await new Promise((resolve) => setTimeout(resolve, 100));
 
       // Check if localStorage.setItem was called
       expect(localStorageMock.setItem).toHaveBeenCalled();

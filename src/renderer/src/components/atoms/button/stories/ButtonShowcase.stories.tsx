@@ -26,7 +26,7 @@ type Story = StoryObj;
 export const AllButtonsInThemes: Story = {
   render: () => {
     const themeNames = Object.keys(themes);
-    
+
     return (
       <div className="p-8 space-y-8">
         {themeNames.map((themeName) => {
@@ -49,14 +49,11 @@ export const AllButtonsInThemes: Story = {
             '--color-ring': theme.colors.ring,
             '--color-selection': theme.colors.selection,
           } as React.CSSProperties;
-          
+
           return (
             <div key={themeName} className="space-y-4">
               <h2 className="text-2xl font-bold mb-4 capitalize">{themeName} Theme</h2>
-              <div 
-                className="p-6 rounded-lg border-2"
-                style={themeStyles}
-              >
+              <div className="p-6 rounded-lg border-2" style={themeStyles}>
                 <div className="flex flex-wrap gap-4 items-center">
                   <SendButton />
                   <SendButton loading />
