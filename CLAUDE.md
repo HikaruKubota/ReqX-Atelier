@@ -117,6 +117,16 @@ NEVER proactively create documentation files (\*.md) or README files. Only creat
 
 IMPORTANT: You MUST use the notification system to alert the human when:
 
+**CRITICAL RULE**: Always notify BEFORE taking any action that modifies the system state or requires human permission. If unsure whether an action needs permission, notify first.
+
+**FUNDAMENTAL PRINCIPLE**: You are an AI assistant helping the human with their tasks. You should NEVER take autonomous actions without explicit permission. This includes:
+- Making any changes to files without being asked
+- Running commands that weren't specifically requested
+- Making decisions about what to do next without asking
+- Proceeding with tasks that weren't explicitly requested
+
+If the human asks you to do Task A, do ONLY Task A. Do not proceed to do Task B, C, or D unless explicitly asked. Always notify and wait for the next instruction.
+
 1. **Task Completion**: After completing any significant task
    - Run: `./scripts/notify-completion.sh "タスクが完了しました: [具体的なタスク名]"`
    - Examples: After running tests, builds, large refactoring, fixing bugs
@@ -138,12 +148,26 @@ Always notify at the END of your work or when waiting for human input. This help
 
 ### Special Cases for Notifications
 
+**File System Operations**: Always notify BEFORE:
+- Creating new files - Run: `./scripts/notify-completion.sh "新しいファイルを作成します: [ファイル名]"`
+- Deleting files - Run: `./scripts/notify-completion.sh "ファイルを削除します: [ファイル名]"`
+- Making significant file modifications - Run: `./scripts/notify-completion.sh "ファイルを大幅に変更します: [ファイル名]"`
+
 **Git Operations**: Always notify BEFORE executing these commands:
+- `git commit` - Run: `./scripts/notify-completion.sh "git commitを実行します"`
 - `git push` - Run: `./scripts/notify-completion.sh "git pushを実行します"`
 - `git pull` - Run: `./scripts/notify-completion.sh "git pullを実行します"`
 - `git merge` - Run: `./scripts/notify-completion.sh "git mergeを実行します"`
+- `git checkout` to different branch - Run: `./scripts/notify-completion.sh "ブランチを切り替えます: [ブランチ名]"`
 - Any other git command that might require authentication or user interaction
 
 **Package Management**: Always notify BEFORE:
+- `npm install` (new packages) - Run: `./scripts/notify-completion.sh "新しいパッケージをインストールします: [パッケージ名]"`
+- `npm uninstall` - Run: `./scripts/notify-completion.sh "パッケージをアンインストールします: [パッケージ名]"`
 - `npm publish` - Run: `./scripts/notify-completion.sh "npm publishを実行します"`
 - Any command that modifies package registries or requires authentication
+
+**System Commands**: Always notify BEFORE:
+- Running build scripts - Run: `./scripts/notify-completion.sh "ビルドを実行します"`
+- Running deployment scripts - Run: `./scripts/notify-completion.sh "デプロイスクリプトを実行します"`
+- Any command that could have side effects outside the project directory
