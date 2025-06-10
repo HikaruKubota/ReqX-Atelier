@@ -124,6 +124,7 @@ IMPORTANT: You MUST use the notification system to alert the human when:
 2. **Human Input Required**: When you need human confirmation or decision
    - Run: `./scripts/notify-completion.sh "確認が必要です: [理由]"`
    - Examples: Ambiguous requirements, multiple solution options, permission needed
+   - IMPORTANT: Always notify BEFORE running commands that might require human interaction (git push, git pull, npm publish, etc.)
 
 3. **Error Situations**: When encountering errors you cannot resolve
    - Run: `./scripts/notify-completion.sh "エラー: [エラー内容]"`
@@ -134,3 +135,15 @@ IMPORTANT: You MUST use the notification system to alert the human when:
    - Examples: After answering a question, completing a discussion, or when the human says thank you
 
 Always notify at the END of your work or when waiting for human input. This helps the human know when to check back on your progress.
+
+### Special Cases for Notifications
+
+**Git Operations**: Always notify BEFORE executing these commands:
+- `git push` - Run: `./scripts/notify-completion.sh "git pushを実行します"`
+- `git pull` - Run: `./scripts/notify-completion.sh "git pullを実行します"`
+- `git merge` - Run: `./scripts/notify-completion.sh "git mergeを実行します"`
+- Any other git command that might require authentication or user interaction
+
+**Package Management**: Always notify BEFORE:
+- `npm publish` - Run: `./scripts/notify-completion.sh "npm publishを実行します"`
+- Any command that modifies package registries or requires authentication
