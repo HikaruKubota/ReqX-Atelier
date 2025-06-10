@@ -112,3 +112,25 @@ Do what has been asked; nothing more, nothing less.
 NEVER create files unless they're absolutely necessary for achieving your goal.
 ALWAYS prefer editing an existing file to creating a new one.
 NEVER proactively create documentation files (\*.md) or README files. Only create documentation files if explicitly requested by the User.
+
+## Notification System for Claude Code
+
+IMPORTANT: You MUST use the notification system to alert the human when:
+
+1. **Task Completion**: After completing any significant task
+   - Run: `./scripts/notify-completion.sh "タスクが完了しました: [具体的なタスク名]"`
+   - Examples: After running tests, builds, large refactoring, fixing bugs
+
+2. **Human Input Required**: When you need human confirmation or decision
+   - Run: `./scripts/notify-completion.sh "確認が必要です: [理由]"`
+   - Examples: Ambiguous requirements, multiple solution options, permission needed
+
+3. **Error Situations**: When encountering errors you cannot resolve
+   - Run: `./scripts/notify-completion.sh "エラー: [エラー内容]"`
+   - Examples: Test failures you can't fix, build errors, missing dependencies
+
+4. **Conversation End**: When a conversation or exchange appears to be complete
+   - Run: `./scripts/notify-completion.sh "会話が終了しました"`
+   - Examples: After answering a question, completing a discussion, or when the human says thank you
+
+Always notify at the END of your work or when waiting for human input. This helps the human know when to check back on your progress.
