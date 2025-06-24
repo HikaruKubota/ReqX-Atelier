@@ -1,9 +1,9 @@
 import React from 'react';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { RequestEditorPanel } from '../RequestEditorPanel';
-import type { HeaderKeyValuePair, KeyValuePair, VariableExtraction } from '../../types';
+import type { RequestHeader, KeyValuePair } from '../../types';
 
 // Mock react-i18next with tab translations
 vi.mock('react-i18next', () => ({
@@ -25,20 +25,29 @@ vi.mock('react-i18next', () => ({
 
 // Mock child components
 vi.mock('../HeadersEditor', () => ({
-  HeadersEditor: ({ headers, onAddHeader }: any) => (
+  HeadersEditor: ({
+    headers,
+    onAddHeader,
+  }: {
+    headers: RequestHeader[];
+    onAddHeader: () => void;
+  }) => (
     <div data-testid="headers-editor">
-      {headers.map((h: any) => (
-        <div key={h.id}>{h.key}: {h.value}</div>
+      {headers.map((h: RequestHeader) => (
+        <div key={h.id}>
+          {h.key}: {h.value}
+        </div>
       ))}
-      <button onClick={() => onAddHeader()}>
-        Add Header
-      </button>
+      <button onClick={() => onAddHeader()}>Add Header</button>
     </div>
   ),
 }));
 
-vi.mock('../BodyEditorKeyValue', () => ({
-  BodyEditorKeyValue: React.forwardRef(({ value, onChange, method }: any, ref) => {
+vi.mock('../BodyEditorKeyValue', () => {
+  const MockBodyEditorKeyValue = React.forwardRef<
+    unknown,
+    { value?: KeyValuePair[]; onChange?: (pairs: KeyValuePair[]) => void; method: string }
+  >(({ value, onChange, method }, ref) => {
     React.useImperativeHandle(ref, () => ({
       getCurrentBodyAsJson: () => JSON.stringify(value || []),
       getCurrentKeyValuePairs: () => value || [],
@@ -46,40 +55,76 @@ vi.mock('../BodyEditorKeyValue', () => ({
     return (
       <div data-testid="body-editor">
         {method === 'GET' ? 'Body not applicable' : 'Body Editor'}
-        <button onClick={() => onChange && onChange([{ id: '1', keyName: 'key', value: 'value', enabled: true }])}>
+        <button
+          onClick={() =>
+            onChange && onChange([{ id: '1', keyName: 'key', value: 'value', enabled: true }])
+          }
+        >
           Update Body
         </button>
       </div>
     );
-  }),
-}));
+  });
+  MockBodyEditorKeyValue.displayName = 'MockBodyEditorKeyValue';
+  return { BodyEditorKeyValue: MockBodyEditorKeyValue };
+});
 
-vi.mock('../ParamsEditorKeyValue', () => ({
-  ParamsEditorKeyValue: React.forwardRef(({ value, onChange }: any, ref) => {
+vi.mock('../ParamsEditorKeyValue', () => {
+  const MockParamsEditorKeyValue = React.forwardRef<
+    unknown,
+    { value?: KeyValuePair[]; onChange?: (pairs: KeyValuePair[]) => void }
+  >(({ value, onChange }, ref) => {
     React.useImperativeHandle(ref, () => ({
       getCurrentKeyValuePairs: () => value || [],
     }));
     return (
       <div data-testid="params-editor">
-        {(value || []).map((p: any) => (
-          <div key={p.id}>{p.keyName}: {p.value}</div>
+        {(value || []).map((p: KeyValuePair) => (
+          <div key={p.id}>
+            {p.keyName}: {p.value}
+          </div>
         ))}
-        <button onClick={() => onChange([...value || [], { id: 'new', keyName: 'param', value: 'value', enabled: true }])}>
+        <button
+          onClick={() =>
+            onChange &&
+            onChange([
+              ...(value || []),
+              { id: 'new', keyName: 'param', value: 'value', enabled: true },
+            ])
+          }
+        >
           Add Param
         </button>
       </div>
     );
-  }),
-}));
+  });
+  MockParamsEditorKeyValue.displayName = 'MockParamsEditorKeyValue';
+  return { ParamsEditorKeyValue: MockParamsEditorKeyValue };
+});
 
 vi.mock('../VariableExtractionEditor', () => ({
-  VariableExtractionEditor: ({ variableExtraction, onChange }: any) => (
+  VariableExtractionEditor: ({ onChange }: { onChange?: (extraction: unknown) => void }) => (
     <div data-testid="variable-extraction-editor">
       Variable Extraction Editor
-      <button onClick={() => onChange && onChange({ 
-        id: '1', 
-        extractions: [{ id: '1', variableName: 'token', extractFrom: 'data.token', enabled: true }] 
-      })}>
+      <button
+        onClick={() =>
+          onChange &&
+          onChange({
+            extractionRules: [
+              {
+                id: '1',
+                variableName: 'token',
+                source: 'body-json',
+                path: 'data.token',
+                scope: 'global',
+                enabled: true,
+              },
+            ],
+            customScript: '',
+            enabled: true,
+          })
+        }
+      >
         Add Extraction
       </button>
     </div>
@@ -88,8 +133,8 @@ vi.mock('../VariableExtractionEditor', () => ({
 
 // Mock RequestNameRow and RequestMethodRow
 vi.mock('../molecules/RequestNameRow', () => ({
-  RequestNameRow: ({ value, onChange }: any) => (
-    <input 
+  RequestNameRow: ({ value, onChange }: { value: string; onChange: (value: string) => void }) => (
+    <input
       data-testid="request-name"
       value={value}
       onChange={(e) => onChange(e.target.value)}
@@ -99,10 +144,18 @@ vi.mock('../molecules/RequestNameRow', () => ({
 }));
 
 vi.mock('../molecules/RequestMethodRow', () => ({
-  RequestMethodRow: ({ method, url, onUrlChange }: any) => (
+  RequestMethodRow: ({
+    method,
+    url,
+    onUrlChange,
+  }: {
+    method: string;
+    url: string;
+    onUrlChange: (url: string) => void;
+  }) => (
     <div>
       <span data-testid="method">{method}</span>
-      <input 
+      <input
         data-testid="url-input"
         value={url}
         onChange={(e) => onUrlChange(e.target.value)}
@@ -127,7 +180,7 @@ const defaultProps = {
   onSendRequest: vi.fn(),
   onBodyPairsChange: vi.fn(),
   onParamPairsChange: vi.fn(),
-  headers: [] as HeaderKeyValuePair[],
+  headers: [] as RequestHeader[],
   onAddHeader: vi.fn(),
   onUpdateHeader: vi.fn(),
   onRemoveHeader: vi.fn(),
@@ -144,7 +197,7 @@ describe('RequestEditorPanel', () => {
   describe('Tabs', () => {
     it('should render all tabs', () => {
       render(<RequestEditorPanel {...defaultProps} />);
-      
+
       expect(screen.getByText('Headers')).toBeInTheDocument();
       expect(screen.getByText('Body')).toBeInTheDocument();
       expect(screen.getByText('Params')).toBeInTheDocument();
@@ -153,7 +206,7 @@ describe('RequestEditorPanel', () => {
 
     it('should show headers tab by default', () => {
       render(<RequestEditorPanel {...defaultProps} />);
-      
+
       expect(screen.getByTestId('headers-editor')).toBeInTheDocument();
       expect(screen.getByTestId('headers-editor').parentElement).toHaveClass('block');
       expect(screen.getByTestId('body-editor').parentElement).toHaveClass('hidden');
@@ -162,10 +215,10 @@ describe('RequestEditorPanel', () => {
     it('should switch to body tab when clicked', async () => {
       const user = userEvent.setup();
       render(<RequestEditorPanel {...defaultProps} />);
-      
+
       const bodyButton = screen.getByText('Body');
       await user.click(bodyButton);
-      
+
       expect(screen.getByTestId('headers-editor').parentElement).toHaveClass('hidden');
       expect(screen.getByTestId('body-editor').parentElement).toHaveClass('block');
     });
@@ -173,10 +226,10 @@ describe('RequestEditorPanel', () => {
     it('should switch to params tab when clicked', async () => {
       const user = userEvent.setup();
       render(<RequestEditorPanel {...defaultProps} />);
-      
+
       const paramsButton = screen.getByText('Params');
       await user.click(paramsButton);
-      
+
       expect(screen.getByTestId('headers-editor').parentElement).toHaveClass('hidden');
       expect(screen.getByTestId('params-editor').parentElement).toHaveClass('block');
     });
@@ -184,10 +237,10 @@ describe('RequestEditorPanel', () => {
     it('should switch to variables tab when clicked', async () => {
       const user = userEvent.setup();
       render(<RequestEditorPanel {...defaultProps} />);
-      
+
       const variablesButton = screen.getByText('Variables');
       await user.click(variablesButton);
-      
+
       expect(screen.getByTestId('headers-editor').parentElement).toHaveClass('hidden');
       expect(screen.getByTestId('variable-extraction-editor').parentElement).toHaveClass('block');
     });
@@ -196,7 +249,7 @@ describe('RequestEditorPanel', () => {
   describe('URL Input', () => {
     it('should display the URL', () => {
       render(<RequestEditorPanel {...defaultProps} />);
-      
+
       const urlInput = screen.getByTestId('url-input');
       expect(urlInput).toHaveValue('https://api.example.com/users');
     });
@@ -204,18 +257,18 @@ describe('RequestEditorPanel', () => {
     it('should call onUrlChange when URL is changed', async () => {
       const user = userEvent.setup();
       render(<RequestEditorPanel {...defaultProps} />);
-      
+
       const urlInput = screen.getByTestId('url-input');
-      
+
       // Type a single character to verify onChange is called
       await user.type(urlInput, 'X');
-      
+
       // Verify the onChange handler was called
       expect(defaultProps.onUrlChange).toHaveBeenCalled();
-      
+
       // Verify it was called at least once
       expect(defaultProps.onUrlChange.mock.calls.length).toBeGreaterThanOrEqual(1);
-      
+
       // The onChange should have been called with a string containing the original URL
       const firstCall = defaultProps.onUrlChange.mock.calls[0][0];
       expect(typeof firstCall).toBe('string');
@@ -224,8 +277,10 @@ describe('RequestEditorPanel', () => {
 
     it('should have correct placeholder', () => {
       render(<RequestEditorPanel {...defaultProps} url="" />);
-      
-      const urlInput = screen.getByPlaceholderText('Enter request URL (e.g., https://api.example.com/users)');
+
+      const urlInput = screen.getByPlaceholderText(
+        'Enter request URL (e.g., https://api.example.com/users)',
+      );
       expect(urlInput).toBeInTheDocument();
     });
   });
@@ -236,9 +291,9 @@ describe('RequestEditorPanel', () => {
         { id: '1', key: 'Content-Type', value: 'application/json', enabled: true },
         { id: '2', key: 'Authorization', value: 'Bearer token', enabled: false },
       ];
-      
+
       render(<RequestEditorPanel {...defaultProps} headers={headers} />);
-      
+
       expect(screen.getByText('Content-Type: application/json')).toBeInTheDocument();
       expect(screen.getByText('Authorization: Bearer token')).toBeInTheDocument();
     });
@@ -246,9 +301,9 @@ describe('RequestEditorPanel', () => {
     it('should call onAddHeader when add header button is clicked', async () => {
       const user = userEvent.setup();
       render(<RequestEditorPanel {...defaultProps} />);
-      
+
       await user.click(screen.getByText('Add Header'));
-      
+
       expect(defaultProps.onAddHeader).toHaveBeenCalled();
     });
   });
@@ -257,31 +312,31 @@ describe('RequestEditorPanel', () => {
     it('should show body not applicable for GET requests', async () => {
       const user = userEvent.setup();
       render(<RequestEditorPanel {...defaultProps} method="GET" />);
-      
+
       await user.click(screen.getByText('Body'));
-      
+
       expect(screen.getByText('Body not applicable')).toBeInTheDocument();
     });
 
     it('should show body editor for POST requests', async () => {
       const user = userEvent.setup();
       render(<RequestEditorPanel {...defaultProps} method="POST" />);
-      
+
       await user.click(screen.getByText('Body'));
-      
+
       expect(screen.getByText('Body Editor')).toBeInTheDocument();
     });
 
     it('should call onBodyPairsChange when body is updated', async () => {
       const user = userEvent.setup();
       render(<RequestEditorPanel {...defaultProps} method="POST" />);
-      
+
       await user.click(screen.getByText('Body'));
       await user.click(screen.getByText('Update Body'));
-      
-      expect(defaultProps.onBodyPairsChange).toHaveBeenCalledWith(
-        [{ id: '1', keyName: 'key', value: 'value', enabled: true }]
-      );
+
+      expect(defaultProps.onBodyPairsChange).toHaveBeenCalledWith([
+        { id: '1', keyName: 'key', value: 'value', enabled: true },
+      ]);
     });
   });
 
@@ -292,11 +347,11 @@ describe('RequestEditorPanel', () => {
         { id: '1', keyName: 'page', value: '1', enabled: true },
         { id: '2', keyName: 'limit', value: '10', enabled: true },
       ];
-      
+
       render(<RequestEditorPanel {...defaultProps} initialParams={params} />);
-      
+
       await user.click(screen.getByText('Params'));
-      
+
       expect(screen.getByText('page: 1')).toBeInTheDocument();
       expect(screen.getByText('limit: 10')).toBeInTheDocument();
     });
@@ -304,12 +359,12 @@ describe('RequestEditorPanel', () => {
     it('should call onParamPairsChange when params are updated', async () => {
       const user = userEvent.setup();
       render(<RequestEditorPanel {...defaultProps} />);
-      
+
       await user.click(screen.getByText('Params'));
       await user.click(screen.getByText('Add Param'));
-      
+
       expect(defaultProps.onParamPairsChange).toHaveBeenCalledWith([
-        { id: 'new', keyName: 'param', value: 'value', enabled: true }
+        { id: 'new', keyName: 'param', value: 'value', enabled: true },
       ]);
     });
   });
@@ -318,38 +373,55 @@ describe('RequestEditorPanel', () => {
     it('should pass variableExtraction to VariableExtractionEditor', async () => {
       const user = userEvent.setup();
       const variableExtraction = {
-        id: '1',
-        extractions: [
-          { id: '1', variableName: 'authToken', extractFrom: 'data.token', enabled: true },
+        extractionRules: [
+          {
+            id: '1',
+            variableName: 'authToken',
+            source: 'body-json' as const,
+            path: 'data.token',
+            scope: 'global' as const,
+            enabled: true,
+          },
         ],
+        customScript: '',
+        enabled: true,
       };
-      
+
       render(<RequestEditorPanel {...defaultProps} variableExtraction={variableExtraction} />);
-      
+
       await user.click(screen.getByText('Variables'));
-      
+
       expect(screen.getByText('Variable Extraction Editor')).toBeInTheDocument();
     });
 
     it('should call onVariableExtractionChange when extractions are updated', async () => {
       const user = userEvent.setup();
       render(<RequestEditorPanel {...defaultProps} />);
-      
+
       await user.click(screen.getByText('Variables'));
       await user.click(screen.getByText('Add Extraction'));
-      
+
       expect(defaultProps.onVariableExtractionChange).toHaveBeenCalledWith({
-        id: '1',
-        extractions: [{ id: '1', variableName: 'token', extractFrom: 'data.token', enabled: true }]
+        extractionRules: [
+          {
+            id: '1',
+            variableName: 'token',
+            source: 'body-json',
+            path: 'data.token',
+            scope: 'global',
+            enabled: true,
+          },
+        ],
+        customScript: '',
+        enabled: true,
       });
     });
   });
 
-
   describe('Tab Content Styling', () => {
     it('should show headers tab as active by default', () => {
       render(<RequestEditorPanel {...defaultProps} />);
-      
+
       // Headers tab should be visible by default
       expect(screen.getByTestId('headers-editor')).toBeInTheDocument();
       expect(screen.getByTestId('headers-editor').parentElement).toHaveClass('block');
@@ -360,11 +432,11 @@ describe('RequestEditorPanel', () => {
     it('should switch active content when different tab is clicked', async () => {
       const user = userEvent.setup();
       render(<RequestEditorPanel {...defaultProps} />);
-      
+
       // Find and click body tab
       const bodyButton = screen.getByText('Body');
       await user.click(bodyButton);
-      
+
       // Body content should be visible, others hidden
       expect(screen.getByTestId('headers-editor').parentElement).toHaveClass('hidden');
       expect(screen.getByTestId('body-editor').parentElement).toHaveClass('block');

@@ -6,11 +6,7 @@ export interface SendButtonProps extends React.ButtonHTMLAttributes<HTMLButtonEl
   loading?: boolean;
 }
 
-export const SendButton: React.FC<SendButtonProps> = ({
-  loading,
-  className,
-  ...props
-}) => {
+export const SendButton: React.FC<SendButtonProps> = ({ loading, className, ...props }) => {
   const { t } = useTranslation();
   return (
     <button

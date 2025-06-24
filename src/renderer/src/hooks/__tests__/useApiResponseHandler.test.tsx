@@ -22,17 +22,19 @@ describe('useApiResponseHandler', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     // Mock the entire useVariablesStore hook
-    vi.mocked(useVariablesStore).mockImplementation((selector: any) => {
-      // If a selector is provided, call it with our mock state
-      if (typeof selector === 'function') {
-        const mockState = {
-          getResolvedVariables: mockGetResolvedVariables,
-        };
-        return selector(mockState);
-      }
-      // Otherwise return the mock function directly
-      return mockGetResolvedVariables;
-    });
+    vi.mocked(useVariablesStore).mockImplementation(
+      (selector: (state: { getResolvedVariables: typeof mockGetResolvedVariables }) => unknown) => {
+        // If a selector is provided, call it with our mock state
+        if (typeof selector === 'function') {
+          const mockState = {
+            getResolvedVariables: mockGetResolvedVariables,
+          };
+          return selector(mockState);
+        }
+        // Otherwise return the mock function directly
+        return mockGetResolvedVariables;
+      },
+    );
     mockGetResolvedVariables.mockReturnValue({});
   });
 
@@ -85,14 +87,19 @@ describe('useApiResponseHandler', () => {
       const headers = { 'Content-Type': 'application/json' };
 
       await act(async () => {
-        await result.current.executeRequest('POST', 'https://api.example.com/create', body, headers);
+        await result.current.executeRequest(
+          'POST',
+          'https://api.example.com/create',
+          body,
+          headers,
+        );
       });
 
       expect(mockSendApiRequest).toHaveBeenCalledWith(
         'POST',
         'https://api.example.com/create',
         body,
-        headers
+        headers,
       );
       expect(result.current.response).toEqual(mockResponse);
     });
@@ -115,7 +122,7 @@ describe('useApiResponseHandler', () => {
         'GET',
         'https://api.example.com',
         undefined,
-        undefined
+        undefined,
       );
     });
 
@@ -226,7 +233,7 @@ describe('useApiResponseHandler', () => {
         'GET',
         'https://api.example.com/users/123',
         undefined,
-        undefined
+        undefined,
       );
     });
 
@@ -259,7 +266,7 @@ describe('useApiResponseHandler', () => {
         'POST',
         'https://api.example.com/auth',
         expectedBody,
-        undefined
+        undefined,
       );
     });
 
@@ -281,7 +288,12 @@ describe('useApiResponseHandler', () => {
       };
 
       await act(async () => {
-        await result.current.executeRequest('GET', 'https://api.example.com/data', undefined, headers);
+        await result.current.executeRequest(
+          'GET',
+          'https://api.example.com/data',
+          undefined,
+          headers,
+        );
       });
 
       expect(mockSendApiRequest).toHaveBeenCalledWith(
@@ -291,7 +303,7 @@ describe('useApiResponseHandler', () => {
         {
           Authorization: 'Bearer xyz123',
           'X-API-Version': 'v2',
-        }
+        },
       );
     });
 
@@ -315,7 +327,7 @@ describe('useApiResponseHandler', () => {
         'GET',
         'exists/${NON_EXISTENT_VAR}',
         undefined,
-        undefined
+        undefined,
       );
     });
   });
@@ -375,7 +387,7 @@ describe('useApiResponseHandler', () => {
     it('should track response time for successful requests', async () => {
       mockSendApiRequest.mockImplementation(async () => {
         // Simulate network delay
-        await new Promise(resolve => setTimeout(resolve, 50));
+        await new Promise((resolve) => setTimeout(resolve, 50));
         return { status: 200, headers: {}, data: {} };
       });
 
@@ -391,7 +403,7 @@ describe('useApiResponseHandler', () => {
     it('should track response time for failed requests', async () => {
       mockSendApiRequest.mockImplementation(async () => {
         // Simulate network delay
-        await new Promise(resolve => setTimeout(resolve, 30));
+        await new Promise((resolve) => setTimeout(resolve, 30));
         throw new Error('Request failed');
       });
 
