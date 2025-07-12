@@ -35,9 +35,8 @@ export function useTreeKeyboardNavigation(treeRef: React.RefObject<HTMLDivElemen
     if (currentIndex > 0) {
       const prevNode = visibleNodes[currentIndex - 1];
       focusNode(prevNode.node.id);
-      selectNode(prevNode.node.id);
     }
-  }, [getVisibleNodes, treeState.focusedId, focusNode, selectNode]);
+  }, [getVisibleNodes, treeState.focusedId, focusNode]);
 
   // Navigate to the next node
   const navigateDown = useCallback(() => {
@@ -47,9 +46,8 @@ export function useTreeKeyboardNavigation(treeRef: React.RefObject<HTMLDivElemen
     if (currentIndex < visibleNodes.length - 1) {
       const nextNode = visibleNodes[currentIndex + 1];
       focusNode(nextNode.node.id);
-      selectNode(nextNode.node.id);
     }
-  }, [getVisibleNodes, treeState.focusedId, focusNode, selectNode]);
+  }, [getVisibleNodes, treeState.focusedId, focusNode]);
 
   // Navigate left (collapse folder or go to parent)
   const navigateLeft = useCallback(() => {
@@ -60,16 +58,8 @@ export function useTreeKeyboardNavigation(treeRef: React.RefObject<HTMLDivElemen
       toggleNode(node.id);
     } else if (node.parentId) {
       focusNode(node.parentId);
-      selectNode(node.parentId);
     }
-  }, [
-    treeState.nodes,
-    treeState.focusedId,
-    treeState.expandedIds,
-    toggleNode,
-    focusNode,
-    selectNode,
-  ]);
+  }, [treeState.nodes, treeState.focusedId, treeState.expandedIds, toggleNode, focusNode]);
 
   // Navigate right (expand folder or go to first child)
   const navigateRight = useCallback(() => {
@@ -81,17 +71,9 @@ export function useTreeKeyboardNavigation(treeRef: React.RefObject<HTMLDivElemen
         toggleNode(node.id);
       } else if (node.children.length > 0) {
         focusNode(node.children[0]);
-        selectNode(node.children[0]);
       }
     }
-  }, [
-    treeState.nodes,
-    treeState.focusedId,
-    treeState.expandedIds,
-    toggleNode,
-    focusNode,
-    selectNode,
-  ]);
+  }, [treeState.nodes, treeState.focusedId, treeState.expandedIds, toggleNode, focusNode]);
 
   // Handle multiple selection with Shift key
   const handleShiftSelect = useCallback(
@@ -165,6 +147,14 @@ export function useTreeKeyboardNavigation(treeRef: React.RefObject<HTMLDivElemen
           }
           break;
 
+        case ' ': // Space key for toggle selection
+          e.preventDefault();
+          if (treeState.focusedId) {
+            // Toggle selection for multi-select
+            selectNode(treeState.focusedId, true);
+          }
+          break;
+
         case 'F2':
           e.preventDefault();
           if (treeState.focusedId) {
@@ -202,7 +192,6 @@ export function useTreeKeyboardNavigation(treeRef: React.RefObject<HTMLDivElemen
           if (visibleNodes.length > 0) {
             const firstNode = visibleNodes[0];
             focusNode(firstNode.node.id);
-            selectNode(firstNode.node.id);
           }
           break;
         }
@@ -213,7 +202,6 @@ export function useTreeKeyboardNavigation(treeRef: React.RefObject<HTMLDivElemen
           if (nodes.length > 0) {
             const lastNode = nodes[nodes.length - 1];
             focusNode(lastNode.node.id);
-            selectNode(lastNode.node.id);
           }
           break;
         }

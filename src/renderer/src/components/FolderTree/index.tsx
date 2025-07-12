@@ -108,6 +108,12 @@ export const FolderTree: React.FC<FolderTreeProps> = React.memo(
         role="tree"
         className={`folder-tree overflow-auto ${className}`}
         tabIndex={0}
+        onBlur={(e) => {
+          // Clear focus when the tree loses focus
+          if (!e.currentTarget.contains(e.relatedTarget)) {
+            focusNode('');
+          }
+        }}
       >
         {visibleNodes.map(({ node, level }) => (
           <TreeNode

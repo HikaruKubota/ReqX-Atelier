@@ -122,13 +122,13 @@ export const TreeNode: React.FC<TreeNodeProps> = React.memo(
         tabIndex={isFocused ? 0 : -1}
         className={`
         flex items-center h-7 px-1 cursor-pointer select-none
-        ${isSelected ? 'bg-blue-100 dark:bg-blue-900' : ''}
-        ${isFocused ? 'outline outline-1 outline-blue-500' : ''}
+        ${isSelected ? 'bg-blue-500 text-white dark:bg-blue-600' : ''}
+        ${isFocused && !isSelected ? 'bg-gray-200 dark:bg-gray-700' : ''}
         ${isDragging ? 'opacity-50' : ''}
         ${isDraggedOver && dropPosition === 'before' ? 'border-t-2 border-blue-500' : ''}
         ${isDraggedOver && dropPosition === 'inside' ? 'bg-blue-50 dark:bg-blue-900/50' : ''}
         ${isDraggedOver && dropPosition === 'after' ? 'border-b-2 border-blue-500' : ''}
-        hover:bg-gray-100 dark:hover:bg-gray-800
+        ${!isSelected && !isFocused ? 'hover:bg-gray-100 dark:hover:bg-gray-800' : ''}
       `}
         onClick={(e) => onSelect(e)}
         onDoubleClick={onDoubleClick}
