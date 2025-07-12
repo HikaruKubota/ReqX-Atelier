@@ -204,40 +204,67 @@ export default function App() {
     skipSync: isSwitchingTabRef.current,
   });
 
-  // Save current tab state when any editor value changes
-  // NOTE: Removing currentBody and currentParams from dependencies to avoid circular updates
-  useEffect(() => {
-    const tabId = tabs.activeTabId;
-    if (!tabId) return;
+  // Update tab state utility function
+  const updateTabState = useCallback(
+    (
+      updates: Partial<{
+        method: string;
+        headers: RequestHeader[];
+        requestNameForSave: string;
+        variableExtraction: VariableExtraction | undefined;
+        url: string;
+      }>,
+    ) => {
+      const tabId = tabs.activeTabId;
+      if (!tabId) return;
 
-    setTabEditorStates((prev) => ({
-      ...prev,
-      [tabId]: {
-        ...prev[tabId],
-        // Keep existing body and params from state instead of overwriting
-        // body: currentBody,
-        // params: currentParams,
-        url,
-        method,
-        headers,
-        requestNameForSave,
-        variableExtraction,
-      },
-    }));
-  }, [
-    tabs.activeTabId,
-    url,
-    method,
-    headers,
-    requestNameForSave,
-    variableExtraction,
-    // currentBody,  // Removed to avoid circular updates
-    // currentParams, // Removed to avoid circular updates
-  ]);
+      setTabEditorStates((prev) => ({
+        ...prev,
+        [tabId]: {
+          ...prev[tabId],
+          ...updates,
+        },
+      }));
+    },
+    [tabs.activeTabId],
+  );
+
+  // Wrapped setters that also update tab state
+  const setMethodWithTabUpdate = useCallback(
+    (val: string) => {
+      setMethod(val);
+      updateTabState({ method: val });
+    },
+    [setMethod, updateTabState],
+  );
+
+  const setRequestNameForSaveWithTabUpdate = useCallback(
+    (val: string) => {
+      setRequestNameForSave(val);
+      updateTabState({ requestNameForSave: val });
+    },
+    [setRequestNameForSave, updateTabState],
+  );
+
+  const setHeadersWithTabUpdate = useCallback(
+    (val: RequestHeader[]) => {
+      setHeaders(val);
+      updateTabState({ headers: val });
+    },
+    [setHeaders, updateTabState],
+  );
+
+  const setVariableExtractionWithTabUpdate = useCallback(
+    (val: VariableExtraction | undefined) => {
+      setVariableExtraction(val);
+      updateTabState({ variableExtraction: val });
+    },
+    [setVariableExtraction, updateTabState],
+  );
 
   const requestEditor = {
     method,
-    setMethod,
+    setMethod: setMethodWithTabUpdate,
     methodRef,
     url,
     setUrl,
@@ -253,19 +280,19 @@ export default function App() {
     queryString: '',
     queryStringRef: { current: '' },
     requestNameForSave,
-    setRequestNameForSave,
+    setRequestNameForSave: setRequestNameForSaveWithTabUpdate,
     requestNameForSaveRef,
     activeRequestId,
     setActiveRequestId,
     activeRequestIdRef,
     headers,
-    setHeaders,
+    setHeaders: setHeadersWithTabUpdate,
     headersRef,
     addHeader,
     updateHeader,
     removeHeader,
     variableExtraction,
-    setVariableExtraction,
+    setVariableExtraction: setVariableExtractionWithTabUpdate,
     variableExtractionRef,
     loadRequest: loadRequestIntoEditor,
     resetEditor,
