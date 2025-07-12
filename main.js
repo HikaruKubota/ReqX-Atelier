@@ -1,6 +1,10 @@
 import { app, BrowserWindow, ipcMain } from 'electron';
 import axios from 'axios';
 import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 function createWindow() {
   const win = new BrowserWindow({
@@ -16,7 +20,9 @@ function createWindow() {
     win.loadURL('http://localhost:5173');
     win.webContents.openDevTools(); // Open DevTools in development mode
   } else {
-    win.loadFile(path.join(__dirname, 'dist/index.html'));
+    // In production, the HTML file is in the dist directory at the project root
+    const indexPath = path.join(__dirname, 'dist', 'index.html');
+    win.loadFile(indexPath);
   }
 }
 
@@ -28,7 +34,7 @@ ipcMain.handle('send-api-request', async (_event, { method, url, data, headers }
       url: url,
       data: data,
       headers: headers,
-      validateStatus: () => true, // Acept all status codes, so we can see errors in the UI
+      validateStatus: () => true, // Accept all status codes, so we can see errors in the UI
     });
     return { status: response.status, headers: response.headers, data: response.data };
   } catch (error) {

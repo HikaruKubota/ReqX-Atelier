@@ -98,5 +98,34 @@
     "workerDirectory": [
       "public"
     ]
+  },
+  "build": {
+    "appId": "com.reqx.atelier",
+    "productName": "ReqX-Atelier",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "main.js",
+      "dist/**/*",
+      "!dist/mac*",
+      "!dist/win*",
+      "!dist/linux*",
+      "!dist/*.yml",
+      "!dist/*.yaml",
+      "!dist/*.zip",
+      "!dist/*.dmg",
+      "!dist/*.exe",
+      "!dist/*.AppImage"
+    ],
+    "mac": {
+      "category": "public.app-category.developer-tools"
+    },
+    "win": {
+      "target": "nsis"
+    },
+    "linux": {
+      "target": "AppImage"
+    }
   }
 }
