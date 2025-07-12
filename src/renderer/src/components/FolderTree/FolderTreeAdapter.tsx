@@ -7,6 +7,8 @@ import { useFolderTreeSync } from '../../hooks/useFolderTreeSync';
 import type { SavedRequest, SavedFolder } from '../../types';
 
 interface FolderTreeAdapterProps {
+  folders?: SavedFolder[];
+  requests?: SavedRequest[];
   onOpenRequest?: (request: SavedRequest) => void;
   className?: string;
   useVirtualization?: boolean;
@@ -16,11 +18,17 @@ interface FolderTreeAdapterProps {
  * Adapter component that bridges the new FolderTree with the existing savedRequestsStore
  */
 export const FolderTreeAdapter: React.FC<FolderTreeAdapterProps> = ({
+  folders: propsFolders,
+  requests: propsRequests,
   onOpenRequest,
   className,
   useVirtualization = false,
 }) => {
-  const { savedRequests, savedFolders } = useSavedRequestsStore();
+  const { savedRequests: storeRequests, savedFolders: storeFolders } = useSavedRequestsStore();
+
+  // Use props if provided (for testing), otherwise use store
+  const savedRequests = propsRequests ?? storeRequests;
+  const savedFolders = propsFolders ?? storeFolders;
   const { createNode } = useFolderTreeStore();
 
   // Enable syncing operations back to savedRequestsStore

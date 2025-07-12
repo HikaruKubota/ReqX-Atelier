@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, fireEvent } from '@testing-library/react';
+import { render, fireEvent, waitFor } from '@testing-library/react';
 import { describe, it, expect, vi } from 'vitest';
 import i18n from '../../i18n';
 import { RequestCollectionSidebar } from '../RequestCollectionSidebar';
@@ -78,7 +78,7 @@ describe('RequestCollectionSidebar', () => {
     expect(onAddRequest).toHaveBeenCalledWith(folderId);
   });
 
-  it('uses active folder when creating items', () => {
+  it('uses active folder when creating items', async () => {
     const onAddFolder = vi.fn();
     const onAddRequest = vi.fn();
     const folderId = 'folder1';
@@ -94,6 +94,12 @@ describe('RequestCollectionSidebar', () => {
     const { getByLabelText, getByText } = render(
       <RequestCollectionSidebar {...props} isOpen onToggle={() => {}} />,
     );
+
+    // Wait for the folder to be rendered
+    await waitFor(() => {
+      expect(getByText('F')).toBeInTheDocument();
+    });
+
     fireEvent.click(getByText('F'));
     fireEvent.click(getByLabelText('新しいフォルダ'));
     fireEvent.click(getByLabelText('新しいリクエスト'));

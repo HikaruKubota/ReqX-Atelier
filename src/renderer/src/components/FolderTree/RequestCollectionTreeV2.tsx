@@ -1,9 +1,11 @@
 import React from 'react';
 import { FolderTreeAdapter } from './FolderTreeAdapter';
 import { useFolderTreeStore } from '../../store/folderTreeStore';
-import type { SavedRequest } from '../../types';
+import type { SavedRequest, SavedFolder } from '../../types';
 
 interface RequestCollectionTreeV2Props {
+  folders?: SavedFolder[];
+  requests?: SavedRequest[];
   activeRequestId: string | null;
   onLoadRequest: (req: SavedRequest) => void;
   onDeleteRequest: (id: string) => void;
@@ -23,6 +25,8 @@ interface RequestCollectionTreeV2Props {
  * Drop-in replacement for RequestCollectionTree using the new folder tree implementation
  */
 export const RequestCollectionTreeV2: React.FC<RequestCollectionTreeV2Props> = ({
+  folders,
+  requests,
   activeRequestId,
   onLoadRequest,
   onDeleteRequest,
@@ -135,6 +139,8 @@ export const RequestCollectionTreeV2: React.FC<RequestCollectionTreeV2Props> = (
 
   return (
     <FolderTreeAdapter
+      folders={folders}
+      requests={requests}
       onOpenRequest={onLoadRequest}
       className={className}
       useVirtualization={useVirtualization}

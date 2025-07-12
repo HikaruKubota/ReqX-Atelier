@@ -1,6 +1,6 @@
 import React from 'react';
 import type { SavedRequest, SavedFolder } from '../types';
-import { RequestCollectionTree } from './RequestCollectionTree';
+import { RequestCollectionTreeV2 as RequestCollectionTree } from './FolderTree/RequestCollectionTreeV2';
 import { SidebarToggleButton } from './atoms/button/SidebarToggleButton';
 import { NewFolderIconButton } from './atoms/button/NewFolderIconButton';
 import { NewRequestIconButton } from './atoms/button/NewRequestIconButton';
