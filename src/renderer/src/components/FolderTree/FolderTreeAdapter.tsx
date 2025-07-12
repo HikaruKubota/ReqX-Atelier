@@ -29,7 +29,7 @@ export const FolderTreeAdapter: React.FC<FolderTreeAdapterProps> = ({
   // Use props if provided (for testing), otherwise use store
   const savedRequests = propsRequests ?? storeRequests;
   const savedFolders = propsFolders ?? storeFolders;
-  const { createNode, deleteNode } = useFolderTreeStore();
+  const { createNode, deleteNode, sortChildren } = useFolderTreeStore();
 
   // Enable syncing operations back to savedRequestsStore
   useFolderTreeSync();
@@ -250,8 +250,28 @@ export const FolderTreeAdapter: React.FC<FolderTreeAdapterProps> = ({
       requests: [...savedRequests],
     };
 
+    // Sort all nodes after initialization/updates
+    if (
+      !isInitialized.current ||
+      addedFolders.length > 0 ||
+      removedFolderIds.length > 0 ||
+      addedRequests.length > 0 ||
+      removedRequestIds.length > 0
+    ) {
+      // Sort root level
+      sortChildren(null);
+
+      // Sort all folder children
+      const currentTreeState = useFolderTreeStore.getState().treeState;
+      currentTreeState.nodes.forEach((node) => {
+        if (node.type === 'folder' && node.children.length > 0) {
+          sortChildren(node.id);
+        }
+      });
+    }
+
     isInitialized.current = true;
-  }, [savedRequests, savedFolders, createNode, deleteNode]);
+  }, [savedRequests, savedFolders, createNode, deleteNode, sortChildren]);
 
   // Handle opening a request
   const handleOpenRequest = (nodeId: string) => {

@@ -127,6 +127,57 @@ describe('FolderTreeAdapter', () => {
     expect(parentNode?.children).toHaveLength(1);
   });
 
+  it('should sort folders first, then requests, and by name', () => {
+    const { addFolder, addRequest } = useSavedRequestsStore.getState();
+
+    // Create folders and requests in random order
+    addFolder({
+      name: 'Z Folder',
+      parentFolderId: null,
+      requestIds: [],
+    });
+
+    addRequest({
+      name: 'A Request',
+      method: 'GET',
+      url: 'https://example.com/a',
+      headers: [],
+      body: [],
+      params: [],
+    });
+
+    addFolder({
+      name: 'A Folder',
+      parentFolderId: null,
+      requestIds: [],
+    });
+
+    addRequest({
+      name: 'Z Request',
+      method: 'POST',
+      url: 'https://example.com/z',
+      headers: [],
+      body: [],
+      params: [],
+    });
+
+    render(<FolderTreeAdapter />);
+
+    const { treeState } = useFolderTreeStore.getState();
+    const rootNodes = treeState.rootIds.map((id) => treeState.nodes.get(id)).filter(Boolean);
+
+    // Should be sorted: A Folder, Z Folder, A Request, Z Request
+    expect(rootNodes).toHaveLength(4);
+    expect(rootNodes[0]?.type).toBe('folder');
+    expect(rootNodes[0]?.name).toBe('A Folder');
+    expect(rootNodes[1]?.type).toBe('folder');
+    expect(rootNodes[1]?.name).toBe('Z Folder');
+    expect(rootNodes[2]?.type).toBe('request');
+    expect(rootNodes[2]?.name).toBe('A Request');
+    expect(rootNodes[3]?.type).toBe('request');
+    expect(rootNodes[3]?.name).toBe('Z Request');
+  });
+
   it('should call onOpenRequest when a request is opened', () => {
     const onOpenRequest = vi.fn();
     const { addRequest } = useSavedRequestsStore.getState();

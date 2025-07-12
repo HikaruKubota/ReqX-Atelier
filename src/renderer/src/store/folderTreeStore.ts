@@ -33,6 +33,10 @@ interface FolderTreeStore {
   // Search & Filter
   searchNodes: (query: string) => string[];
   filterByType: (type: 'folder' | 'request' | 'all') => void;
+
+  // Sorting
+  sortChildren: (nodeId: string | null) => void;
+  sortChildrenArray: (children: string[], nodes: Map<string, TreeNode>) => string[];
 }
 
 export const useFolderTreeStore = create<FolderTreeStore>((set, get) => ({
@@ -98,14 +102,35 @@ export const useFolderTreeStore = create<FolderTreeStore>((set, get) => ({
   endEditing: (nodeId, newName) => {
     set((state) => {
       const nodes = new Map(state.treeState.nodes);
+      const rootIds = [...state.treeState.rootIds];
       const node = nodes.get(nodeId);
 
       if (node) {
+        const oldName = node.name;
         nodes.set(nodeId, { ...node, name: newName });
+
+        // Re-sort if name changed
+        if (oldName !== newName) {
+          if (node.parentId) {
+            const parent = nodes.get(node.parentId);
+            if (parent) {
+              const sortedChildren = get().sortChildrenArray(parent.children, nodes);
+              nodes.set(node.parentId, {
+                ...parent,
+                children: sortedChildren,
+              });
+            }
+          } else {
+            // Re-sort root level
+            const sortedRootIds = get().sortChildrenArray(rootIds, nodes);
+            rootIds.length = 0;
+            rootIds.push(...sortedRootIds);
+          }
+        }
       }
 
       return {
-        treeState: { ...state.treeState, nodes, editingId: null },
+        treeState: { ...state.treeState, nodes, rootIds, editingId: null },
       };
     });
   },
@@ -168,13 +193,20 @@ export const useFolderTreeStore = create<FolderTreeStore>((set, get) => ({
       if (parentId) {
         const parent = nodes.get(parentId);
         if (parent) {
+          const newChildren = [...parent.children, newNodeId];
+          // Sort children after adding new node
+          const sortedChildren = get().sortChildrenArray(newChildren, nodes);
           nodes.set(parentId, {
             ...parent,
-            children: [...parent.children, newNodeId],
+            children: sortedChildren,
           });
         }
       } else {
         rootIds.push(newNodeId);
+        // Sort root nodes
+        const sortedRootIds = get().sortChildrenArray(rootIds, nodes);
+        rootIds.length = 0;
+        rootIds.push(...sortedRootIds);
       }
 
       return {
@@ -341,5 +373,50 @@ export const useFolderTreeStore = create<FolderTreeStore>((set, get) => ({
 
   filterByType: () => {
     // Implementation will be added later
+  },
+
+  sortChildrenArray: (children, nodes) => {
+    return [...children].sort((a, b) => {
+      const nodeA = nodes.get(a);
+      const nodeB = nodes.get(b);
+
+      if (!nodeA || !nodeB) return 0;
+
+      // Folders first, then requests
+      if (nodeA.type !== nodeB.type) {
+        return nodeA.type === 'folder' ? -1 : 1;
+      }
+
+      // Then sort by name (case-insensitive)
+      return nodeA.name.toLowerCase().localeCompare(nodeB.name.toLowerCase());
+    });
+  },
+
+  sortChildren: (nodeId) => {
+    set((state) => {
+      const nodes = new Map(state.treeState.nodes);
+      const rootIds = [...state.treeState.rootIds];
+
+      if (nodeId === null) {
+        // Sort root nodes
+        const sortedRootIds = get().sortChildrenArray(rootIds, nodes);
+        return {
+          treeState: { ...state.treeState, rootIds: sortedRootIds },
+        };
+      } else {
+        // Sort children of specific node
+        const node = nodes.get(nodeId);
+        if (node) {
+          const sortedChildren = get().sortChildrenArray(node.children, nodes);
+          nodes.set(nodeId, {
+            ...node,
+            children: sortedChildren,
+          });
+        }
+        return {
+          treeState: { ...state.treeState, nodes },
+        };
+      }
+    });
   },
 }));
