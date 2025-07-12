@@ -19,7 +19,7 @@ export interface Environment {
   variables: VariableSet;
 }
 
-interface VariablesState {
+export interface VariablesState {
   // Global variables (shared across all environments)
   globalVariables: VariableSet;
 

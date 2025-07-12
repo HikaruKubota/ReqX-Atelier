@@ -586,7 +586,6 @@ export default function App() {
             name: 'New Folder',
             parentFolderId: parentId,
             requestIds: [],
-            subFolderIds: [],
           });
         }}
         onAddRequest={(parentId) => {

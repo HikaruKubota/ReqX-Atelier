@@ -40,7 +40,6 @@ describe('FolderTreeAdapter', () => {
       name: 'Test Folder',
       parentFolderId: null,
       requestIds: [],
-      subFolderIds: [],
     });
 
     const requestId = addRequest({
