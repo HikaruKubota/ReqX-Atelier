@@ -29,6 +29,13 @@ import { VariablesPanel } from './components/VariablesPanel';
 import { extractVariablesFromResponse, applyExtractedVariables } from './utils/variableExtraction';
 import { useUrlParamsSync } from './hooks/useUrlParamsSync';
 
+/**
+ * Main application component for managing and executing API requests with a tabbed interface.
+ *
+ * Provides a workspace for editing, saving, and sending API requests, displaying responses, and organizing requests into folders. Supports multiple open tabs, per-tab editor and response state, variable extraction from responses, keyboard shortcuts, and persistent request collections.
+ *
+ * Integrates custom hooks and UI components for request editing, tab management, saved request handling, variable management, and environment selection.
+ */
 export default function App() {
   const { t } = useTranslation();
   const editorPanelRef = useRef<RequestEditorPanelRef>(null); // Create a ref
