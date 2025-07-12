@@ -405,21 +405,27 @@ export default function App() {
     },
   });
 
-  // Unified tab response management
+  // Save response state when response changes
+  useEffect(() => {
+    const id = tabs.activeTabId;
+    if (!id) return;
+
+    // Save current response state to the active tab when response changes
+    if (response || error || responseTime !== null) {
+      setTabResponses((prev) => ({
+        ...prev,
+        [id]: { response, error, responseTime },
+      }));
+    }
+  }, [tabs.activeTabId, response, error, responseTime]);
+
+  // Restore response state when switching tabs
   useEffect(() => {
     const id = tabs.activeTabId;
 
     if (!id) {
       resetApiResponse();
       return;
-    }
-
-    // Save current response state to the active tab
-    if (response || error || responseTime !== null) {
-      setTabResponses((prev) => ({
-        ...prev,
-        [id]: { response, error, responseTime },
-      }));
     }
 
     // Restore response state when switching tabs
@@ -429,15 +435,7 @@ export default function App() {
     } else {
       resetApiResponse();
     }
-  }, [
-    tabs.activeTabId,
-    response,
-    error,
-    responseTime,
-    tabResponses,
-    setApiResponseState,
-    resetApiResponse,
-  ]);
+  }, [tabs.activeTabId, tabResponses, setApiResponseState, resetApiResponse]);
 
   const handleLoadRequest = (req: SavedRequest) => {
     const existing = tabs.tabs.find((t) => t.requestId === req.id);
