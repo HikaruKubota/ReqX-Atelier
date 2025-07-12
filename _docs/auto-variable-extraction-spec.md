@@ -33,6 +33,7 @@ APIレスポンスから特定の値を自動的に変数に反映する機能�
 // ${authToken} = "eyJhbGciOiJIUzI1NiIs..."
 // ${refreshToken} = "refresh_token_value"
 
+
 // ${userId} = "user123"
 ```
 

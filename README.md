@@ -15,7 +15,7 @@ A modern API development and testing tool built with Electron, React, and TypeSc
 
 ## Requirements
 
-- Node.js 20 or higher
+- Node.js 22.16.0 (see `.node-version`)
 - npm or yarn
 
 ## Installation
