@@ -29,7 +29,7 @@ export const FolderTreeAdapter: React.FC<FolderTreeAdapterProps> = ({
   // Use props if provided (for testing), otherwise use store
   const savedRequests = propsRequests ?? storeRequests;
   const savedFolders = propsFolders ?? storeFolders;
-  const { createNode } = useFolderTreeStore();
+  const { createNode, deleteNode } = useFolderTreeStore();
 
   // Enable syncing operations back to savedRequestsStore
   useFolderTreeSync();
@@ -41,113 +41,126 @@ export const FolderTreeAdapter: React.FC<FolderTreeAdapterProps> = ({
     requests: [],
   });
 
+  // Maintain stable mappings between saved items and tree nodes
+  const folderNodeMap = useRef<Map<string, string>>(new Map());
+  const requestNodeMap = useRef<Map<string, string>>(new Map());
+  const nodeTypeMap = useRef<Map<string, { type: 'folder' | 'request'; id: string }>>(new Map());
+
   // Sync savedRequestsStore data to folderTreeStore
   useEffect(() => {
-    // Check if data has actually changed
-    const hasDataChanged =
-      JSON.stringify(savedFolders) !== JSON.stringify(previousDataRef.current.folders) ||
-      JSON.stringify(savedRequests) !== JSON.stringify(previousDataRef.current.requests);
+    // First-time initialization
+    if (!isInitialized.current) {
+      // Clear any existing data and mappings
+      folderNodeMap.current.clear();
+      requestNodeMap.current.clear();
+      nodeTypeMap.current.clear();
 
-    if (!hasDataChanged && isInitialized.current) {
-      return; // No changes, skip re-sync
+      useFolderTreeStore.setState({
+        treeState: {
+          nodes: new Map(),
+          rootIds: [],
+          expandedIds: new Set(),
+          selectedIds: new Set(),
+          focusedId: null,
+          editingId: null,
+          draggedId: null,
+          dropTargetId: null,
+          dropPosition: null,
+        },
+      });
     }
 
-    // Store current data for next comparison
-    previousDataRef.current = {
-      folders: [...savedFolders],
-      requests: [...savedRequests],
-    };
-
     const currentState = useFolderTreeStore.getState().treeState;
+    const currentFolderIds = new Set(savedFolders.map((f) => f.id));
+    const currentRequestIds = new Set(savedRequests.map((r) => r.id));
+    const previousFolderIds = new Set(previousDataRef.current.folders.map((f) => f.id));
+    const previousRequestIds = new Set(previousDataRef.current.requests.map((r) => r.id));
 
-    // Preserve expanded state and other UI states
-    const expandedIds = new Set(currentState.expandedIds);
-    const selectedIds = currentState.selectedIds;
-    const focusedId = currentState.focusedId;
+    // Find added and removed items
+    const addedFolders = savedFolders.filter((f) => !previousFolderIds.has(f.id));
+    const removedFolderIds = Array.from(previousFolderIds).filter(
+      (id) => !currentFolderIds.has(id),
+    );
+    const addedRequests = savedRequests.filter((r) => !previousRequestIds.has(r.id));
+    const removedRequestIds = Array.from(previousRequestIds).filter(
+      (id) => !currentRequestIds.has(id),
+    );
 
-    // Clear existing nodes while preserving UI state
-    useFolderTreeStore.setState({
-      treeState: {
-        nodes: new Map(),
-        rootIds: [],
-        expandedIds,
-        selectedIds,
-        focusedId,
-        editingId: null,
-        draggedId: null,
-        dropTargetId: null,
-        dropPosition: null,
-      },
+    // Handle removed items
+    [...removedFolderIds, ...removedRequestIds].forEach((id) => {
+      const nodeId = folderNodeMap.current.get(id) || requestNodeMap.current.get(id);
+      if (nodeId) {
+        deleteNode(nodeId);
+        folderNodeMap.current.delete(id);
+        requestNodeMap.current.delete(id);
+        nodeTypeMap.current.delete(nodeId);
+      }
     });
 
-    // Create a map to track folder IDs
-    const folderMap = new Map<string, string>();
-    const requestMap = new Map<string, SavedRequest>();
-    const nodeMap = new Map<string, { type: 'folder' | 'request'; id: string }>();
-
-    // First, create all folders
-    const createFolderRecursive = (folder: SavedFolder, parentNodeId: string | null = null) => {
-      const nodeId = createNode(parentNodeId, 'folder', folder.name);
-      folderMap.set(folder.id, nodeId);
-      nodeMap.set(nodeId, { type: 'folder', id: folder.id });
-
-      // Find child folders based on parentFolderId
-      const childFolders = savedFolders.filter((f) => f.parentFolderId === folder.id);
-
-      // Auto-expand folders that have children to show subfolder structure
-      // Only on initial load or if not already tracked
-      if (!isInitialized.current && (childFolders.length > 0 || folder.requestIds.length > 0)) {
-        expandedIds.add(nodeId);
+    // Helper function to create or get existing node
+    const getOrCreateFolder = (folder: SavedFolder): string => {
+      // Check if we already have a node ID for this folder
+      const existingNodeId = folderNodeMap.current.get(folder.id);
+      if (existingNodeId) {
+        // Verify the node still exists in the tree
+        const currentTreeState = useFolderTreeStore.getState().treeState;
+        if (currentTreeState.nodes.has(existingNodeId)) {
+          return existingNodeId;
+        }
       }
 
-      // Process child folders
-      childFolders.forEach((childFolder) => {
-        createFolderRecursive(childFolder, nodeId);
-      });
-
-      // Process request IDs in this folder
-      folder.requestIds.forEach((requestId) => {
-        const request = savedRequests.find((r) => r.id === requestId);
-        if (request) {
-          const requestNodeId = createNode(nodeId, 'request', request.name);
-          requestMap.set(requestNodeId, request);
-          nodeMap.set(requestNodeId, { type: 'request', id: request.id });
-
-          // Update node metadata with request info
-          const nodes = useFolderTreeStore.getState().treeState.nodes;
-          const node = nodes.get(requestNodeId);
-          if (node) {
-            nodes.set(requestNodeId, {
-              ...node,
-              metadata: {
-                method: request.method,
-                url: request.url,
-                createdAt: Date.now(),
-                updatedAt: Date.now(),
-              },
-            });
+      // Find parent node ID if folder has parent
+      let parentNodeId: string | null = null;
+      if (folder.parentFolderId) {
+        // Check if parent already has a node
+        const parentExistingNodeId = folderNodeMap.current.get(folder.parentFolderId);
+        if (parentExistingNodeId) {
+          const currentTreeState = useFolderTreeStore.getState().treeState;
+          if (currentTreeState.nodes.has(parentExistingNodeId)) {
+            parentNodeId = parentExistingNodeId;
           }
         }
-      });
+
+        // If parent doesn't have a node yet, we'll handle it in the tree building process
+        if (!parentNodeId) {
+          return ''; // Return empty string to indicate this folder needs to wait for parent
+        }
+      }
+
+      const nodeId = createNode(parentNodeId, 'folder', folder.name);
+      folderNodeMap.current.set(folder.id, nodeId);
+      nodeTypeMap.current.set(nodeId, { type: 'folder', id: folder.id });
+
+      // Auto-expand on initial load if has children
+      if (!isInitialized.current) {
+        const hasChildren =
+          savedFolders.some((f) => f.parentFolderId === folder.id) || folder.requestIds.length > 0;
+        if (hasChildren) {
+          useFolderTreeStore.setState((state) => ({
+            treeState: {
+              ...state.treeState,
+              expandedIds: new Set([...state.treeState.expandedIds, nodeId]),
+            },
+          }));
+        }
+      }
+
+      return nodeId;
     };
 
-    // Create root folders (folders without parent)
-    savedFolders
-      .filter((folder) => !folder.parentFolderId)
-      .forEach((folder) => createFolderRecursive(folder, null));
+    const getOrCreateRequest = (request: SavedRequest, parentNodeId: string | null): string => {
+      const existingNodeId = requestNodeMap.current.get(request.id);
+      if (existingNodeId && currentState.nodes.has(existingNodeId)) {
+        return existingNodeId;
+      }
 
-    // Create orphaned requests (not in any folder)
-    const requestsInFolders = new Set(savedFolders.flatMap((folder) => folder.requestIds));
+      const nodeId = createNode(parentNodeId, 'request', request.name);
+      requestNodeMap.current.set(request.id, nodeId);
+      nodeTypeMap.current.set(nodeId, { type: 'request', id: request.id });
 
-    savedRequests
-      .filter((request) => !requestsInFolders.has(request.id))
-      .forEach((request) => {
-        const nodeId = createNode(null, 'request', request.name);
-        requestMap.set(nodeId, request);
-        nodeMap.set(nodeId, { type: 'request', id: request.id });
-
-        // Update node metadata
-        const nodes = useFolderTreeStore.getState().treeState.nodes;
+      // Update node metadata
+      useFolderTreeStore.setState((state) => {
+        const nodes = new Map(state.treeState.nodes);
         const node = nodes.get(nodeId);
         if (node) {
           nodes.set(nodeId, {
@@ -160,9 +173,64 @@ export const FolderTreeAdapter: React.FC<FolderTreeAdapterProps> = ({
             },
           });
         }
+        return {
+          treeState: { ...state.treeState, nodes },
+        };
       });
 
-    // Store the mappings for later use
+      return nodeId;
+    };
+
+    // Process all folders to ensure hierarchy is correct
+    if (!isInitialized.current || addedFolders.length > 0 || removedFolderIds.length > 0) {
+      // Clear and rebuild the folder structure to ensure correct hierarchy
+      // First, identify all root folders and build from there
+      const processedFolders = new Set<string>();
+
+      const buildFolderTree = (folderId: string) => {
+        if (processedFolders.has(folderId)) return;
+
+        const folder = savedFolders.find((f) => f.id === folderId);
+        if (!folder) return;
+
+        processedFolders.add(folderId);
+        const nodeId = getOrCreateFolder(folder);
+
+        // Only process children if the folder was successfully created
+        if (nodeId) {
+          // Process child folders
+          savedFolders
+            .filter((f) => f.parentFolderId === folderId)
+            .forEach((childFolder) => buildFolderTree(childFolder.id));
+        }
+      };
+
+      // Start with root folders
+      savedFolders.filter((f) => !f.parentFolderId).forEach((folder) => buildFolderTree(folder.id));
+    }
+
+    // Process all requests
+    if (!isInitialized.current || addedRequests.length > 0 || removedRequestIds.length > 0) {
+      // Rebuild request placement to ensure they're in the correct folders
+      savedRequests.forEach((request) => {
+        // Find which folder contains this request
+        const containingFolder = savedFolders.find((f) => f.requestIds.includes(request.id));
+        const parentNodeId = containingFolder
+          ? folderNodeMap.current.get(containingFolder.id) || null
+          : null;
+        getOrCreateRequest(request, parentNodeId);
+      });
+    }
+
+    // Update the window mappings for sync operations
+    const requestMap = new Map<string, SavedRequest>();
+    savedRequests.forEach((request) => {
+      const nodeId = requestNodeMap.current.get(request.id);
+      if (nodeId) {
+        requestMap.set(nodeId, request);
+      }
+    });
+
     (
       window as unknown as {
         __folderTreeRequestMap?: Map<string, SavedRequest>;
@@ -174,18 +242,16 @@ export const FolderTreeAdapter: React.FC<FolderTreeAdapterProps> = ({
         __folderTreeRequestMap?: Map<string, SavedRequest>;
         __folderTreeNodeMap?: Map<string, { type: 'folder' | 'request'; id: string }>;
       }
-    ).__folderTreeNodeMap = nodeMap;
+    ).__folderTreeNodeMap = nodeTypeMap.current;
 
-    // Update expanded IDs in the store
-    useFolderTreeStore.setState((state) => ({
-      treeState: {
-        ...state.treeState,
-        expandedIds,
-      },
-    }));
+    // Store current data for next comparison
+    previousDataRef.current = {
+      folders: [...savedFolders],
+      requests: [...savedRequests],
+    };
 
     isInitialized.current = true;
-  }, [savedRequests, savedFolders, createNode]);
+  }, [savedRequests, savedFolders, createNode, deleteNode]);
 
   // Handle opening a request
   const handleOpenRequest = (nodeId: string) => {

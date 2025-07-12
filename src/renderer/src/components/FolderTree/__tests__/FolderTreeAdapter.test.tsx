@@ -102,20 +102,15 @@ describe('FolderTreeAdapter', () => {
       name: 'Parent Folder',
       parentFolderId: null,
       requestIds: [],
-      subFolderIds: [],
     });
 
-    const childId = addFolder({
+    addFolder({
       name: 'Child Folder',
       parentFolderId: parentId,
       requestIds: [],
-      subFolderIds: [],
     });
 
-    // Update parent with child
-    useSavedRequestsStore.getState().updateFolder(parentId, {
-      subFolderIds: [childId],
-    });
+    // No need to update parent - hierarchy is maintained by parentFolderId
 
     render(<FolderTreeAdapter />);
 

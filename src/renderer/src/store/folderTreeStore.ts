@@ -20,6 +20,7 @@ interface FolderTreeStore {
 
   // CRUD Operations
   createNode: (parentId: string | null, type: 'folder' | 'request', name: string) => string;
+  updateNode: (nodeId: string, updates: Partial<TreeNode>) => void;
   deleteNode: (nodeId: string) => void;
   moveNode: (nodeId: string, targetId: string, position: DropPosition) => void;
 
@@ -182,6 +183,25 @@ export const useFolderTreeStore = create<FolderTreeStore>((set, get) => ({
     });
 
     return newNodeId;
+  },
+
+  updateNode: (nodeId, updates) => {
+    set((state) => {
+      const nodes = new Map(state.treeState.nodes);
+      const node = nodes.get(nodeId);
+
+      if (!node) return state;
+
+      nodes.set(nodeId, {
+        ...node,
+        ...updates,
+        id: node.id, // Ensure ID cannot be changed
+      });
+
+      return {
+        treeState: { ...state.treeState, nodes },
+      };
+    });
   },
 
   deleteNode: (nodeId) => {
