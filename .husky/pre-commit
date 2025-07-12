@@ -2,12 +2,43 @@
 
 echo "🔍 Running pre-commit checks..."
 
-# Run format, lint, and tests
-npm run check
+# Run format
+echo "📝 Formatting code..."
+npm run format
 
-# Check if npm run check was successful
+# Check if any files were modified by prettier
+if ! git diff --quiet; then
+  echo "🔄 Files were formatted. Adding changes..."
+  git add -A
+fi
+
+# Run lint with auto-fix
+echo "🔧 Running linter with auto-fix..."
+npx eslint . --ext .ts,.tsx --fix
+
+# Check if any files were modified by eslint
+if ! git diff --quiet; then
+  echo "🔄 Files were auto-fixed by ESLint. Adding changes..."
+  git add -A
+fi
+
+# Run lint again to check for remaining issues
+echo "🔍 Checking for remaining lint issues..."
+npm run lint
+
+# Check if lint was successful
 if [ $? -ne 0 ]; then
-  echo "❌ Pre-commit checks failed. Please fix the issues and try again."
+  echo "❌ Linting failed. Please fix the issues manually and try again."
+  exit 1
+fi
+
+# Run tests
+echo "🧪 Running tests..."
+npm run test
+
+# Check if tests were successful
+if [ $? -ne 0 ]; then
+  echo "❌ Tests failed. Please fix the issues and try again."
   exit 1
 fi
 

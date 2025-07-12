@@ -58,7 +58,6 @@ describe('savedRequestsStore migration', () => {
       name: 'Old Folder',
       parentFolderId: null,
       requestIds: ['req1'],
-      subFolderIds: ['folder2'],
     });
   });
 });
@@ -71,7 +70,6 @@ describe('savedFolders CRUD', () => {
       name: 'Test',
       parentFolderId: null,
       requestIds: [],
-      subFolderIds: [],
     });
     expect(useSavedRequestsStore.getState().savedFolders).toHaveLength(1);
 
@@ -86,9 +84,8 @@ describe('savedFolders CRUD', () => {
       name: 'Folder',
       parentFolderId: null,
       requestIds: [],
-      subFolderIds: [],
     });
-    useSavedRequestsStore.getState().updateFolder(id, { name: 'Updated', subFolderIds: ['child'] });
+    useSavedRequestsStore.getState().updateFolder(id, { name: 'Updated' });
 
     const folder = useSavedRequestsStore.getState().savedFolders.find((f) => f.id === id);
     expect(folder).toEqual({
@@ -96,7 +93,6 @@ describe('savedFolders CRUD', () => {
       name: 'Updated',
       parentFolderId: null,
       requestIds: [],
-      subFolderIds: ['child'],
     });
   });
 });
@@ -129,17 +125,15 @@ describe('copyFolder', () => {
       headers: [],
       body: [],
     });
-    const childFolderId = useSavedRequestsStore.getState().addFolder({
-      name: 'Child',
-      parentFolderId: null,
-      requestIds: [reqId],
-      subFolderIds: [],
-    });
     const rootFolderId = useSavedRequestsStore.getState().addFolder({
       name: 'Root',
       parentFolderId: null,
       requestIds: [],
-      subFolderIds: [childFolderId],
+    });
+    useSavedRequestsStore.getState().addFolder({
+      name: 'Child',
+      parentFolderId: rootFolderId,
+      requestIds: [reqId],
     });
 
     const newId = useSavedRequestsStore.getState().copyFolder(rootFolderId);
@@ -149,8 +143,10 @@ describe('copyFolder', () => {
     expect(requests).toHaveLength(2); // original + copy
     const copied = folders.find((f) => f.id === newId)!;
     expect(copied.name).toBe('Root copy');
-    expect(copied.subFolderIds).toHaveLength(1);
-    const copiedChild = folders.find((f) => f.id === copied.subFolderIds[0])!;
+    // Find child by checking parentFolderId
+    const copiedChildren = folders.filter((f) => f.parentFolderId === newId);
+    expect(copiedChildren).toHaveLength(1);
+    const copiedChild = copiedChildren[0];
     expect(copiedChild.name).toBe('Child');
     expect(copiedChild.requestIds).toHaveLength(1);
     const copiedReq = requests.find((r) => r.id === copiedChild.requestIds[0])!;
@@ -166,35 +162,30 @@ describe('moveFolder', () => {
       name: 'Grand',
       parentFolderId: null,
       requestIds: [],
-      subFolderIds: [],
     });
 
     const parentId = useSavedRequestsStore.getState().addFolder({
       name: 'Parent',
       parentFolderId: grandId,
       requestIds: [],
-      subFolderIds: [],
     });
 
     const childId = useSavedRequestsStore.getState().addFolder({
       name: 'Child',
       parentFolderId: parentId,
       requestIds: [],
-      subFolderIds: [],
     });
-
-    useSavedRequestsStore.getState().updateFolder(grandId, { subFolderIds: [parentId] });
-    useSavedRequestsStore.getState().updateFolder(parentId, { subFolderIds: [childId] });
 
     useSavedRequestsStore.getState().moveFolder(childId, grandId);
 
     const folders = useSavedRequestsStore.getState().savedFolders;
-    const grand = folders.find((f) => f.id === grandId)!;
-    const parent = folders.find((f) => f.id === parentId)!;
     const child = folders.find((f) => f.id === childId)!;
 
     expect(child.parentFolderId).toBe(grandId);
-    expect(grand.subFolderIds).toEqual([parentId, childId]);
-    expect(parent.subFolderIds).toEqual([]);
+    // Verify parent-child relationships through parentFolderId
+    const grandChildren = folders.filter((f) => f.parentFolderId === grandId);
+    expect(grandChildren.map((f) => f.id).sort()).toEqual([parentId, childId].sort());
+    const parentChildren = folders.filter((f) => f.parentFolderId === parentId);
+    expect(parentChildren).toHaveLength(0);
   });
 });

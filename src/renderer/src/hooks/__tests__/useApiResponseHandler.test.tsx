@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { renderHook, act } from '@testing-library/react';
 import { useApiResponseHandler } from '../useApiResponseHandler';
-import { useVariablesStore } from '../../store/variablesStore';
+import { useVariablesStore, type VariablesState } from '../../store/variablesStore';
 import type { ApiResult, ApiError } from '../../types';
 
 // Mock the api module
@@ -23,11 +23,25 @@ describe('useApiResponseHandler', () => {
     vi.clearAllMocks();
     // Mock the entire useVariablesStore hook
     vi.mocked(useVariablesStore).mockImplementation(
-      (selector: (state: { getResolvedVariables: typeof mockGetResolvedVariables }) => unknown) => {
+      (selector?: (state: VariablesState) => unknown) => {
         // If a selector is provided, call it with our mock state
         if (typeof selector === 'function') {
           const mockState = {
+            globalVariables: {},
+            environments: [],
+            activeEnvironmentId: 'development',
+            setActiveEnvironment: vi.fn(),
+            addGlobalVariable: vi.fn(),
+            updateGlobalVariable: vi.fn(),
+            deleteGlobalVariable: vi.fn(),
+            addEnvironmentVariable: vi.fn(),
+            updateEnvironmentVariable: vi.fn(),
+            deleteEnvironmentVariable: vi.fn(),
+            addEnvironment: vi.fn(),
+            updateEnvironment: vi.fn(),
+            deleteEnvironment: vi.fn(),
             getResolvedVariables: mockGetResolvedVariables,
+            resolveVariable: vi.fn(),
           };
           return selector(mockState);
         }
