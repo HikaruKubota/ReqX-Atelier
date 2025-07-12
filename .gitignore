@@ -35,5 +35,9 @@ ehthumbs.db
 
 *storybook.log
 
+# Test coverage reports
+coverage/
+**/coverage/
+
 # Local settings
 .claude/settings.local.json
