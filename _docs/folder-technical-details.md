@@ -72,30 +72,30 @@ export type DropPosition = 'before' | 'inside' | 'after';
 interface FolderTreeStore {
   // State
   treeState: TreeState;
-  
+
   // Actions
   toggleNode: (nodeId: string) => void;
   selectNode: (nodeId: string, multi?: boolean) => void;
   focusNode: (nodeId: string) => void;
   startEditing: (nodeId: string) => void;
   endEditing: (nodeId: string, newName: string) => void;
-  
+
   // Drag & Drop
   startDrag: (nodeId: string) => void;
   updateDropTarget: (targetId: string | null, position: DropPosition | null) => void;
   completeDrop: () => void;
-  
+
   // CRUD Operations
   createNode: (parentId: string | null, type: 'folder' | 'request', name: string) => string;
   deleteNode: (nodeId: string) => void;
   moveNode: (nodeId: string, newParentId: string | null, position: number) => void;
-  
+
   // Navigation
   navigateUp: () => void;
   navigateDown: () => void;
   navigateLeft: () => void;
   navigateRight: () => void;
-  
+
   // Search & Filter
   searchNodes: (query: string) => string[];
   filterByType: (type: 'folder' | 'request' | 'all') => void;
@@ -113,7 +113,7 @@ export const useFolderTreeStore = create<FolderTreeStore>((set, get) => ({
     dropTargetId: null,
     dropPosition: null,
   },
-  
+
   toggleNode: (nodeId) => {
     set((state) => {
       const expandedIds = new Set(state.treeState.expandedIds);
@@ -123,11 +123,11 @@ export const useFolderTreeStore = create<FolderTreeStore>((set, get) => ({
         expandedIds.add(nodeId);
       }
       return {
-        treeState: { ...state.treeState, expandedIds }
+        treeState: { ...state.treeState, expandedIds },
       };
     });
   },
-  
+
   // ... その他のアクション実装
 }));
 ```
@@ -139,23 +139,31 @@ export const useFolderTreeStore = create<FolderTreeStore>((set, get) => ({
 ```typescript
 // src/renderer/src/hooks/useTreeKeyboardNavigation.ts
 export function useTreeKeyboardNavigation(treeRef: React.RefObject<HTMLDivElement>) {
-  const { treeState, navigateUp, navigateDown, navigateLeft, navigateRight, toggleNode, startEditing } = useFolderTreeStore();
-  
+  const {
+    treeState,
+    navigateUp,
+    navigateDown,
+    navigateLeft,
+    navigateRight,
+    toggleNode,
+    startEditing,
+  } = useFolderTreeStore();
+
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (!treeRef.current?.contains(e.target as Node)) return;
-      
+
       switch (e.key) {
         case 'ArrowUp':
           e.preventDefault();
           navigateUp();
           break;
-          
+
         case 'ArrowDown':
           e.preventDefault();
           navigateDown();
           break;
-          
+
         case 'ArrowLeft':
           e.preventDefault();
           if (treeState.focusedId) {
@@ -167,7 +175,7 @@ export function useTreeKeyboardNavigation(treeRef: React.RefObject<HTMLDivElemen
             }
           }
           break;
-          
+
         case 'ArrowRight':
           e.preventDefault();
           if (treeState.focusedId) {
@@ -179,7 +187,7 @@ export function useTreeKeyboardNavigation(treeRef: React.RefObject<HTMLDivElemen
             }
           }
           break;
-          
+
         case 'Enter':
           e.preventDefault();
           if (treeState.focusedId) {
@@ -192,14 +200,14 @@ export function useTreeKeyboardNavigation(treeRef: React.RefObject<HTMLDivElemen
             }
           }
           break;
-          
+
         case 'F2':
           e.preventDefault();
           if (treeState.focusedId) {
             startEditing(treeState.focusedId);
           }
           break;
-          
+
         case 'Delete':
           e.preventDefault();
           if (treeState.selectedIds.size > 0) {
@@ -209,7 +217,7 @@ export function useTreeKeyboardNavigation(treeRef: React.RefObject<HTMLDivElemen
           break;
       }
     };
-    
+
     document.addEventListener('keydown', handleKeyDown);
     return () => document.removeEventListener('keydown', handleKeyDown);
   }, [treeState, navigateUp, navigateDown, navigateLeft, navigateRight, toggleNode, startEditing]);
@@ -224,58 +232,67 @@ export function useTreeKeyboardNavigation(treeRef: React.RefObject<HTMLDivElemen
 // src/renderer/src/hooks/useTreeDragDrop.ts
 export function useTreeDragDrop() {
   const { startDrag, updateDropTarget, completeDrop, moveNode } = useFolderTreeStore();
-  
-  const handleDragStart = useCallback((e: React.DragEvent, nodeId: string) => {
-    e.dataTransfer.effectAllowed = 'move';
-    e.dataTransfer.setData('text/plain', nodeId);
-    startDrag(nodeId);
-    
-    // ドラッグゴーストのカスタマイズ
-    const dragImage = document.createElement('div');
-    dragImage.className = 'drag-ghost';
-    dragImage.textContent = getNodeName(nodeId);
-    document.body.appendChild(dragImage);
-    e.dataTransfer.setDragImage(dragImage, 0, 0);
-    setTimeout(() => document.body.removeChild(dragImage), 0);
-  }, [startDrag]);
-  
-  const handleDragOver = useCallback((e: React.DragEvent, nodeId: string) => {
-    e.preventDefault();
-    e.dataTransfer.dropEffect = 'move';
-    
-    const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
-    const y = e.clientY - rect.top;
-    const height = rect.height;
-    const node = getNode(nodeId);
-    
-    let position: DropPosition;
-    if (node?.type === 'folder') {
-      if (y < height * 0.25) {
-        position = 'before';
-      } else if (y > height * 0.75) {
-        position = 'after';
+
+  const handleDragStart = useCallback(
+    (e: React.DragEvent, nodeId: string) => {
+      e.dataTransfer.effectAllowed = 'move';
+      e.dataTransfer.setData('text/plain', nodeId);
+      startDrag(nodeId);
+
+      // ドラッグゴーストのカスタマイズ
+      const dragImage = document.createElement('div');
+      dragImage.className = 'drag-ghost';
+      dragImage.textContent = getNodeName(nodeId);
+      document.body.appendChild(dragImage);
+      e.dataTransfer.setDragImage(dragImage, 0, 0);
+      setTimeout(() => document.body.removeChild(dragImage), 0);
+    },
+    [startDrag],
+  );
+
+  const handleDragOver = useCallback(
+    (e: React.DragEvent, nodeId: string) => {
+      e.preventDefault();
+      e.dataTransfer.dropEffect = 'move';
+
+      const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
+      const y = e.clientY - rect.top;
+      const height = rect.height;
+      const node = getNode(nodeId);
+
+      let position: DropPosition;
+      if (node?.type === 'folder') {
+        if (y < height * 0.25) {
+          position = 'before';
+        } else if (y > height * 0.75) {
+          position = 'after';
+        } else {
+          position = 'inside';
+        }
       } else {
-        position = 'inside';
+        position = y < height * 0.5 ? 'before' : 'after';
       }
-    } else {
-      position = y < height * 0.5 ? 'before' : 'after';
-    }
-    
-    updateDropTarget(nodeId, position);
-  }, [updateDropTarget]);
-  
-  const handleDrop = useCallback((e: React.DragEvent, targetId: string) => {
-    e.preventDefault();
-    const sourceId = e.dataTransfer.getData('text/plain');
-    
-    if (sourceId && targetId && sourceId !== targetId) {
-      // 循環参照チェック
-      if (!isDescendant(targetId, sourceId)) {
-        completeDrop();
+
+      updateDropTarget(nodeId, position);
+    },
+    [updateDropTarget],
+  );
+
+  const handleDrop = useCallback(
+    (e: React.DragEvent, targetId: string) => {
+      e.preventDefault();
+      const sourceId = e.dataTransfer.getData('text/plain');
+
+      if (sourceId && targetId && sourceId !== targetId) {
+        // 循環参照チェック
+        if (!isDescendant(targetId, sourceId)) {
+          completeDrop();
+        }
       }
-    }
-  }, [completeDrop]);
-  
+    },
+    [completeDrop],
+  );
+
   return {
     handleDragStart,
     handleDragOver,
@@ -387,43 +404,40 @@ export function VirtualTreeTanstack({ nodes }: VirtualTreeProps) {
 // src/renderer/src/components/FolderTree/optimizations.ts
 
 // ノードコンポーネントのメモ化
-export const MemoizedTreeNode = React.memo<TreeNodeProps>(
-  TreeNode,
-  (prevProps, nextProps) => {
-    // 必要なプロパティのみを比較
-    return (
-      prevProps.node.id === nextProps.node.id &&
-      prevProps.node.name === nextProps.node.name &&
-      prevProps.isExpanded === nextProps.isExpanded &&
-      prevProps.isSelected === nextProps.isSelected &&
-      prevProps.isFocused === nextProps.isFocused &&
-      prevProps.isEditing === nextProps.isEditing
-    );
-  }
-);
+export const MemoizedTreeNode = React.memo<TreeNodeProps>(TreeNode, (prevProps, nextProps) => {
+  // 必要なプロパティのみを比較
+  return (
+    prevProps.node.id === nextProps.node.id &&
+    prevProps.node.name === nextProps.node.name &&
+    prevProps.isExpanded === nextProps.isExpanded &&
+    prevProps.isSelected === nextProps.isSelected &&
+    prevProps.isFocused === nextProps.isFocused &&
+    prevProps.isEditing === nextProps.isEditing
+  );
+});
 
 // 高価な計算のメモ化
 export const useVisibleNodes = (nodes: Map<string, TreeNode>, expandedIds: Set<string>) => {
   return useMemo(() => {
     const visibleNodes: TreeNode[] = [];
-    
+
     const addVisibleNodes = (nodeIds: string[], level = 0) => {
-      nodeIds.forEach(nodeId => {
+      nodeIds.forEach((nodeId) => {
         const node = nodes.get(nodeId);
         if (!node) return;
-        
+
         visibleNodes.push({ ...node, level });
-        
+
         if (node.type === 'folder' && expandedIds.has(node.id)) {
           addVisibleNodes(node.children, level + 1);
         }
       });
     };
-    
+
     const rootIds = Array.from(nodes.values())
-      .filter(node => !node.parentId)
-      .map(node => node.id);
-    
+      .filter((node) => !node.parentId)
+      .map((node) => node.id);
+
     addVisibleNodes(rootIds);
     return visibleNodes;
   }, [nodes, expandedIds]);
@@ -550,39 +564,39 @@ describe('FolderTree', () => {
   it('should render tree structure correctly', () => {
     const nodes = createMockNodes();
     const { container } = render(<FolderTree nodes={nodes} />);
-    
+
     expect(container.querySelectorAll('[role="treeitem"]')).toHaveLength(5);
     expect(container.querySelector('[aria-expanded="true"]')).toBeTruthy();
   });
-  
+
   it('should handle keyboard navigation', async () => {
     const nodes = createMockNodes();
     const { container } = render(<FolderTree nodes={nodes} />);
-    
+
     const tree = container.querySelector('[role="tree"]');
     tree?.focus();
-    
+
     // Navigate down
     fireEvent.keyDown(tree!, { key: 'ArrowDown' });
     expect(document.activeElement?.getAttribute('aria-level')).toBe('1');
-    
+
     // Expand folder
     fireEvent.keyDown(tree!, { key: 'ArrowRight' });
     expect(document.activeElement?.getAttribute('aria-expanded')).toBe('true');
   });
-  
+
   it('should handle drag and drop', async () => {
     const onMove = jest.fn();
     const nodes = createMockNodes();
     const { container } = render(<FolderTree nodes={nodes} onMove={onMove} />);
-    
+
     const sourceNode = container.querySelector('[data-node-id="node1"]');
     const targetNode = container.querySelector('[data-node-id="node2"]');
-    
+
     fireEvent.dragStart(sourceNode!, { dataTransfer: { setData: jest.fn() } });
     fireEvent.dragOver(targetNode!, { clientY: 50 });
     fireEvent.drop(targetNode!);
-    
+
     expect(onMove).toHaveBeenCalledWith('node1', 'node2', 'inside');
   });
 });
@@ -614,12 +628,12 @@ export function useArboristCompat(treeRef: React.RefObject<FolderTreeHandle>) {
 
 // 既存データ構造の変換
 export function convertLegacyData(legacyData: LegacyTreeData): TreeNode[] {
-  return legacyData.items.map(item => ({
+  return legacyData.items.map((item) => ({
     id: item.id,
     name: item.data.name,
     type: item.children ? 'folder' : 'request',
     parentId: item.parent?.id || null,
-    children: item.children?.map(c => c.id) || [],
+    children: item.children?.map((c) => c.id) || [],
     metadata: item.data.metadata,
   }));
 }

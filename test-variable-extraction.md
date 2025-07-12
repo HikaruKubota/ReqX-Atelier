@@ -27,6 +27,7 @@ X-Session-ID: session456
 
 1. リクエストの「変数」タブを開く
 2. 以下のルールを追加:
+
    - 変数名: `authToken`, 抽出元: `$.data.token` (Response Body)
    - 変数名: `userId`, 抽出元: `$.data.user.id` (Response Body)
    - 変数名: `sessionId`, 抽出元: `X-Session-ID` (Response Header)
