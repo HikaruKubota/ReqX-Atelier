@@ -96,9 +96,6 @@ const migrateFolders = (stored: unknown): SavedFolder[] => {
       requestIds: Array.isArray(f.requestIds)
         ? (f.requestIds.filter((id) => typeof id === 'string') as string[])
         : [],
-      subFolderIds: Array.isArray((f as SavedFolder).subFolderIds)
-        ? ((f as SavedFolder).subFolderIds.filter((id) => typeof id === 'string') as string[])
-        : [],
     }));
   } catch {
     return [];
@@ -187,7 +184,6 @@ export const useSavedRequestsStore = create<SavedRequestsState>()(
             name: isRoot ? `${srcFolder.name} copy` : srcFolder.name,
             parentFolderId: destParentId,
             requestIds: [],
-            subFolderIds: [],
           };
           newFolders.push(folderCopy);
 
@@ -205,10 +201,12 @@ export const useSavedRequestsStore = create<SavedRequestsState>()(
             }
           });
 
-          srcFolder.subFolderIds.forEach((fid) => {
-            const childId = recursiveCopy(fid, newId, false);
-            if (childId) folderCopy.subFolderIds.push(childId);
-          });
+          // Copy child folders by finding folders with this folder as parent
+          folders
+            .filter((f) => f.parentFolderId === srcId)
+            .forEach((childFolder) => {
+              recursiveCopy(childFolder.id, newId, false);
+            });
 
           return newId;
         };
@@ -225,7 +223,6 @@ export const useSavedRequestsStore = create<SavedRequestsState>()(
           id: newId,
           parentFolderId: folder.parentFolderId ?? null,
           requestIds: folder.requestIds ?? [],
-          subFolderIds: folder.subFolderIds ?? [],
         };
         set({ savedFolders: [...get().savedFolders, newFolder] });
         return newId;
@@ -239,7 +236,6 @@ export const useSavedRequestsStore = create<SavedRequestsState>()(
                   ...updated,
                   parentFolderId: updated.parentFolderId ?? f.parentFolderId,
                   requestIds: updated.requestIds ?? f.requestIds,
-                  subFolderIds: updated.subFolderIds ?? f.subFolderIds,
                 }
               : f,
           ),
@@ -253,7 +249,12 @@ export const useSavedRequestsStore = create<SavedRequestsState>()(
           const folder = get().savedFolders.find((f) => f.id === folderId);
           if (!folder) return;
           folder.requestIds.forEach((rid) => get().deleteRequest(rid));
-          folder.subFolderIds.forEach((fid) => recursiveDelete(fid));
+          // Delete child folders by finding folders with this folder as parent
+          get()
+            .savedFolders.filter((f) => f.parentFolderId === folderId)
+            .forEach((childFolder) => {
+              recursiveDelete(childFolder.id);
+            });
           set({
             savedFolders: get().savedFolders.filter((f) => f.id !== folderId),
           });
@@ -271,7 +272,7 @@ export const useSavedRequestsStore = create<SavedRequestsState>()(
         });
         set({ savedFolders: folders });
       },
-      moveFolder: (id, targetFolderId, index) => {
+      moveFolder: (id, targetFolderId) => {
         const folders = get().savedFolders;
 
         const isDescendant = (targetId: string | null, fid: string): boolean => {
@@ -279,21 +280,18 @@ export const useSavedRequestsStore = create<SavedRequestsState>()(
           if (targetId === fid) return true;
           const folder = folders.find((f) => f.id === fid);
           if (!folder) return false;
-          return folder.subFolderIds.some((cid) => isDescendant(targetId, cid));
+          // Check if any child folders are descendants
+          const childFolders = folders.filter((f) => f.parentFolderId === fid);
+          return childFolders.some((child) => isDescendant(targetId, child.id));
         };
 
         if (isDescendant(targetFolderId, id)) return;
 
         const updated = folders.map((f) => {
-          let subIds = f.subFolderIds.filter((sid) => sid !== id);
-          if (f.id === targetFolderId) {
-            const insertAt = index !== undefined ? index : subIds.length;
-            subIds = [...subIds.slice(0, insertAt), id, ...subIds.slice(insertAt)];
-          }
           if (f.id === id) {
             return { ...f, parentFolderId: targetFolderId };
           }
-          return { ...f, subFolderIds: subIds };
+          return f;
         });
 
         set({ savedFolders: updated });

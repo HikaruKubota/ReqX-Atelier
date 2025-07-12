@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { VirtualizedFolderTree } from './VirtualizedFolderTree';
 import { FolderTree } from './index';
 import { useFolderTreeStore } from '../../store/folderTreeStore';
@@ -34,16 +34,45 @@ export const FolderTreeAdapter: React.FC<FolderTreeAdapterProps> = ({
   // Enable syncing operations back to savedRequestsStore
   useFolderTreeSync();
 
+  // Keep track of whether we've initialized
+  const isInitialized = useRef(false);
+  const previousDataRef = useRef<{ folders: SavedFolder[]; requests: SavedRequest[] }>({
+    folders: [],
+    requests: [],
+  });
+
   // Sync savedRequestsStore data to folderTreeStore
   useEffect(() => {
-    // Clear existing nodes
+    // Check if data has actually changed
+    const hasDataChanged =
+      JSON.stringify(savedFolders) !== JSON.stringify(previousDataRef.current.folders) ||
+      JSON.stringify(savedRequests) !== JSON.stringify(previousDataRef.current.requests);
+
+    if (!hasDataChanged && isInitialized.current) {
+      return; // No changes, skip re-sync
+    }
+
+    // Store current data for next comparison
+    previousDataRef.current = {
+      folders: [...savedFolders],
+      requests: [...savedRequests],
+    };
+
+    const currentState = useFolderTreeStore.getState().treeState;
+
+    // Preserve expanded state and other UI states
+    const expandedIds = new Set(currentState.expandedIds);
+    const selectedIds = currentState.selectedIds;
+    const focusedId = currentState.focusedId;
+
+    // Clear existing nodes while preserving UI state
     useFolderTreeStore.setState({
       treeState: {
         nodes: new Map(),
         rootIds: [],
-        expandedIds: new Set(),
-        selectedIds: new Set(),
-        focusedId: null,
+        expandedIds,
+        selectedIds,
+        focusedId,
         editingId: null,
         draggedId: null,
         dropTargetId: null,
@@ -57,17 +86,23 @@ export const FolderTreeAdapter: React.FC<FolderTreeAdapterProps> = ({
     const nodeMap = new Map<string, { type: 'folder' | 'request'; id: string }>();
 
     // First, create all folders
-    const createFolderRecursive = (folder: SavedFolder, parentId: string | null = null) => {
-      const nodeId = createNode(parentId, 'folder', folder.name);
+    const createFolderRecursive = (folder: SavedFolder, parentNodeId: string | null = null) => {
+      const nodeId = createNode(parentNodeId, 'folder', folder.name);
       folderMap.set(folder.id, nodeId);
       nodeMap.set(nodeId, { type: 'folder', id: folder.id });
 
-      // Process subfolder IDs
-      folder.subFolderIds.forEach((subFolderId) => {
-        const subFolder = savedFolders.find((f) => f.id === subFolderId);
-        if (subFolder) {
-          createFolderRecursive(subFolder, nodeId);
-        }
+      // Find child folders based on parentFolderId
+      const childFolders = savedFolders.filter((f) => f.parentFolderId === folder.id);
+
+      // Auto-expand folders that have children to show subfolder structure
+      // Only on initial load or if not already tracked
+      if (!isInitialized.current && (childFolders.length > 0 || folder.requestIds.length > 0)) {
+        expandedIds.add(nodeId);
+      }
+
+      // Process child folders
+      childFolders.forEach((childFolder) => {
+        createFolderRecursive(childFolder, nodeId);
       });
 
       // Process request IDs in this folder
@@ -96,10 +131,10 @@ export const FolderTreeAdapter: React.FC<FolderTreeAdapterProps> = ({
       });
     };
 
-    // Create root folders
+    // Create root folders (folders without parent)
     savedFolders
       .filter((folder) => !folder.parentFolderId)
-      .forEach((folder) => createFolderRecursive(folder));
+      .forEach((folder) => createFolderRecursive(folder, null));
 
     // Create orphaned requests (not in any folder)
     const requestsInFolders = new Set(savedFolders.flatMap((folder) => folder.requestIds));
@@ -140,6 +175,16 @@ export const FolderTreeAdapter: React.FC<FolderTreeAdapterProps> = ({
         __folderTreeNodeMap?: Map<string, { type: 'folder' | 'request'; id: string }>;
       }
     ).__folderTreeNodeMap = nodeMap;
+
+    // Update expanded IDs in the store
+    useFolderTreeStore.setState((state) => ({
+      treeState: {
+        ...state.treeState,
+        expandedIds,
+      },
+    }));
+
+    isInitialized.current = true;
   }, [savedRequests, savedFolders, createNode]);
 
   // Handle opening a request
