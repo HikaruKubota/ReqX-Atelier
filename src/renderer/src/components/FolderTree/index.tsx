@@ -15,7 +15,7 @@ interface FolderTreeProps {
 export const FolderTree: React.FC<FolderTreeProps> = React.memo(
   ({ onOpenRequest, className = '' }) => {
     const treeRef = useRef<HTMLDivElement>(null);
-    const { handleShiftSelect } = useTreeKeyboardNavigation(treeRef);
+    const { handleShiftSelect } = useTreeKeyboardNavigation(treeRef, onOpenRequest);
     const {
       handleDragStart,
       handleDragOver,
@@ -25,8 +25,7 @@ export const FolderTree: React.FC<FolderTreeProps> = React.memo(
       draggedOverId,
       dropPosition,
     } = useTreeDragDrop();
-    const { treeState, toggleNode, selectNode, focusNode, startEditing, endEditing } =
-      useFolderTreeStore();
+    const { treeState, toggleNode, selectNode, focusNode, endEditing } = useFolderTreeStore();
     const [contextMenu, setContextMenu] = useState<{ nodeId: string; x: number; y: number } | null>(
       null,
     );
@@ -70,14 +69,12 @@ export const FolderTree: React.FC<FolderTreeProps> = React.memo(
       [selectNode, focusNode, handleShiftSelect],
     );
 
-    const handleNodeDoubleClick = (nodeId: string) => {
+    const handleNodeClick = (nodeId: string) => {
       const node = treeState.nodes.get(nodeId);
       if (node?.type === 'folder') {
         toggleNode(nodeId);
       } else if (node && onOpenRequest) {
         onOpenRequest(nodeId);
-      } else if (node) {
-        startEditing(nodeId);
       }
     };
 
@@ -87,6 +84,12 @@ export const FolderTree: React.FC<FolderTreeProps> = React.memo(
       } else {
         endEditing(nodeId, treeState.nodes.get(nodeId)?.name || '');
       }
+      // Ensure focus returns to the tree after editing
+      setTimeout(() => {
+        if (treeRef.current) {
+          treeRef.current.focus();
+        }
+      }, 0);
     };
 
     const handleContextMenu = useCallback(
@@ -130,7 +133,7 @@ export const FolderTree: React.FC<FolderTreeProps> = React.memo(
             onToggle={() => handleNodeToggle(node.id)}
             onSelect={(event) => handleNodeSelect(node.id, event)}
             onEndEdit={(newName) => handleEndEdit(node.id, newName)}
-            onDoubleClick={() => handleNodeDoubleClick(node.id)}
+            onSingleClick={() => handleNodeClick(node.id)}
             onDragStart={(e) => handleDragStart(e, node.id)}
             onDragOver={(e) => handleDragOver(e, node.id)}
             onDragLeave={handleDragLeave}

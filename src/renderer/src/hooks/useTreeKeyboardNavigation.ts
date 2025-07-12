@@ -2,7 +2,10 @@ import { useEffect, useCallback } from 'react';
 import { useFolderTreeStore } from '../store/folderTreeStore';
 import { TreeNode } from '../types/tree';
 
-export function useTreeKeyboardNavigation(treeRef: React.RefObject<HTMLDivElement | null>) {
+export function useTreeKeyboardNavigation(
+  treeRef: React.RefObject<HTMLDivElement | null>,
+  onOpenRequest?: (nodeId: string) => void,
+) {
   const { treeState, toggleNode, selectNode, focusNode, startEditing, deleteNode } =
     useFolderTreeStore();
 
@@ -140,18 +143,22 @@ export function useTreeKeyboardNavigation(treeRef: React.RefObject<HTMLDivElemen
         case 'Enter':
           e.preventDefault();
           if (treeState.focusedId) {
-            const node = treeState.nodes.get(treeState.focusedId);
-            if (node?.type === 'folder') {
-              toggleNode(node.id);
-            }
+            // Enter key starts renaming for both folders and requests
+            startEditing(treeState.focusedId);
           }
           break;
 
-        case ' ': // Space key for toggle selection
+        case ' ': // Space key for toggle/open
           e.preventDefault();
           if (treeState.focusedId) {
-            // Toggle selection for multi-select
-            selectNode(treeState.focusedId, true);
+            const node = treeState.nodes.get(treeState.focusedId);
+            if (node?.type === 'folder') {
+              // Space toggles folder expansion
+              toggleNode(node.id);
+            } else if (node && onOpenRequest) {
+              // Space opens request
+              onOpenRequest(treeState.focusedId);
+            }
           }
           break;
 

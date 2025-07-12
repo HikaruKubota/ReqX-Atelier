@@ -19,7 +19,7 @@ interface TreeNodeProps {
   onToggle: () => void;
   onSelect: (event?: React.MouseEvent) => void;
   onEndEdit: (newName: string) => void;
-  onDoubleClick: () => void;
+  onSingleClick: () => void;
   onDragStart: (e: React.DragEvent) => void;
   onDragOver: (e: React.DragEvent) => void;
   onDragLeave: () => void;
@@ -42,7 +42,7 @@ export const TreeNode: React.FC<TreeNodeProps> = React.memo(
     onToggle,
     onSelect,
     onEndEdit,
-    onDoubleClick,
+    onSingleClick,
     onDragStart,
     onDragOver,
     onDragLeave,
@@ -131,7 +131,7 @@ export const TreeNode: React.FC<TreeNodeProps> = React.memo(
         aria-level={level + 1}
         tabIndex={isFocused ? 0 : -1}
         className={`
-        flex items-center h-7 px-1 cursor-pointer select-none
+        flex items-center h-7 px-1 cursor-pointer select-none overflow-hidden
         ${isSelected ? 'bg-blue-500 text-white dark:bg-blue-600' : ''}
         ${isFocused && !isSelected ? 'bg-gray-200 dark:bg-gray-700' : ''}
         ${isDragging ? 'opacity-50' : ''}
@@ -140,8 +140,13 @@ export const TreeNode: React.FC<TreeNodeProps> = React.memo(
         ${isDraggedOver && dropPosition === 'after' ? 'border-b-2 border-blue-500' : ''}
         ${!isSelected && !isFocused ? 'hover:bg-gray-100 dark:hover:bg-gray-800' : ''}
       `}
-        onClick={(e) => onSelect(e)}
-        onDoubleClick={onDoubleClick}
+        onClick={(e) => {
+          onSelect(e);
+          // Only trigger single click action if this is not a toggle click
+          if (e.target !== e.currentTarget.querySelector('button')) {
+            onSingleClick();
+          }
+        }}
         draggable={!isEditing}
         onDragStart={onDragStart}
         onDragOver={onDragOver}
@@ -162,7 +167,7 @@ export const TreeNode: React.FC<TreeNodeProps> = React.memo(
             onChange={(e) => setEditValue(e.target.value)}
             onKeyDown={handleKeyDown}
             onBlur={handleBlur}
-            className="flex-1 px-1 bg-white dark:bg-gray-900 border border-blue-500 rounded outline-none"
+            className="flex-1 min-w-0 max-w-full px-1 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 border border-blue-500 rounded outline-none"
             onClick={(e) => e.stopPropagation()}
           />
         ) : (

@@ -135,7 +135,14 @@ export const useFolderTreeStore = create<FolderTreeStore>((set, get) => ({
       }
 
       return {
-        treeState: { ...state.treeState, nodes, rootIds, editingId: null },
+        treeState: {
+          ...state.treeState,
+          nodes,
+          rootIds,
+          editingId: null,
+          // Maintain focus on the edited node
+          focusedId: nodeId,
+        },
       };
     });
   },
