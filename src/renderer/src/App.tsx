@@ -405,13 +405,17 @@ export default function App() {
     },
   });
 
-  // Save response state when response changes
+  // Save response state when response changes (but not when switching tabs)
+  const prevActiveTabIdRef = useRef(tabs.activeTabId);
   useEffect(() => {
     const id = tabs.activeTabId;
     if (!id) return;
 
-    // Save current response state to the active tab when response changes
-    if (response || error || responseTime !== null) {
+    // Only save if the tab hasn't changed (to avoid saving during tab switch)
+    const tabChanged = prevActiveTabIdRef.current !== id;
+    prevActiveTabIdRef.current = id;
+
+    if (!tabChanged && (response || error || responseTime !== null)) {
       setTabResponses((prev) => ({
         ...prev,
         [id]: { response, error, responseTime },
@@ -435,7 +439,7 @@ export default function App() {
     } else {
       resetApiResponse();
     }
-  }, [tabs.activeTabId, tabResponses, setApiResponseState, resetApiResponse]);
+  }, [tabs.activeTabId]);
 
   const handleLoadRequest = (req: SavedRequest) => {
     const existing = tabs.tabs.find((t) => t.requestId === req.id);
