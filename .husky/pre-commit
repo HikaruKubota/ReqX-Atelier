@@ -3,9 +3,9 @@
 echo "🔍 Running pre-commit checks..."
 
 # Run format, lint, and tests
-make check
+npm run check
 
-# Check if make check was successful
+# Check if npm run check was successful
 if [ $? -ne 0 ]; then
   echo "❌ Pre-commit checks failed. Please fix the issues and try again."
   exit 1

@@ -26,7 +26,6 @@ dev:
 # Run tests
 test:
 	npm test
-	@./scripts/notify-completion.sh "テストが完了しました"
 
 # Run linter
 lint:
@@ -42,11 +41,9 @@ typecheck:
 
 # Quick check (format, lint, test)
 check: format lint test
-	@./scripts/notify-completion.sh "チェックが完了しました"
 
 # Full check (format, lint, typecheck, test)
 all: format lint typecheck test
-	@./scripts/notify-completion.sh "全てのチェックが完了しました"
 
 # Clean build artifacts
 clean:
@@ -67,7 +64,6 @@ build-electron:
 	npm run build:electron
 
 build: build-renderer build-electron
-	@./scripts/notify-completion.sh "ビルドが完了しました"
 
 # Storybook
 storybook:

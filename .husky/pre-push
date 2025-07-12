@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/env sh
 
 # Git hook to prevent direct pushes to the main branch
 # This forces all changes to go through pull requests
