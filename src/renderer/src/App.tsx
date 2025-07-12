@@ -262,6 +262,61 @@ export default function App() {
     [setVariableExtraction, updateTabState],
   );
 
+  // Helper function: Handle empty tab state
+  const handleEmptyTabState = useCallback(() => {
+    resetEditor();
+    setRequestNameForSave('Untitled Request');
+    setActiveRequestId(null);
+    resetApiResponse();
+  }, [resetEditor, setRequestNameForSave, setActiveRequestId, resetApiResponse]);
+
+  // Helper function: Handle new tab without saved request
+  const handleNewTabState = useCallback(
+    (
+      tab: { tabId: string; requestId?: string | null },
+      existingState: (typeof tabEditorStates)[string] | undefined,
+    ) => {
+      if (!existingState) {
+        resetEditor();
+        setRequestNameForSave('Untitled Request');
+        setActiveRequestId(null);
+
+        // Initialize empty state for new tab
+        setTabEditorStates((prev) => ({
+          ...prev,
+          [tab.tabId]: {
+            body: [],
+            params: [],
+          },
+        }));
+      } else {
+        // Use existing state
+        setBody(existingState.body);
+        setParams(existingState.params);
+        // Restore other states for new tab
+        if (existingState.url !== undefined) setUrl(existingState.url);
+        if (existingState.method !== undefined) setMethod(existingState.method);
+        if (existingState.headers !== undefined) setHeaders(existingState.headers);
+        if (existingState.requestNameForSave !== undefined)
+          setRequestNameForSave(existingState.requestNameForSave);
+        if (existingState.variableExtraction !== undefined)
+          setVariableExtraction(existingState.variableExtraction);
+      }
+    },
+    [
+      resetEditor,
+      setRequestNameForSave,
+      setActiveRequestId,
+      setTabEditorStates,
+      setBody,
+      setParams,
+      setUrl,
+      setMethod,
+      setHeaders,
+      setVariableExtraction,
+    ],
+  );
+
   const requestEditor = {
     method,
     setMethod: setMethodWithTabUpdate,
@@ -491,13 +546,11 @@ export default function App() {
     setActiveRequestId(req.id);
   };
 
+  // Tab switching useEffect with safer state management
   useEffect(() => {
     const tab = tabs.getActiveTab();
     if (!tab) {
-      resetEditor();
-      setRequestNameForSave('Untitled Request');
-      setActiveRequestId(null);
-      resetApiResponse();
+      handleEmptyTabState();
       return;
     }
 
@@ -547,32 +600,7 @@ export default function App() {
       }
     } else {
       // New tab
-      if (!existingState) {
-        resetEditor();
-        setRequestNameForSave('Untitled Request');
-        setActiveRequestId(null);
-
-        // Initialize empty state for new tab
-        setTabEditorStates((prev) => ({
-          ...prev,
-          [tab.tabId]: {
-            body: [],
-            params: [],
-          },
-        }));
-      } else {
-        // Use existing state
-        setBody(existingState.body);
-        setParams(existingState.params);
-        // Restore other states for new tab
-        if (existingState.url !== undefined) setUrl(existingState.url);
-        if (existingState.method !== undefined) setMethod(existingState.method);
-        if (existingState.headers !== undefined) setHeaders(existingState.headers);
-        if (existingState.requestNameForSave !== undefined)
-          setRequestNameForSave(existingState.requestNameForSave);
-        if (existingState.variableExtraction !== undefined)
-          setVariableExtraction(existingState.variableExtraction);
-      }
+      handleNewTabState(tab, existingState);
     }
 
     // Reset the flag after all state updates are done

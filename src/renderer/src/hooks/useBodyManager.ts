@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 import { useLatest } from './useLatest';
 import type { KeyValuePair, UseBodyManagerReturn } from '../types';
 
@@ -33,7 +33,14 @@ export const useBodyManager = (): UseBodyManagerReturn => {
   const requestBodyRef = useLatest(requestBodyState);
 
   // Update requestBody (JSON string) whenever bodyState changes
+  const lastBodyStateRef = useRef<KeyValuePair[]>([]);
   useEffect(() => {
+    // Avoid unnecessary updates by comparing with previous bodyState
+    if (JSON.stringify(bodyState) === JSON.stringify(lastBodyStateRef.current)) {
+      return;
+    }
+    lastBodyStateRef.current = bodyState;
+
     const newJsonBody = generateJsonFromBodyPairs(bodyState);
     setRequestBodyState(newJsonBody);
   }, [bodyState]);

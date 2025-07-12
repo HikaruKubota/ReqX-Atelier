@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 import { useLatest } from './useLatest';
 import type { KeyValuePair } from '../types';
 
@@ -19,7 +19,14 @@ export const useParamsManager = (): UseParamsManagerReturn => {
   const [queryStringState, setQueryStringState] = useState('');
   const queryStringRef = useLatest(queryStringState);
 
+  const lastParamsStateRef = useRef<KeyValuePair[]>([]);
   useEffect(() => {
+    // Avoid unnecessary updates by comparing with previous paramsState
+    if (JSON.stringify(paramsState) === JSON.stringify(lastParamsStateRef.current)) {
+      return;
+    }
+    lastParamsStateRef.current = paramsState;
+
     const q = paramsState
       .filter((p) => p.enabled && p.keyName.trim() !== '')
       .map((p) => `${p.keyName}=${p.value}`)
