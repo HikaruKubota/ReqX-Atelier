@@ -29,8 +29,8 @@ describe('FolderTree', () => {
 
   it('should render tree nodes', () => {
     const { createNode } = useFolderTreeStore.getState();
-    const folderId = createNode(null, 'folder', 'Test Folder');
-    createNode(folderId, 'request', 'Test Request');
+    const folderId = createNode(null, 'folder', 'Test Folder', false); // Disable auto-expand for test
+    createNode(folderId, 'request', 'Test Request', false);
 
     const { container } = render(<FolderTree />);
     expect(container.querySelectorAll('[role="treeitem"]')).toHaveLength(1);
@@ -38,12 +38,13 @@ describe('FolderTree', () => {
 
   it('should expand folder on click', () => {
     const { createNode } = useFolderTreeStore.getState();
-    const folderId = createNode(null, 'folder', 'Test Folder');
-    createNode(folderId, 'request', 'Test Request');
+    const folderId = createNode(null, 'folder', 'Test Folder', false); // Disable auto-expand for test
+    createNode(folderId, 'request', 'Test Request', false);
 
     const { container } = render(<FolderTree />);
     const chevron = container.querySelector('button[aria-label*="Expand"]');
 
+    expect(chevron).toBeTruthy(); // Ensure chevron exists before clicking
     fireEvent.click(chevron!);
 
     expect(container.querySelectorAll('[role="treeitem"]')).toHaveLength(2);
@@ -51,7 +52,7 @@ describe('FolderTree', () => {
 
   it('should select node on click', () => {
     const { createNode } = useFolderTreeStore.getState();
-    createNode(null, 'folder', 'Test Folder');
+    createNode(null, 'folder', 'Test Folder', false); // Disable auto-expand for test
 
     const { container } = render(<FolderTree />);
     const node = container.querySelector('[role="treeitem"]');

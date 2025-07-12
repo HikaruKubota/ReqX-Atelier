@@ -127,7 +127,7 @@ export const FolderTreeAdapter: React.FC<FolderTreeAdapterProps> = ({
         }
       }
 
-      const nodeId = createNode(parentNodeId, 'folder', folder.name);
+      const nodeId = createNode(parentNodeId, 'folder', folder.name, isInitialized.current);
       folderNodeMap.current.set(folder.id, nodeId);
       nodeTypeMap.current.set(nodeId, { type: 'folder', id: folder.id });
 
@@ -154,7 +154,7 @@ export const FolderTreeAdapter: React.FC<FolderTreeAdapterProps> = ({
         return existingNodeId;
       }
 
-      const nodeId = createNode(parentNodeId, 'request', request.name);
+      const nodeId = createNode(parentNodeId, 'request', request.name, isInitialized.current);
       requestNodeMap.current.set(request.id, nodeId);
       nodeTypeMap.current.set(nodeId, { type: 'request', id: request.id });
 
@@ -162,6 +162,7 @@ export const FolderTreeAdapter: React.FC<FolderTreeAdapterProps> = ({
       useFolderTreeStore.setState((state) => {
         const nodes = new Map(state.treeState.nodes);
         const node = nodes.get(nodeId);
+
         if (node) {
           nodes.set(nodeId, {
             ...node,
@@ -173,6 +174,7 @@ export const FolderTreeAdapter: React.FC<FolderTreeAdapterProps> = ({
             },
           });
         }
+
         return {
           treeState: { ...state.treeState, nodes },
         };

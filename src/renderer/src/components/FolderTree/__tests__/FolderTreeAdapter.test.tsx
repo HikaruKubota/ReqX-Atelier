@@ -343,4 +343,99 @@ describe('FolderTreeAdapter', () => {
     const tree = adapter.container.querySelector('[role="tree"]');
     expect(tree).toBeTruthy();
   });
+
+  it('should auto-expand parent folder when creating a new child folder', () => {
+    const { addFolder } = useSavedRequestsStore.getState();
+
+    // Create a parent folder and render the adapter
+    const parentId = addFolder({
+      name: 'Parent Folder',
+      parentFolderId: null,
+      requestIds: [],
+    });
+
+    const { rerender } = render(<FolderTreeAdapter />);
+
+    // Initially the parent folder should be collapsed
+    const { treeState } = useFolderTreeStore.getState();
+    const parentNodeId = Array.from(treeState.nodes.values()).find(
+      (node) => node.name === 'Parent Folder',
+    )?.id;
+
+    expect(parentNodeId).toBeDefined();
+    expect(treeState.expandedIds.has(parentNodeId!)).toBe(false);
+
+    // Create a child folder (this happens after initialization)
+    addFolder({
+      name: 'Child Folder',
+      parentFolderId: parentId,
+      requestIds: [],
+    });
+
+    // Re-render to trigger the adapter logic with new data
+    rerender(<FolderTreeAdapter />);
+
+    // Now the parent folder should be expanded
+    const updatedTreeState = useFolderTreeStore.getState().treeState;
+    expect(updatedTreeState.expandedIds.has(parentNodeId!)).toBe(true);
+
+    // Verify the child folder exists
+    const childNode = Array.from(updatedTreeState.nodes.values()).find(
+      (node) => node.name === 'Child Folder',
+    );
+    expect(childNode).toBeDefined();
+    expect(childNode?.parentId).toBe(parentNodeId);
+  });
+
+  it('should auto-expand parent folder when creating a new request in it', () => {
+    const { addFolder, addRequest } = useSavedRequestsStore.getState();
+
+    // Create a parent folder and render the adapter
+    const parentId = addFolder({
+      name: 'Parent Folder',
+      parentFolderId: null,
+      requestIds: [],
+    });
+
+    const { rerender } = render(<FolderTreeAdapter />);
+
+    // Initially the parent folder should be collapsed
+    const { treeState } = useFolderTreeStore.getState();
+    const parentNodeId = Array.from(treeState.nodes.values()).find(
+      (node) => node.name === 'Parent Folder',
+    )?.id;
+
+    expect(parentNodeId).toBeDefined();
+    expect(treeState.expandedIds.has(parentNodeId!)).toBe(false);
+
+    // Create a request and add it to the folder (this happens after initialization)
+    const requestId = addRequest({
+      name: 'Test Request',
+      method: 'GET',
+      url: 'https://example.com',
+      headers: [],
+      body: [],
+      params: [],
+    });
+
+    // Update folder with the request
+    useSavedRequestsStore.getState().updateFolder(parentId, {
+      requestIds: [requestId],
+    });
+
+    // Re-render to trigger the adapter logic with new data
+    rerender(<FolderTreeAdapter />);
+
+    // Now the parent folder should be expanded
+    const updatedTreeState = useFolderTreeStore.getState().treeState;
+    expect(updatedTreeState.expandedIds.has(parentNodeId!)).toBe(true);
+
+    // Verify the request exists in the folder
+    const parentNode = updatedTreeState.nodes.get(parentNodeId!);
+    expect(parentNode?.children).toHaveLength(1);
+
+    const requestNode = updatedTreeState.nodes.get(parentNode!.children[0]);
+    expect(requestNode?.name).toBe('Test Request');
+    expect(requestNode?.type).toBe('request');
+  });
 });

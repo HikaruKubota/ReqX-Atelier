@@ -19,7 +19,12 @@ interface FolderTreeStore {
   completeDrop: () => void;
 
   // CRUD Operations
-  createNode: (parentId: string | null, type: 'folder' | 'request', name: string) => string;
+  createNode: (
+    parentId: string | null,
+    type: 'folder' | 'request',
+    name: string,
+    autoExpand?: boolean,
+  ) => string;
   updateNode: (nodeId: string, updates: Partial<TreeNode>) => void;
   deleteNode: (nodeId: string) => void;
   moveNode: (nodeId: string, targetId: string, position: DropPosition) => void;
@@ -166,7 +171,7 @@ export const useFolderTreeStore = create<FolderTreeStore>((set, get) => ({
     }));
   },
 
-  createNode: (parentId, type, name) => {
+  createNode: (parentId, type, name, autoExpand = true) => {
     const newNodeId = uuidv4();
     const timestamp = Date.now();
 
@@ -190,6 +195,8 @@ export const useFolderTreeStore = create<FolderTreeStore>((set, get) => ({
       nodes.set(newNodeId, newNode);
 
       // Update parent's children or add to root
+      let expandedIds = state.treeState.expandedIds;
+
       if (parentId) {
         const parent = nodes.get(parentId);
         if (parent) {
@@ -200,6 +207,11 @@ export const useFolderTreeStore = create<FolderTreeStore>((set, get) => ({
             ...parent,
             children: sortedChildren,
           });
+
+          // Auto-expand parent folder when adding new items (if autoExpand is enabled)
+          if (autoExpand) {
+            expandedIds = new Set([...expandedIds, parentId]);
+          }
         }
       } else {
         rootIds.push(newNodeId);
@@ -210,7 +222,7 @@ export const useFolderTreeStore = create<FolderTreeStore>((set, get) => ({
       }
 
       return {
-        treeState: { ...state.treeState, nodes, rootIds },
+        treeState: { ...state.treeState, nodes, rootIds, expandedIds },
       };
     });
 
