@@ -78,13 +78,21 @@ export const TreeNode: React.FC<TreeNodeProps> = React.memo(
     const renderIcon = () => {
       if (node.type === 'folder') {
         if (isExpanded) {
-          return <AiFillFolderOpen className="w-4 h-4 text-blue-500" />;
+          return (
+            <AiFillFolderOpen
+              className={`w-4 h-4 ${isSelected ? 'text-white' : 'text-blue-500'}`}
+            />
+          );
         }
-        return <FiFolder className="w-4 h-4 text-blue-500" />;
+        return <FiFolder className={`w-4 h-4 ${isSelected ? 'text-white' : 'text-blue-500'}`} />;
       }
 
       if (node.metadata?.method) {
-        return <MethodIcon method={node.metadata.method} />;
+        return (
+          <div className={isSelected ? 'brightness-0 invert' : ''}>
+            <MethodIcon method={node.metadata.method} />
+          </div>
+        );
       }
 
       return <div className="w-4 h-4" />;
@@ -97,7 +105,9 @@ export const TreeNode: React.FC<TreeNodeProps> = React.memo(
 
       return (
         <button
-          className="flex items-center justify-center w-4 h-4 hover:bg-gray-200 dark:hover:bg-gray-700 rounded"
+          className={`flex items-center justify-center w-4 h-4 rounded ${
+            isSelected ? 'hover:bg-white/20' : 'hover:bg-gray-200 dark:hover:bg-gray-700'
+          }`}
           onClick={(e) => {
             e.stopPropagation();
             onToggle();
@@ -105,9 +115,9 @@ export const TreeNode: React.FC<TreeNodeProps> = React.memo(
           aria-label={isExpanded ? 'Collapse folder' : 'Expand folder'}
         >
           {isExpanded ? (
-            <ChevronDownIcon className="w-3 h-3" />
+            <ChevronDownIcon className={`w-3 h-3 ${isSelected ? 'text-white' : ''}`} />
           ) : (
-            <ChevronRightIcon className="w-3 h-3" />
+            <ChevronRightIcon className={`w-3 h-3 ${isSelected ? 'text-white' : ''}`} />
           )}
         </button>
       );
