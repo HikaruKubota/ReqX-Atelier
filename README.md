@@ -44,11 +44,29 @@ npm run dev:all
 ### Building for Production
 
 ```bash
-# Build the application
+# Build the application for distribution
 npm run build
 
-# The built application will be in the dist/ directory
+# This will:
+# 1. Build the React app (npm run build:renderer)
+# 2. Package the Electron app (npm run build:electron)
+# The packaged application will be in the dist/ directory
 ```
+
+### Creating Executable App
+
+After building, you'll find the executable application in the `dist/` directory:
+
+- **macOS**: `ReqX-Atelier.app` in `dist/mac/`
+- **Windows**: `ReqX-Atelier.exe` in `dist/win-unpacked/`
+- **Linux**: `ReqX-Atelier` AppImage in `dist/`
+
+To distribute the app:
+
+1. Run `npm run build`
+2. Navigate to the `dist/` directory
+3. Find the appropriate file for your platform
+4. The app is ready to be distributed or installed
 
 ## Testing
 
