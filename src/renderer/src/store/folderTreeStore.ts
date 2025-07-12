@@ -307,32 +307,35 @@ export const useFolderTreeStore = create<FolderTreeStore>((set, get) => ({
       if (position === 'inside' && targetNode.type === 'folder') {
         // Move inside folder
         nodes.set(nodeId, { ...node, parentId: targetId });
+        const newChildren = [...targetNode.children, nodeId];
+        // Sort the children after adding the node
+        const sortedChildren = get().sortChildrenArray(newChildren, nodes);
         nodes.set(targetId, {
           ...targetNode,
-          children: [...targetNode.children, nodeId],
+          children: sortedChildren,
         });
       } else {
-        // Move before or after
+        // Move before or after (but we'll sort anyway, so just add to the parent)
         const targetParentId = targetNode.parentId;
         nodes.set(nodeId, { ...node, parentId: targetParentId });
 
         if (targetParentId) {
           const targetParent = nodes.get(targetParentId);
           if (targetParent) {
-            const targetIndex = targetParent.children.indexOf(targetId);
-            const newChildren = [...targetParent.children];
-            const insertIndex = position === 'before' ? targetIndex : targetIndex + 1;
-            newChildren.splice(insertIndex, 0, nodeId);
-
+            const newChildren = [...targetParent.children, nodeId];
+            // Sort the children after adding the node
+            const sortedChildren = get().sortChildrenArray(newChildren, nodes);
             nodes.set(targetParentId, {
               ...targetParent,
-              children: newChildren,
+              children: sortedChildren,
             });
           }
         } else {
-          const targetIndex = rootIds.indexOf(targetId);
-          const insertIndex = position === 'before' ? targetIndex : targetIndex + 1;
-          rootIds.splice(insertIndex, 0, nodeId);
+          // Add to root and sort
+          rootIds.push(nodeId);
+          const sortedRootIds = get().sortChildrenArray(rootIds, nodes);
+          rootIds.length = 0;
+          rootIds.push(...sortedRootIds);
         }
       }
 

@@ -178,6 +178,142 @@ describe('FolderTreeAdapter', () => {
     expect(rootNodes[3]?.name).toBe('Z Request');
   });
 
+  it('should maintain sort order after drag and drop operations', () => {
+    const { addFolder, addRequest } = useSavedRequestsStore.getState();
+
+    // Create a folder and some items
+    addFolder({
+      name: 'Parent Folder',
+      parentFolderId: null,
+      requestIds: [],
+    });
+
+    addRequest({
+      name: 'B Request',
+      method: 'GET',
+      url: 'https://example.com/b',
+      headers: [],
+      body: [],
+      params: [],
+    });
+
+    addFolder({
+      name: 'A Child Folder',
+      parentFolderId: null,
+      requestIds: [],
+    });
+
+    render(<FolderTreeAdapter />);
+
+    const { moveNode } = useFolderTreeStore.getState();
+
+    // Move the request into the parent folder
+    const requestNodeId = Array.from(useFolderTreeStore.getState().treeState.nodes.values()).find(
+      (node) => node.name === 'B Request',
+    )?.id;
+    const parentNodeId = Array.from(useFolderTreeStore.getState().treeState.nodes.values()).find(
+      (node) => node.name === 'Parent Folder',
+    )?.id;
+
+    expect(requestNodeId).toBeDefined();
+    expect(parentNodeId).toBeDefined();
+
+    if (requestNodeId && parentNodeId) {
+      moveNode(requestNodeId, parentNodeId, 'inside');
+    }
+
+    // Check that items are still sorted correctly
+    const { treeState } = useFolderTreeStore.getState();
+    const rootNodes = treeState.rootIds.map((id) => treeState.nodes.get(id)).filter(Boolean);
+
+    // Root should have: A Child Folder, Parent Folder (both folders sorted by name)
+    expect(rootNodes).toHaveLength(2);
+    expect(rootNodes[0]?.type).toBe('folder');
+    expect(rootNodes[0]?.name).toBe('A Child Folder');
+    expect(rootNodes[1]?.type).toBe('folder');
+    expect(rootNodes[1]?.name).toBe('Parent Folder');
+
+    // Check that the request is now inside Parent Folder and sorted
+    const parentNode = treeState.nodes.get(parentNodeId!);
+    expect(parentNode?.children).toHaveLength(1);
+    const childInParent = treeState.nodes.get(parentNode!.children[0]);
+    expect(childInParent?.name).toBe('B Request');
+  });
+
+  it('should sort items correctly within folders after drag and drop', () => {
+    const { addFolder, addRequest } = useSavedRequestsStore.getState();
+
+    // Create a parent folder
+    addFolder({
+      name: 'Parent Folder',
+      parentFolderId: null,
+      requestIds: [],
+    });
+
+    // Create items that will be moved into the folder
+    addRequest({
+      name: 'Z Request',
+      method: 'GET',
+      url: 'https://example.com/z',
+      headers: [],
+      body: [],
+      params: [],
+    });
+
+    addFolder({
+      name: 'B Subfolder',
+      parentFolderId: null,
+      requestIds: [],
+    });
+
+    addRequest({
+      name: 'A Request',
+      method: 'POST',
+      url: 'https://example.com/a',
+      headers: [],
+      body: [],
+      params: [],
+    });
+
+    render(<FolderTreeAdapter />);
+
+    const { moveNode } = useFolderTreeStore.getState();
+
+    // Get node IDs
+    const parentNodeId = Array.from(useFolderTreeStore.getState().treeState.nodes.values()).find(
+      (node) => node.name === 'Parent Folder',
+    )?.id;
+    const zRequestNodeId = Array.from(useFolderTreeStore.getState().treeState.nodes.values()).find(
+      (node) => node.name === 'Z Request',
+    )?.id;
+    const subfolderNodeId = Array.from(useFolderTreeStore.getState().treeState.nodes.values()).find(
+      (node) => node.name === 'B Subfolder',
+    )?.id;
+    const aRequestNodeId = Array.from(useFolderTreeStore.getState().treeState.nodes.values()).find(
+      (node) => node.name === 'A Request',
+    )?.id;
+
+    // Move all items into the parent folder
+    if (parentNodeId && zRequestNodeId && subfolderNodeId && aRequestNodeId) {
+      moveNode(zRequestNodeId, parentNodeId, 'inside');
+      moveNode(subfolderNodeId, parentNodeId, 'inside');
+      moveNode(aRequestNodeId, parentNodeId, 'inside');
+    }
+
+    // Check that items are sorted within the parent folder: B Subfolder, A Request, Z Request
+    const { treeState } = useFolderTreeStore.getState();
+    const parentNode = treeState.nodes.get(parentNodeId!);
+    expect(parentNode?.children).toHaveLength(3);
+
+    const childNodes = parentNode!.children.map((id) => treeState.nodes.get(id)!);
+    expect(childNodes[0].type).toBe('folder');
+    expect(childNodes[0].name).toBe('B Subfolder');
+    expect(childNodes[1].type).toBe('request');
+    expect(childNodes[1].name).toBe('A Request');
+    expect(childNodes[2].type).toBe('request');
+    expect(childNodes[2].name).toBe('Z Request');
+  });
+
   it('should call onOpenRequest when a request is opened', () => {
     const onOpenRequest = vi.fn();
     const { addRequest } = useSavedRequestsStore.getState();
