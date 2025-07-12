@@ -378,28 +378,39 @@ export default function App() {
     },
   });
 
+  // Unified tab response management
   useEffect(() => {
     const id = tabs.activeTabId;
-    if (!id) return;
-    setTabResponses((prev) => ({
-      ...prev,
-      [id]: { response, error, responseTime },
-    }));
-  }, [response, error, responseTime, tabs.activeTabId]);
 
-  useEffect(() => {
-    const id = tabs.activeTabId;
     if (!id) {
       resetApiResponse();
       return;
     }
+
+    // Save current response state to the active tab
+    if (response || error || responseTime !== null) {
+      setTabResponses((prev) => ({
+        ...prev,
+        [id]: { response, error, responseTime },
+      }));
+    }
+
+    // Restore response state when switching tabs
     const saved = tabResponses[id];
     if (saved) {
       setApiResponseState(saved);
     } else {
       resetApiResponse();
     }
-  }, [tabs.activeTabId]);
+  }, [
+    tabs.activeTabId,
+    response,
+    error,
+    responseTime,
+    tabResponses,
+    setApiResponseState,
+    resetApiResponse,
+  ]);
 
   const handleLoadRequest = (req: SavedRequest) => {
     const existing = tabs.tabs.find((t) => t.requestId === req.id);
