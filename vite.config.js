@@ -14,6 +14,9 @@ export default defineConfig({
     emptyOutDir: true,
   },
 
+  // Electronアプリ用に相対パスでビルド
+  base: './',
+
   // ③ Vitest 設定（既存）
   test: {
     globals: true,
