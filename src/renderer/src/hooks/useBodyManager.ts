@@ -1,4 +1,5 @@
-import { useState, useCallback, useRef, useEffect } from 'react';
+import { useState, useCallback, useEffect } from 'react';
+import { useLatest } from './useLatest';
 import type { KeyValuePair, UseBodyManagerReturn } from '../types';
 
 const generateJsonFromBodyPairs = (pairs: KeyValuePair[]): string => {
@@ -26,33 +27,29 @@ const generateJsonFromBodyPairs = (pairs: KeyValuePair[]): string => {
 
 export const useBodyManager = (): UseBodyManagerReturn => {
   const [bodyState, setBodyState] = useState<KeyValuePair[]>([]);
-  const bodyRef = useRef<KeyValuePair[]>(bodyState);
+  const bodyRef = useLatest(bodyState);
 
   const [requestBodyState, setRequestBodyState] = useState<string>('');
-  const requestBodyRef = useRef<string>(requestBodyState);
+  const requestBodyRef = useLatest(requestBodyState);
 
   // Update requestBody (JSON string) whenever bodyState changes
   useEffect(() => {
     const newJsonBody = generateJsonFromBodyPairs(bodyState);
     setRequestBodyState(newJsonBody);
-    requestBodyRef.current = newJsonBody;
   }, [bodyState]);
 
   const setBody = useCallback((pairs: KeyValuePair[]) => {
     setBodyState(pairs);
-    bodyRef.current = pairs;
   }, []);
 
   const loadBody = useCallback((pairs: KeyValuePair[]) => {
     // This will also trigger the useEffect to update the JSON string version
     setBodyState(pairs || []);
-    bodyRef.current = pairs || [];
   }, []);
 
   const resetBody = useCallback(() => {
     setBodyState([]);
-    bodyRef.current = [];
-    // The useEffect will then set requestBodyState and requestBodyRef to ''
+    // The useEffect will then set requestBodyState to ''
   }, []);
 
   return {

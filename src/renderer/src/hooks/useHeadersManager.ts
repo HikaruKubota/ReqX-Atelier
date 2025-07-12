@@ -1,26 +1,24 @@
-import { useState, useCallback, useRef } from 'react';
+import { useState, useCallback } from 'react';
+import { useLatest } from './useLatest';
 import type { RequestHeader, UseHeadersManagerReturn } from '../types';
 
 const initialHeaders: RequestHeader[] = [];
 
 export const useHeadersManager = (): UseHeadersManagerReturn => {
   const [headersState, setHeadersState] = useState<RequestHeader[]>(initialHeaders);
-  const headersRef = useRef<RequestHeader[]>(headersState);
+  const headersRef = useLatest(headersState);
 
-  // Exposed setter that also updates the ref
+  // Exposed setter
   const setHeaders = useCallback((newHeaders: RequestHeader[]) => {
     setHeadersState(newHeaders);
-    headersRef.current = newHeaders;
   }, []);
 
   const loadHeaders = useCallback((loadedHeaders: RequestHeader[]) => {
     setHeadersState(loadedHeaders && loadedHeaders.length > 0 ? loadedHeaders : initialHeaders);
-    headersRef.current = loadedHeaders && loadedHeaders.length > 0 ? loadedHeaders : initialHeaders;
   }, []);
 
   const resetHeaders = useCallback(() => {
     setHeadersState(initialHeaders);
-    headersRef.current = initialHeaders;
   }, []);
 
   // Effect to sync ref when headersState changes directly (e.g. by addHeader, updateHeader, removeHeader updates)
@@ -54,7 +52,6 @@ export const useHeadersManager = (): UseHeadersManagerReturn => {
     };
     setHeadersState((prevHeaders) => {
       const newHeaders = [...prevHeaders, newHeader];
-      headersRef.current = newHeaders;
       return newHeaders;
     });
   }, []);
@@ -63,7 +60,6 @@ export const useHeadersManager = (): UseHeadersManagerReturn => {
     (id: string, field: keyof Omit<RequestHeader, 'id'>, value: string | boolean) => {
       setHeadersState((prevHeaders) => {
         const newHeaders = prevHeaders.map((h) => (h.id === id ? { ...h, [field]: value } : h));
-        headersRef.current = newHeaders;
         return newHeaders;
       });
     },
@@ -73,7 +69,6 @@ export const useHeadersManager = (): UseHeadersManagerReturn => {
   const removeHeaderCorrected = useCallback((id: string) => {
     setHeadersState((prevHeaders) => {
       const newHeaders = prevHeaders.filter((h) => h.id !== id);
-      headersRef.current = newHeaders;
       return newHeaders;
     });
   }, []);

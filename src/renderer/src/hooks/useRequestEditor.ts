@@ -1,7 +1,8 @@
-import { useState, useCallback, useRef, useEffect } from 'react';
+import { useState, useCallback } from 'react';
 import { useHeadersManager } from './useHeadersManager';
 import { useBodyManager } from './useBodyManager';
 import { useParamsManager } from './useParamsManager';
+import { useLatest } from './useLatest';
 import type { SavedRequest, RequestEditorState, VariableExtraction } from '../types';
 
 // RequestEditorState now inherits from both manager returns, excluding conflicting/internal methods
@@ -10,40 +11,35 @@ import type { SavedRequest, RequestEditorState, VariableExtraction } from '../ty
 
 export const useRequestEditor = (): RequestEditorState => {
   const [methodState, setMethodState] = useState('GET');
-  const methodRef = useRef(methodState);
+  const methodRef = useLatest(methodState);
   const setMethod = useCallback((val: string) => {
     setMethodState(val);
-    methodRef.current = val;
   }, []);
 
   const [urlState, setUrlState] = useState('');
-  const urlRef = useRef(urlState);
+  const urlRef = useLatest(urlState);
   const setUrl = useCallback((val: string) => {
     setUrlState(val);
-    urlRef.current = val;
   }, []);
 
   const [requestNameForSaveState, setRequestNameForSaveState] = useState('');
-  const requestNameForSaveRef = useRef(requestNameForSaveState);
+  const requestNameForSaveRef = useLatest(requestNameForSaveState);
   const setRequestNameForSave = useCallback((val: string) => {
     setRequestNameForSaveState(val);
-    requestNameForSaveRef.current = val;
   }, []);
 
   const [activeRequestIdState, setActiveRequestIdState] = useState<string | null>(null);
-  const activeRequestIdRef = useRef(activeRequestIdState);
+  const activeRequestIdRef = useLatest(activeRequestIdState);
   const setActiveRequestId = useCallback((val: string | null) => {
     setActiveRequestIdState(val);
-    activeRequestIdRef.current = val;
   }, []);
 
   const [variableExtractionState, setVariableExtractionState] = useState<
     VariableExtraction | undefined
   >(undefined);
-  const variableExtractionRef = useRef(variableExtractionState);
+  const variableExtractionRef = useLatest(variableExtractionState);
   const setVariableExtraction = useCallback((val: VariableExtraction | undefined) => {
     setVariableExtractionState(val);
-    variableExtractionRef.current = val;
   }, []);
 
   const headersManager = useHeadersManager();
@@ -51,25 +47,6 @@ export const useRequestEditor = (): RequestEditorState => {
   const paramsManager = useParamsManager();
 
   // Removed old sync implementation - now handled by useUrlParamsSync hook
-
-  // Remove useEffects for body-related states
-  useEffect(() => {
-    methodRef.current = methodState;
-  }, [methodState]);
-  useEffect(() => {
-    urlRef.current = urlState;
-  }, [urlState]);
-  // useEffect(() => { requestBodyRef.current = requestBodyState; }, [requestBodyState]); // Remove
-  // useEffect(() => { currentBodyKeyValuePairsRef.current = currentBodyKeyValuePairsState; }, [currentBodyKeyValuePairsState]); // Remove
-  useEffect(() => {
-    requestNameForSaveRef.current = requestNameForSaveState;
-  }, [requestNameForSaveState]);
-  useEffect(() => {
-    activeRequestIdRef.current = activeRequestIdState;
-  }, [activeRequestIdState]);
-  useEffect(() => {
-    variableExtractionRef.current = variableExtractionState;
-  }, [variableExtractionState]);
 
   // Old URL-params sync removed - now handled by useUrlParamsSync hook in App.tsx
   // The bidirectional sync between URL and params is now managed at the App level
