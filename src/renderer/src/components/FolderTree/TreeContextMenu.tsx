@@ -16,22 +16,36 @@ export const TreeContextMenu: React.FC<TreeContextMenuProps> = ({ nodeId, x, y, 
   if (!node) return null;
 
   const handleNewFolder = () => {
-    const newFolderId = createNode(
-      node.type === 'folder' ? nodeId : node.parentId,
-      'folder',
-      'New Folder',
-    );
-    startEditing(newFolderId);
+    const contextAction = (
+      window as unknown as { __folderTreeContextAction?: (action: string, nodeId: string) => void }
+    ).__folderTreeContextAction;
+    if (contextAction) {
+      contextAction('newFolder', nodeId);
+    } else {
+      const newFolderId = createNode(
+        node.type === 'folder' ? nodeId : node.parentId,
+        'folder',
+        'New Folder',
+      );
+      startEditing(newFolderId);
+    }
     onClose();
   };
 
   const handleNewRequest = () => {
-    const newRequestId = createNode(
-      node.type === 'folder' ? nodeId : node.parentId,
-      'request',
-      'New Request',
-    );
-    startEditing(newRequestId);
+    const contextAction = (
+      window as unknown as { __folderTreeContextAction?: (action: string, nodeId: string) => void }
+    ).__folderTreeContextAction;
+    if (contextAction) {
+      contextAction('newRequest', nodeId);
+    } else {
+      const newRequestId = createNode(
+        node.type === 'folder' ? nodeId : node.parentId,
+        'request',
+        'New Request',
+      );
+      startEditing(newRequestId);
+    }
     onClose();
   };
 
@@ -41,13 +55,27 @@ export const TreeContextMenu: React.FC<TreeContextMenuProps> = ({ nodeId, x, y, 
   };
 
   const handleDelete = () => {
-    if (treeState.selectedIds.size > 1) {
-      // Delete all selected items
-      Array.from(treeState.selectedIds).forEach((id) => {
-        deleteNode(id);
-      });
+    const contextAction = (
+      window as unknown as { __folderTreeContextAction?: (action: string, nodeId: string) => void }
+    ).__folderTreeContextAction;
+    if (contextAction) {
+      if (treeState.selectedIds.size > 1) {
+        // Delete all selected items
+        Array.from(treeState.selectedIds).forEach((id) => {
+          contextAction('delete', id);
+        });
+      } else {
+        contextAction('delete', nodeId);
+      }
     } else {
-      deleteNode(nodeId);
+      if (treeState.selectedIds.size > 1) {
+        // Delete all selected items
+        Array.from(treeState.selectedIds).forEach((id) => {
+          deleteNode(id);
+        });
+      } else {
+        deleteNode(nodeId);
+      }
     }
     onClose();
   };
@@ -61,8 +89,22 @@ export const TreeContextMenu: React.FC<TreeContextMenuProps> = ({ nodeId, x, y, 
     );
   }
 
+  const handleCopy = () => {
+    const contextAction = (
+      window as unknown as { __folderTreeContextAction?: (action: string, nodeId: string) => void }
+    ).__folderTreeContextAction;
+    if (contextAction) {
+      contextAction('copy', nodeId);
+    } else {
+      // Fallback implementation
+      console.log('Copy node:', nodeId);
+    }
+    onClose();
+  };
+
   menuItems.push(
     { label: 'Rename', onClick: handleRename },
+    { label: 'Copy', onClick: handleCopy },
     { label: 'Delete', onClick: handleDelete },
   );
 
