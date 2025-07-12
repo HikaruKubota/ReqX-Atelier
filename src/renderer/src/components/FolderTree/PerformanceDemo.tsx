@@ -74,7 +74,7 @@ export const PerformanceDemo: React.FC = () => {
         <h1 className="text-2xl font-bold mb-4 text-gray-900 dark:text-gray-100">
           Folder Tree Performance Demo
         </h1>
-        
+
         <div className="flex items-center gap-4 mb-4">
           <button
             onClick={() => setUseVirtualization(!useVirtualization)}
@@ -82,7 +82,7 @@ export const PerformanceDemo: React.FC = () => {
           >
             {useVirtualization ? 'Switch to Regular' : 'Switch to Virtualized'}
           </button>
-          
+
           <div className="flex items-center gap-2">
             <span className="text-sm text-gray-600 dark:text-gray-400">Mode:</span>
             <span className="font-medium text-gray-900 dark:text-gray-100">
@@ -135,15 +135,9 @@ export const PerformanceDemo: React.FC = () => {
       <div className="flex-1 p-4 overflow-hidden">
         <div className="h-full bg-white dark:bg-gray-800 rounded-lg shadow-lg overflow-hidden">
           {useVirtualization ? (
-            <VirtualizedFolderTree
-              onOpenRequest={handleOpenRequest}
-              className="h-full"
-            />
+            <VirtualizedFolderTree onOpenRequest={handleOpenRequest} className="h-full" />
           ) : (
-            <FolderTree
-              onOpenRequest={handleOpenRequest}
-              className="h-full"
-            />
+            <FolderTree onOpenRequest={handleOpenRequest} className="h-full" />
           )}
         </div>
       </div>

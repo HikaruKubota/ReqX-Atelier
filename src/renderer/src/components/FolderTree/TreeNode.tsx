@@ -28,98 +28,99 @@ interface TreeNodeProps {
   onContextMenu: (e: React.MouseEvent) => void;
 }
 
-export const TreeNode: React.FC<TreeNodeProps> = React.memo(({
-  node,
-  level,
-  isExpanded,
-  isSelected,
-  isFocused,
-  isEditing,
-  isDragging,
-  isDraggedOver,
-  dropPosition,
-  onToggle,
-  onSelect,
-  onEndEdit,
-  onDoubleClick,
-  onDragStart,
-  onDragOver,
-  onDragLeave,
-  onDrop,
-  onDragEnd,
-  onContextMenu,
-}) => {
-  const [editValue, setEditValue] = useState(node.name);
-  const inputRef = useRef<HTMLInputElement>(null);
+export const TreeNode: React.FC<TreeNodeProps> = React.memo(
+  ({
+    node,
+    level,
+    isExpanded,
+    isSelected,
+    isFocused,
+    isEditing,
+    isDragging,
+    isDraggedOver,
+    dropPosition,
+    onToggle,
+    onSelect,
+    onEndEdit,
+    onDoubleClick,
+    onDragStart,
+    onDragOver,
+    onDragLeave,
+    onDrop,
+    onDragEnd,
+    onContextMenu,
+  }) => {
+    const [editValue, setEditValue] = useState(node.name);
+    const inputRef = useRef<HTMLInputElement>(null);
 
-  useEffect(() => {
-    if (isEditing && inputRef.current) {
-      inputRef.current.focus();
-      inputRef.current.select();
-    }
-  }, [isEditing]);
-
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter') {
-      e.preventDefault();
-      onEndEdit(editValue);
-    } else if (e.key === 'Escape') {
-      e.preventDefault();
-      setEditValue(node.name);
-      onEndEdit(node.name);
-    }
-  };
-
-  const handleBlur = () => {
-    onEndEdit(editValue);
-  };
-
-  const renderIcon = () => {
-    if (node.type === 'folder') {
-      if (isExpanded) {
-        return <AiFillFolderOpen className="w-4 h-4 text-blue-500" />;
+    useEffect(() => {
+      if (isEditing && inputRef.current) {
+        inputRef.current.focus();
+        inputRef.current.select();
       }
-      return <FiFolder className="w-4 h-4 text-blue-500" />;
-    }
+    }, [isEditing]);
 
-    if (node.metadata?.method) {
-      return <MethodIcon method={node.metadata.method} />;
-    }
+    const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        onEndEdit(editValue);
+      } else if (e.key === 'Escape') {
+        e.preventDefault();
+        setEditValue(node.name);
+        onEndEdit(node.name);
+      }
+    };
 
-    return <div className="w-4 h-4" />;
-  };
+    const handleBlur = () => {
+      onEndEdit(editValue);
+    };
 
-  const renderChevron = () => {
-    if (node.type !== 'folder') {
+    const renderIcon = () => {
+      if (node.type === 'folder') {
+        if (isExpanded) {
+          return <AiFillFolderOpen className="w-4 h-4 text-blue-500" />;
+        }
+        return <FiFolder className="w-4 h-4 text-blue-500" />;
+      }
+
+      if (node.metadata?.method) {
+        return <MethodIcon method={node.metadata.method} />;
+      }
+
       return <div className="w-4 h-4" />;
-    }
+    };
+
+    const renderChevron = () => {
+      if (node.type !== 'folder') {
+        return <div className="w-4 h-4" />;
+      }
+
+      return (
+        <button
+          className="flex items-center justify-center w-4 h-4 hover:bg-gray-200 dark:hover:bg-gray-700 rounded"
+          onClick={(e) => {
+            e.stopPropagation();
+            onToggle();
+          }}
+          aria-label={isExpanded ? 'Collapse folder' : 'Expand folder'}
+        >
+          {isExpanded ? (
+            <ChevronDownIcon className="w-3 h-3" />
+          ) : (
+            <ChevronRightIcon className="w-3 h-3" />
+          )}
+        </button>
+      );
+    };
 
     return (
-      <button
-        className="flex items-center justify-center w-4 h-4 hover:bg-gray-200 dark:hover:bg-gray-700 rounded"
-        onClick={(e) => {
-          e.stopPropagation();
-          onToggle();
-        }}
-        aria-label={isExpanded ? 'Collapse folder' : 'Expand folder'}
-      >
-        {isExpanded ? (
-          <ChevronDownIcon className="w-3 h-3" />
-        ) : (
-          <ChevronRightIcon className="w-3 h-3" />
-        )}
-      </button>
-    );
-  };
-
-  return (
-    <div
-      role="treeitem"
-      aria-expanded={node.type === 'folder' ? isExpanded : undefined}
-      aria-selected={isSelected}
-      aria-level={level + 1}
-      tabIndex={isFocused ? 0 : -1}
-      className={`
+      <div
+        role="treeitem"
+        aria-expanded={node.type === 'folder' ? isExpanded : undefined}
+        aria-selected={isSelected}
+        aria-level={level + 1}
+        tabIndex={isFocused ? 0 : -1}
+        className={`
         flex items-center h-7 px-1 cursor-pointer select-none
         ${isSelected ? 'bg-blue-100 dark:bg-blue-900' : ''}
         ${isFocused ? 'outline outline-1 outline-blue-500' : ''}
@@ -129,36 +130,37 @@ export const TreeNode: React.FC<TreeNodeProps> = React.memo(({
         ${isDraggedOver && dropPosition === 'after' ? 'border-b-2 border-blue-500' : ''}
         hover:bg-gray-100 dark:hover:bg-gray-800
       `}
-      onClick={(e) => onSelect(e)}
-      onDoubleClick={onDoubleClick}
-      draggable={!isEditing}
-      onDragStart={onDragStart}
-      onDragOver={onDragOver}
-      onDragLeave={onDragLeave}
-      onDrop={onDrop}
-      onDragEnd={onDragEnd}
-      onContextMenu={onContextMenu}
-      style={{ paddingLeft: `${level * 20 + 4}px` }}
-    >
-      {renderChevron()}
-      <div className="mx-1">{renderIcon()}</div>
+        onClick={(e) => onSelect(e)}
+        onDoubleClick={onDoubleClick}
+        draggable={!isEditing}
+        onDragStart={onDragStart}
+        onDragOver={onDragOver}
+        onDragLeave={onDragLeave}
+        onDrop={onDrop}
+        onDragEnd={onDragEnd}
+        onContextMenu={onContextMenu}
+        style={{ paddingLeft: `${level * 20 + 4}px` }}
+      >
+        {renderChevron()}
+        <div className="mx-1">{renderIcon()}</div>
 
-      {isEditing ? (
-        <input
-          ref={inputRef}
-          type="text"
-          value={editValue}
-          onChange={(e) => setEditValue(e.target.value)}
-          onKeyDown={handleKeyDown}
-          onBlur={handleBlur}
-          className="flex-1 px-1 bg-white dark:bg-gray-900 border border-blue-500 rounded outline-none"
-          onClick={(e) => e.stopPropagation()}
-        />
-      ) : (
-        <span className="flex-1 truncate text-sm">{node.name}</span>
-      )}
-    </div>
-  );
-});
+        {isEditing ? (
+          <input
+            ref={inputRef}
+            type="text"
+            value={editValue}
+            onChange={(e) => setEditValue(e.target.value)}
+            onKeyDown={handleKeyDown}
+            onBlur={handleBlur}
+            className="flex-1 px-1 bg-white dark:bg-gray-900 border border-blue-500 rounded outline-none"
+            onClick={(e) => e.stopPropagation()}
+          />
+        ) : (
+          <span className="flex-1 truncate text-sm">{node.name}</span>
+        )}
+      </div>
+    );
+  },
+);
 
 TreeNode.displayName = 'TreeNode';
