@@ -1,3 +1,4 @@
+/* eslint-disable react/prop-types */
 import React, { useState, useRef, useEffect } from 'react';
 import { TreeNode as TreeNodeType } from '../../types/tree';
 import { ChevronRightIcon, ChevronDownIcon } from '@radix-ui/react-icons';
@@ -27,7 +28,7 @@ interface TreeNodeProps {
   onContextMenu: (e: React.MouseEvent) => void;
 }
 
-export const TreeNode: React.FC<TreeNodeProps> = ({
+export const TreeNode: React.FC<TreeNodeProps> = React.memo(({
   node,
   level,
   isExpanded,
@@ -158,4 +159,6 @@ export const TreeNode: React.FC<TreeNodeProps> = ({
       )}
     </div>
   );
-};
+});
+
+TreeNode.displayName = 'TreeNode';

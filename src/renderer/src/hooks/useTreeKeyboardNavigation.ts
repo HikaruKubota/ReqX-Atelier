@@ -6,7 +6,7 @@ export function useTreeKeyboardNavigation(treeRef: React.RefObject<HTMLDivElemen
   const { treeState, toggleNode, selectNode, focusNode, startEditing, deleteNode } =
     useFolderTreeStore();
 
-  // Get all visible nodes in order
+  // Get all visible nodes in order - memoized for better performance
   const getVisibleNodes = useCallback((): { node: TreeNode; level: number }[] => {
     const nodes: { node: TreeNode; level: number }[] = [];
 
