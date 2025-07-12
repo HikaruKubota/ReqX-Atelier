@@ -1,7 +1,10 @@
-import React, { useRef, useMemo } from 'react';
+import React, { useRef, useMemo, useCallback, useState } from 'react';
 import { TreeNode } from './TreeNode';
 import { useFolderTreeStore } from '../../store/folderTreeStore';
 import { TreeNode as TreeNodeType } from '../../types/tree';
+import { useTreeKeyboardNavigation } from '../../hooks/useTreeKeyboardNavigation';
+import { useTreeDragDrop } from '../../hooks/useTreeDragDrop';
+import { TreeContextMenu } from './TreeContextMenu';
 
 interface FolderTreeProps {
   onOpenRequest?: (nodeId: string) => void;
@@ -10,8 +13,21 @@ interface FolderTreeProps {
 
 export const FolderTree: React.FC<FolderTreeProps> = ({ onOpenRequest, className = '' }) => {
   const treeRef = useRef<HTMLDivElement>(null);
+  const { handleShiftSelect } = useTreeKeyboardNavigation(treeRef);
+  const {
+    handleDragStart,
+    handleDragOver,
+    handleDragLeave,
+    handleDrop,
+    handleDragEnd,
+    draggedOverId,
+    dropPosition,
+  } = useTreeDragDrop();
   const { treeState, toggleNode, selectNode, focusNode, startEditing, endEditing } =
     useFolderTreeStore();
+  const [contextMenu, setContextMenu] = useState<{ nodeId: string; x: number; y: number } | null>(
+    null,
+  );
 
   // Get visible nodes based on expanded state
   const visibleNodes = useMemo(() => {
@@ -38,10 +54,19 @@ export const FolderTree: React.FC<FolderTreeProps> = ({ onOpenRequest, className
     toggleNode(nodeId);
   };
 
-  const handleNodeSelect = (nodeId: string) => {
-    selectNode(nodeId);
-    focusNode(nodeId);
-  };
+  const handleNodeSelect = useCallback(
+    (nodeId: string, event?: React.MouseEvent) => {
+      if (event?.shiftKey) {
+        handleShiftSelect(nodeId);
+      } else if (event?.ctrlKey || event?.metaKey) {
+        selectNode(nodeId, true);
+      } else {
+        selectNode(nodeId);
+      }
+      focusNode(nodeId);
+    },
+    [selectNode, focusNode, handleShiftSelect],
+  );
 
   const handleNodeDoubleClick = (nodeId: string) => {
     const node = treeState.nodes.get(nodeId);
@@ -54,7 +79,6 @@ export const FolderTree: React.FC<FolderTreeProps> = ({ onOpenRequest, className
     }
   };
 
-
   const handleEndEdit = (nodeId: string, newName: string) => {
     if (newName.trim()) {
       endEditing(nodeId, newName.trim());
@@ -62,6 +86,19 @@ export const FolderTree: React.FC<FolderTreeProps> = ({ onOpenRequest, className
       endEditing(nodeId, treeState.nodes.get(nodeId)?.name || '');
     }
   };
+
+  const handleContextMenu = useCallback(
+    (e: React.MouseEvent, nodeId: string) => {
+      e.preventDefault();
+      // Select the node if it's not already selected
+      if (!treeState.selectedIds.has(nodeId)) {
+        selectNode(nodeId);
+        focusNode(nodeId);
+      }
+      setContextMenu({ nodeId, x: e.clientX, y: e.clientY });
+    },
+    [treeState.selectedIds, selectNode, focusNode],
+  );
 
   return (
     <div
@@ -79,12 +116,29 @@ export const FolderTree: React.FC<FolderTreeProps> = ({ onOpenRequest, className
           isSelected={treeState.selectedIds.has(node.id)}
           isFocused={treeState.focusedId === node.id}
           isEditing={treeState.editingId === node.id}
+          isDragging={treeState.draggedId === node.id}
+          isDraggedOver={draggedOverId === node.id}
+          dropPosition={draggedOverId === node.id ? dropPosition : null}
           onToggle={() => handleNodeToggle(node.id)}
-          onSelect={() => handleNodeSelect(node.id)}
+          onSelect={(event) => handleNodeSelect(node.id, event)}
           onEndEdit={(newName) => handleEndEdit(node.id, newName)}
           onDoubleClick={() => handleNodeDoubleClick(node.id)}
+          onDragStart={(e) => handleDragStart(e, node.id)}
+          onDragOver={(e) => handleDragOver(e, node.id)}
+          onDragLeave={handleDragLeave}
+          onDrop={(e) => handleDrop(e, node.id)}
+          onDragEnd={handleDragEnd}
+          onContextMenu={(e) => handleContextMenu(e, node.id)}
         />
       ))}
+      {contextMenu && (
+        <TreeContextMenu
+          nodeId={contextMenu.nodeId}
+          x={contextMenu.x}
+          y={contextMenu.y}
+          onClose={() => setContextMenu(null)}
+        />
+      )}
     </div>
   );
 };

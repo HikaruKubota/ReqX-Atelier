@@ -12,10 +12,19 @@ interface TreeNodeProps {
   isSelected: boolean;
   isFocused: boolean;
   isEditing: boolean;
+  isDragging: boolean;
+  isDraggedOver: boolean;
+  dropPosition: 'before' | 'inside' | 'after' | null;
   onToggle: () => void;
-  onSelect: () => void;
+  onSelect: (event?: React.MouseEvent) => void;
   onEndEdit: (newName: string) => void;
   onDoubleClick: () => void;
+  onDragStart: (e: React.DragEvent) => void;
+  onDragOver: (e: React.DragEvent) => void;
+  onDragLeave: () => void;
+  onDrop: (e: React.DragEvent) => void;
+  onDragEnd: () => void;
+  onContextMenu: (e: React.MouseEvent) => void;
 }
 
 export const TreeNode: React.FC<TreeNodeProps> = ({
@@ -25,10 +34,19 @@ export const TreeNode: React.FC<TreeNodeProps> = ({
   isSelected,
   isFocused,
   isEditing,
+  isDragging,
+  isDraggedOver,
+  dropPosition,
   onToggle,
   onSelect,
   onEndEdit,
   onDoubleClick,
+  onDragStart,
+  onDragOver,
+  onDragLeave,
+  onDrop,
+  onDragEnd,
+  onContextMenu,
 }) => {
   const [editValue, setEditValue] = useState(node.name);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -104,10 +122,21 @@ export const TreeNode: React.FC<TreeNodeProps> = ({
         flex items-center h-7 px-1 cursor-pointer select-none
         ${isSelected ? 'bg-blue-100 dark:bg-blue-900' : ''}
         ${isFocused ? 'outline outline-1 outline-blue-500' : ''}
+        ${isDragging ? 'opacity-50' : ''}
+        ${isDraggedOver && dropPosition === 'before' ? 'border-t-2 border-blue-500' : ''}
+        ${isDraggedOver && dropPosition === 'inside' ? 'bg-blue-50 dark:bg-blue-900/50' : ''}
+        ${isDraggedOver && dropPosition === 'after' ? 'border-b-2 border-blue-500' : ''}
         hover:bg-gray-100 dark:hover:bg-gray-800
       `}
-      onClick={onSelect}
+      onClick={(e) => onSelect(e)}
       onDoubleClick={onDoubleClick}
+      draggable={!isEditing}
+      onDragStart={onDragStart}
+      onDragOver={onDragOver}
+      onDragLeave={onDragLeave}
+      onDrop={onDrop}
+      onDragEnd={onDragEnd}
+      onContextMenu={onContextMenu}
       style={{ paddingLeft: `${level * 20 + 4}px` }}
     >
       {renderChevron()}

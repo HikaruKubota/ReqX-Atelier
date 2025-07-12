@@ -21,7 +21,7 @@ interface FolderTreeStore {
   // CRUD Operations
   createNode: (parentId: string | null, type: 'folder' | 'request', name: string) => string;
   deleteNode: (nodeId: string) => void;
-  moveNode: (nodeId: string, newParentId: string | null, position: number) => void;
+  moveNode: (nodeId: string, targetId: string, position: DropPosition) => void;
 
   // Navigation
   navigateUp: () => void;
@@ -126,8 +126,8 @@ export const useFolderTreeStore = create<FolderTreeStore>((set, get) => ({
     const { draggedId, dropTargetId, dropPosition } = treeState;
 
     if (draggedId && dropTargetId && dropPosition) {
-      // Implementation will be added later
-      // This will handle the actual move logic
+      const { moveNode } = get();
+      moveNode(draggedId, dropTargetId, dropPosition);
     }
 
     set((state) => ({
@@ -225,8 +225,69 @@ export const useFolderTreeStore = create<FolderTreeStore>((set, get) => ({
     });
   },
 
-  moveNode: () => {
-    // Implementation will be added later
+  moveNode: (nodeId: string, targetId: string, position: DropPosition) => {
+    set((state) => {
+      const nodes = new Map(state.treeState.nodes);
+      const rootIds = [...state.treeState.rootIds];
+
+      const node = nodes.get(nodeId);
+      const targetNode = nodes.get(targetId);
+
+      if (!node || !targetNode) return state;
+
+      // Remove node from its current parent
+      if (node.parentId) {
+        const oldParent = nodes.get(node.parentId);
+        if (oldParent) {
+          nodes.set(node.parentId, {
+            ...oldParent,
+            children: oldParent.children.filter((id) => id !== nodeId),
+          });
+        }
+      } else {
+        const index = rootIds.indexOf(nodeId);
+        if (index > -1) {
+          rootIds.splice(index, 1);
+        }
+      }
+
+      // Add node to new location
+      if (position === 'inside' && targetNode.type === 'folder') {
+        // Move inside folder
+        nodes.set(nodeId, { ...node, parentId: targetId });
+        nodes.set(targetId, {
+          ...targetNode,
+          children: [...targetNode.children, nodeId],
+        });
+      } else {
+        // Move before or after
+        const targetParentId = targetNode.parentId;
+        nodes.set(nodeId, { ...node, parentId: targetParentId });
+
+        if (targetParentId) {
+          const targetParent = nodes.get(targetParentId);
+          if (targetParent) {
+            const targetIndex = targetParent.children.indexOf(targetId);
+            const newChildren = [...targetParent.children];
+            const insertIndex = position === 'before' ? targetIndex : targetIndex + 1;
+            newChildren.splice(insertIndex, 0, nodeId);
+
+            nodes.set(targetParentId, {
+              ...targetParent,
+              children: newChildren,
+            });
+          }
+        } else {
+          const targetIndex = rootIds.indexOf(targetId);
+          const insertIndex = position === 'before' ? targetIndex : targetIndex + 1;
+          rootIds.splice(insertIndex, 0, nodeId);
+        }
+      }
+
+      return {
+        treeState: { ...state.treeState, nodes, rootIds },
+      };
+    });
   },
 
   navigateUp: () => {
