@@ -32,6 +32,12 @@ npm run e2e
 - `fixtures/electron-fixture.ts` - Electron app launch configuration
 - `basic-smoke.spec.ts` - Basic application launch and UI tests
 - `simple-launch.spec.ts` - Simple app launch verification
+- `request-operations.spec.ts` - Request creation and sending tests
+- `tab-operations.spec.ts` - Tab management tests
+- `headers-body-config.spec.ts` - Headers and body configuration tests
+- `request-save-manage.spec.ts` - Request saving and management tests
+- `variables-usage.spec.ts` - Variables functionality tests
+- `collection-management.spec.ts` - Collection and folder management tests
 
 ## Writing New Tests
 
