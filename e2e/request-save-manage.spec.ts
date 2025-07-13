@@ -4,6 +4,7 @@ test.describe('Request Save and Management', () => {
   test('should save a request and open it later', async ({ window }) => {
     // Wait for app to be ready
     await window.waitForTimeout(3000);
+    await window.screenshot({ path: 'e2e-results/screenshots/request-save-01-initial.png' });
 
     // Create a request
     const urlInput = await window
@@ -21,6 +22,7 @@ test.describe('Request Save and Management', () => {
       .first();
     await saveButton.click();
     await window.waitForTimeout(1000);
+    await window.screenshot({ path: 'e2e-results/screenshots/request-save-02-save-dialog.png' });
 
     // If a dialog appears, enter request name
     const nameInput = await window
@@ -37,6 +39,7 @@ test.describe('Request Save and Management', () => {
         .last();
       await confirmButton.click();
       await window.waitForTimeout(1000);
+      await window.screenshot({ path: 'e2e-results/screenshots/request-save-03-saved.png' });
     }
 
     // Create a new tab to clear current state
@@ -51,6 +54,7 @@ test.describe('Request Save and Management', () => {
     if (await savedRequest.isVisible()) {
       await savedRequest.click();
       await window.waitForTimeout(1000);
+      await window.screenshot({ path: 'e2e-results/screenshots/request-save-04-loaded.png' });
 
       // Verify request details are loaded
       const loadedUrl = await urlInput.inputValue();
@@ -64,6 +68,7 @@ test.describe('Request Save and Management', () => {
   test('should update an existing request', async ({ window }) => {
     // Wait for app to be ready
     await window.waitForTimeout(3000);
+    await window.screenshot({ path: 'e2e-results/screenshots/request-save-05-update-initial.png' });
 
     // Create and save a request first
     const urlInput = await window
@@ -93,6 +98,7 @@ test.describe('Request Save and Management', () => {
 
     // Update the URL
     await urlInput.fill('https://api.example.com/updated');
+    await window.screenshot({ path: 'e2e-results/screenshots/request-save-06-url-updated.png' });
 
     // Save again (should update existing)
     await saveButton.click();
@@ -113,12 +119,16 @@ test.describe('Request Save and Management', () => {
       // Verify updated URL
       const loadedUrl = await urlInput.inputValue();
       expect(loadedUrl).toBe('https://api.example.com/updated');
+      await window.screenshot({
+        path: 'e2e-results/screenshots/request-save-07-update-verified.png',
+      });
     }
   });
 
   test('should delete a saved request', async ({ window }) => {
     // Wait for app to be ready
     await window.waitForTimeout(3000);
+    await window.screenshot({ path: 'e2e-results/screenshots/request-save-08-delete-initial.png' });
 
     // Create and save a request to delete
     const urlInput = await window
@@ -151,6 +161,7 @@ test.describe('Request Save and Management', () => {
     if (await savedRequest.isVisible()) {
       await savedRequest.click({ button: 'right' });
       await window.waitForTimeout(500);
+      await window.screenshot({ path: 'e2e-results/screenshots/request-save-09-context-menu.png' });
 
       // Click delete option
       const deleteOption = await window.locator('text="Delete", text="削除"').first();
@@ -170,6 +181,7 @@ test.describe('Request Save and Management', () => {
         // Verify request is deleted
         const deletedRequest = await window.locator('text="Test Delete Request"').first();
         expect(await deletedRequest.isVisible()).toBe(false);
+        await window.screenshot({ path: 'e2e-results/screenshots/request-save-10-deleted.png' });
       }
     }
   });

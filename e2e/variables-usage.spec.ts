@@ -4,6 +4,7 @@ test.describe('Variables Usage', () => {
   test('should set and use global variables', async ({ window }) => {
     // Wait for app to be ready
     await window.waitForTimeout(3000);
+    await window.screenshot({ path: 'e2e-results/screenshots/variables-01-initial.png' });
 
     // Open variables panel
     const variablesButton = await window
@@ -11,6 +12,7 @@ test.describe('Variables Usage', () => {
       .first();
     await variablesButton.click();
     await window.waitForTimeout(1000);
+    await window.screenshot({ path: 'e2e-results/screenshots/variables-02-panel-opened.png' });
 
     // Add a global variable
     const addVariableButton = await window
@@ -36,6 +38,9 @@ test.describe('Variables Usage', () => {
 
         await lastNameInput.fill('baseUrl');
         await lastValueInput.fill('https://api.example.com');
+        await window.screenshot({
+          path: 'e2e-results/screenshots/variables-03-first-var-added.png',
+        });
       }
 
       // Add another variable
@@ -57,6 +62,9 @@ test.describe('Variables Usage', () => {
 
         await lastNameInput2.fill('apiToken');
         await lastValueInput2.fill('test-token-12345');
+        await window.screenshot({
+          path: 'e2e-results/screenshots/variables-04-second-var-added.png',
+        });
       }
     }
 
@@ -74,6 +82,7 @@ test.describe('Variables Usage', () => {
       .locator('input[placeholder*="URL"], input[placeholder*="url"]')
       .first();
     await urlInput.fill('{{baseUrl}}/users');
+    await window.screenshot({ path: 'e2e-results/screenshots/variables-05-url-with-var.png' });
 
     // Use variables in headers
     const headersTab = await window
@@ -104,6 +113,9 @@ test.describe('Variables Usage', () => {
 
         await lastKeyInput.fill('Authorization');
         await lastValueInput.fill('Bearer {{apiToken}}');
+        await window.screenshot({
+          path: 'e2e-results/screenshots/variables-06-header-with-var.png',
+        });
       }
     }
   });
@@ -111,6 +123,7 @@ test.describe('Variables Usage', () => {
   test('should extract variables from response', async ({ window }) => {
     // Wait for app to be ready
     await window.waitForTimeout(3000);
+    await window.screenshot({ path: 'e2e-results/screenshots/variables-07-extract-initial.png' });
 
     // Send a request first
     const urlInput = await window
@@ -125,6 +138,7 @@ test.describe('Variables Usage', () => {
 
     // Wait for response
     await window.waitForTimeout(3000);
+    await window.screenshot({ path: 'e2e-results/screenshots/variables-08-response-received.png' });
 
     // Look for variable extraction option
     const extractButton = await window
@@ -145,6 +159,9 @@ test.describe('Variables Usage', () => {
       if ((await pathInput.isVisible()) && (await varNameInput.isVisible())) {
         await pathInput.fill('$.id');
         await varNameInput.fill('userId');
+        await window.screenshot({
+          path: 'e2e-results/screenshots/variables-09-extraction-configured.png',
+        });
 
         // Save extraction
         const saveExtractButton = await window
@@ -161,6 +178,7 @@ test.describe('Variables Usage', () => {
   test('should use environment variables', async ({ window }) => {
     // Wait for app to be ready
     await window.waitForTimeout(3000);
+    await window.screenshot({ path: 'e2e-results/screenshots/variables-10-env-initial.png' });
 
     // Check if environment selector exists
     const envSelector = await window
@@ -181,6 +199,7 @@ test.describe('Variables Usage', () => {
       .first();
     await variablesButton.click();
     await window.waitForTimeout(1000);
+    await window.screenshot({ path: 'e2e-results/screenshots/variables-11-env-panel.png' });
 
     // Switch to environment variables tab if available
     const envTab = await window
@@ -213,6 +232,9 @@ test.describe('Variables Usage', () => {
 
           await lastNameInput.fill('apiEndpoint');
           await lastValueInput.fill('https://staging-api.example.com');
+          await window.screenshot({
+            path: 'e2e-results/screenshots/variables-12-env-var-added.png',
+          });
         }
       }
     }

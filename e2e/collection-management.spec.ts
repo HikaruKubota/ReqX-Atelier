@@ -4,6 +4,7 @@ test.describe('Collection Management', () => {
   test('should create folders and organize requests', async ({ window }) => {
     // Wait for app to be ready
     await window.waitForTimeout(3000);
+    await window.screenshot({ path: 'e2e-results/screenshots/collection-01-initial.png' });
 
     // Create a new folder
     const newFolderButton = await window
@@ -27,6 +28,9 @@ test.describe('Collection Management', () => {
           .last();
         await confirmButton.click();
         await window.waitForTimeout(1000);
+        await window.screenshot({
+          path: 'e2e-results/screenshots/collection-02-folder-created.png',
+        });
       }
     }
 
@@ -65,6 +69,9 @@ test.describe('Collection Management', () => {
         .last();
       await confirmButton.click();
       await window.waitForTimeout(1000);
+      await window.screenshot({
+        path: 'e2e-results/screenshots/collection-03-request-saved-to-folder.png',
+      });
     }
 
     // Verify folder structure in sidebar
@@ -75,6 +82,7 @@ test.describe('Collection Management', () => {
   test('should move requests between folders', async ({ window }) => {
     // Wait for app to be ready
     await window.waitForTimeout(3000);
+    await window.screenshot({ path: 'e2e-results/screenshots/collection-04-move-initial.png' });
 
     // Create first folder
     const newFolderButton = await window
@@ -116,6 +124,9 @@ test.describe('Collection Management', () => {
           .last();
         await confirmButton.click();
         await window.waitForTimeout(1000);
+        await window.screenshot({
+          path: 'e2e-results/screenshots/collection-05-folders-created.png',
+        });
       }
     }
 
@@ -151,6 +162,9 @@ test.describe('Collection Management', () => {
         .last();
       await confirmButton.click();
       await window.waitForTimeout(1000);
+      await window.screenshot({
+        path: 'e2e-results/screenshots/collection-06-request-in-source.png',
+      });
     }
 
     // Right-click on the request to move it
@@ -158,6 +172,7 @@ test.describe('Collection Management', () => {
     if (await requestToMove.isVisible()) {
       await requestToMove.click({ button: 'right' });
       await window.waitForTimeout(500);
+      await window.screenshot({ path: 'e2e-results/screenshots/collection-07-context-menu.png' });
 
       // Look for move option
       const moveOption = await window.locator('text="Move", text="移動"').first();
@@ -170,6 +185,9 @@ test.describe('Collection Management', () => {
         if (await destFolderOption.isVisible()) {
           await destFolderOption.click();
           await window.waitForTimeout(1000);
+          await window.screenshot({
+            path: 'e2e-results/screenshots/collection-08-request-moved.png',
+          });
         }
       }
     }
@@ -178,6 +196,7 @@ test.describe('Collection Management', () => {
   test('should delete folders', async ({ window }) => {
     // Wait for app to be ready
     await window.waitForTimeout(3000);
+    await window.screenshot({ path: 'e2e-results/screenshots/collection-09-delete-initial.png' });
 
     // Create a folder to delete
     const newFolderButton = await window
@@ -199,6 +218,9 @@ test.describe('Collection Management', () => {
           .last();
         await confirmButton.click();
         await window.waitForTimeout(1000);
+        await window.screenshot({
+          path: 'e2e-results/screenshots/collection-10-folder-to-delete.png',
+        });
       }
     }
 
@@ -207,6 +229,7 @@ test.describe('Collection Management', () => {
     if (await folderToDelete.isVisible()) {
       await folderToDelete.click({ button: 'right' });
       await window.waitForTimeout(500);
+      await window.screenshot({ path: 'e2e-results/screenshots/collection-11-delete-menu.png' });
 
       // Click delete option
       const deleteOption = await window.locator('text="Delete", text="削除"').first();
@@ -226,6 +249,9 @@ test.describe('Collection Management', () => {
         // Verify folder is deleted
         const deletedFolder = await window.locator('text="Folder to Delete"').first();
         expect(await deletedFolder.isVisible()).toBe(false);
+        await window.screenshot({
+          path: 'e2e-results/screenshots/collection-12-folder-deleted.png',
+        });
       }
     }
   });

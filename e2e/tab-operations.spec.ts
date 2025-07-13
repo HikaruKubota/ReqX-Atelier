@@ -4,6 +4,7 @@ test.describe('Tab Operations', () => {
   test('should create multiple tabs and switch between them', async ({ window }) => {
     // Wait for app to be ready
     await window.waitForTimeout(3000);
+    await window.screenshot({ path: 'e2e-results/screenshots/tab-operations-01-initial.png' });
 
     // Count initial tabs
     const initialTabs = await window.locator('[role="tab"], button[class*="tab"]').count();
@@ -15,6 +16,9 @@ test.describe('Tab Operations', () => {
     await newTabButton.click();
 
     await window.waitForTimeout(1000);
+    await window.screenshot({
+      path: 'e2e-results/screenshots/tab-operations-02-first-tab-created.png',
+    });
 
     // Verify tab count increased
     const afterFirstNewTab = await window.locator('[role="tab"], button[class*="tab"]').count();
@@ -23,6 +27,9 @@ test.describe('Tab Operations', () => {
     // Create another tab
     await newTabButton.click();
     await window.waitForTimeout(1000);
+    await window.screenshot({
+      path: 'e2e-results/screenshots/tab-operations-03-second-tab-created.png',
+    });
 
     const afterSecondNewTab = await window.locator('[role="tab"], button[class*="tab"]').count();
     expect(afterSecondNewTab).toBe(initialTabs + 2);
@@ -37,6 +44,9 @@ test.describe('Tab Operations', () => {
     const firstTab = await window.locator('[role="tab"], button[class*="tab"]').first();
     await firstTab.click();
     await window.waitForTimeout(500);
+    await window.screenshot({
+      path: 'e2e-results/screenshots/tab-operations-04-switched-to-first-tab.png',
+    });
 
     // Verify URL is different or empty
     const urlInput2 = await window
@@ -49,6 +59,9 @@ test.describe('Tab Operations', () => {
   test('should close tabs', async ({ window }) => {
     // Wait for app to be ready
     await window.waitForTimeout(3000);
+    await window.screenshot({
+      path: 'e2e-results/screenshots/tab-operations-05-close-initial.png',
+    });
 
     // Create new tabs
     const newTabButton = await window
@@ -71,6 +84,7 @@ test.describe('Tab Operations', () => {
     if (await closeButton.isVisible()) {
       await closeButton.click();
       await window.waitForTimeout(500);
+      await window.screenshot({ path: 'e2e-results/screenshots/tab-operations-06-tab-closed.png' });
 
       // Verify tab count decreased
       const newTabCount = await window.locator('[role="tab"], button[class*="tab"]').count();
@@ -81,6 +95,9 @@ test.describe('Tab Operations', () => {
   test('should maintain tab content when switching', async ({ window }) => {
     // Wait for app to be ready
     await window.waitForTimeout(3000);
+    await window.screenshot({
+      path: 'e2e-results/screenshots/tab-operations-07-content-initial.png',
+    });
 
     // Fill first tab with data
     const urlInput = await window
@@ -100,6 +117,9 @@ test.describe('Tab Operations', () => {
       .locator('input[placeholder*="URL"], input[placeholder*="url"]')
       .first();
     await urlInput2.fill('https://api.test.com/endpoint2');
+    await window.screenshot({
+      path: 'e2e-results/screenshots/tab-operations-08-second-tab-filled.png',
+    });
 
     // Switch back to first tab
     const firstTab = await window.locator('[role="tab"], button[class*="tab"]').first();
@@ -112,5 +132,8 @@ test.describe('Tab Operations', () => {
       .first();
     const firstTabUrl = await urlInput3.inputValue();
     expect(firstTabUrl).toBe('https://api.test.com/endpoint1');
+    await window.screenshot({
+      path: 'e2e-results/screenshots/tab-operations-09-first-tab-content-maintained.png',
+    });
   });
 });

@@ -4,6 +4,7 @@ test.describe('Request Operations', () => {
   test('should create and send a GET request', async ({ window }) => {
     // Wait for app to be ready
     await window.waitForTimeout(3000);
+    await window.screenshot({ path: 'e2e-results/screenshots/request-operations-01-initial.png' });
 
     // Find and fill URL input
     const urlInput = await window
@@ -11,12 +12,16 @@ test.describe('Request Operations', () => {
       .first();
     await urlInput.click();
     await urlInput.fill('https://jsonplaceholder.typicode.com/posts/1');
+    await window.screenshot({
+      path: 'e2e-results/screenshots/request-operations-02-url-filled.png',
+    });
 
     // Click Send button
     const sendButton = await window
       .locator('button:has-text("Send"), button:has-text("送信")')
       .first();
     await sendButton.click();
+    await window.screenshot({ path: 'e2e-results/screenshots/request-operations-03-sending.png' });
 
     // Wait for response
     await window.waitForTimeout(3000);
@@ -26,11 +31,17 @@ test.describe('Request Operations', () => {
     const responseText = await responseArea.textContent();
     expect(responseText).toBeTruthy();
     expect(responseText).toContain('userId');
+    await window.screenshot({
+      path: 'e2e-results/screenshots/request-operations-04-response-received.png',
+    });
   });
 
   test('should create and send a POST request with body', async ({ window }) => {
     // Wait for app to be ready
     await window.waitForTimeout(3000);
+    await window.screenshot({
+      path: 'e2e-results/screenshots/request-operations-05-post-initial.png',
+    });
 
     // Fill URL
     const urlInput = await window
@@ -42,6 +53,9 @@ test.describe('Request Operations', () => {
     // Select POST method
     const methodSelector = await window.locator('select').first();
     await methodSelector.selectOption('POST');
+    await window.screenshot({
+      path: 'e2e-results/screenshots/request-operations-06-post-selected.png',
+    });
 
     // Navigate to Body tab
     const bodyTab = await window
@@ -51,6 +65,7 @@ test.describe('Request Operations', () => {
 
     // Wait for body editor to be visible
     await window.waitForTimeout(1000);
+    await window.screenshot({ path: 'e2e-results/screenshots/request-operations-07-body-tab.png' });
 
     // Fill body content
     const bodyEditor = await window.locator('textarea, [contenteditable="true"]').first(); // cspell:disable-line
@@ -66,6 +81,9 @@ test.describe('Request Operations', () => {
         2,
       ),
     );
+    await window.screenshot({
+      path: 'e2e-results/screenshots/request-operations-08-body-filled.png',
+    });
 
     // Send request
     const sendButton = await window
@@ -80,5 +98,8 @@ test.describe('Request Operations', () => {
     const responseArea = await window.locator('pre, [class*="response"]').first();
     const responseText = await responseArea.textContent();
     expect(responseText).toContain('Test Post');
+    await window.screenshot({
+      path: 'e2e-results/screenshots/request-operations-09-post-response.png',
+    });
   });
 });

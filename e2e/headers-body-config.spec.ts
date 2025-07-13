@@ -4,6 +4,7 @@ test.describe('Headers and Body Configuration', () => {
   test('should add and remove headers', async ({ window }) => {
     // Wait for app to be ready
     await window.waitForTimeout(3000);
+    await window.screenshot({ path: 'e2e-results/screenshots/headers-body-01-initial.png' });
 
     // Navigate to Headers tab
     const headersTab = await window
@@ -11,6 +12,7 @@ test.describe('Headers and Body Configuration', () => {
       .first();
     await headersTab.click();
     await window.waitForTimeout(1000);
+    await window.screenshot({ path: 'e2e-results/screenshots/headers-body-02-headers-tab.png' });
 
     // Add a header
     const addHeaderButton = await window
@@ -39,6 +41,9 @@ test.describe('Headers and Body Configuration', () => {
       // Verify header was added
       const keyValue = await lastKeyInput.inputValue();
       expect(keyValue).toBe('Authorization');
+      await window.screenshot({
+        path: 'e2e-results/screenshots/headers-body-03-first-header-added.png',
+      });
     }
 
     // Add another header
@@ -61,6 +66,9 @@ test.describe('Headers and Body Configuration', () => {
 
         await lastKeyInput2.fill('Content-Type');
         await lastValueInput2.fill('application/json');
+        await window.screenshot({
+          path: 'e2e-results/screenshots/headers-body-04-second-header-added.png',
+        });
       }
     }
   });
@@ -68,6 +76,7 @@ test.describe('Headers and Body Configuration', () => {
   test('should configure different body types', async ({ window }) => {
     // Wait for app to be ready
     await window.waitForTimeout(3000);
+    await window.screenshot({ path: 'e2e-results/screenshots/headers-body-05-body-initial.png' });
 
     // Navigate to Body tab
     const bodyTab = await window
@@ -75,6 +84,7 @@ test.describe('Headers and Body Configuration', () => {
       .first();
     await bodyTab.click();
     await window.waitForTimeout(1000);
+    await window.screenshot({ path: 'e2e-results/screenshots/headers-body-06-body-tab.png' });
 
     // Select JSON body type if available
     const jsonOption = await window
@@ -104,12 +114,16 @@ test.describe('Headers and Body Configuration', () => {
       const bodyContent = (await bodyEditor.inputValue()) || (await bodyEditor.textContent());
       expect(bodyContent).toContain('Test User');
       expect(bodyContent).toContain('test@example.com');
+      await window.screenshot({
+        path: 'e2e-results/screenshots/headers-body-07-json-body-filled.png',
+      });
     }
   });
 
   test('should add query parameters', async ({ window }) => {
     // Wait for app to be ready
     await window.waitForTimeout(3000);
+    await window.screenshot({ path: 'e2e-results/screenshots/headers-body-08-params-initial.png' });
 
     // Navigate to Params tab if available
     const paramsTab = await window
@@ -118,6 +132,7 @@ test.describe('Headers and Body Configuration', () => {
     if (await paramsTab.isVisible()) {
       await paramsTab.click();
       await window.waitForTimeout(1000);
+      await window.screenshot({ path: 'e2e-results/screenshots/headers-body-09-params-tab.png' });
 
       // Add parameters
       const addParamButton = await window
@@ -144,6 +159,9 @@ test.describe('Headers and Body Configuration', () => {
 
           await lastKeyInput.fill('page');
           await lastValueInput.fill('1');
+          await window.screenshot({
+            path: 'e2e-results/screenshots/headers-body-10-first-param-added.png',
+          });
 
           // Add another parameter
           await addParamButton.click();
@@ -166,6 +184,9 @@ test.describe('Headers and Body Configuration', () => {
 
             await lastKeyInput2.fill('limit');
             await lastValueInput2.fill('10');
+            await window.screenshot({
+              path: 'e2e-results/screenshots/headers-body-11-second-param-added.png',
+            });
           }
         }
       }
@@ -179,5 +200,6 @@ test.describe('Headers and Body Configuration', () => {
     if (url && (url.includes('?') || url.includes('&'))) {
       expect(url).toMatch(/[?&](page|limit)=/);
     }
+    await window.screenshot({ path: 'e2e-results/screenshots/headers-body-12-params-in-url.png' });
   });
 });
