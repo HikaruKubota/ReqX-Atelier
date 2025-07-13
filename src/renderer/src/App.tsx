@@ -1,45 +1,26 @@
-import React, { useCallback, useRef, useEffect, useState } from 'react';
+import React, { useCallback, useRef, useState } from 'react';
 import { useSavedRequests } from './hooks/useSavedRequests';
-import type {
-  SavedRequest,
-  ApiResult,
-  ApiError,
-  KeyValuePair,
-  RequestHeader,
-  VariableExtraction,
-} from './types';
-import { useRequestEditor } from './hooks/useRequestEditor'; // Import the new hook and RequestHeader
-import { useApiResponseHandler } from './hooks/useApiResponseHandler'; // Import the new API response handler hook
-import { RequestCollectionSidebar } from './components/RequestCollectionSidebar'; // Import the new sidebar component
-import { RequestEditorPanel } from './components/RequestEditorPanel'; // Import the new editor panel component and ref type
-import { ResponseDisplayPanel } from './components/ResponseDisplayPanel'; // Import the new response panel component
+import { useRequestEditor } from './hooks/useRequestEditor';
+import { useApiResponseHandler } from './hooks/useApiResponseHandler';
 import { useKeyboardShortcuts } from './hooks/useKeyboardShortcuts';
 import { useTabs } from './hooks/useTabs';
-import { useRequestActions } from './hooks/useRequestActions';
-import { useTabDirtyTracker } from './hooks/useTabDirtyTracker';
+import { useTabState } from './hooks/useTabState';
+import { useRequestExecution } from './hooks/useRequestExecution';
 import { useTranslation } from 'react-i18next';
-import { ThemeToggleButton } from './components/ThemeToggleButton';
 import { TabBar } from './components/organisms/TabBar';
-import { ShortcutsGuide } from './components/organisms/ShortcutsGuide';
-import { RequestEditorPanelRef } from './types'; // Import the RequestHeader type
-import { Toast } from './components/atoms/toast/Toast';
-import { EnvironmentSelector } from './components/EnvironmentSelector';
-import { VariablesButton } from './components/VariablesButton';
-import { VariablesPanel } from './components/VariablesPanel';
-import { extractVariablesFromResponse, applyExtractedVariables } from './utils/variableExtraction';
-import { useUrlParamsSync } from './hooks/useUrlParamsSync';
+import { AppLayout } from './containers/AppLayout';
+import { StateSync } from './containers/StateSync';
+import type { SavedRequest, RequestEditorPanelRef } from './types';
 
 export default function App() {
   const { t } = useTranslation();
-  const editorPanelRef = useRef<RequestEditorPanelRef>(null); // Create a ref
+  const editorPanelRef = useRef<RequestEditorPanelRef>(null);
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [saveToastOpen, setSaveToastOpen] = useState(false);
   const [variablesPanelOpen, setVariablesPanelOpen] = useState(false);
+  const [newRequestFolderId, setNewRequestFolderId] = useState<string | null>(null);
 
-  // Track if we're switching tabs to prevent sync issues
-  const isSwitchingTabRef = useRef(false);
-
-  // Use the new custom hook for request editor state and logic
+  // Use custom hooks
   const {
     method,
     setMethod,
@@ -60,18 +41,17 @@ export default function App() {
     activeRequestIdRef,
     headers,
     setHeaders,
-    headersRef, // Destructure headers state and functions
+    headersRef,
     addHeader,
     updateHeader,
-    removeHeader, // Destructure header actions
+    removeHeader,
     variableExtraction,
     setVariableExtraction,
     variableExtractionRef,
-    loadRequest: loadRequestIntoEditor, // Renamed to avoid conflict if there was a local var named loadRequest
+    loadRequest: loadRequestIntoEditor,
     resetEditor,
   } = useRequestEditor();
 
-  // Use the new API response handler hook
   const {
     response,
     error,
@@ -82,32 +62,6 @@ export default function App() {
     setApiResponseState,
   } = useApiResponseHandler();
 
-  const [newRequestFolderId, setNewRequestFolderId] = useState<string | null>(null);
-
-  const [tabResponses, setTabResponses] = useState<
-    Record<
-      string,
-      { response: ApiResult | null; error: ApiError | null; responseTime: number | null }
-    >
-  >({});
-
-  // Tab-specific editor states
-  const [tabEditorStates, setTabEditorStates] = useState<
-    Record<
-      string,
-      {
-        body: KeyValuePair[];
-        params: KeyValuePair[];
-        url?: string;
-        method?: string;
-        headers?: RequestHeader[];
-        requestNameForSave?: string;
-        variableExtraction?: VariableExtraction;
-      }
-    >
-  >({});
-
-  // Saved requests state (from useSavedRequests hook)
   const {
     savedRequests,
     savedFolders,
@@ -124,109 +78,50 @@ export default function App() {
   } = useSavedRequests();
 
   const tabs = useTabs();
-
-  // Execute variable extraction when response is received
-  React.useEffect(() => {
-    if (response && variableExtraction && tabs.activeTabId) {
-      const results = extractVariablesFromResponse(response, variableExtraction);
-      if (results.length > 0) {
-        applyExtractedVariables(results);
-      }
-    }
-  }, [response, variableExtraction, tabs.activeTabId]);
+  const {
+    tabEditorStates,
+    tabResponses,
+    isSwitchingTabRef,
+    updateTabEditorState,
+    removeTabState,
+    saveTabResponse,
+    getTabEditorState,
+    getTabResponse,
+  } = useTabState();
 
   // Get current tab's editor state
   const currentTabEditorState = tabs.activeTabId ? tabEditorStates[tabs.activeTabId] : undefined;
   const currentBody = currentTabEditorState?.body || body;
   const currentParams = currentTabEditorState?.params || params;
 
-  // Update tab editor state when body or params change
+  // Update tab state callbacks
   const updateTabBody = useCallback(
-    (newBody: KeyValuePair[]) => {
+    (newBody: typeof body) => {
       const tabId = tabs.activeTabId;
       if (!tabId) return;
-
-      setTabEditorStates((prev) => ({
-        ...prev,
-        [tabId]: {
-          ...prev[tabId],
-          body: newBody,
-          params: prev[tabId]?.params || [],
-        },
-      }));
+      updateTabEditorState(tabId, { body: newBody });
       setBody(newBody);
     },
-    [tabs.activeTabId, setBody],
+    [tabs.activeTabId, updateTabEditorState, setBody],
   );
 
   const updateTabParams = useCallback(
-    (newParams: KeyValuePair[]) => {
+    (newParams: typeof params) => {
       const tabId = tabs.activeTabId;
       if (!tabId) return;
-
-      setTabEditorStates((prev) => ({
-        ...prev,
-        [tabId]: {
-          ...prev[tabId],
-          body: prev[tabId]?.body || [],
-          params: newParams,
-        },
-      }));
+      updateTabEditorState(tabId, { params: newParams });
       setParams(newParams);
     },
-    [tabs.activeTabId, setParams],
+    [tabs.activeTabId, updateTabEditorState, setParams],
   );
 
-  // Update tab URL when URL changes
-  const updateTabUrl = useCallback(
-    (newUrl: string) => {
-      const tabId = tabs.activeTabId;
-      if (!tabId) return;
-
-      setTabEditorStates((prev) => ({
-        ...prev,
-        [tabId]: {
-          ...prev[tabId],
-          url: newUrl,
-        },
-      }));
-      setUrl(newUrl);
-    },
-    [tabs.activeTabId, setUrl],
-  );
-
-  // Use URL params synchronization
-  useUrlParamsSync({
-    url,
-    params: currentParams,
-    onUrlChange: updateTabUrl,
-    onParamsChange: updateTabParams,
-    skipSync: isSwitchingTabRef.current,
-  });
-
-  // Update tab state utility function
   const updateTabState = useCallback(
-    (
-      updates: Partial<{
-        method: string;
-        headers: RequestHeader[];
-        requestNameForSave: string;
-        variableExtraction: VariableExtraction | undefined;
-        url: string;
-      }>,
-    ) => {
+    (updates: Parameters<typeof updateTabEditorState>[1]) => {
       const tabId = tabs.activeTabId;
       if (!tabId) return;
-
-      setTabEditorStates((prev) => ({
-        ...prev,
-        [tabId]: {
-          ...prev[tabId],
-          ...updates,
-        },
-      }));
+      updateTabEditorState(tabId, updates);
     },
-    [tabs.activeTabId],
+    [tabs.activeTabId, updateTabEditorState],
   );
 
   // Wrapped setters that also update tab state
@@ -247,7 +142,7 @@ export default function App() {
   );
 
   const setHeadersWithTabUpdate = useCallback(
-    (val: RequestHeader[]) => {
+    (val: typeof headers) => {
       setHeaders(val);
       updateTabState({ headers: val });
     },
@@ -255,66 +150,11 @@ export default function App() {
   );
 
   const setVariableExtractionWithTabUpdate = useCallback(
-    (val: VariableExtraction | undefined) => {
+    (val: typeof variableExtraction) => {
       setVariableExtraction(val);
       updateTabState({ variableExtraction: val });
     },
     [setVariableExtraction, updateTabState],
-  );
-
-  // Helper function: Handle empty tab state
-  const handleEmptyTabState = useCallback(() => {
-    resetEditor();
-    setRequestNameForSave('Untitled Request');
-    setActiveRequestId(null);
-    resetApiResponse();
-  }, [resetEditor, setRequestNameForSave, setActiveRequestId, resetApiResponse]);
-
-  // Helper function: Handle new tab without saved request
-  const handleNewTabState = useCallback(
-    (
-      tab: { tabId: string; requestId?: string | null },
-      existingState: (typeof tabEditorStates)[string] | undefined,
-    ) => {
-      if (!existingState) {
-        resetEditor();
-        setRequestNameForSave('Untitled Request');
-        setActiveRequestId(null);
-
-        // Initialize empty state for new tab
-        setTabEditorStates((prev) => ({
-          ...prev,
-          [tab.tabId]: {
-            body: [],
-            params: [],
-          },
-        }));
-      } else {
-        // Use existing state
-        setBody(existingState.body);
-        setParams(existingState.params);
-        // Restore other states for new tab
-        if (existingState.url !== undefined) setUrl(existingState.url);
-        if (existingState.method !== undefined) setMethod(existingState.method);
-        if (existingState.headers !== undefined) setHeaders(existingState.headers);
-        if (existingState.requestNameForSave !== undefined)
-          setRequestNameForSave(existingState.requestNameForSave);
-        if (existingState.variableExtraction !== undefined)
-          setVariableExtraction(existingState.variableExtraction);
-      }
-    },
-    [
-      resetEditor,
-      setRequestNameForSave,
-      setActiveRequestId,
-      setTabEditorStates,
-      setBody,
-      setParams,
-      setUrl,
-      setMethod,
-      setHeaders,
-      setVariableExtraction,
-    ],
   );
 
   const requestEditor = {
@@ -353,261 +193,80 @@ export default function App() {
     resetEditor,
   };
 
-  const { resetDirtyState } = useTabDirtyTracker({
-    tabId: tabs.activeTabId,
-    requestEditor,
-    markTabDirty: tabs.markTabDirty,
-    markTabClean: tabs.markTabClean,
-  });
-
-  const { executeSendRequest, executeSaveRequest } = useRequestActions({
+  const { executeSendRequest, handleSaveButtonClick } = useRequestExecution({
     editorPanelRef,
-    methodRef,
-    urlRef,
-    headersRef,
-    paramsRef,
-    variableExtractionRef,
-    requestNameForSaveRef,
-    setRequestNameForSave,
+    requestEditor,
     activeRequestIdRef,
     setActiveRequestId,
+    setRequestNameForSave,
     addRequest,
     updateSavedRequest,
     executeRequest,
-    resetDirtyState,
+    updateFolder,
+    savedFolders,
+    newRequestFolderId,
+    setNewRequestFolderId,
+    setSaveToastOpen,
   });
 
   const handleCloseTab = useCallback(
     (id: string) => {
       tabs.closeTab(id);
-      setTabResponses((prev) => {
-        const newState = { ...prev };
-        delete newState[id];
-        return newState;
-      });
-      setTabEditorStates((prev) => {
-        const newState = { ...prev };
-        delete newState[id];
-        return newState;
-      });
+      removeTabState(id);
     },
-    [tabs],
+    [tabs, removeTabState],
   );
 
   const handleNewRequest = useCallback(() => {
     const newTab = tabs.openTab();
-
-    // Initialize empty state for new tab
-    setTabEditorStates((prev) => ({
-      ...prev,
-      [newTab.tabId]: {
-        body: [],
-        params: [],
-      },
-    }));
-
+    updateTabEditorState(newTab.tabId, {
+      body: [],
+      params: [],
+    });
     resetEditor();
     setActiveRequestId(null);
     resetApiResponse();
-  }, [tabs, resetEditor, setActiveRequestId, resetApiResponse]);
+  }, [tabs, updateTabEditorState, resetEditor, setActiveRequestId, resetApiResponse]);
 
-  const handleSaveButtonClick = useCallback(() => {
-    const activeTab = tabs.getActiveTab();
-    if (!activeTab) return;
-
-    const prevId = activeRequestIdRef.current;
-    const savedId = executeSaveRequest();
-    if (!savedId) return; // safeguard
-
-    setSaveToastOpen(true);
-    resetDirtyState(); // Reset dirty state after saving
-
-    if (activeTab && !activeTab.requestId) {
-      tabs.updateTab(activeTab.tabId, { requestId: savedId });
-    }
-
-    // If the request was just created inside a specific folder, add its ID there
-    if (!prevId && newRequestFolderId) {
-      const folder = savedFolders.find((f) => f.id === newRequestFolderId);
-      if (folder) {
-        updateFolder(newRequestFolderId, {
-          requestIds: [...folder.requestIds, savedId],
-        });
-      }
-      setNewRequestFolderId(null);
-    }
-  }, [
-    executeSaveRequest,
-    tabs,
-    activeRequestIdRef,
-    newRequestFolderId,
-    savedFolders,
-    updateFolder,
-    resetDirtyState,
-  ]);
-
-  useKeyboardShortcuts({
-    onSave: handleSaveButtonClick,
-    onSend: executeSendRequest,
-    onNew: handleNewRequest,
-    onNextTab: () => tabs.nextTab(),
-    onPrevTab: () => tabs.prevTab(),
-    onCloseTab: () => {
-      const active = tabs.getActiveTab();
-      if (active) {
-        handleCloseTab(active.tabId);
-      }
-    },
-  });
-
-  // Save response state when response changes (but not when switching tabs)
-  const prevActiveTabIdRef = useRef(tabs.activeTabId);
-  useEffect(() => {
-    const id = tabs.activeTabId;
-    if (!id) return;
-
-    // Only save if the tab hasn't changed (to avoid saving during tab switch)
-    const tabChanged = prevActiveTabIdRef.current !== id;
-    prevActiveTabIdRef.current = id;
-
-    if (!tabChanged && (response || error || responseTime !== null)) {
-      setTabResponses((prev) => ({
-        ...prev,
-        [id]: { response, error, responseTime },
-      }));
-    }
-  }, [tabs.activeTabId, response, error, responseTime]);
-
-  // Restore response state when switching tabs
-  useEffect(() => {
-    const id = tabs.activeTabId;
-
-    if (!id) {
-      resetApiResponse();
-      return;
-    }
-
-    // Restore response state when switching tabs
-    const saved = tabResponses[id];
-    if (saved) {
-      setApiResponseState(saved);
-    } else {
-      resetApiResponse();
-    }
-  }, [tabs.activeTabId]);
-
-  const handleLoadRequest = (req: SavedRequest) => {
-    const existing = tabs.tabs.find((t) => t.requestId === req.id);
-
-    if (existing) {
-      // If the tab exists, just switch to it
-      tabs.switchTab(existing.tabId);
-      return;
-    }
-
-    // Check if current tab has unsaved changes
-    const currentTab = tabs.getActiveTab();
-    if (currentTab && currentTab.isDirty) {
-      // Show confirmation dialog
-      const confirmMessage = t('discard_changes_confirm', {
-        defaultValue:
-          'You have unsaved changes. Do you want to discard them and open the new request?',
-      });
-
-      if (!confirm(confirmMessage)) {
-        // User cancelled, don't load the new request
+  const handleLoadRequest = useCallback(
+    (req: SavedRequest) => {
+      const existing = tabs.tabs.find((t) => t.requestId === req.id);
+      if (existing) {
+        tabs.switchTab(existing.tabId);
         return;
       }
-    }
 
-    // Open new tab with the request
-    const newTab = tabs.openTab(req);
-    const targetTabId = newTab.tabId;
+      const currentTab = tabs.getActiveTab();
+      if (currentTab && currentTab.isDirty) {
+        const confirmMessage = t('discard_changes_confirm', {
+          defaultValue:
+            'You have unsaved changes. Do you want to discard them and open the new request?',
+        });
+        if (!confirm(confirmMessage)) {
+          return;
+        }
+      }
 
-    // Initialize tab editor state with request data
-    setTabEditorStates((prev) => ({
-      ...prev,
-      [targetTabId]: {
+      const newTab = tabs.openTab(req);
+      updateTabEditorState(newTab.tabId, {
         body: req.body || [],
         params: req.params || [],
-      },
-    }));
+      });
 
-    loadRequestIntoEditor({
-      id: req.id,
-      name: req.name,
-      method: req.method,
-      url: req.url,
-      headers: req.headers,
-      body: req.body,
-      params: req.params,
-      variableExtraction: req.variableExtraction,
-    });
-    setActiveRequestId(req.id);
-  };
-
-  // Tab switching useEffect with safer state management
-  useEffect(() => {
-    const tab = tabs.getActiveTab();
-    if (!tab) {
-      handleEmptyTabState();
-      return;
-    }
-
-    // Mark that we're switching tabs
-    isSwitchingTabRef.current = true;
-
-    // Check if we already have editor state for this tab
-    const existingState = tabEditorStates[tab.tabId];
-
-    if (tab.requestId) {
-      const req = savedRequests.find((r) => r.id === tab.requestId);
-      if (req) {
-        // Only load request data if we don't have existing state
-        if (!existingState) {
-          loadRequestIntoEditor({
-            id: req.id,
-            name: req.name,
-            method: req.method,
-            url: req.url,
-            headers: req.headers,
-            body: req.body,
-            params: req.params,
-            variableExtraction: req.variableExtraction,
-          });
-
-          // Initialize tab editor state
-          setTabEditorStates((prev) => ({
-            ...prev,
-            [tab.tabId]: {
-              body: req.body || [],
-              params: req.params || [],
-            },
-          }));
-        } else {
-          // Use existing state
-          setBody(existingState.body);
-          setParams(existingState.params);
-          // Restore other states from tab state or saved request
-          setUrl(existingState.url || req.url);
-          setMethod(existingState.method || req.method);
-          setHeaders(existingState.headers || req.headers || []);
-          setVariableExtraction(existingState.variableExtraction || req.variableExtraction);
-        }
-
-        setRequestNameForSave(existingState?.requestNameForSave || req.name);
-        setActiveRequestId(req.id);
-      }
-    } else {
-      // New tab
-      handleNewTabState(tab, existingState);
-    }
-
-    // Reset the flag after all state updates are done
-    setTimeout(() => {
-      isSwitchingTabRef.current = false;
-    }, 0);
-  }, [tabs.activeTabId]);
+      loadRequestIntoEditor({
+        id: req.id,
+        name: req.name,
+        method: req.method,
+        url: req.url,
+        headers: req.headers,
+        body: req.body,
+        params: req.params,
+        variableExtraction: req.variableExtraction,
+      });
+      setActiveRequestId(req.id);
+    },
+    [tabs, t, updateTabEditorState, loadRequestIntoEditor, setActiveRequestId],
+  );
 
   const handleDeleteRequest = useCallback(
     (idToDelete: string) => {
@@ -623,7 +282,7 @@ export default function App() {
         }
       }
     },
-    [deleteRequest, activeRequestId, resetEditor, resetApiResponse, tabs],
+    [deleteRequest, activeRequestId, resetEditor, resetApiResponse, tabs, handleCloseTab, t],
   );
 
   const handleCopyRequest = useCallback(
@@ -640,9 +299,183 @@ export default function App() {
     [copyFolder],
   );
 
+  const handleTabSwitch = useCallback(
+    (tabId: string) => {
+      const tab = tabs.tabs.find((t) => t.tabId === tabId);
+      if (!tab) return;
+
+      isSwitchingTabRef.current = true;
+      const existingState = getTabEditorState(tabId);
+
+      if (tab.requestId) {
+        const req = savedRequests.find((r) => r.id === tab.requestId);
+        if (req) {
+          if (!existingState) {
+            loadRequestIntoEditor({
+              id: req.id,
+              name: req.name,
+              method: req.method,
+              url: req.url,
+              headers: req.headers,
+              body: req.body,
+              params: req.params,
+              variableExtraction: req.variableExtraction,
+            });
+            updateTabEditorState(tab.tabId, {
+              body: req.body || [],
+              params: req.params || [],
+            });
+          } else {
+            setBody(existingState.body);
+            setParams(existingState.params);
+            setUrl(existingState.url || req.url);
+            setMethod(existingState.method || req.method);
+            setHeaders(existingState.headers || req.headers || []);
+            setVariableExtraction(existingState.variableExtraction || req.variableExtraction);
+          }
+          setRequestNameForSave(existingState?.requestNameForSave || req.name);
+          setActiveRequestId(req.id);
+        }
+      } else {
+        if (!existingState) {
+          resetEditor();
+          setRequestNameForSave('Untitled Request');
+          setActiveRequestId(null);
+          updateTabEditorState(tab.tabId, {
+            body: [],
+            params: [],
+          });
+        } else {
+          setBody(existingState.body);
+          setParams(existingState.params);
+          if (existingState.url !== undefined) setUrl(existingState.url);
+          if (existingState.method !== undefined) setMethod(existingState.method);
+          if (existingState.headers !== undefined) setHeaders(existingState.headers);
+          if (existingState.requestNameForSave !== undefined)
+            setRequestNameForSave(existingState.requestNameForSave);
+          if (existingState.variableExtraction !== undefined)
+            setVariableExtraction(existingState.variableExtraction);
+        }
+      }
+
+      const savedResponse = getTabResponse(tabId);
+      if (savedResponse) {
+        setApiResponseState(savedResponse);
+      } else {
+        resetApiResponse();
+      }
+
+      setTimeout(() => {
+        isSwitchingTabRef.current = false;
+      }, 0);
+    },
+    [
+      tabs.tabs,
+      isSwitchingTabRef,
+      getTabEditorState,
+      getTabResponse,
+      savedRequests,
+      loadRequestIntoEditor,
+      updateTabEditorState,
+      setBody,
+      setParams,
+      setUrl,
+      setMethod,
+      setHeaders,
+      setVariableExtraction,
+      setRequestNameForSave,
+      setActiveRequestId,
+      resetEditor,
+      setApiResponseState,
+      resetApiResponse,
+    ],
+  );
+
+  // Save response state when it changes
+  React.useEffect(() => {
+    const id = tabs.activeTabId;
+    if (!id || isSwitchingTabRef.current) return;
+
+    if (response || error || responseTime !== null) {
+      saveTabResponse(id, { response, error, responseTime });
+    }
+  }, [tabs.activeTabId, response, error, responseTime, saveTabResponse, isSwitchingTabRef]);
+
+  // Handle tab switching
+  React.useEffect(() => {
+    if (tabs.activeTabId) {
+      handleTabSwitch(tabs.activeTabId);
+    } else {
+      resetEditor();
+      setRequestNameForSave('Untitled Request');
+      setActiveRequestId(null);
+      resetApiResponse();
+    }
+  }, [tabs.activeTabId]);
+
+  useKeyboardShortcuts({
+    onSave: handleSaveButtonClick,
+    onSend: executeSendRequest,
+    onNew: handleNewRequest,
+    onNextTab: () => tabs.nextTab(),
+    onPrevTab: () => tabs.prevTab(),
+    onCloseTab: () => {
+      const active = tabs.getActiveTab();
+      if (active) {
+        handleCloseTab(active.tabId);
+      }
+    },
+  });
+
+  const onEditorStateRestore = useCallback(
+    (state: any) => {
+      if (state.body) setBody(state.body);
+      if (state.params) setParams(state.params);
+      if (state.url !== undefined) setUrl(state.url);
+      if (state.method !== undefined) setMethod(state.method);
+      if (state.headers !== undefined) setHeaders(state.headers);
+      if (state.requestNameForSave !== undefined) setRequestNameForSave(state.requestNameForSave);
+      if (state.variableExtraction !== undefined) setVariableExtraction(state.variableExtraction);
+    },
+    [
+      setBody,
+      setParams,
+      setUrl,
+      setMethod,
+      setHeaders,
+      setRequestNameForSave,
+      setVariableExtraction,
+    ],
+  );
+
+  const tabBarContent = tabs.tabs.length > 0 && (
+    <TabBar
+      tabs={tabs.tabs}
+      activeTabId={tabs.activeTabId}
+      onSelect={(id) => tabs.switchTab(id)}
+      onClose={handleCloseTab}
+      onNew={handleNewRequest}
+      onReorder={(activeId, overId) => tabs.reorderTabs(activeId, overId)}
+    />
+  );
+
   return (
-    <div style={{ display: 'flex', height: '100vh' }}>
-      <RequestCollectionSidebar
+    <>
+      <StateSync
+        activeTabId={tabs.activeTabId}
+        savedRequests={savedRequests}
+        tabEditorStates={tabEditorStates}
+        isSwitchingTabRef={isSwitchingTabRef}
+        requestEditor={requestEditor}
+        response={response}
+        variableExtraction={variableExtraction}
+        onTabStateUpdate={updateTabEditorState}
+        onEditorStateRestore={onEditorStateRestore}
+        onResponseStateRestore={setApiResponseState}
+      />
+      <AppLayout
+        sidebarOpen={sidebarOpen}
+        setSidebarOpen={setSidebarOpen}
         savedRequests={savedRequests}
         savedFolders={savedFolders}
         activeRequestId={activeRequestId}
@@ -666,83 +499,38 @@ export default function App() {
         onCopyFolder={handleCopyFolder}
         moveRequest={moveRequest}
         moveFolder={moveFolder}
-        isOpen={sidebarOpen}
-        onToggle={() => setSidebarOpen((o) => !o)}
+        tabBarContent={tabBarContent}
+        hasActiveTabs={tabs.tabs.length > 0}
+        editorPanelRef={editorPanelRef}
+        requestNameForSave={requestNameForSave}
+        onRequestNameForSaveChange={setRequestNameForSave}
+        method={method}
+        onMethodChange={setMethod}
+        url={url}
+        onUrlChange={setUrl}
+        initialBody={currentBody}
+        initialParams={currentParams}
+        onBodyPairsChange={updateTabBody}
+        onParamPairsChange={updateTabParams}
+        loading={loading}
+        onSaveRequest={handleSaveButtonClick}
+        onSendRequest={executeSendRequest}
+        headers={headers}
+        onAddHeader={addHeader}
+        onUpdateHeader={updateHeader}
+        onRemoveHeader={removeHeader}
+        onReorderHeaders={setHeaders}
+        variableExtraction={variableExtraction}
+        onVariableExtractionChange={setVariableExtraction}
+        response={response}
+        error={error}
+        responseTime={responseTime}
+        saveToastOpen={saveToastOpen}
+        setSaveToastOpen={setSaveToastOpen}
+        variablesPanelOpen={variablesPanelOpen}
+        setVariablesPanelOpen={setVariablesPanelOpen}
+        onNewRequest={handleNewRequest}
       />
-
-      {/* Right Main Area for Request Editing and Response */}
-      <div style={{ flexGrow: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
-        {tabs.tabs.length > 0 && (
-          <TabBar
-            tabs={tabs.tabs}
-            activeTabId={tabs.activeTabId}
-            onSelect={(id) => tabs.switchTab(id)}
-            onClose={(id) => handleCloseTab(id)}
-            onNew={handleNewRequest}
-            onReorder={(activeId, overId) => tabs.reorderTabs(activeId, overId)}
-          />
-        )}
-        <div
-          style={{
-            flexGrow: 1,
-            padding: '20px',
-            display: 'flex',
-            flexDirection: 'column',
-            gap: '15px',
-            overflowY: 'auto',
-          }}
-        >
-          <div style={{ alignSelf: 'flex-end', display: 'flex', gap: '10px' }}>
-            <EnvironmentSelector />
-            <VariablesButton onClick={() => setVariablesPanelOpen(true)} />
-            <ThemeToggleButton />
-          </div>
-          {tabs.tabs.length === 0 ? (
-            <ShortcutsGuide onNew={handleNewRequest} />
-          ) : (
-            <>
-              <RequestEditorPanel
-                ref={editorPanelRef}
-                requestNameForSave={requestNameForSave}
-                onRequestNameForSaveChange={setRequestNameForSave}
-                method={method}
-                onMethodChange={setMethod}
-                url={url}
-                onUrlChange={setUrl}
-                initialBody={currentBody}
-                initialParams={currentParams}
-                onBodyPairsChange={updateTabBody}
-                onParamPairsChange={updateTabParams}
-                activeRequestId={activeRequestId}
-                loading={loading}
-                onSaveRequest={handleSaveButtonClick}
-                onSendRequest={executeSendRequest}
-                headers={headers}
-                onAddHeader={addHeader}
-                onUpdateHeader={updateHeader}
-                onRemoveHeader={removeHeader}
-                onReorderHeaders={setHeaders}
-                variableExtraction={variableExtraction}
-                onVariableExtractionChange={setVariableExtraction}
-              />
-
-              {/* Use the new ResponseDisplayPanel component */}
-              <ResponseDisplayPanel
-                response={response}
-                error={error}
-                loading={loading}
-                responseTime={responseTime}
-              />
-            </>
-          )}
-        </div>
-      </div>
-      <Toast
-        message={t('save_success')}
-        isOpen={saveToastOpen}
-        onClose={() => setSaveToastOpen(false)}
-      />
-      <VariablesPanel isOpen={variablesPanelOpen} onClose={() => setVariablesPanelOpen(false)} />
-    </div>
+    </>
   );
 }
