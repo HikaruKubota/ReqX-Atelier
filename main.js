@@ -18,7 +18,10 @@ function createWindow() {
   });
   if (process.env.NODE_ENV === 'development') {
     win.loadURL('http://localhost:5173');
-    win.webContents.openDevTools(); // Open DevTools in development mode
+    // Don't open DevTools during E2E tests
+    if (!process.env.E2E_TEST) {
+      win.webContents.openDevTools(); // Open DevTools in development mode
+    }
   } else {
     // In production, the HTML file is in the dist directory at the project root
     const indexPath = path.join(__dirname, 'dist', 'index.html');

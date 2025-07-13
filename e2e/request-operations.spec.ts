@@ -2,8 +2,8 @@ import { test, expect } from './fixtures/electron-fixture';
 
 test.describe('Request Operations', () => {
   test('should create and send a GET request', async ({ window }) => {
-    // Wait for app to be ready
-    await window.waitForTimeout(3000);
+    // Wait a bit more for app to stabilize
+    await window.waitForTimeout(1000);
     await window.screenshot({ path: 'e2e-results/screenshots/request-operations-01-initial.png' });
 
     // Find and fill URL input

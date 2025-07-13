@@ -22,4 +22,12 @@ export default defineConfig({
   expect: {
     timeout: 10 * 1000,
   },
+
+  // Automatically start the dev server before running tests
+  webServer: {
+    command: 'npm run dev:renderer',
+    port: 5173,
+    timeout: 120 * 1000,
+    reuseExistingServer: !process.env.CI,
+  },
 });
