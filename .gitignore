@@ -39,5 +39,10 @@ ehthumbs.db
 coverage/
 **/coverage/
 
+# E2E test results
+e2e-results/
+playwright-report/
+test-results/
+
 # Local settings
 .claude/settings.local.json

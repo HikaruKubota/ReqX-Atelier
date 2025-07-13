@@ -70,8 +70,10 @@ To distribute the app:
 
 ## Testing
 
+### Unit Tests
+
 ```bash
-# Run tests
+# Run unit tests
 npm run test
 
 # Run tests in watch mode
@@ -80,11 +82,59 @@ npm run test:watch
 # Run tests with coverage
 npm run test:coverage
 
-# Run linting
+# Run a specific test file
+npm run test -- path/to/test.file
+```
+
+### E2E Tests
+
+```bash
+# Install Playwright browsers (first time setup)
+npx playwright install chromium
+
+# Run E2E tests
+npm run e2e
+
+# Run E2E tests with UI mode
+npm run e2e -- --ui
+
+# Run E2E tests with specific file
+npm run e2e -- e2e/basic-smoke.spec.ts
+
+# Run E2E tests with headed browser (visible)
+npm run e2e -- --headed
+```
+
+E2E test results are saved in the `e2e-results/` directory:
+
+- `e2e-results/test-results/` - Test artifacts (traces, videos, screenshots on failure)
+- `e2e-results/playwright-report/` - HTML test report
+- `e2e-results/screenshots/` - Screenshots taken during tests
+
+### Code Quality Checks
+
+```bash
+# Run ESLint
 npm run lint
 
-# Run type checking
+# Run TypeScript type checking
 npm run typecheck
+
+# Format code with Prettier
+npm run format
+
+# Run all checks before committing
+npm run lint && npm run typecheck && npm run test
+```
+
+### Storybook
+
+```bash
+# Run Storybook for component development
+npm run storybook
+
+# Build Storybook static files
+npm run build-storybook
 ```
 
 ## Development
