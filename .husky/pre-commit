@@ -32,6 +32,16 @@ if [ $? -ne 0 ]; then
   exit 1
 fi
 
+# Run TypeScript type check
+echo "🔍 Running TypeScript type check..."
+npm run typecheck
+
+# Check if typecheck was successful
+if [ $? -ne 0 ]; then
+  echo "❌ TypeScript type check failed. Please fix the type errors and try again."
+  exit 1
+fi
+
 # Run tests
 echo "🧪 Running tests..."
 npm run test
