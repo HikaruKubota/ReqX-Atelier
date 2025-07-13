@@ -1,4 +1,5 @@
-import { useState, useCallback, useRef, useEffect } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
+import { useLatest } from './useLatest';
 import type { KeyValuePair } from '../types';
 
 export interface UseParamsManagerReturn {
@@ -13,33 +14,36 @@ export interface UseParamsManagerReturn {
 
 export const useParamsManager = (): UseParamsManagerReturn => {
   const [paramsState, setParamsState] = useState<KeyValuePair[]>([]);
-  const paramsRef = useRef<KeyValuePair[]>(paramsState);
+  const paramsRef = useLatest(paramsState);
 
   const [queryStringState, setQueryStringState] = useState('');
-  const queryStringRef = useRef('');
+  const queryStringRef = useLatest(queryStringState);
 
+  const lastParamsStateRef = useRef<KeyValuePair[]>([]);
   useEffect(() => {
+    // Avoid unnecessary updates by comparing with previous paramsState
+    if (JSON.stringify(paramsState) === JSON.stringify(lastParamsStateRef.current)) {
+      return;
+    }
+    lastParamsStateRef.current = paramsState;
+
     const q = paramsState
       .filter((p) => p.enabled && p.keyName.trim() !== '')
       .map((p) => `${p.keyName}=${p.value}`)
       .join('&');
     setQueryStringState(q);
-    queryStringRef.current = q;
   }, [paramsState]);
 
   const setParams = useCallback((pairs: KeyValuePair[]) => {
     setParamsState(pairs);
-    paramsRef.current = pairs;
   }, []);
 
   const loadParams = useCallback((pairs: KeyValuePair[]) => {
     setParamsState(pairs || []);
-    paramsRef.current = pairs || [];
   }, []);
 
   const resetParams = useCallback(() => {
     setParamsState([]);
-    paramsRef.current = [];
   }, []);
 
   return {

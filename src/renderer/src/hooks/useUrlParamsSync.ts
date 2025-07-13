@@ -105,109 +105,75 @@ export const useUrlParamsSync = ({
     return `${base}?${queryString}${hash}`;
   };
 
-  // Sync URL changes to params
+  // Unified bidirectional sync
   useEffect(() => {
     // Skip if syncing is disabled
     if (skipSync) {
       return;
     }
 
-    // Skip if URL hasn't changed
-    if (url === lastUrlRef.current) {
-      return;
-    }
-
-    lastUrlRef.current = url;
-
-    // Mark that URL just changed - this will prevent params->URL sync
-    urlJustChangedRef.current = true;
-
     // Skip if we're in the middle of syncing to prevent loops
-    if (isSyncingUrlToParamsRef.current) {
+    if (isSyncingUrlToParamsRef.current || isSyncingParamsToUrlRef.current) {
       return;
     }
 
-    // Skip if this URL change was from params->URL sync
-    if (isSyncingParamsToUrlRef.current) {
-      return;
-    }
+    const currentUrl = url;
+    const currentParams = params;
 
-    // Extract params from URL
-    const extractedParams = extractParamsFromUrl(url);
+    // Check if URL changed
+    const urlChanged = currentUrl !== lastUrlRef.current;
 
-    const extractedJson = JSON.stringify(
-      extractedParams
-        .map((p) => ({ k: p.keyName, v: p.value }))
-        .sort((a, b) => a.k.localeCompare(b.k)),
-    );
-
-    // Check if params actually need updating
-    const currentJson = JSON.stringify(
-      params
+    // Check if params changed (compare normalized JSON)
+    const currentParamsJson = JSON.stringify(
+      currentParams
         .filter((p) => p.enabled && p.keyName)
         .map((p) => ({ k: p.keyName, v: p.value || '' }))
         .sort((a, b) => a.k.localeCompare(b.k)),
     );
+    const paramsChanged = currentParamsJson !== lastParamsJsonRef.current;
 
-    if (extractedJson !== currentJson) {
-      isSyncingUrlToParamsRef.current = true;
-      onParamsChange(extractedParams);
-      lastParamsJsonRef.current = extractedJson;
-      // Reset sync flag after a microtask
-      Promise.resolve().then(() => {
-        isSyncingUrlToParamsRef.current = false;
-        // Reset URL changed flag after params have been updated
+    if (urlChanged) {
+      // URL changed - sync to params
+      lastUrlRef.current = currentUrl;
+      urlJustChangedRef.current = true;
+
+      const extractedParams = extractParamsFromUrl(currentUrl);
+      const extractedJson = JSON.stringify(
+        extractedParams
+          .map((p) => ({ k: p.keyName, v: p.value }))
+          .sort((a, b) => a.k.localeCompare(b.k)),
+      );
+
+      if (extractedJson !== currentParamsJson) {
+        isSyncingUrlToParamsRef.current = true;
+        onParamsChange(extractedParams);
+        lastParamsJsonRef.current = extractedJson;
+
+        // Reset sync flag after a microtask
+        Promise.resolve().then(() => {
+          isSyncingUrlToParamsRef.current = false;
+          urlJustChangedRef.current = false;
+        });
+      } else {
         urlJustChangedRef.current = false;
-      });
-    } else {
-      // Even if params didn't change, reset the flag
-      urlJustChangedRef.current = false;
+      }
+    } else if (paramsChanged && !urlJustChangedRef.current) {
+      // Params changed (and URL didn't just change) - sync to URL
+      lastParamsJsonRef.current = currentParamsJson;
+
+      const newUrl = buildUrlFromParams(currentUrl, currentParams);
+      if (newUrl !== currentUrl) {
+        isSyncingParamsToUrlRef.current = true;
+        onUrlChange(newUrl);
+        lastUrlRef.current = newUrl;
+
+        // Reset sync flag after a microtask
+        Promise.resolve().then(() => {
+          isSyncingParamsToUrlRef.current = false;
+        });
+      }
     }
-  }, [url, params, onParamsChange, skipSync]);
-
-  // Sync params changes to URL
-  useEffect(() => {
-    // Skip if syncing is disabled
-    if (skipSync) {
-      return;
-    }
-
-    // Skip if URL just changed (user is typing in URL field)
-    if (urlJustChangedRef.current) {
-      return;
-    }
-
-    const paramsJson = JSON.stringify(
-      params
-        .filter((p) => p.enabled && p.keyName)
-        .map((p) => ({ k: p.keyName, v: p.value || '' }))
-        .sort((a, b) => a.k.localeCompare(b.k)),
-    );
-
-    // Skip if params haven't changed
-    if (paramsJson === lastParamsJsonRef.current) {
-      return;
-    }
-
-    lastParamsJsonRef.current = paramsJson;
-
-    // Skip if we're in the middle of syncing to prevent loops
-    if (isSyncingParamsToUrlRef.current) {
-      return;
-    }
-
-    // Build new URL
-    const newUrl = buildUrlFromParams(url, params);
-    if (newUrl !== url) {
-      isSyncingParamsToUrlRef.current = true;
-      onUrlChange(newUrl);
-      lastUrlRef.current = newUrl;
-      // Reset sync flag after a microtask
-      Promise.resolve().then(() => {
-        isSyncingParamsToUrlRef.current = false;
-      });
-    }
-  }, [params, url, onUrlChange, skipSync]);
+  }, [url, params, onUrlChange, onParamsChange, skipSync]);
 
   return {
     extractParamsFromUrl,
