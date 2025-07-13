@@ -31,7 +31,12 @@ jobs:
       - name: Install Playwright browsers
         run: npx playwright install chromium --with-deps
 
-      - name: Run E2E tests
+      - name: Run E2E tests (Linux)
+        if: runner.os == 'Linux'
+        run: xvfb-run -a npm run e2e
+
+      - name: Run E2E tests (Windows/macOS)
+        if: runner.os != 'Linux'
         run: npm run e2e
 
       - name: Upload test results

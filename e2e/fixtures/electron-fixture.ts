@@ -13,7 +13,11 @@ export const test = base.extend<{
   electronApp: async ({}, use) => {
     const mainPath = path.join(__dirname, '../../main.js');
     const electronApp = await electron.launch({
-      args: [mainPath],
+      args: [
+        mainPath,
+        // Disable GPU acceleration in CI to avoid rendering issues
+        ...(process.env.CI ? ['--disable-gpu', '--disable-software-rasterizer'] : []),
+      ],
       env: {
         ...process.env,
         NODE_ENV: 'development',
@@ -27,7 +31,19 @@ export const test = base.extend<{
 
   window: async ({ electronApp }, use) => {
     const window = await electronApp.firstWindow();
-    await window.waitForLoadState('domcontentloaded');
+
+    // Wait for window to be ready
+    await window.waitForLoadState('domcontentloaded'); // cspell:disable-line
+
+    // Additional wait to ensure window is fully rendered
+    await window.waitForTimeout(2000);
+
+    // Ensure window has proper dimensions
+    const viewportSize = window.viewportSize();
+    if (!viewportSize || viewportSize.width === 0 || viewportSize.height === 0) {
+      // Set a default viewport size if not set
+      await window.setViewportSize({ width: 1280, height: 720 });
+    }
 
     await use(window);
   },
