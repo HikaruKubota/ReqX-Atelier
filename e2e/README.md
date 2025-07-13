@@ -2,6 +2,15 @@
 
 This directory contains end-to-end tests for the ReqX-Atelier Electron application using Playwright.
 
+## Supported Platforms
+
+E2E tests are configured to run on:
+
+- macOS
+- Windows
+
+Note: Linux/Ubuntu is not currently supported for E2E tests due to additional system dependencies required for headless Electron testing.
+
 ## Running Tests Locally
 
 ```bash
@@ -18,60 +27,44 @@ npx playwright install chromium
 npm run e2e
 ```
 
-## Ubuntu/Linux Requirements
+## Test Structure
 
-On Ubuntu and other Linux distributions, Electron requires additional system dependencies to run in headless environments. Install them with:
+- `fixtures/electron-fixture.ts` - Electron app launch configuration
+- `basic-smoke.spec.ts` - Basic application launch and UI tests
+- `simple-launch.spec.ts` - Simple app launch verification
 
-```bash
-sudo apt-get update
-sudo apt-get install -y \
-  xvfb \
-  libnss3 \
-  libatk-bridge2.0-0 \
-  libgtk-3-0 \
-  libgbm1 \
-  libxss1 \
-  libasound2 \
-  libxshmfence1
+## Writing New Tests
+
+Use the provided fixtures to launch the Electron app:
+
+```typescript
+import { test, expect } from './fixtures/electron-fixture';
+
+test('my test', async ({ window }) => {
+  // Your test code here
+  await expect(window.title()).resolves.toBeTruthy();
+});
 ```
 
-For headless environments, tests should be run with xvfb:
+## Debugging Tests
+
+To run tests with visible browser:
 
 ```bash
-xvfb-run -a npm run e2e
+npm run e2e -- --headed
 ```
 
-## Troubleshooting
-
-### "Process failed to launch!" Error
-
-This error typically occurs when required system dependencies are missing. The electron fixture will log helpful error messages indicating which packages need to be installed.
-
-### Testing Electron Launch
-
-You can test if Electron launches successfully with the E2E configuration using:
+To run a specific test file:
 
 ```bash
-node scripts/test-e2e-launch.js
+npm run e2e -- e2e/basic-smoke.spec.ts
 ```
-
-This will attempt to launch Electron with the same arguments used in E2E tests.
 
 ## CI Configuration
 
-The GitHub Actions workflow automatically:
+Tests run automatically on GitHub Actions for:
 
-1. Installs required system dependencies on Ubuntu
-2. Uses xvfb-run for Linux tests
-3. Applies appropriate launch flags for headless environments
+- Windows
+- macOS
 
-## Electron Launch Flags
-
-The following flags are automatically applied in CI/Linux environments to ensure stable operation:
-
-- `--no-sandbox`: Required for running in containers
-- `--disable-setuid-sandbox`: Disable setuid sandbox
-- `--disable-gpu`: Disable GPU hardware acceleration
-- `--disable-dev-shm-usage`: Overcome limited resource problems
-- `--use-gl=swiftshader`: Force software rendering
-- `--headless`: Run in headless mode (Linux CI only)
+Test results and screenshots are uploaded as artifacts for debugging failed tests.

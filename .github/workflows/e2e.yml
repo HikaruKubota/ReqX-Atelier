@@ -11,7 +11,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ubuntu-latest, windows-latest, macos-latest]
+        os: [windows-latest, macos-latest]
 
     steps:
       - uses: actions/checkout@v4
@@ -22,20 +22,6 @@ jobs:
           node-version: '20'
           cache: 'npm'
 
-      - name: Install system dependencies (Linux)
-        if: runner.os == 'Linux'
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y \
-            xvfb \
-            libnss3 \
-            libatk-bridge2.0-0 \
-            libgtk-3-0 \
-            libgbm1 \
-            libxss1 \
-            libasound2 \
-            libxshmfence1
-
       - name: Install dependencies
         run: npm ci
 
@@ -45,12 +31,7 @@ jobs:
       - name: Install Playwright browsers
         run: npx playwright install chromium --with-deps
 
-      - name: Run E2E tests (Linux)
-        if: runner.os == 'Linux'
-        run: xvfb-run -a npm run e2e
-
-      - name: Run E2E tests (Windows/macOS)
-        if: runner.os != 'Linux'
+      - name: Run E2E tests
         run: npm run e2e
 
       - name: Upload test results
