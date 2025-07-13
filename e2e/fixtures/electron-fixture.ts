@@ -74,7 +74,7 @@ export const test = base.extend<{
       console.error('  - libgtk-3-0');
       console.error('  - libgbm1');
       console.error(
-        'Run: sudo apt-get install -y xvfb libnss3 libatk-bridge2.0-0 libgtk-3-0 libgbm1',
+        'Run: sudo apt-get install -y xvfb libnss3 libatk-bridge2.0-0 libgtk-3-0 libgbm1', // cspell:disable-line
       );
       throw error;
     }
@@ -110,7 +110,7 @@ export const test = base.extend<{
         timeout: process.env.CI ? 30000 : 10000,
       });
     } catch (error) {
-      console.warn('Timeout waiting for domcontentloaded, continuing anyway:', error);
+      console.warn('Timeout waiting for domcontentloaded, continuing anyway:', error); // cspell:disable-line
     }
 
     // Additional wait to ensure window is fully rendered
