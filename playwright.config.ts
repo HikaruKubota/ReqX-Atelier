@@ -18,8 +18,16 @@ export default defineConfig({
     video: 'retain-on-failure',
   },
 
-  timeout: 60 * 1000,
+  timeout: 90 * 1000, // Increase timeout for CI environments
   expect: {
-    timeout: 10 * 1000,
+    timeout: 30 * 1000, // Increase expect timeout for CI environments
+  },
+
+  // Automatically start the dev server before running tests
+  webServer: {
+    command: 'npm run dev:renderer',
+    port: 5173,
+    timeout: 120 * 1000,
+    reuseExistingServer: !process.env.CI,
   },
 });

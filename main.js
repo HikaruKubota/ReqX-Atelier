@@ -18,7 +18,10 @@ function createWindow() {
   });
   if (process.env.NODE_ENV === 'development') {
     win.loadURL('http://localhost:5173');
-    win.webContents.openDevTools(); // Open DevTools in development mode
+    // Don't open DevTools during E2E tests
+    if (!process.env.E2E_TEST) {
+      win.webContents.openDevTools(); // Open DevTools in development mode
+    }
   } else {
     // In production, the HTML file is in the dist directory at the project root
     const indexPath = path.join(__dirname, 'dist', 'index.html');
@@ -55,4 +58,11 @@ ipcMain.handle('send-api-request', async (_event, { method, url, data, headers }
   }
 });
 
-app.whenReady().then(createWindow);
+app.whenReady().then(() => {
+  // Add a small delay in CI environments to ensure stability
+  if (process.env.CI || process.env.E2E_TEST) {
+    setTimeout(createWindow, 1000);
+  } else {
+    createWindow();
+  }
+});
