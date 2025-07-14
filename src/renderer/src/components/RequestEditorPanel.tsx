@@ -1,4 +1,4 @@
-import React, { useImperativeHandle, forwardRef, useRef } from 'react';
+import React, { useImperativeHandle, forwardRef, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import type {
   RequestHeader,
@@ -14,6 +14,9 @@ import { VariableExtractionEditor } from './VariableExtractionEditor';
 import { TabButton } from './atoms/button/TabButton';
 import { RequestNameRow } from './molecules/RequestNameRow';
 import { RequestMethodRow } from './molecules/RequestMethodRow';
+import { CurlImportButton } from './atoms/button/CurlImportButton';
+import { CurlImportModal } from './CurlImportModal';
+import type { ParsedCurlRequest } from '../utils/curlParser';
 
 interface RequestEditorPanelProps {
   requestNameForSave: string;
@@ -37,6 +40,7 @@ interface RequestEditorPanelProps {
   onReorderHeaders: (newHeaders: RequestHeader[]) => void;
   variableExtraction?: VariableExtraction;
   onVariableExtractionChange?: (variableExtraction: VariableExtraction) => void;
+  onCurlImport?: (parsedRequest: ParsedCurlRequest) => void;
 }
 
 export const RequestEditorPanel = forwardRef<RequestEditorPanelRef, RequestEditorPanelProps>(
@@ -63,6 +67,7 @@ export const RequestEditorPanel = forwardRef<RequestEditorPanelRef, RequestEdito
       onReorderHeaders,
       variableExtraction,
       onVariableExtractionChange,
+      onCurlImport,
     },
     ref,
   ) => {
@@ -72,6 +77,14 @@ export const RequestEditorPanel = forwardRef<RequestEditorPanelRef, RequestEdito
     const [activeTab, setActiveTab] = React.useState<'headers' | 'body' | 'params' | 'tests'>(
       'headers',
     );
+    const [showCurlImportModal, setShowCurlImportModal] = useState(false);
+
+    const handleCurlImport = (parsedRequest: ParsedCurlRequest) => {
+      if (onCurlImport) {
+        onCurlImport(parsedRequest);
+      }
+      setShowCurlImportModal(false);
+    };
 
     useImperativeHandle(ref, () => ({
       getRequestBodyAsJson: () => {
@@ -107,19 +120,24 @@ export const RequestEditorPanel = forwardRef<RequestEditorPanelRef, RequestEdito
         />
 
         <div className="flex flex-col gap-[5px]">
-          <div className="flex mb-2">
-            <TabButton active={activeTab === 'params'} onClick={() => setActiveTab('params')}>
-              {t('param_tab')}
-            </TabButton>
-            <TabButton active={activeTab === 'headers'} onClick={() => setActiveTab('headers')}>
-              {t('header_tab')}
-            </TabButton>
-            <TabButton active={activeTab === 'body'} onClick={() => setActiveTab('body')}>
-              {t('body_tab')}
-            </TabButton>
-            <TabButton active={activeTab === 'tests'} onClick={() => setActiveTab('tests')}>
-              {t('tests_tab')}
-            </TabButton>
+          <div className="flex justify-between items-center mb-2">
+            <div className="flex">
+              <TabButton active={activeTab === 'params'} onClick={() => setActiveTab('params')}>
+                {t('param_tab')}
+              </TabButton>
+              <TabButton active={activeTab === 'headers'} onClick={() => setActiveTab('headers')}>
+                {t('header_tab')}
+              </TabButton>
+              <TabButton active={activeTab === 'body'} onClick={() => setActiveTab('body')}>
+                {t('body_tab')}
+              </TabButton>
+              <TabButton active={activeTab === 'tests'} onClick={() => setActiveTab('tests')}>
+                {t('tests_tab')}
+              </TabButton>
+            </div>
+            {onCurlImport && (
+              <CurlImportButton onClick={() => setShowCurlImportModal(true)} disabled={loading} />
+            )}
           </div>
           {/* チラつきの抑制のためstyleにて表示切り替え対応 */}
           <div className={activeTab === 'headers' ? 'block' : 'hidden'}>
@@ -160,6 +178,12 @@ export const RequestEditorPanel = forwardRef<RequestEditorPanelRef, RequestEdito
             )}
           </div>
         </div>
+
+        <CurlImportModal
+          isOpen={showCurlImportModal}
+          onClose={() => setShowCurlImportModal(false)}
+          onImport={handleCurlImport}
+        />
       </div>
     );
   },
