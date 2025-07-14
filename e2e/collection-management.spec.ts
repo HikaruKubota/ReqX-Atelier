@@ -23,18 +23,33 @@ async function createFolder(window: any, folderName: string) {
     for (let i = 0; i < Math.min(allButtons.length, 10); i++) {
       const button = allButtons[i];
       const title = await button.getAttribute('title').catch(() => null);
+      const ariaLabel = await button.getAttribute('aria-label').catch(() => null);
       const text = await button.textContent().catch(() => null);
-      if (title || text) {
-        console.log(`Button ${i}: title="${title}", text="${text}"`);
+      if (title || ariaLabel || text) {
+        console.log(`Button ${i}: title="${title}", aria-label="${ariaLabel}", text="${text}"`);
       }
     }
 
     // Look for folder creation button with various possible selectors
-    const newFolderButton = await window
+    // Try multiple selector strategies
+    let newFolderButton = await window
       .locator(
-        'button[title*="folder" i], button[title*="フォルダ"], button:has-text("New Folder"), button:has-text("新規フォルダ")',
+        'button[aria-label*="folder" i], button[aria-label*="フォルダ"], button[aria-label="New Folder"], button[aria-label="new_folder"]',
       )
       .first();
+
+    if (!(await newFolderButton.isVisible().catch(() => false))) {
+      // Try finding by icon (folder icon with + symbol)
+      newFolderButton = await window
+        .locator('button:has(svg[class*="FiFolderPlus"]), button:has([data-icon="folder-plus"])')
+        .first();
+    }
+
+    if (!(await newFolderButton.isVisible().catch(() => false))) {
+      // Last resort: find button with folder icon near sidebar
+      const sidebar = await window.locator('.sidebar, [class*="sidebar"], .w-64').first();
+      newFolderButton = await sidebar.locator('button').nth(1); // Often the second button in sidebar
+    }
 
     const buttonVisible = await newFolderButton.isVisible().catch(() => false);
 
