@@ -1,4 +1,5 @@
 import { test, expect } from './fixtures/electron-fixture';
+import type { Page } from '@playwright/test';
 
 // Constants for timeouts
 const WAIT_FOR_APP_READY = process.env.CI ? 5000 : 3000;
@@ -12,8 +13,7 @@ function getSaveShortcut(): string {
 }
 
 // Helper function to save a request using keyboard shortcut
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-async function saveRequestWithShortcut(window: any) {
+async function saveRequestWithShortcut(window: Page): Promise<boolean> {
   const saveShortcut = getSaveShortcut();
   await window.keyboard.press(saveShortcut);
   await window.waitForTimeout(WAIT_LONG);
@@ -23,12 +23,16 @@ async function saveRequestWithShortcut(window: any) {
     .locator('text="保存しました", text="保存しました！", text="Saved", text="Saved!"')
     .first();
 
-  return await successMessage.isVisible().catch(() => false);
+  try {
+    await successMessage.waitFor({ state: 'visible', timeout: 5000 });
+    return true;
+  } catch {
+    return false;
+  }
 }
 
 // Helper function to create a new tab
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-async function createNewTab(window: any) {
+async function createNewTab(window: Page): Promise<boolean> {
   try {
     const tabBarArea = await window.locator('.sticky.top-0.z-10').first();
     const newTabButton = await tabBarArea.locator('button.bg-blue-500').first();
@@ -41,9 +45,12 @@ async function createNewTab(window: any) {
 }
 
 // Helper function to find and click saved request
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-async function clickSavedRequest(window: any) {
-  const anyRequest = await window.locator('text="Untitled", .request-item, .saved-request').first();
+async function clickSavedRequest(window: Page): Promise<boolean> {
+  const anyRequest = await window
+    .locator(
+      '[data-testid="saved-request"], .request-item, .saved-request, [role="listitem"]:has-text("Untitled")',
+    )
+    .first();
 
   if (await anyRequest.isVisible().catch(() => false)) {
     await anyRequest.click();
@@ -77,6 +84,7 @@ test.describe('Request Save and Management', () => {
 
       if (options.includes('POST')) {
         await methodSelector.selectOption('POST');
+        await window.waitForTimeout(WAIT_SHORT); // Allow time for selection to register
       }
     } catch {
       // Method selection failed
@@ -195,8 +203,10 @@ test.describe('Request Save and Management', () => {
 
         // Confirm deletion if dialog appears
         const confirmDelete = await window
-          .locator('button:has-text("Delete"), button:has-text("OK"), button:has-text("削除")')
-          .last();
+          .locator(
+            'button:has-text("Delete"), button:has-text("OK"), button:has-text("削除"), button:has-text("確認"), button:has-text("Confirm")',
+          )
+          .first();
         if (await confirmDelete.isVisible().catch(() => false)) {
           await confirmDelete.click();
           await window.waitForTimeout(WAIT_MEDIUM);
