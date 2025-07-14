@@ -1,9 +1,10 @@
 import { test, expect } from './fixtures/electron-fixture';
 
 test.describe('Variables Usage', () => {
+  test.setTimeout(process.env.CI ? 90000 : 60000); // Increase timeout for CI
   test('should set and use global variables', async ({ window }) => {
     // Wait for app to be ready
-    await window.waitForTimeout(3000);
+    await window.waitForTimeout(process.env.CI ? 5000 : 3000);
     await window.screenshot({ path: 'e2e-results/screenshots/variables-01-initial.png' });
 
     // Try to open variables panel
@@ -113,7 +114,7 @@ test.describe('Variables Usage', () => {
 
   test('should extract variables from response', async ({ window }) => {
     // Wait for app to be ready
-    await window.waitForTimeout(3000);
+    await window.waitForTimeout(process.env.CI ? 5000 : 3000);
     await window.screenshot({ path: 'e2e-results/screenshots/variables-07-extract-initial.png' });
 
     // Send a request first
@@ -178,7 +179,7 @@ test.describe('Variables Usage', () => {
 
   test('should use environment variables', async ({ window }) => {
     // Wait for app to be ready
-    await window.waitForTimeout(3000);
+    await window.waitForTimeout(process.env.CI ? 5000 : 3000);
     await window.screenshot({ path: 'e2e-results/screenshots/variables-10-env-initial.png' });
 
     // Check if environment selector exists

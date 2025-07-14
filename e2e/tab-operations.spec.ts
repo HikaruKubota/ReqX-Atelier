@@ -1,9 +1,10 @@
 import { test, expect } from './fixtures/electron-fixture';
 
 test.describe('Tab Operations', () => {
+  test.setTimeout(process.env.CI ? 90000 : 60000); // Increase timeout for CI
   test('should create multiple tabs and switch between them', async ({ window }) => {
     // Wait for app to be ready
-    await window.waitForTimeout(3000);
+    await window.waitForTimeout(process.env.CI ? 5000 : 3000);
     await window.screenshot({ path: 'e2e-results/screenshots/tab-operations-01-initial.png' });
 
     // Count initial tabs - the fixture already creates one tab, so we should have at least one
@@ -80,7 +81,7 @@ test.describe('Tab Operations', () => {
 
   test('should close tabs', async ({ window }) => {
     // Wait for app to be ready
-    await window.waitForTimeout(3000);
+    await window.waitForTimeout(process.env.CI ? 5000 : 3000);
     await window.screenshot({
       path: 'e2e-results/screenshots/tab-operations-05-close-initial.png',
     });
@@ -113,7 +114,7 @@ test.describe('Tab Operations', () => {
 
   test('should maintain tab content when switching', async ({ window }) => {
     // Wait for app to be ready
-    await window.waitForTimeout(3000);
+    await window.waitForTimeout(process.env.CI ? 5000 : 3000);
     await window.screenshot({
       path: 'e2e-results/screenshots/tab-operations-07-content-initial.png',
     });

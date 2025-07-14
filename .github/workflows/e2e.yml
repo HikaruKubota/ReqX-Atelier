@@ -29,10 +29,15 @@ jobs:
         run: npm run build:renderer
 
       - name: Install Playwright browsers
-        run: npx playwright install chromium --with-deps
+        run: |
+          npx playwright install chromium --with-deps
+          npx playwright install-deps chromium
 
       - name: Run E2E tests
         run: npm run e2e
+        timeout-minutes: 15
+        env:
+          CI: true
 
       - name: Upload test results
         if: always()

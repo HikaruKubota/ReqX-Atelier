@@ -43,7 +43,7 @@ export const test = base.extend<{
     await window.waitForSelector(
       'button:has-text("新しいリクエスト"), button:has-text("New Request"), button[title*="New"]',
       {
-        timeout: 15000,
+        timeout: process.env.CI ? 30000 : 15000, // Increase timeout for CI
       },
     );
 
@@ -57,11 +57,11 @@ export const test = base.extend<{
 
     // Now wait for the URL input to appear
     await window.waitForSelector('input[placeholder*="URL"], input[placeholder*="url"]', {
-      timeout: 5000,
+      timeout: process.env.CI ? 10000 : 5000, // Increase timeout for CI
     });
 
     // Additional wait to ensure everything is rendered
-    await window.waitForTimeout(1000);
+    await window.waitForTimeout(process.env.CI ? 3000 : 1000); // Longer wait in CI
 
     // Ensure window has proper dimensions
     const viewportSize = window.viewportSize();

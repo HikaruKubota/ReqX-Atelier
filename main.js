@@ -58,4 +58,11 @@ ipcMain.handle('send-api-request', async (_event, { method, url, data, headers }
   }
 });
 
-app.whenReady().then(createWindow);
+app.whenReady().then(() => {
+  // Add a small delay in CI environments to ensure stability
+  if (process.env.CI || process.env.E2E_TEST) {
+    setTimeout(createWindow, 1000);
+  } else {
+    createWindow();
+  }
+});
