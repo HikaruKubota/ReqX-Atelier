@@ -16,7 +16,14 @@ export const test = base.extend<{
       args: [
         mainPath,
         // Disable GPU acceleration in CI to avoid rendering issues
-        ...(process.env.CI ? ['--disable-gpu', '--disable-software-rasterizer'] : []),
+        ...(process.env.CI
+          ? [
+              '--disable-gpu',
+              '--disable-software-rasterizer',
+              '--disable-dev-shm-usage',
+              '--no-sandbox',
+            ]
+          : []),
       ],
       env: {
         ...process.env,
@@ -24,6 +31,7 @@ export const test = base.extend<{
         // Prevent DevTools from opening during E2E tests
         E2E_TEST: 'true',
       },
+      timeout: process.env.CI ? 60000 : 30000, // Longer timeout for CI
     });
 
     await use(electronApp);
@@ -33,7 +41,21 @@ export const test = base.extend<{
 
   window: async ({ electronApp }, use) => {
     // Wait for the main window (not DevTools)
-    const window = await electronApp.firstWindow();
+    let window: Awaited<ReturnType<typeof electronApp.firstWindow>> | null = null;
+    const maxRetries = process.env.CI ? 5 : 3;
+    for (let i = 0; i < maxRetries; i++) {
+      try {
+        window = await electronApp.firstWindow();
+        if (window) break;
+      } catch {
+        console.log(`Attempt ${i + 1} to get window failed, retrying...`);
+        await new Promise((resolve) => setTimeout(resolve, 2000));
+      }
+    }
+
+    if (!window) {
+      throw new Error('Failed to get Electron window after multiple attempts');
+    }
 
     // Wait for window to be ready
     await window.waitForLoadState('domcontentloaded'); // cspell:disable-line
@@ -61,7 +83,7 @@ export const test = base.extend<{
     });
 
     // Additional wait to ensure everything is rendered
-    await window.waitForTimeout(process.env.CI ? 3000 : 1000); // Longer wait in CI
+    await window.waitForTimeout(process.env.CI ? 5000 : 1000); // Even longer wait in CI for stability
 
     // Ensure window has proper dimensions
     const viewportSize = window.viewportSize();
