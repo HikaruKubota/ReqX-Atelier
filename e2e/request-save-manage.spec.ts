@@ -46,7 +46,7 @@ async function createNewTab(window: Page): Promise<boolean> {
 
 // Helper function to find and click saved request
 async function clickSavedRequest(window: Page): Promise<boolean> {
-  const anyRequest = await window
+  const anyRequest = window
     .locator(
       '[data-testid="saved-request"], .request-item, .saved-request, [role="listitem"]:has-text("Untitled")',
     )
@@ -67,16 +67,12 @@ test.describe('Request Save and Management', () => {
     await window.screenshot({ path: 'e2e-results/screenshots/request-save-01-initial.png' });
 
     // Create a request
-    const urlInput = await window
-      .locator('input[placeholder*="URL"], input[placeholder*="url"]')
-      .first();
+    const urlInput = window.locator('input[placeholder*="URL"], input[placeholder*="url"]').first();
     await urlInput.fill('https://api.example.com/test-save');
 
     // Select POST method - find the HTTP method selector specifically
-    const requestEditorArea = await window
-      .locator('.request-editor, [class*="editor"], .p-4')
-      .first();
-    const methodSelector = await requestEditorArea.locator('select').first();
+    const requestEditorArea = window.locator('.request-editor, [class*="editor"], .p-4').first();
+    const methodSelector = requestEditorArea.locator('select').first();
 
     try {
       const options = await methodSelector.locator('option').allTextContents();
@@ -112,12 +108,12 @@ test.describe('Request Save and Management', () => {
       await window.screenshot({ path: 'e2e-results/screenshots/request-save-04-loaded.png' });
 
       // Basic verification that request loading works
-      const urlField = await window.locator('input[placeholder*="URL"]').first();
+      const urlField = window.locator('input[placeholder*="URL"]').first();
       const urlFieldVisible = await urlField.isVisible();
       expect(urlFieldVisible).toBe(true);
     } else {
       // If no saved request visible, just verify the save operation didn't break the app
-      const urlField = await window.locator('input[placeholder*="URL"]').first();
+      const urlField = window.locator('input[placeholder*="URL"]').first();
       const urlFieldVisible = await urlField.isVisible();
       expect(urlFieldVisible).toBe(true);
     }
@@ -129,9 +125,7 @@ test.describe('Request Save and Management', () => {
     await window.screenshot({ path: 'e2e-results/screenshots/request-save-05-update-initial.png' });
 
     // Create and save a request first
-    const urlInput = await window
-      .locator('input[placeholder*="URL"], input[placeholder*="url"]')
-      .first();
+    const urlInput = window.locator('input[placeholder*="URL"], input[placeholder*="url"]').first();
     await urlInput.fill('https://api.example.com/original');
 
     // Save using platform-specific shortcut
@@ -156,12 +150,12 @@ test.describe('Request Save and Management', () => {
       });
 
       // Basic verification that the app still works
-      const urlField = await window.locator('input[placeholder*="URL"]').first();
+      const urlField = window.locator('input[placeholder*="URL"]').first();
       const urlFieldVisible = await urlField.isVisible();
       expect(urlFieldVisible).toBe(true);
     } else {
       // Test passed if save operations didn't break the app
-      const urlField = await window.locator('input[placeholder*="URL"]').first();
+      const urlField = window.locator('input[placeholder*="URL"]').first();
       const urlFieldVisible = await urlField.isVisible();
       expect(urlFieldVisible).toBe(true);
     }
@@ -173,18 +167,14 @@ test.describe('Request Save and Management', () => {
     await window.screenshot({ path: 'e2e-results/screenshots/request-save-08-delete-initial.png' });
 
     // Create and save a request to delete
-    const urlInput = await window
-      .locator('input[placeholder*="URL"], input[placeholder*="url"]')
-      .first();
+    const urlInput = window.locator('input[placeholder*="URL"], input[placeholder*="url"]').first();
     await urlInput.fill('https://api.example.com/to-delete');
 
     // Save using platform-specific shortcut
     await saveRequestWithShortcut(window);
 
     // Look for any saved request to test deletion
-    const anyRequest = await window
-      .locator('text="Untitled", .request-item, .saved-request')
-      .first();
+    const anyRequest = window.locator('text="Untitled", .request-item, .saved-request').first();
     const requestExists = await anyRequest.isVisible().catch(() => false);
 
     if (requestExists) {
@@ -194,7 +184,7 @@ test.describe('Request Save and Management', () => {
       await window.screenshot({ path: 'e2e-results/screenshots/request-save-09-context-menu.png' });
 
       // Click delete option if available
-      const deleteOption = await window.locator('text="Delete", text="削除"').first();
+      const deleteOption = window.locator('text="Delete", text="削除"').first();
       const deleteExists = await deleteOption.isVisible().catch(() => false);
 
       if (deleteExists) {
@@ -202,7 +192,7 @@ test.describe('Request Save and Management', () => {
         await window.waitForTimeout(WAIT_SHORT);
 
         // Confirm deletion if dialog appears
-        const confirmDelete = await window
+        const confirmDelete = window
           .locator(
             'button:has-text("Delete"), button:has-text("OK"), button:has-text("削除"), button:has-text("確認"), button:has-text("Confirm")',
           )
@@ -218,13 +208,13 @@ test.describe('Request Save and Management', () => {
       });
 
       // Basic verification that the app still works after deletion attempt
-      const urlField = await window.locator('input[placeholder*="URL"]').first();
+      const urlField = window.locator('input[placeholder*="URL"]').first();
       const urlFieldVisible = await urlField.isVisible();
       expect(urlFieldVisible).toBe(true);
     } else {
       // No saved request found to delete - test passes
       // Verify app is still functional
-      const urlField = await window.locator('input[placeholder*="URL"]').first();
+      const urlField = window.locator('input[placeholder*="URL"]').first();
       const urlFieldVisible = await urlField.isVisible();
       expect(urlFieldVisible).toBe(true);
     }
