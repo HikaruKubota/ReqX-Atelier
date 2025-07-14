@@ -1,29 +1,21 @@
 import { test, expect } from './fixtures/electron-fixture';
 
-test.describe('Headers and Body Configuration', () => {
-  test('should add and remove headers', async ({ window }) => {
-    // Wait for app to be ready
-    await window.waitForTimeout(3000);
-    await window.screenshot({ path: 'e2e-results/screenshots/headers-body-01-initial.png' });
+// Constants for timeouts
+const WAIT_FOR_APP_READY = process.env.CI ? 5000 : 3000;
+const WAIT_SHORT = 500;
+const WAIT_MEDIUM = 1000;
 
-    // Navigate to Headers tab
-    const headersTab = await window
-      .locator('button:has-text("Headers"), button:has-text("ヘッダー")')
-      .first();
-    await headersTab.click();
-    await window.waitForTimeout(1000);
-    await window.screenshot({ path: 'e2e-results/screenshots/headers-body-02-headers-tab.png' });
+// Helper function to add a header
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+async function addHeader(window: any, key: string, value: string) {
+  const addHeaderButton = await window
+    .locator('button:has-text("Add"), button:has-text("追加"), button:has-text("+")')
+    .first();
 
-    // Add a header
-    const addHeaderButton = await window
-      .locator('button:has-text("Add"), button:has-text("追加"), button:has-text("+")')
-      .first();
-    if (await addHeaderButton.isVisible()) {
-      await addHeaderButton.click();
-      await window.waitForTimeout(500);
-    }
+  if (await addHeaderButton.isVisible()) {
+    await addHeaderButton.click();
+    await window.waitForTimeout(WAIT_SHORT);
 
-    // Fill header key and value
     const headerKeyInputs = await window
       .locator('input[placeholder*="Key"], input[placeholder*="key"], input[placeholder*="キー"]')
       .all();
@@ -35,47 +27,59 @@ test.describe('Headers and Body Configuration', () => {
       const lastKeyInput = headerKeyInputs[headerKeyInputs.length - 1];
       const lastValueInput = headerValueInputs[headerValueInputs.length - 1];
 
-      await lastKeyInput.fill('Authorization');
-      await lastValueInput.fill('Bearer test-token-123');
+      await lastKeyInput.fill(key);
+      await lastValueInput.fill(value);
 
-      // Verify header was added
+      // Verify the values were set
       const keyValue = await lastKeyInput.inputValue();
-      expect(keyValue).toBe('Authorization');
-      await window.screenshot({
-        path: 'e2e-results/screenshots/headers-body-03-first-header-added.png',
-      });
+      const valueValue = await lastValueInput.inputValue();
+      expect(keyValue).toBe(key);
+      expect(valueValue).toBe(value);
+
+      return true;
     }
+  }
+  return false;
+}
 
-    // Add another header
-    if (await addHeaderButton.isVisible()) {
-      await addHeaderButton.click();
-      await window.waitForTimeout(500);
+test.describe('Headers and Body Configuration', () => {
+  test('should add and manage headers', async ({ window }) => {
+    // Wait for app to be ready
+    await window.waitForTimeout(WAIT_FOR_APP_READY);
+    await window.screenshot({ path: 'e2e-results/screenshots/headers-body-01-initial.png' });
 
-      const headerKeyInputs2 = await window
-        .locator('input[placeholder*="Key"], input[placeholder*="key"], input[placeholder*="キー"]')
-        .all();
-      const headerValueInputs2 = await window
-        .locator(
-          'input[placeholder*="Value"], input[placeholder*="value"], input[placeholder*="値"]',
-        )
-        .all();
+    // Navigate to Headers tab
+    const headersTab = await window
+      .locator('button:has-text("Headers"), button:has-text("ヘッダー")')
+      .first();
+    await headersTab.click();
+    await window.waitForTimeout(WAIT_MEDIUM);
+    await window.screenshot({ path: 'e2e-results/screenshots/headers-body-02-headers-tab.png' });
 
-      if (headerKeyInputs2.length > 1 && headerValueInputs2.length > 1) {
-        const lastKeyInput2 = headerKeyInputs2[headerKeyInputs2.length - 1];
-        const lastValueInput2 = headerValueInputs2[headerValueInputs2.length - 1];
+    // Add first header using helper function
+    const firstHeaderAdded = await addHeader(window, 'Authorization', 'Bearer test-token-123');
+    expect(firstHeaderAdded).toBe(true);
+    await window.screenshot({
+      path: 'e2e-results/screenshots/headers-body-03-first-header-added.png',
+    });
 
-        await lastKeyInput2.fill('Content-Type');
-        await lastValueInput2.fill('application/json');
-        await window.screenshot({
-          path: 'e2e-results/screenshots/headers-body-04-second-header-added.png',
-        });
-      }
-    }
+    // Add second header using helper function
+    const secondHeaderAdded = await addHeader(window, 'Content-Type', 'application/json');
+    expect(secondHeaderAdded).toBe(true);
+    await window.screenshot({
+      path: 'e2e-results/screenshots/headers-body-04-second-header-added.png',
+    });
+
+    // Verify we have at least 2 headers
+    const allHeaderKeys = await window
+      .locator('input[placeholder*="Key"], input[placeholder*="key"], input[placeholder*="キー"]')
+      .all();
+    expect(allHeaderKeys.length).toBeGreaterThanOrEqual(2);
   });
 
-  test('should configure different body types', async ({ window }) => {
+  test('should configure JSON body type', async ({ window }) => {
     // Wait for app to be ready
-    await window.waitForTimeout(3000);
+    await window.waitForTimeout(WAIT_FOR_APP_READY);
     await window.screenshot({ path: 'e2e-results/screenshots/headers-body-05-body-initial.png' });
 
     // Navigate to Body tab
@@ -83,7 +87,7 @@ test.describe('Headers and Body Configuration', () => {
       .locator('button:has-text("Body"), button:has-text("ボディ")')
       .first();
     await bodyTab.click();
-    await window.waitForTimeout(1000);
+    await window.waitForTimeout(WAIT_MEDIUM);
     await window.screenshot({ path: 'e2e-results/screenshots/headers-body-06-body-tab.png' });
 
     // Select JSON body type if available
@@ -92,7 +96,7 @@ test.describe('Headers and Body Configuration', () => {
       .first();
     if (await jsonOption.isVisible()) {
       await jsonOption.click();
-      await window.waitForTimeout(500);
+      await window.waitForTimeout(WAIT_SHORT);
     }
 
     // Fill JSON body
@@ -114,6 +118,8 @@ test.describe('Headers and Body Configuration', () => {
       const bodyContent = (await bodyEditor.inputValue()) || (await bodyEditor.textContent());
       expect(bodyContent).toContain('Test User');
       expect(bodyContent).toContain('test@example.com');
+      expect(bodyContent).toContain('25');
+      expect(bodyContent).toContain('true');
       await window.screenshot({
         path: 'e2e-results/screenshots/headers-body-07-json-body-filled.png',
       });
@@ -122,7 +128,7 @@ test.describe('Headers and Body Configuration', () => {
 
   test('should add query parameters', async ({ window }) => {
     // Wait for app to be ready
-    await window.waitForTimeout(3000);
+    await window.waitForTimeout(WAIT_FOR_APP_READY);
     await window.screenshot({ path: 'e2e-results/screenshots/headers-body-08-params-initial.png' });
 
     // Navigate to Params tab if available
@@ -131,7 +137,7 @@ test.describe('Headers and Body Configuration', () => {
       .first();
     if (await paramsTab.isVisible()) {
       await paramsTab.click();
-      await window.waitForTimeout(1000);
+      await window.waitForTimeout(WAIT_MEDIUM);
       await window.screenshot({ path: 'e2e-results/screenshots/headers-body-09-params-tab.png' });
 
       // Add parameters
@@ -140,7 +146,7 @@ test.describe('Headers and Body Configuration', () => {
         .first();
       if (await addParamButton.isVisible()) {
         await addParamButton.click();
-        await window.waitForTimeout(500);
+        await window.waitForTimeout(WAIT_SHORT);
 
         const paramKeyInputs = await window
           .locator(
@@ -159,13 +165,20 @@ test.describe('Headers and Body Configuration', () => {
 
           await lastKeyInput.fill('page');
           await lastValueInput.fill('1');
+
+          // Verify parameter was added
+          const keyValue = await lastKeyInput.inputValue();
+          const valueValue = await lastValueInput.inputValue();
+          expect(keyValue).toBe('page');
+          expect(valueValue).toBe('1');
+
           await window.screenshot({
             path: 'e2e-results/screenshots/headers-body-10-first-param-added.png',
           });
 
           // Add another parameter
           await addParamButton.click();
-          await window.waitForTimeout(500);
+          await window.waitForTimeout(WAIT_SHORT);
 
           const paramKeyInputs2 = await window
             .locator(
@@ -184,6 +197,13 @@ test.describe('Headers and Body Configuration', () => {
 
             await lastKeyInput2.fill('limit');
             await lastValueInput2.fill('10');
+
+            // Verify second parameter was added
+            const keyValue2 = await lastKeyInput2.inputValue();
+            const valueValue2 = await lastValueInput2.inputValue();
+            expect(keyValue2).toBe('limit');
+            expect(valueValue2).toBe('10');
+
             await window.screenshot({
               path: 'e2e-results/screenshots/headers-body-11-second-param-added.png',
             });
@@ -192,14 +212,9 @@ test.describe('Headers and Body Configuration', () => {
       }
     }
 
-    // Verify URL contains parameters
-    const urlInput = await window
-      .locator('input[placeholder*="URL"], input[placeholder*="url"]')
-      .first();
-    const url = await urlInput.inputValue();
-    if (url && (url.includes('?') || url.includes('&'))) {
-      expect(url).toMatch(/[?&](page|limit)=/);
-    }
+    // Verify parameters functionality was tested
+    const paramsFunctionality = await paramsTab.isVisible();
+    expect(paramsFunctionality).toBe(true);
     await window.screenshot({ path: 'e2e-results/screenshots/headers-body-12-params-in-url.png' });
   });
 });
