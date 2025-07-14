@@ -47,13 +47,10 @@ test.describe('Request Save and Management', () => {
       await window.screenshot({ path: 'e2e-results/screenshots/request-save-03-success.png' });
     }
 
-    // Create a new tab to clear current state - look for the + button in header area
+    // Create a new tab to clear current state - look for the blue + button in tab bar
     try {
-      const newTabButton = await window
-        .locator(
-          'button:has-text("新しいリクエスト"), button:has-text("New Request"), button[title*="New"]',
-        )
-        .first();
+      const tabBarArea = await window.locator('.sticky.top-0.z-10').first();
+      const newTabButton = await tabBarArea.locator('button.bg-blue-500').first();
       await newTabButton.click();
       await window.waitForTimeout(1000);
     } catch (error) {
@@ -113,11 +110,8 @@ test.describe('Request Save and Management', () => {
 
     // Create new tab and reload the request
     try {
-      const newTabButton = await window
-        .locator(
-          'button:has-text("新しいリクエスト"), button:has-text("New Request"), button[title*="New"]',
-        )
-        .first();
+      const tabBarArea = await window.locator('.sticky.top-0.z-10').first();
+      const newTabButton = await tabBarArea.locator('button.bg-blue-500').first();
       await newTabButton.click();
       await window.waitForTimeout(1000);
     } catch (error) {
