@@ -83,8 +83,23 @@ export function useFolderTreeSync() {
 
       if (!sourceMapping) return;
 
-      const targetFolderId =
-        position === 'inside' && targetMapping?.type === 'folder' ? targetMapping.id : null;
+      // Determine the target folder based on position
+      let targetFolderId: string | null = null;
+
+      if (position === 'inside' && targetMapping?.type === 'folder') {
+        // Moving inside a folder
+        targetFolderId = targetMapping.id;
+      } else if (position === 'before' || position === 'after') {
+        // Moving before/after - need to find the parent folder of the target
+        const targetNode = treeState.nodes.get(targetNodeId);
+        if (targetNode?.parentId) {
+          const parentMapping = nodeMap?.get(targetNode.parentId);
+          if (parentMapping?.type === 'folder') {
+            targetFolderId = parentMapping.id;
+          }
+        }
+        // If no parent, targetFolderId remains null (root level)
+      }
 
       if (sourceMapping.type === 'folder') {
         moveFolder(sourceMapping.id, targetFolderId);
@@ -95,5 +110,5 @@ export function useFolderTreeSync() {
 
     (window as unknown as { __folderTreeHandleMove?: typeof handleMove }).__folderTreeHandleMove =
       handleMove;
-  }, [moveRequest, moveFolder]);
+  }, [moveRequest, moveFolder, treeState.nodes]);
 }
