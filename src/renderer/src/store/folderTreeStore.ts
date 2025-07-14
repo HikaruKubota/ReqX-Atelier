@@ -131,6 +131,16 @@ export const useFolderTreeStore = create<FolderTreeStore>((set, get) => ({
             rootIds.length = 0;
             rootIds.push(...sortedRootIds);
           }
+
+          // Trigger sync to savedRequestsStore
+          const handleEndEditing = (
+            window as unknown as {
+              __folderTreeHandleEndEditing?: (nodeId: string, newName: string) => void;
+            }
+          ).__folderTreeHandleEndEditing;
+          if (handleEndEditing) {
+            handleEndEditing(nodeId, newName);
+          }
         }
       }
 
@@ -263,6 +273,17 @@ export const useFolderTreeStore = create<FolderTreeStore>((set, get) => ({
 
       if (!node) return state;
 
+      // Collect all node IDs to be deleted (including children)
+      const nodesToDelete: string[] = [];
+      const collectNodeIds = (id: string) => {
+        const currentNode = nodes.get(id);
+        if (currentNode) {
+          nodesToDelete.push(id);
+          currentNode.children.forEach(collectNodeIds);
+        }
+      };
+      collectNodeIds(nodeId);
+
       // Recursively delete children
       const deleteRecursively = (id: string) => {
         const currentNode = nodes.get(id);
@@ -288,6 +309,14 @@ export const useFolderTreeStore = create<FolderTreeStore>((set, get) => ({
         if (index > -1) {
           rootIds.splice(index, 1);
         }
+      }
+
+      // Trigger sync to savedRequestsStore
+      const handleDelete = (
+        window as unknown as { __folderTreeHandleDelete?: (nodeIds: string[]) => void }
+      ).__folderTreeHandleDelete;
+      if (handleDelete) {
+        handleDelete(nodesToDelete);
       }
 
       return {
@@ -356,6 +385,20 @@ export const useFolderTreeStore = create<FolderTreeStore>((set, get) => ({
           rootIds.length = 0;
           rootIds.push(...sortedRootIds);
         }
+      }
+
+      // Trigger sync to savedRequestsStore
+      const handleMove = (
+        window as unknown as {
+          __folderTreeHandleMove?: (
+            nodeId: string,
+            targetId: string,
+            position: DropPosition,
+          ) => void;
+        }
+      ).__folderTreeHandleMove;
+      if (handleMove) {
+        handleMove(nodeId, targetId, position);
       }
 
       return {
