@@ -28,6 +28,7 @@ import { VariablesButton } from './components/VariablesButton';
 import { VariablesPanel } from './components/VariablesPanel';
 import { extractVariablesFromResponse, applyExtractedVariables } from './utils/variableExtraction';
 import { useUrlParamsSync } from './hooks/useUrlParamsSync';
+import type { ParsedCurlRequest } from './utils/curlParser';
 
 export default function App() {
   const { t } = useTranslation();
@@ -260,6 +261,38 @@ export default function App() {
       updateTabState({ variableExtraction: val });
     },
     [setVariableExtraction, updateTabState],
+  );
+
+  const handleCurlImport = useCallback(
+    (parsedRequest: ParsedCurlRequest) => {
+      // Update all form fields with parsed data
+      setMethodWithTabUpdate(parsedRequest.method);
+      updateTabUrl(parsedRequest.url);
+
+      // Convert parsed headers to RequestHeader format
+      const newHeaders: RequestHeader[] = parsedRequest.headers.map((header) => ({
+        id: header.id,
+        key: header.keyName,
+        value: header.value,
+        enabled: header.enabled,
+      }));
+      setHeadersWithTabUpdate(newHeaders);
+
+      // Update body and params
+      updateTabBody(parsedRequest.body);
+      updateTabParams(parsedRequest.params);
+
+      // Clear any existing response data
+      resetApiResponse();
+    },
+    [
+      setMethodWithTabUpdate,
+      updateTabUrl,
+      setHeadersWithTabUpdate,
+      updateTabBody,
+      updateTabParams,
+      resetApiResponse,
+    ],
   );
 
   // Helper function: Handle empty tab state
@@ -724,6 +757,7 @@ export default function App() {
                 onReorderHeaders={setHeaders}
                 variableExtraction={variableExtraction}
                 onVariableExtractionChange={setVariableExtraction}
+                onCurlImport={handleCurlImport}
               />
 
               {/* Use the new ResponseDisplayPanel component */}
