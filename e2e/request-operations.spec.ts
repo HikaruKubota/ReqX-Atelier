@@ -76,36 +76,15 @@ test.describe('Request Operations', () => {
     await urlInput.click();
     await urlInput.fill('https://jsonplaceholder.typicode.com/posts');
 
-    // Select POST method - find the HTTP method selector specifically
-    // It should be near the URL input field, not in the header area
-    const requestEditorArea = await window
-      .locator('.request-editor, [class*="editor"], .p-4')
-      .first();
-    const methodSelector = await requestEditorArea.locator('select').first();
+    // Select POST method - find the HTTP method selector
+    const methodSelector = await window.locator('select:has(option[value="GET"])').first();
 
-    // Wait for the select to be fully loaded
-    await window.waitForTimeout(WAIT_SHORT);
-
-    // Debug: log available options
     try {
-      const options = await methodSelector.locator('option').allTextContents();
-      // Available method options
-
-      // Verify this is the correct selector by checking if it has HTTP methods
-      if (options.includes('GET') || options.includes('POST')) {
-        await methodSelector.selectOption('POST');
-      } else {
-        // Fallback: look for select element that contains GET option
-        const httpMethodSelector = await window.locator('select:has(option[value="GET"])').first();
-        await httpMethodSelector.selectOption('POST');
-      }
+      await methodSelector.selectOption('POST');
     } catch {
-      // Final fallback: try to find by visual proximity to URL input
-      const urlInput = await window.locator('input[placeholder*="URL"]').first();
-      const nearbySelect = await urlInput
-        .locator('xpath=../select | xpath=../../select | xpath=../../../select')
-        .first();
-      await nearbySelect.selectOption('POST');
+      // If select fails, try to wait and retry once
+      await window.waitForTimeout(WAIT_SHORT);
+      await methodSelector.selectOption('POST');
     }
 
     await window.screenshot({

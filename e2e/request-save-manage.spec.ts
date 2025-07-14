@@ -1,9 +1,62 @@
 import { test, expect } from './fixtures/electron-fixture';
 
+// Constants for timeouts
+const WAIT_FOR_APP_READY = process.env.CI ? 5000 : 3000;
+const WAIT_SHORT = 500;
+const WAIT_MEDIUM = 1000;
+const WAIT_LONG = 2000;
+
+// Helper function to get platform-specific save shortcut
+function getSaveShortcut(): string {
+  return process.platform === 'darwin' ? 'Meta+s' : 'Control+s';
+}
+
+// Helper function to save a request using keyboard shortcut
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+async function saveRequestWithShortcut(window: any) {
+  const saveShortcut = getSaveShortcut();
+  await window.keyboard.press(saveShortcut);
+  await window.waitForTimeout(WAIT_LONG);
+
+  // Look for success message
+  const successMessage = await window
+    .locator('text="保存しました", text="保存しました！", text="Saved", text="Saved!"')
+    .first();
+
+  return await successMessage.isVisible().catch(() => false);
+}
+
+// Helper function to create a new tab
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+async function createNewTab(window: any) {
+  try {
+    const tabBarArea = await window.locator('.sticky.top-0.z-10').first();
+    const newTabButton = await tabBarArea.locator('button.bg-blue-500').first();
+    await newTabButton.click();
+    await window.waitForTimeout(WAIT_MEDIUM);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+// Helper function to find and click saved request
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+async function clickSavedRequest(window: any) {
+  const anyRequest = await window.locator('text="Untitled", .request-item, .saved-request').first();
+
+  if (await anyRequest.isVisible().catch(() => false)) {
+    await anyRequest.click();
+    await window.waitForTimeout(WAIT_MEDIUM);
+    return true;
+  }
+  return false;
+}
+
 test.describe('Request Save and Management', () => {
   test('should save a request and open it later', async ({ window }) => {
     // Wait for app to be ready
-    await window.waitForTimeout(3000);
+    await window.waitForTimeout(WAIT_FOR_APP_READY);
     await window.screenshot({ path: 'e2e-results/screenshots/request-save-01-initial.png' });
 
     // Create a request
@@ -20,57 +73,34 @@ test.describe('Request Save and Management', () => {
 
     try {
       const options = await methodSelector.locator('option').allTextContents();
-      console.log('Available method options:', options);
+      // Available method options
 
       if (options.includes('POST')) {
         await methodSelector.selectOption('POST');
       }
-    } catch (error) {
-      console.log('Method selection failed:', error);
+    } catch {
+      // Method selection failed
       // Continue without method selection
     }
 
-    // Save request using keyboard shortcut Command+S
-    await window.keyboard.press('Meta+s'); // Command+S on macOS
-    await window.waitForTimeout(2000);
+    // Save request using platform-specific keyboard shortcut
+    const saveSuccess = await saveRequestWithShortcut(window);
     await window.screenshot({ path: 'e2e-results/screenshots/request-save-02-after-save.png' });
-
-    // Look for success message like "保存しました！"
-    const successMessage = await window
-      .locator('text="保存しました", text="保存しました！", text="Saved", text="Saved!"')
-      .first();
-
-    const saveSuccess = await successMessage.isVisible().catch(() => false);
-    console.log('Save success message visible:', saveSuccess);
 
     if (saveSuccess) {
       await window.screenshot({ path: 'e2e-results/screenshots/request-save-03-success.png' });
     }
 
-    // Create a new tab to clear current state - look for the blue + button in tab bar
-    try {
-      const tabBarArea = await window.locator('.sticky.top-0.z-10').first();
-      const newTabButton = await tabBarArea.locator('button.bg-blue-500').first();
-      await newTabButton.click();
-      await window.waitForTimeout(1000);
-    } catch (error) {
-      console.log('New tab button not found:', error);
-      // Continue test without creating new tab
-    }
+    // Create a new tab to clear current state
+    await createNewTab(window);
 
     // Look for saved request in sidebar (this might take time to update)
-    await window.waitForTimeout(2000);
+    await window.waitForTimeout(WAIT_LONG);
 
     // Check if any request appears in the sidebar after save
-    const anyRequest = await window
-      .locator('text="Untitled", .request-item, .saved-request')
-      .first();
-    const requestExists = await anyRequest.isVisible().catch(() => false);
-    console.log('Any request visible in sidebar:', requestExists);
+    const requestExists = await clickSavedRequest(window);
 
     if (requestExists) {
-      await anyRequest.click();
-      await window.waitForTimeout(1000);
       await window.screenshot({ path: 'e2e-results/screenshots/request-save-04-loaded.png' });
 
       // Basic verification that request loading works
@@ -87,7 +117,7 @@ test.describe('Request Save and Management', () => {
 
   test('should update an existing request', async ({ window }) => {
     // Wait for app to be ready
-    await window.waitForTimeout(3000);
+    await window.waitForTimeout(WAIT_FOR_APP_READY);
     await window.screenshot({ path: 'e2e-results/screenshots/request-save-05-update-initial.png' });
 
     // Create and save a request first
@@ -96,38 +126,23 @@ test.describe('Request Save and Management', () => {
       .first();
     await urlInput.fill('https://api.example.com/original');
 
-    // Save using Command+S
-    await window.keyboard.press('Meta+s');
-    await window.waitForTimeout(2000);
+    // Save using platform-specific shortcut
+    await saveRequestWithShortcut(window);
 
     // Update the URL
     await urlInput.fill('https://api.example.com/updated');
     await window.screenshot({ path: 'e2e-results/screenshots/request-save-06-url-updated.png' });
 
-    // Save again using Command+S (should update existing)
-    await window.keyboard.press('Meta+s');
-    await window.waitForTimeout(2000);
+    // Save again using platform-specific shortcut (should update existing)
+    await saveRequestWithShortcut(window);
 
     // Create new tab and reload the request
-    try {
-      const tabBarArea = await window.locator('.sticky.top-0.z-10').first();
-      const newTabButton = await tabBarArea.locator('button.bg-blue-500').first();
-      await newTabButton.click();
-      await window.waitForTimeout(1000);
-    } catch (error) {
-      console.log('New tab button not found:', error);
-      // Continue test without creating new tab
-    }
+    await createNewTab(window);
 
     // Look for any saved request to test loading
-    const anyRequest = await window
-      .locator('text="Untitled", .request-item, .saved-request')
-      .first();
-    const requestExists = await anyRequest.isVisible().catch(() => false);
+    const requestExists = await clickSavedRequest(window);
 
     if (requestExists) {
-      await anyRequest.click();
-      await window.waitForTimeout(1000);
       await window.screenshot({
         path: 'e2e-results/screenshots/request-save-07-update-verified.png',
       });
@@ -146,7 +161,7 @@ test.describe('Request Save and Management', () => {
 
   test('should delete a saved request', async ({ window }) => {
     // Wait for app to be ready
-    await window.waitForTimeout(3000);
+    await window.waitForTimeout(WAIT_FOR_APP_READY);
     await window.screenshot({ path: 'e2e-results/screenshots/request-save-08-delete-initial.png' });
 
     // Create and save a request to delete
@@ -155,9 +170,8 @@ test.describe('Request Save and Management', () => {
       .first();
     await urlInput.fill('https://api.example.com/to-delete');
 
-    // Save using Command+S
-    await window.keyboard.press('Meta+s');
-    await window.waitForTimeout(2000);
+    // Save using platform-specific shortcut
+    await saveRequestWithShortcut(window);
 
     // Look for any saved request to test deletion
     const anyRequest = await window
@@ -168,7 +182,7 @@ test.describe('Request Save and Management', () => {
     if (requestExists) {
       // Right-click on saved request to show context menu
       await anyRequest.click({ button: 'right' });
-      await window.waitForTimeout(500);
+      await window.waitForTimeout(WAIT_SHORT);
       await window.screenshot({ path: 'e2e-results/screenshots/request-save-09-context-menu.png' });
 
       // Click delete option if available
@@ -177,7 +191,7 @@ test.describe('Request Save and Management', () => {
 
       if (deleteExists) {
         await deleteOption.click();
-        await window.waitForTimeout(500);
+        await window.waitForTimeout(WAIT_SHORT);
 
         // Confirm deletion if dialog appears
         const confirmDelete = await window
@@ -185,7 +199,7 @@ test.describe('Request Save and Management', () => {
           .last();
         if (await confirmDelete.isVisible().catch(() => false)) {
           await confirmDelete.click();
-          await window.waitForTimeout(1000);
+          await window.waitForTimeout(WAIT_MEDIUM);
         }
       }
 
@@ -198,7 +212,7 @@ test.describe('Request Save and Management', () => {
       const urlFieldVisible = await urlField.isVisible();
       expect(urlFieldVisible).toBe(true);
     } else {
-      console.log('No saved request found to delete - test passes');
+      // No saved request found to delete - test passes
       // Verify app is still functional
       const urlField = await window.locator('input[placeholder*="URL"]').first();
       const urlFieldVisible = await urlField.isVisible();
