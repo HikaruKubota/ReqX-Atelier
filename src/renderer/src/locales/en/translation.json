@@ -83,6 +83,7 @@
   "add_extraction_rule": "+ Add Extraction Rule",
   "will_set_variable": "Will set",
   "from": "from",
+  "will_set_variable_preview": "Will set ${{variable}} from {{source}}",
   "variable_name": "Variable Name",
   "extract_from": "Extract From",
   "discard_changes_confirm": "You have unsaved changes. Do you want to discard them and open the new request?"

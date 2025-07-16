@@ -129,15 +129,15 @@ const ExtractionRuleRow: React.FC<ExtractionRuleRowProps> = ({ rule, onUpdate, o
   ];
 
   return (
-    <div className="flex flex-col gap-2 p-3 bg-secondary rounded border border-border">
-      <div className="flex items-center gap-2">
+    <div className="p-3 bg-secondary rounded border border-border">
+      <div className="grid grid-cols-[auto_1fr_auto] gap-3 items-center">
         <input
           type="checkbox"
           checked={rule.enabled}
           onChange={(e) => onUpdate({ enabled: e.target.checked })}
           className="w-4 h-4"
         />
-        <div className="flex-1 grid grid-cols-2 gap-2">
+        <div className="grid grid-cols-2 gap-2">
           <SelectBox
             value={rule.source}
             onChange={(e) => onUpdate({ source: e.target.value as ExtractionSource })}
@@ -160,42 +160,38 @@ const ExtractionRuleRow: React.FC<ExtractionRuleRowProps> = ({ rule, onUpdate, o
               </option>
             ))}
           </SelectBox>
+          <UnifiedInput
+            value={rule.variableName}
+            onChange={(value) => onUpdate({ variableName: value })}
+            placeholder="Variable name"
+            disabled={!rule.enabled}
+            variant="compact"
+            className="text-sm"
+          />
+          <UnifiedInput
+            value={rule.source === 'header' ? rule.headerName || '' : rule.path || ''}
+            onChange={(value) => {
+              if (rule.source === 'header') {
+                onUpdate({ headerName: value, path: undefined });
+              } else {
+                onUpdate({ path: value, headerName: undefined });
+              }
+            }}
+            placeholder={rule.source === 'header' ? 'Header-Name' : '$.data.token'}
+            disabled={!rule.enabled}
+            variant="compact"
+            className="text-sm"
+          />
         </div>
         <TrashButton onClick={onRemove} />
       </div>
 
-      <div className="grid grid-cols-2 gap-2">
-        <UnifiedInput
-          value={rule.variableName}
-          onChange={(value) => onUpdate({ variableName: value })}
-          placeholder="Variable name"
-          disabled={!rule.enabled}
-          variant="compact"
-          className="text-sm"
-        />
-        <UnifiedInput
-          value={rule.source === 'header' ? rule.headerName || '' : rule.path || ''}
-          onChange={(value) => {
-            if (rule.source === 'header') {
-              onUpdate({ headerName: value, path: undefined });
-            } else {
-              onUpdate({ path: value, headerName: undefined });
-            }
-          }}
-          placeholder={rule.source === 'header' ? 'Header-Name' : '$.data.token'}
-          disabled={!rule.enabled}
-          variant="compact"
-          className="text-sm"
-        />
-      </div>
-
       {(rule.path || rule.headerName) && rule.variableName && (
-        <p className="text-xs text-muted-foreground mt-1">
-          {t('will_set_variable') || 'Will set'}{' '}
-          <code className="bg-muted px-1 rounded">${rule.variableName}</code> {t('from') || 'from'}{' '}
-          <code className="bg-muted px-1 rounded">
-            {rule.source === 'header' ? rule.headerName : rule.path}
-          </code>
+        <p className="text-xs text-muted-foreground mt-1 ml-7">
+          {t('will_set_variable_preview', {
+            source: rule.source === 'header' ? rule.headerName : rule.path,
+            variable: rule.variableName,
+          })}
         </p>
       )}
     </div>
