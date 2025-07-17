@@ -83,6 +83,7 @@
   "add_extraction_rule": "+ 抽出ルールを追加",
   "will_set_variable": "変数",
   "from": "から設定",
+  "will_set_variable_preview": "{{source}}を変数${{variable}}に設定します",
   "variable_name": "変数名",
   "extract_from": "抽出元",
   "discard_changes_confirm": "保存されていない変更があります。変更を破棄して新しいリクエストを開きますか？"
