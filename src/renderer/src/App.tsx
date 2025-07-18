@@ -533,7 +533,21 @@ export default function App() {
     const existing = tabs.tabs.find((t) => t.requestId === req.id);
 
     if (existing) {
-      // If the tab exists, just switch to it
+      // If the tab exists, update its state with the latest request data
+      setTabEditorStates((prev) => ({
+        ...prev,
+        [existing.tabId]: {
+          body: req.body || [],
+          params: req.params || [],
+          url: req.url,
+          method: req.method,
+          headers: req.headers || [],
+          requestNameForSave: req.name,
+          variableExtraction: req.variableExtraction,
+        },
+      }));
+
+      // Then switch to it
       tabs.switchTab(existing.tabId);
       return;
     }
@@ -563,6 +577,11 @@ export default function App() {
       [targetTabId]: {
         body: req.body || [],
         params: req.params || [],
+        url: req.url,
+        method: req.method,
+        headers: req.headers || [],
+        requestNameForSave: req.name,
+        variableExtraction: req.variableExtraction,
       },
     }));
 
@@ -615,6 +634,11 @@ export default function App() {
             [tab.tabId]: {
               body: req.body || [],
               params: req.params || [],
+              url: req.url,
+              method: req.method,
+              headers: req.headers || [],
+              requestNameForSave: req.name,
+              variableExtraction: req.variableExtraction,
             },
           }));
         } else {
